@@ -83,7 +83,26 @@ public class TASHelperModule : EverestModule {
         orig(self);
     }
 
-    
+    private static void SpinnerRenderKiller(On.Celeste.CrystalStaticSpinner.orig_ctor_Vector2_bool_CrystalColor orig, CrystalStaticSpinner self, Vector2 position, bool attachToSolid, CrystalColor color) {
+        orig(self, position, attachToSolid, color);
+        if (TasHelperSettings.EnableSimplifiedSpinner && TasHelperSettings.ClearSpinnerSprites) {
+            DynamicData SpinnerData = DynamicData.For(self);
+            SpinnerData.Set("expanded", true);
+        }
+    }
+
+    private static void CoreModeListenerKiller(On.Celeste.CrystalStaticSpinner.orig_Awake orig, CrystalStaticSpinner self, Scene scene) {
+        if (TasHelperSettings.EnableSimplifiedSpinner && TasHelperSettings.ClearSpinnerSprites) {
+            if (self.Components != null) {
+                foreach (Component component in self.Components) {
+                    component.EntityAwake();
+                }
+            }
+        }
+        else {
+            orig(self, scene);
+        }
+    }
 
     #region some mess
     private static Vector2 PreviousCameraPos = Vector2.Zero;
