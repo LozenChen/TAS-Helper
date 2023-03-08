@@ -9,7 +9,6 @@ internal static class SpinnerSpritesHelper{
     public static void Load() {
         On.Celeste.CrystalStaticSpinner.ctor_Vector2_bool_CrystalColor += SpinnerRenderKiller;
         On.Celeste.CrystalStaticSpinner.Awake += CoreModeListenerKiller;
-        int test = 1;
     }
 
     public static void Unload() {
