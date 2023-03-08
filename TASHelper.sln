@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TASHelper", "TASHelper.csproj", "{8AA4040A-8388-48E7-9726-BC2D75BF49CB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8AA4040A-8388-48E7-9726-BC2D75BF49CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AA4040A-8388-48E7-9726-BC2D75BF49CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AA4040A-8388-48E7-9726-BC2D75BF49CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AA4040A-8388-48E7-9726-BC2D75BF49CB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {31B21BDE-DF05-447E-908F-74D8741050D7}
+	EndGlobalSection
+EndGlobal
