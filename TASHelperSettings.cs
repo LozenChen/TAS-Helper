@@ -187,9 +187,9 @@ public class TASHelperSettings : EverestModuleSettings {
     public int SpinnerFillerOpacity { get; set; } = 4;
     #endregion
 
-    [SettingIgnore]
+    //[SettingIgnore]
     // todo: to be governed by main switch? maybe no, coz it's not very about spinner stun
-    public bool isUsingCameraTarget { get; set; } = false;
+    public bool isUsingCameraTarget { get; set; } = true;
 
     #region Auxilary Variables
     public void UpdateAuxiliaryVariable() {

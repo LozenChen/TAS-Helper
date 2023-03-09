@@ -1,7 +1,11 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
+using System.Reflection;
 using TAS.Module;
 
 namespace Celeste.Mod.TASHelper;
@@ -14,15 +18,30 @@ public class TASHelperModule : EverestModule {
     }
 
     public override Type SettingsType => typeof(TASHelperSettings);
+
+
+    private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
+        ILCursor cursor = new ILCursor(il);
+        if (cursor.TryGotoNext(MoveType.After,
+                ins => ins.OpCode == OpCodes.Stfld && ins.Operand.ToString() == "System.Boolean Celeste.Player::StrawberriesBlocked"
+                // stfld bool Celeste.Player::StrawberriesBlocked
+            )) {
+            cursor.EmitDelegate(GetPlayerPosition);
+        }
+    }
+
+    private static void GetPlayerPosition() {
+        PlayerPositionBeforeCameraUpdate = player.Position;
+    }
+
     public override void Load() {
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         On.Monocle.Entity.Update += PatchUpdate;
         On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
         On.Monocle.Entity.DebugRender += PatchDebugRender;
         On.Celeste.Level.Render += HotkeysPressed;
+        typeof(Player).GetMethod("orig_Update").IlHook(PlayerPositionBeforeCameraUpdateIL);
         SpinnerSpritesHelper.Load();
-
-
     }
 
     public override void Unload() {
@@ -31,6 +50,7 @@ public class TASHelperModule : EverestModule {
         On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
         On.Monocle.Entity.DebugRender -= PatchDebugRender;
         On.Celeste.Level.Render -= HotkeysPressed;
+        HookHelper.Unload();
         SpinnerSpritesHelper.Unload();
     }
 
@@ -77,7 +97,7 @@ public class TASHelperModule : EverestModule {
                     PlayerPositionChanged++;
                     PlayerPosition = player.Position;
                 }
-                CameraTowards = player.Position + (self as Level).CameraOffset;
+                CameraTowards = PlayerPositionBeforeCameraUpdate + (self as Level).CameraOffset;
             }
         }
         orig(self);
@@ -89,6 +109,7 @@ public class TASHelperModule : EverestModule {
     private static Vector2 CameraTowards = Vector2.Zero;
     private static Vector2 PlayerPosition = Vector2.Zero;
     private static Vector2 PreviousPlayerPosition = Vector2.Zero;
+    private static Vector2 PlayerPositionBeforeCameraUpdate = Vector2.Zero;
     private static int PlayerPositionChanged = 0;
     private static Player? player;
     private static float TimeActive = 0;

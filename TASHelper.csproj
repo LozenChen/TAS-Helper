@@ -29,6 +29,10 @@
       <HintPath>..\..\MMHOOK_Celeste.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="MonoMod">
       <HintPath>..\..\MonoMod.exe</HintPath>
       <Private>False</Private>
