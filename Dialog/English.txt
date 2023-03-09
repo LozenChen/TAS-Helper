@@ -1,20 +1,24 @@
-TAS_HELPER_NAME=                                TAS Helper
-ENABLED=                                        Enabled
-SHOW_CYCLE_HITBOX_COLOR=                        Show Cycle Hitbox Colors
-COUNTDOWN_MODE=                                 Countdown Mode
-3F_CHECK=                                       Activation checks per 3 frames
-5F_CHECK=                                       Deactivation checks per 15 frames
-LOZEN_TASHELPER_HOTKEY_DESCRIPTION=             Binding multiple keys to a control will cause those keys to act as a keycombo
-INVIEW_NEAR_PLAYER_DISCRIPTION=                 InView: inside the 352px*212px rectangle around camera\nNearPlayer: inside the 256px*256px square around player
-LOAD_RANGE_MODE=                                Load Range Mode
-IN_VIEW_RANGE_WIDTH=                            InView Range Width
-NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer Range Width
-LOAD_RANGE_OPACITY=                             Load Range Opacity
-SIMPLIFIED_SPINNERS=                            Simplified Spinners
-CLEAR_SPINNER_SPRITES=                          Clear Spinner Sprites
-SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity
-MAIN_SWITCH=                                    Main Switch
-SWITCH_COUNT_DOWN=                              Switch Countdown
-SWITCH_LOAD_RANGE=                              Switch Load Range
-CAMERA_TARGET=                                  Camera Target
-CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity
+﻿TAS_HELPER_NAME=                                           TAS Helper
+TAS_HELPER_ENABLED=                                        Enabled
+TAS_HELPER_SPINNER_MAIN_SWITCH=                            Main Switch
+TAS_HELPER_SHOW_CYCLE_HITBOX_COLOR=                        Show Cycle Hitbox Colors
+TAS_HELPER_COUNTDOWN_MODE=                                 Countdown Mode
+TAS_HELPER_ACTIVATION_CHECK=                               Activation checks per 3 frames.{n}
+                                                           Deactivation checks per 15 frames.
+TAS_HELPER_HOTKEY_DESCRIPTION=                             Binding multiple keys to a control will cause those keys to act as a keycombo
+TAS_HELPER_INVIEW_NEAR_PLAYER_DISCRIPTION=                 InView: inside the 352px*212px rectangle around camera.{n}
+                                                           NearPlayer: inside the 256px*256px square around player.
+TAS_HELPER_LOAD_RANGE_MODE=                                Load Range Mode
+TAS_HELPER_IN_VIEW_RANGE_WIDTH=                            InView Range Width
+TAS_HELPER_IN_VIEW_DESCRIPTION=                            When InView Range Width is 16,{n}
+                                                           It matches Celeste TAS's Camera Hitboxes.
+TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer Range Width
+TAS_HELPER_LOAD_RANGE_OPACITY=                             Load Range Opacity
+TAS_HELPER_SIMPLIFIED_SPINNERS=                            Simplified Spinners
+TAS_HELPER_CLEAR_SPINNER_SPRITES=                          Clear Spinner Sprites
+TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity
+TAS_HELPER_MAIN_SWITCH_HOTKEY=                             Main Switch
+TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       Switch Countdown
+TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       Switch Load Range
+TAS_HELPER_CAMERA_TARGET=                                  Camera Target
+TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity

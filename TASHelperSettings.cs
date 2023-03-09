@@ -16,12 +16,12 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool enabled = true;
 
+    [SettingName("TAS_HELPER_ENABLED")]
     public bool Enabled { get => enabled; set => enabled = value; }
 
     #region Spinner Settings
 
     #region SpinnerMainSwitch
-
     private void EnabledEnforceRaiseSettings(bool raiseAll) {
         ShowCycleHitboxColors = ShowCycleHitboxColors;
         EnableSimplifiedSpinner = EnableSimplifiedSpinner;
@@ -35,6 +35,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private MainSwitchModes mainSwitch = MainSwitchModes.OnlyDefault;
 
+    [SettingName("TAS_HELPER_SPINNER_MAIN_SWITCH")]
     public MainSwitchModes MainSwitch {
         get => mainSwitch;
         set {
@@ -96,7 +97,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool showCycleHitboxColor = true;
 
-    [SettingName("SHOW_CYCLE_HITBOX_COLOR")]
+    [SettingName("TAS_HELPER_SHOW_CYCLE_HITBOX_COLOR")]
     public bool ShowCycleHitboxColors {
         get => Enabled && EnableCycleHitboxColors && showCycleHitboxColor;
         set { if (Enabled) showCycleHitboxColor = value; }
@@ -109,8 +110,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private CountdownModes countdownMode = CountdownModes.Activation;
 
-    [SettingSubText("Activation checks per 3 frames" + "\n" + "Deactivation checks per 15 frames")]
-    [SettingName("COUNTDOWN_MODE")]
+    [SettingSubText("TAS_HELPER_ACTIVATION_CHECK")]
+    [SettingName("TAS_HELPER_COUNTDOWN_MODE")]
     public CountdownModes CountdownMode {
         get => Enabled && EnableCountdownModes ? countdownMode : CountdownModes.Off;
         set {
@@ -130,8 +131,8 @@ public class TASHelperSettings : EverestModuleSettings {
     public enum LoadRangeModes { Neither, InViewRange, NearPlayerRange, Both };
 
     private LoadRangeModes loadRangeMode = LoadRangeModes.Both;
-    [SettingSubText("InView: inside the 352px*212px rectangle around camera" + "\n" + "NearPlayer: inside the 256px*256px square around player")]
-    [SettingName("LOAD_RANGE_MODE")]
+    [SettingSubText("TAS_HELPER_INVIEW_NEAR_PLAYER_DISCRIPTION")]
+    [SettingName("TAS_HELPER_LOAD_RANGE_MODE")]
     public LoadRangeModes LoadRangeMode {
         get => Enabled && EnableLoadRange ? loadRangeMode : LoadRangeModes.Neither;
         set {
@@ -144,16 +145,16 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     [SettingRange(0, 32)]
-    [SettingName("IN_VIEW_RANGE_WIDTH")]
-    [SettingSubText("When InView Range Width = 16" + "\n" + "It matches Celeste TAS's Camera Hitboxes")]
+    [SettingName("TAS_HELPER_IN_VIEW_RANGE_WIDTH")]
+    [SettingSubText("TAS_HELPER_IN_VIEW_DESCRIPTION")]
     public int InViewRangeWidth { get; set; } = 16;
 
     [SettingRange(1, 16)]
-    [SettingName("NEAR_PLAYER_RANGE_WIDTH")]
+    [SettingName("TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH")]
     public int NearPlayerRangeWidth { get; set; } = 8;
 
     [SettingRange(0, 9)]
-    [SettingName("LOAD_RANGE_OPACITY")]
+    [SettingName("TAS_HELPER_LOAD_RANGE_OPACITY")]
     public int LoadRangeOpacity { get; set; } = 4;
 
     #endregion
@@ -165,7 +166,7 @@ public class TASHelperSettings : EverestModuleSettings {
     [SettingIgnore]
     private bool enableSimplifiedSpinner { get; set; } = true;
 
-    [SettingName("SIMPLIFIED_SPINNERS")]
+    [SettingName("TAS_HELPER_SIMPLIFIED_SPINNERS")]
     public bool EnableSimplifiedSpinner {
         get => Enabled && EnableEnableSimplifiedSpinner && enableSimplifiedSpinner;
         set {
@@ -180,7 +181,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private ClearSpritesMode enforceClearSprites = ClearSpritesMode.Always;
 
-    [SettingName("CLEAR_SPINNER_SPRITES")]
+    [SettingName("TAS_HELPER_CLEAR_SPINNER_SPRITES")]
     public ClearSpritesMode EnforceClearSprites {
         get => enforceClearSprites;
         set => enforceClearSprites = value;
@@ -188,7 +189,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool ClearSpinnerSprites => CelesteTasSettings.Instance.SimplifiedGraphics || EnforceClearSprites == ClearSpritesMode.Always;
 
     [SettingRange(0, 9)]
-    [SettingName("SPINNER_FILLER_OPACITY")]
+    [SettingName("TAS_HELPER_SPINNER_FILLER_OPACITY")]
     public int SpinnerFillerOpacity { get; set; } = 4;
     #endregion
 
@@ -239,9 +240,10 @@ public class TASHelperSettings : EverestModuleSettings {
     [SettingIgnore]
     private static ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
 
-    [SettingSubHeader("LOZEN_TASHELPER_HOTKEY_DESCRIPTION")]
-    // [DefaultButtonBinding2(0, Keys.LeftControl, Keys.E)]
-    [SettingName("MAIN_SWITCH")]
+    [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
+
+    [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.E)]
     public ButtonBinding KeyMainSwitch {
         get => keyMainSwitch;
         set {
@@ -250,9 +252,8 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-
+    [SettingName("TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.R)]
-    [SettingName("SWITCH_COUNT_DOWN")]
     public ButtonBinding KeyCountDown {
         get => keyCountDown;
         set {
@@ -261,7 +262,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    [SettingName("SWITCH_LOAD_RANGE")]
+    [SettingName("TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.T)]
     public ButtonBinding KeyLoadRange {
         get => keyLoadRange;
@@ -316,14 +317,14 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool usingCameraTarget = false;
 
-    [SettingName("CAMERA_TARGET")]
+    [SettingName("TAS_HELPER_CAMERA_TARGET")]
     public bool UsingCameraTarget {
         get => Enabled && usingCameraTarget;
         set => usingCameraTarget = value;
     }
 
     [SettingRange(1, 9)]
-    [SettingName("CAMERA_TARGET_VECTOR_OPACITY")]
+    [SettingName("TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY")]
     public int CameraTargetLinkOpacity { get; set; } = 6;
 
 }

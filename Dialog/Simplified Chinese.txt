@@ -1,0 +1,25 @@
+﻿# https://github.com/EverestAPI/Resources/wiki/Adding-Custom-Dialogue
+TAS_HELPER_NAME=                                           TAS Helper
+TAS_HELPER_ENABLED=                                        开关
+TAS_HELPER_SPINNER_MAIN_SWITCH=                            圆刺功能的主开关
+TAS_HELPER_SHOW_CYCLE_HITBOX_COLOR=                        周期性实体颜色
+TAS_HELPER_COUNTDOWN_MODE=                                 显示何项的倒计时
+TAS_HELPER_ACTIVATION_CHECK=                               激活: 每 3 帧检测一次.{n}
+                                                           停用: 每 15 帧检测一次.
+TAS_HELPER_HOTKEY_DESCRIPTION=                             绑定多个按键表示组合键，需要同时按下才能触发相应操作
+TAS_HELPER_INVIEW_NEAR_PLAYER_DISCRIPTION=                 InView: 在镜头周围的 352px*212px 矩形区域内.{n}
+                                                           NearPlayer: 在玩家周围的 256px*256px 方形区域内.
+TAS_HELPER_LOAD_RANGE_MODE=                                显示哪些加载范围
+TAS_HELPER_IN_VIEW_RANGE_WIDTH=                            InView 区域的边缘宽度
+TAS_HELPER_IN_VIEW_DESCRIPTION=                            当 InView 区域的边缘宽度为 16,{n}
+                                                           它与 Celeste TAS 的 Camera Hitboxes 功能恰好吻合.
+TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer 区域的边缘宽度
+TAS_HELPER_LOAD_RANGE_OPACITY=                             加载范围的透明度
+TAS_HELPER_SIMPLIFIED_SPINNERS=                            简化圆刺
+TAS_HELPER_CLEAR_SPINNER_SPRITES=                          清除圆刺贴图
+TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部透明度
+TAS_HELPER_MAIN_SWITCH_HOTKEY=                             圆刺功能主开关
+TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       切换倒计时
+TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       切换加载范围
+TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标
+TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   镜头-目标 连线的透明度
