@@ -26,8 +26,8 @@ internal static class RenderHelper {
     private static readonly Vector2 TopLeft2Center = new(160f, 90f);
     private static Color SpinnerCenterColor = Color.Lime;
     private static Color HazardNotInViewColor = Color.Lime;
-    private static Color InViewRangeColor = Color.Yellow;
-    private static Color NearPlayerRangeColor = Color.Lime;
+    private static Color InViewRangeColor = Color.Yellow * 0.8f;
+    private static Color NearPlayerRangeColor = Color.Lime * 0.8f;
     private static Color CameraSpeedColor = Color.Goldenrod * 0.4f;
 
     public static void Initialize() {
@@ -167,12 +167,17 @@ internal static class RenderHelper {
     public static void DrawCameraTarget(Vector2 PreviousCameraPos, Vector2 CameraPosition, Vector2 CameraTowards) {
         float X1 = (float)Math.Floor(PreviousCameraPos.X + TopLeft2Center.X);
         float Y1 = (float)Math.Floor(PreviousCameraPos.Y + TopLeft2Center.Y);
-        float X2 = (float)Math.Floor(CameraPosition.X + TopLeft2Center.X);
-        float Y2 = (float)Math.Floor(CameraPosition.Y + TopLeft2Center.Y);
-        Monocle.Draw.Line(X1, Y1, CameraTowards.X, Y1, CameraSpeedColor);
-        Monocle.Draw.Line(CameraTowards.X, Y1, CameraTowards.X, CameraTowards.Y, CameraSpeedColor);
+        float Xc = (float)Math.Floor(CameraPosition.X + TopLeft2Center.X);
+        float Yc = (float)Math.Floor(CameraPosition.Y + TopLeft2Center.Y);
+        float Xleft = Math.Min(X1, CameraTowards.X);
+        float Xright = Math.Max(X1,CameraTowards.X);
+        float Yup = Math.Min(Y1, CameraTowards.Y);
+        float Ydown = Math.Max(Y1, CameraTowards.Y);
+        Monocle.Draw.Rect(Xleft + 1, Y1, Xright-Xleft - 1f , 1f, CameraSpeedColor);
+        Monocle.Draw.Rect(CameraTowards.X, Yup +1f, 1f, Ydown-Yup -1f, CameraSpeedColor);
+        Monocle.Draw.Point(new Vector2(CameraTowards.X, Y1), CameraSpeedColor);
         Monocle.Draw.Point(new Vector2(X1, Y1), Color.Lime * 0.6f);
-        Monocle.Draw.Point(new Vector2(X2, Y2), Color.Lime * 1f);
+        Monocle.Draw.Point(new Vector2(Xc, Yc), Color.Lime * 1f);
         Monocle.Draw.Point(CameraTowards, Color.Lime * 0.3f);
     }
 }

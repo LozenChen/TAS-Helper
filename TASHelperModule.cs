@@ -150,7 +150,7 @@ public class TASHelperModule : EverestModule {
     }
 
     private static void PatchDebugRenderPlayer(On.Monocle.Entity.orig_DebugRender orig, Entity self, Camera camera) {
-        if (TasHelperSettings.isUsingCameraTarget) {
+        if (TasHelperSettings.UsingCameraTarget) {
             RenderHelper.DrawCameraTarget(PreviousCameraPos, CameraPosition, CameraTowards);
         }
         if (TasHelperSettings.isUsingNearPlayerRange) {

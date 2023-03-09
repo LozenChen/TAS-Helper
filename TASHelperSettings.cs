@@ -14,8 +14,13 @@ public class TASHelperSettings : EverestModuleSettings {
         Instance = this;
     }
 
-    #region MainSwitch
-    public bool Enabled = true;
+    private bool enabled = true;
+
+    public bool Enabled { get => enabled; set => enabled = value; }
+
+    #region Spinner Settings
+
+    #region SpinnerMainSwitch
 
     private void EnabledEnforceRaiseSettings(bool raiseAll) {
         ShowCycleHitboxColors = ShowCycleHitboxColors;
@@ -187,10 +192,6 @@ public class TASHelperSettings : EverestModuleSettings {
     public int SpinnerFillerOpacity { get; set; } = 4;
     #endregion
 
-    //[SettingIgnore]
-    // todo: to be governed by main switch? maybe no, coz it's not very about spinner stun
-    public bool isUsingCameraTarget { get; set; } = true;
-
     #region Auxilary Variables
     public void UpdateAuxiliaryVariable() {
         isUsingCountDown = (CountdownMode != CountdownModes.Off);
@@ -227,6 +228,18 @@ public class TASHelperSettings : EverestModuleSettings {
     public float RangeAlpha = 0.4f;
     public float SpinnerFillerAlpha = 0.4f;
     #endregion
+
+    #endregion
+
+    // todo: to be governed by main switch? maybe no, coz it's not very about spinner stun
+
+    private bool usingCameraTarget = false;
+
+    [SettingName("CAMERA_TARGET")]
+    public bool UsingCameraTarget {
+        get => Enabled && usingCameraTarget;
+        set => usingCameraTarget = value;
+    }
 
 
     #region HotKey
