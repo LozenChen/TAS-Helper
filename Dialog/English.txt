@@ -17,3 +17,4 @@ MAIN_SWITCH=                                    Main Switch
 SWITCH_COUNT_DOWN=                              Switch Countdown
 SWITCH_LOAD_RANGE=                              Switch Load Range
 CAMERA_TARGET=                                  Camera Target
+CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity

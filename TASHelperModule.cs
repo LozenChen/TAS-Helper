@@ -19,7 +19,6 @@ public class TASHelperModule : EverestModule {
 
     public override Type SettingsType => typeof(TASHelperSettings);
 
-
     private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
         ILCursor cursor = new ILCursor(il);
         if (cursor.TryGotoNext(MoveType.After,
@@ -133,7 +132,7 @@ public class TASHelperModule : EverestModule {
         }
         float offset = SpinnerHelper.GetOffset(self).Value;
         RenderHelper.DrawCycleHitboxColor(self, camera, TimeActive, offset, CameraPosition);
-        // camera.Position is a bit different from CameraPosition
+        // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
         if (TasHelperSettings.isUsingLoadRange) {
             RenderHelper.DrawLoadRangeCollider(self.Position, self.Width, self.Height, CameraPosition, SpinnerHelper.isLightning(self));
         }

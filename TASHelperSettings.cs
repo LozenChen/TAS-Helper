@@ -231,17 +231,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #endregion
 
-    // todo: to be governed by main switch? maybe no, coz it's not very about spinner stun
-
-    private bool usingCameraTarget = false;
-
-    [SettingName("CAMERA_TARGET")]
-    public bool UsingCameraTarget {
-        get => Enabled && usingCameraTarget;
-        set => usingCameraTarget = value;
-    }
-
-
     #region HotKey
     [SettingIgnore]
     private static ButtonBinding keyMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
@@ -325,6 +314,17 @@ public class TASHelperSettings : EverestModuleSettings {
 
 
 
+    private bool usingCameraTarget = false;
+
+    [SettingName("CAMERA_TARGET")]
+    public bool UsingCameraTarget {
+        get => Enabled && usingCameraTarget;
+        set => usingCameraTarget = value;
+    }
+
+    [SettingRange(1, 9)]
+    [SettingName("CAMERA_TARGET_VECTOR_OPACITY")]
+    public int CameraTargetLinkOpacity { get; set; } = 6;
 
 }
 

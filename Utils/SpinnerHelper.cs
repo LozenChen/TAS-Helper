@@ -22,9 +22,8 @@ public static class SpinnerHelper {
     }
     public static float? GetOffset(Entity self) {
         if (HazardType(self) == null) return null;
-        Type type = self.GetType();
         string fieldname = HazardType(self) == lightning ? "toggleOffset" : "offset";
-        FieldInfo field = type.GetField(fieldname, BindingFlags.Instance | BindingFlags.NonPublic);
+        FieldInfo field = self.GetType().GetField(fieldname, BindingFlags.Instance | BindingFlags.NonPublic);
         return (float)field.GetValue(self);
     }
     public static bool isSpinnner(Entity self) {
