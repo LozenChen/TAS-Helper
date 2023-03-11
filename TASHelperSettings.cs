@@ -16,7 +16,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool enabled = true;
 
-    [SettingName("TAS_HELPER_ENABLED")]
     public bool Enabled { get => enabled; set => enabled = value; }
 
     #region Spinner Settings
@@ -31,25 +30,24 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public enum MainSwitchModes { Off, OnlyDefault, AllowAll }
+    public enum SpinnerMainSwitchModes { Off, OnlyDefault, AllowAll }
 
-    private MainSwitchModes mainSwitch = MainSwitchModes.OnlyDefault;
+    private SpinnerMainSwitchModes spinnerMainSwitch = SpinnerMainSwitchModes.OnlyDefault;
 
-    [SettingName("TAS_HELPER_SPINNER_MAIN_SWITCH")]
-    public MainSwitchModes MainSwitch {
-        get => mainSwitch;
+    public SpinnerMainSwitchModes SpinnerMainSwitch {
+        get => spinnerMainSwitch;
         set {
-            mainSwitch = value;
-            Enabled = (value != MainSwitchModes.Off);
-            if (value == MainSwitchModes.AllowAll) {
+            spinnerMainSwitch = value;
+            Enabled = (value != SpinnerMainSwitchModes.Off);
+            if (value == SpinnerMainSwitchModes.AllowAll) {
                 MainSwitch2All();
             }
             else {
                 MainSwitch2Default();
             }
             if (Enabled) {
-                EnabledEnforceRaiseSettings(value == MainSwitchModes.AllowAll);
-                if (value == MainSwitchModes.OnlyDefault) {
+                EnabledEnforceRaiseSettings(value == SpinnerMainSwitchModes.AllowAll);
+                if (value == SpinnerMainSwitchModes.OnlyDefault) {
                     MainSwitch2DefaultPart2();
                 }
                 else {
@@ -84,7 +82,7 @@ public class TASHelperSettings : EverestModuleSettings {
         ShowCycleHitboxColors = true;
         EnableSimplifiedSpinner = true;
         if (CountdownMode == CountdownModes.Off) {
-            CountdownMode = CountdownModes.Activation;
+            CountdownMode = CountdownModes._3fCycle;
         }
         if (LoadRangeMode == LoadRangeModes.Neither) {
             LoadRangeMode = LoadRangeModes.Both;
@@ -97,7 +95,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool showCycleHitboxColor = true;
 
-    [SettingName("TAS_HELPER_SHOW_CYCLE_HITBOX_COLOR")]
     public bool ShowCycleHitboxColors {
         get => Enabled && EnableCycleHitboxColors && showCycleHitboxColor;
         set { if (Enabled) showCycleHitboxColor = value; }
@@ -106,12 +103,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region Countdown
     public bool EnableCountdownModes = false;
-    public enum CountdownModes { Off, Activation, Deactivation };
+    public enum CountdownModes { Off, _3fCycle, _15fCycle };
 
-    private CountdownModes countdownMode = CountdownModes.Activation;
+    private CountdownModes countdownMode = CountdownModes._3fCycle;
 
-    [SettingSubText("TAS_HELPER_ACTIVATION_CHECK")]
-    [SettingName("TAS_HELPER_COUNTDOWN_MODE")]
     public CountdownModes CountdownMode {
         get => Enabled && EnableCountdownModes ? countdownMode : CountdownModes.Off;
         set {
@@ -131,8 +126,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public enum LoadRangeModes { Neither, InViewRange, NearPlayerRange, Both };
 
     private LoadRangeModes loadRangeMode = LoadRangeModes.Both;
-    [SettingSubText("TAS_HELPER_INVIEW_NEAR_PLAYER_DISCRIPTION")]
-    [SettingName("TAS_HELPER_LOAD_RANGE_MODE")]
+
     public LoadRangeModes LoadRangeMode {
         get => Enabled && EnableLoadRange ? loadRangeMode : LoadRangeModes.Neither;
         set {
@@ -145,16 +139,12 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     [SettingRange(0, 32)]
-    [SettingName("TAS_HELPER_IN_VIEW_RANGE_WIDTH")]
-    [SettingSubText("TAS_HELPER_IN_VIEW_DESCRIPTION")]
     public int InViewRangeWidth { get; set; } = 16;
 
     [SettingRange(1, 16)]
-    [SettingName("TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH")]
     public int NearPlayerRangeWidth { get; set; } = 8;
 
     [SettingRange(0, 9)]
-    [SettingName("TAS_HELPER_LOAD_RANGE_OPACITY")]
     public int LoadRangeOpacity { get; set; } = 4;
 
     #endregion
@@ -166,7 +156,6 @@ public class TASHelperSettings : EverestModuleSettings {
     [SettingIgnore]
     private bool enableSimplifiedSpinner { get; set; } = true;
 
-    [SettingName("TAS_HELPER_SIMPLIFIED_SPINNERS")]
     public bool EnableSimplifiedSpinner {
         get => Enabled && EnableEnableSimplifiedSpinner && enableSimplifiedSpinner;
         set {
@@ -181,7 +170,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private ClearSpritesMode enforceClearSprites = ClearSpritesMode.Always;
 
-    [SettingName("TAS_HELPER_CLEAR_SPINNER_SPRITES")]
     public ClearSpritesMode EnforceClearSprites {
         get => enforceClearSprites;
         set => enforceClearSprites = value;
@@ -189,14 +177,13 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool ClearSpinnerSprites => CelesteTasSettings.Instance.SimplifiedGraphics || EnforceClearSprites == ClearSpritesMode.Always;
 
     [SettingRange(0, 9)]
-    [SettingName("TAS_HELPER_SPINNER_FILLER_OPACITY")]
     public int SpinnerFillerOpacity { get; set; } = 4;
     #endregion
 
     #region Auxilary Variables
     public void UpdateAuxiliaryVariable() {
         isUsingCountDown = (CountdownMode != CountdownModes.Off);
-        if (CountdownMode == CountdownModes.Activation) {
+        if (CountdownMode == CountdownModes._3fCycle) {
             SpinnerCountdownUpperBound = 9;
             SpinnerInterval = 0.05f;
         }
@@ -233,22 +220,18 @@ public class TASHelperSettings : EverestModuleSettings {
     #endregion
 
     #region HotKey
-    [SettingIgnore]
-    private static ButtonBinding keyMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
-    [SettingIgnore]
+    private static ButtonBinding keySpinnerMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
     private static ButtonBinding keyCountDown { get; set; } = new(0, Keys.LeftControl, Keys.R);
-    [SettingIgnore]
     private static ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
 
     [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
-
     [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.E)]
-    public ButtonBinding KeyMainSwitch {
-        get => keyMainSwitch;
+    public ButtonBinding KeySpinnerMainSwitch {
+        get => keySpinnerMainSwitch;
         set {
-            keyMainSwitch = value;
-            MainSwitchHK = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
+            keySpinnerMainSwitch = value;
+            SpinnerMainSwitchHotkey = new Hotkey(keySpinnerMainSwitch.Keys, keySpinnerMainSwitch.Buttons, true, false);
         }
     }
 
@@ -258,7 +241,7 @@ public class TASHelperSettings : EverestModuleSettings {
         get => keyCountDown;
         set {
             keyCountDown = value;
-            CountDownHK = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
+            CountDownHotkey = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
         }
     }
 
@@ -268,39 +251,39 @@ public class TASHelperSettings : EverestModuleSettings {
         get => keyLoadRange;
         set {
             keyLoadRange = value;
-            LoadRangeHK = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
+            LoadRangeHotkey = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
         }
     }
 
     [SettingIgnore]
-    public Hotkey MainSwitchHK { get; private set; } = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
+    public Hotkey SpinnerMainSwitchHotkey { get; private set; } = new Hotkey(keySpinnerMainSwitch.Keys, keySpinnerMainSwitch.Buttons, true, false);
 
     [SettingIgnore]
-    public Hotkey CountDownHK { get; private set; } = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
+    public Hotkey CountDownHotkey { get; private set; } = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
 
     [SettingIgnore]
-    public Hotkey LoadRangeHK { get; private set; } = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
+    public Hotkey LoadRangeHotkey { get; private set; } = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
 
     public void SettingsHotkeysPressed() {
-        MainSwitchHK.Update();
-        CountDownHK.Update();
-        LoadRangeHK.Update();
-        if (MainSwitchHK.Pressed) {
-            switch (MainSwitch) {
-                case MainSwitchModes.Off: MainSwitch = MainSwitchModes.OnlyDefault; break;
-                case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
-                case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
+        SpinnerMainSwitchHotkey.Update();
+        CountDownHotkey.Update();
+        LoadRangeHotkey.Update();
+        if (SpinnerMainSwitchHotkey.Pressed) {
+            switch (SpinnerMainSwitch) {
+                case SpinnerMainSwitchModes.Off: SpinnerMainSwitch = SpinnerMainSwitchModes.OnlyDefault; break;
+                case SpinnerMainSwitchModes.OnlyDefault: SpinnerMainSwitch = SpinnerMainSwitchModes.AllowAll; break;
+                case SpinnerMainSwitchModes.AllowAll: SpinnerMainSwitch = SpinnerMainSwitchModes.Off; break;
             }
         }
         if (Enabled) {
-            if (CountDownHK.Pressed) {
+            if (CountDownHotkey.Pressed) {
                 switch (CountdownMode) {
-                    case CountdownModes.Off: CountdownMode = CountdownModes.Activation; break;
-                    case CountdownModes.Activation: CountdownMode = CountdownModes.Deactivation; break;
-                    case CountdownModes.Deactivation: CountdownMode = CountdownModes.Off; break;
+                    case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
+                    case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
+                    case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
                 }
             }
-            if (LoadRangeHK.Pressed) {
+            if (LoadRangeHotkey.Pressed) {
                 switch (LoadRangeMode) {
                     case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
                     case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;

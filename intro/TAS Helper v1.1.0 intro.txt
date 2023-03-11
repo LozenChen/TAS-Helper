@@ -7,6 +7,8 @@ Comparing against Spinner Indicator, you can now use hotkeys or open Mod Options
 Features:
 (1). Show Countdown of Hazards, i.e. how many frames later, the Spinner/Lightning/DustBunny will be (un)collidable.
 
+Usage: e.g. to make a Spinner Stun, first make a tas, then find the frame that the activation countdown becomes 0 and the spinner becomes opaque (so it's collidable)(usually 0~2 frames after it enters NearPlayer Range), then modify your tas by pausing on this frame.
+
 (2a). Show Load Ranges: a 256px * 256px lime square around player (NearPlayer Range), and a yellow rectangle around the camera (InView Range).
 
 usage: in the following, let bool NearPlayer = inside the NearPlayer Range, bool InView = inside the InView Range.

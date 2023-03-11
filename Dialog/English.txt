@@ -1,24 +1,59 @@
-﻿TAS_HELPER_NAME=                                           TAS Helper
+﻿# ============================================= TAS Helper =====================================================
+TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        Enabled
-TAS_HELPER_SPINNER_MAIN_SWITCH=                            Main Switch
-TAS_HELPER_SHOW_CYCLE_HITBOX_COLOR=                        Show Cycle Hitbox Colors
-TAS_HELPER_COUNTDOWN_MODE=                                 Countdown Mode
-TAS_HELPER_ACTIVATION_CHECK=                               Activation checks per 3 frames.{n}
-                                                           Deactivation checks per 15 frames.
-TAS_HELPER_HOTKEY_DESCRIPTION=                             Binding multiple keys to a control will cause those keys to act as a keycombo
-TAS_HELPER_INVIEW_NEAR_PLAYER_DISCRIPTION=                 InView: inside the 352px*212px rectangle around camera.{n}
+
+# ============================================= Spinner Main Switch =====================================================
+TAS_HELPER_SPINNER_MAIN_SWITCH=                            Main Switch for Hazard-related
+TAS_HELPER_SPINNER_MAIN_SWITCH_DESCRIPTION=                Involves Cycle Hitbox Colors, Hazard Countdown, Load Range, Simplified Spinners.
+TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_OFF=                   Off
+TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ONLY_DEFAULT=          Default
+TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ALLOW_ALL=             All
+
+# ============================================= Cycle Hitbox Colors =====================================================
+TAS_HELPER_SHOW_CYCLE_HITBOX_COLORS=                       Show Cycle Hitbox Colors
+
+# ============================================= Hazard Countdown =====================================================
+TAS_HELPER_COUNTDOWN_MODE=                                 Hazard Countdown
+TAS_HELPER_COUNTDOWN_MODE_OFF=                             Off
+TAS_HELPER_COUNTDOWN_MODE_3F_CYCLE=                        3f Cycle
+TAS_HELPER_COUNTDOWN_MODE_15F_CYCLE=                       15f Cycle
+TAS_HELPER_COUNTDOWN_MODE_DESCRIPTION=                     Every 3 frames, check the conditions of the following actions:{n}
+                                                              - Spinner turn on/off collision (NearPlayer) when visible,{n}
+                                                              - Lightning turn on collision (InView),{n}
+                                                              - Dust Bunny turn on/off collision (NearPlayer) when sprite estableshed.{n}
+                                                           Every 15 frames, check the conditions of the following actions:{n}
+                                                              - Spinner become invisible (InView),{n}
+                                                              - Lightning turn off collision (InView).
+
+# ============================================= Load Range =====================================================
+TAS_HELPER_LOAD_RANGE=                                     Load Range
+TAS_HELPER_LOAD_RANGE_MODE=                                Mode
+TAS_HELPER_LOAD_RANGE_MODE_NEITHER=                        Neither
+TAS_HELPER_LOAD_RANGE_MODE_IN_VIEW_RANGE=                  InView Range
+TAS_HELPER_LOAD_RANGE_MODE_NEAR_PLAYER_RANGE=              NearPlayer Range
+TAS_HELPER_LOAD_RANGE_MODE_BOTH=                           Both
+TAS_HELPER_LOAD_RANGE_DESCRIPTION=                         InView: inside the 352px*212px rectangle around camera.{n}
                                                            NearPlayer: inside the 256px*256px square around player.
-TAS_HELPER_LOAD_RANGE_MODE=                                Load Range Mode
 TAS_HELPER_IN_VIEW_RANGE_WIDTH=                            InView Range Width
 TAS_HELPER_IN_VIEW_DESCRIPTION=                            When InView Range Width is 16,{n}
                                                            It matches Celeste TAS's Camera Hitboxes.
 TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer Range Width
 TAS_HELPER_LOAD_RANGE_OPACITY=                             Load Range Opacity
+
+# ============================================= Simplified Spinners =====================================================
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            Simplified Spinners
 TAS_HELPER_CLEAR_SPINNER_SPRITES=                          Clear Spinner Sprites
+TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=When Simplified Graphics
+TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              Always
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity
-TAS_HELPER_MAIN_SWITCH_HOTKEY=                             Main Switch
-TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       Switch Countdown
-TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       Switch Load Range
+
+# ============================================= Camera Target =====================================================
 TAS_HELPER_CAMERA_TARGET=                                  Camera Target
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity
+
+# ============================================= Hotkeys =====================================================
+TAS_HELPER_HOTKEYS=                                        Hotkeys
+TAS_HELPER_HOTKEY_DESCRIPTION=                             Binding multiple keys to a control will cause those keys to act as a keycombo
+TAS_HELPER_MAIN_SWITCH_HOTKEY=                             Main Switch for Hazard-related
+TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       Switch Countdown
+TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       Switch Load Range

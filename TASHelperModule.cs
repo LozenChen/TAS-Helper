@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
+using FMOD.Studio;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
@@ -59,6 +60,11 @@ public class TASHelperModule : EverestModule {
     }
 
     public override void LoadContent(bool firstLoad) {
+    }
+
+    public override void CreateModMenuSection(TextMenu menu, bool inGame, EventInstance snapshot) {
+        CreateModMenuSectionHeader(menu, inGame, snapshot);
+        TASHelperMenu.CreateMenu(this, menu, inGame);
     }
 
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
