@@ -15,6 +15,8 @@ internal static class HookHelper {
         Hooks.Clear();
     }
 
+    // e.g.
+    // typeof(Player).GetMethod("orig_Update").IlHook(PlayerPositionBeforeCameraUpdateIL);
     public static void IlHook(this MethodBase from, ILContext.Manipulator manipulator) {
         Hooks.Add(new ILHook(from, manipulator));
     }

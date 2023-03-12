@@ -191,12 +191,12 @@ public class TASHelperSettings : EverestModuleSettings {
             SpinnerCountdownUpperBound = 99;
             SpinnerInterval = 0.25f;
         }
-        isUsingLoadRange = isUsingInViewRange = isUsingNearPlayerRange = false;
+        UsingLoadRange = isUsingInViewRange = isUsingNearPlayerRange = false;
         if (LoadRangeMode == LoadRangeModes.Neither) {
             // do nothing
         }
         else {
-            isUsingLoadRange = true;
+            UsingLoadRange = true;
             if (LoadRangeMode != LoadRangeModes.NearPlayerRange) {
                 isUsingInViewRange = true;
             }
@@ -208,7 +208,7 @@ public class TASHelperSettings : EverestModuleSettings {
         SpinnerFillerAlpha = TasHelperSettings.SpinnerFillerOpacity * 0.1f;
     }
     public bool isUsingCountDown = false;
-    public bool isUsingLoadRange = true;
+    public bool UsingLoadRange = true;
     public bool isUsingInViewRange = true;
     public bool isUsingNearPlayerRange = true;
     public int SpinnerCountdownUpperBound = 9;

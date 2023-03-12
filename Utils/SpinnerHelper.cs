@@ -6,7 +6,13 @@ namespace Celeste.Mod.TASHelper.Utils;
 
 public static class SpinnerHelper {
     public static void Initialize() {
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
+            ModTypes.Add(frostSpinnerType, Tuple.Create(spinner, "offset",));
+        }
+
     }
+    
+    public static Dictionary<Type, Tuple<int, string, Func<bool, Entity>>> ModTypes = new();
 
     internal const int spinner = 0;
     internal const int dust = 1;
@@ -15,7 +21,9 @@ public static class SpinnerHelper {
         if (self is CrystalStaticSpinner) return spinner;
         if (self is DustStaticSpinner) return dust;
         if (self is Lightning) return lightning;
-        if (self is FrostHelper.CustomSpinner) return spinner;
+        if (self is FrostHelper.CustomSpinner customSpinner) {
+            return customSpinner.HasCollider ? spinner : null;
+        }
         // if (self is VivHelper.Entities.CustomSpinner) return spinner;
         // i dont know why but it just can't work
         return null;
@@ -34,12 +42,6 @@ public static class SpinnerHelper {
     }
     public static bool isDust(Entity self) {
         return HazardType(self) == dust;
-    }
-
-    public static bool HasCollider(Entity self) {
-        // assume self is Hazard
-        if (self is FrostHelper.CustomSpinner) return (self as FrostHelper.CustomSpinner).HasCollider;
-        return true;
     }
 
     public static bool InView(Entity self, Vector2 CameraPos) {

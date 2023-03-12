@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Monocle;
+using System.ComponentModel;
 using TAS.EverestInterop.Hitboxes;
 using TAS.Module;
 
@@ -29,11 +30,20 @@ internal static class RenderHelper {
     private static Color InViewRangeColor = Color.Yellow * 0.8f;
     private static Color NearPlayerRangeColor = Color.Lime * 0.8f;
     private static Color CameraTargetVectorColor = Color.Goldenrod;
+   
 
     public static void Initialize() {
     }
 
-    public static Color GetColor(int index) {
+    public static void Load() {
+
+    }
+
+    public static void Unload() {
+
+    }
+
+    public static Color GetSpinnerColor(int index) {
         return index switch {
             0 => CelesteTasSettings.Instance.CycleHitboxColor1,
             1 => CelesteTasSettings.Instance.CycleHitboxColor2,
@@ -41,6 +51,7 @@ internal static class RenderHelper {
             3 => CelesteTasSettings.Instance.OtherCyclesHitboxColor,
         };
     }
+
     public static void DrawCountdown(Vector2 Position, int CountdownTimer) {
         if (CountdownTimer > 9) {
             for (int i = 0; i <= 6; i++) {
@@ -67,9 +78,9 @@ internal static class RenderHelper {
         }
         else {
             int group = SpinnerHelper.CalculateSpinnerGroup(TimeActive, offset);
-            color = GetColor(group);
+            color = GetSpinnerColor(group);
             if (TimeActive >= 524288f && group < 3) {
-                color = GetColor(0);
+                color = GetSpinnerColor(0);
             }
         }
         if (SpinnerHelper.isLightning(self)) {
@@ -145,7 +156,7 @@ internal static class RenderHelper {
         Monocle.Draw.Rect(right - width, top + width, width + 1, bottom - top - 2 * width, InViewRangeColor * TasHelperSettings.RangeAlpha);
     }
 
-    public static void DrawNearPlayerRange(Vector2 PlayerPosition, Vector2 PreviousPlayerPosition, int PlayerPositionChanged) {
+    public static void DrawNearPlayerRange(Vector2 PlayerPosition, Vector2 PreviousPlayerPosition, int PlayerPositionChangedCount) {
         float width = (float)TasHelperSettings.NearPlayerRangeWidth;
         Color color = NearPlayerRangeColor;
         float alpha = TasHelperSettings.RangeAlpha;
@@ -154,7 +165,7 @@ internal static class RenderHelper {
         Monocle.Draw.Rect(PlayerPosition + new Vector2(-127f, 128f - width), 255f, width, color * alpha);
         Monocle.Draw.Rect(PlayerPosition + new Vector2(-127f, -127f + width), width, 255f - 2 * width, color * alpha);
         Monocle.Draw.Rect(PlayerPosition + new Vector2(128f - width, -127f + width), width, 255f - 2 * width, color * alpha);
-        if (PlayerPositionChanged > 1) {
+        if (PlayerPositionChangedCount > 1) {
             Color colorInverted = Monocle.Calc.Invert(color);
             Monocle.Draw.HollowRect(PreviousPlayerPosition + new Vector2(-127f, -127f), 255f, 255f, colorInverted);
             Monocle.Draw.Rect(PreviousPlayerPosition + new Vector2(-127f, -127f), 255f, width, colorInverted * alpha);
@@ -193,5 +204,42 @@ internal static class RenderHelper {
             Monocle.Draw.Point(new Vector2(X2 + 2f, Y2 + sign * 4f), color);
             Monocle.Draw.Point(new Vector2(X2 + 2f, Y2 + sign * 5f), color);
         }
+    }
+
+    public class PixelGrid : Entity {
+        int outerwidth;
+        Action<Entity> UpdateBeforeRender;
+        public PixelGrid(Vector2 position, Collider collider, int outerwidth, Action<Entity> UpdateBeforeRender) {
+            base.Depth = 9999;
+            // lower than BackgroudTiles
+            base.Collidable = false;
+            base.Position = position;
+            base.Collider = collider;
+            this.outerwidth = outerwidth;
+            this.UpdateBeforeRender = UpdateBeforeRender;
+        }
+
+        public static Color GetGridColor(int index) {
+            return (Math.Abs(index) % 2) switch {
+                0 => Color.White * 0.5f,
+                1 => Color.Gray * 0.5f,
+            };
+        }
+
+        public override void Update() {
+            // do nothing
+        }
+        public override void Render() {
+            UpdateBeforeRender(this);
+            for (float x = Position.X + Collider.Left - outerwidth; x < Position.X + Collider.Right + outerwidth; x += 1f) {
+                for (float y = Position.Y + Collider.Top - outerwidth; y < Position.Y + Collider.Bottom + outerwidth; y += 1f) {
+                    Monocle.Draw.Point(new Vector2(x, y), GetGridColor((int)(x + y)));
+                }
+            }
+        }
+    }
+
+    public static void PixelGridAroundPlayerUpdate() {
+
     }
 }
