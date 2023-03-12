@@ -1,3 +1,7 @@
+using System.Reflection;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
+using Celeste;
 using Monocle;
 
 namespace Celeste.Mod.TASHelper.Utils.Debug;
@@ -5,7 +9,7 @@ namespace Celeste.Mod.TASHelper.Utils.Debug;
 // only for developing this mod
 internal static class DebugHelper {
     public static bool usingDebug = false;
-
+    
     public static void Load() {
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         On.Monocle.Scene.Update += PatchUpdate;

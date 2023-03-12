@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Monocle;
+using System.ComponentModel;
 using TAS.EverestInterop.Hitboxes;
 using TAS.Module;
 
@@ -29,7 +30,7 @@ internal static class RenderHelper {
     private static Color InViewRangeColor = Color.Yellow * 0.8f;
     private static Color NearPlayerRangeColor = Color.Lime * 0.8f;
     private static Color CameraTargetVectorColor = Color.Goldenrod;
-
+   
 
     public static void Initialize() {
     }
@@ -182,12 +183,12 @@ internal static class RenderHelper {
         float Xc = (float)Math.Floor(CameraPosition.X + TopLeft2Center.X);
         float Yc = (float)Math.Floor(CameraPosition.Y + TopLeft2Center.Y);
         float Xleft = Math.Min(X1, X2);
-        float Xright = Math.Max(X1, X2);
+        float Xright = Math.Max(X1,X2);
         float Yup = Math.Min(Y1, Y2);
         float Ydown = Math.Max(Y1, Y2);
         Color color = CameraTargetVectorColor * (0.1f * TasHelperSettings.CameraTargetLinkOpacity);
-        Monocle.Draw.Rect(Xleft + 1, Y1, Xright - Xleft - 1f, 1f, color);
-        Monocle.Draw.Rect(X2, Yup + 1f, 1f, Ydown - Yup - 1f, color);
+        Monocle.Draw.Rect(Xleft + 1, Y1, Xright-Xleft - 1f , 1f, color );
+        Monocle.Draw.Rect(X2, Yup +1f, 1f, Ydown-Yup -1f, color);
         Monocle.Draw.Point(new Vector2(X2, Y1), color);
         Monocle.Draw.Point(new Vector2(Xc, Yc), Color.Lime * 1f);
         Monocle.Draw.Point(new Vector2(X1, Y1), Color.Lime * 0.6f);
@@ -229,21 +230,21 @@ internal static class RenderHelper {
             };
         }
 
-        public Color FadeOutColor(float RelativeX, float RelativeY, float width) {
-            return GetGridColor((int)(RelativeX + RelativeY), fadeOut ? 0.5f : (1 - Distance(RelativeX, RelativeY) / width) * 0.5f);
+        public Color FadeOutColor(int RelativeX, int RelativeY, float width) {
+            return GetGridColor(RelativeX + RelativeY, fadeOut ? (1 - Distance(RelativeX, RelativeY) / width) * TasHelperSettings.PixelGridOpacity * 0.1f: TasHelperSettings.PixelGridOpacity * 0.1f);
         }
 
-        public float Distance(float RelativeX, float RelativeY) {
+        public float Distance(int RelativeX, int RelativeY) {
             float DistX = 0f;
             float DistY = 0f;
-            if (RelativeX < Collider.Left) {
-                DistX = Collider.Left - RelativeX;
+            if (RelativeX < Collider.Left - 1) {
+                DistX = Collider.Left - 1 - RelativeX;
             }
             else if (RelativeX > Collider.Right) {
                 DistX = RelativeX - Collider.Right;
             }
-            if (RelativeY < Collider.Top) {
-                DistY = Collider.Top - RelativeY;
+            if (RelativeY < Collider.Top - 1) {
+                DistY = Collider.Top -1 - RelativeY;
             }
             else if (RelativeY > Collider.Bottom) {
                 DistY = RelativeY - Collider.Bottom;
@@ -270,9 +271,9 @@ internal static class RenderHelper {
 
         public void RenderWithoutCondition() {
             int outerwidth = widthGetter();
-            for (float x = Collider.Left - outerwidth; x < Collider.Right + outerwidth; x += 1f) {
-                for (float y = Collider.Top - outerwidth; y < Collider.Bottom + outerwidth; y += 1f) {
-                    Monocle.Draw.Point(new Vector2(Position.X + x, Position.Y + y), FadeOutColor(x, y, outerwidth));
+            for (int x = (int)(Collider.Left - outerwidth); x < Collider.Right + outerwidth; x ++) {
+                for (int y = (int)(Collider.Top - outerwidth); y < Collider.Bottom + outerwidth; y ++) {
+                    Monocle.Draw.Point(new Vector2(Position.X + x, Position.Y + y), FadeOutColor(x,y, outerwidth));
                 }
             }
         }
@@ -292,7 +293,7 @@ internal static class RenderHelper {
     }
     private static void CreatePixelGridAroundPlayer(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
         orig(self, playerIntro, isFromLoader);
-        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid, () => TasHelperSettings.PixelGridWidth, PixelGridAroundPlayerUpdate, true));
+        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid , () => TasHelperSettings.PixelGridWidth, PixelGridAroundPlayerUpdate, false));
     }
 
 }

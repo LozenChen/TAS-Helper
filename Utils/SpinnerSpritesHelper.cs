@@ -1,9 +1,10 @@
-using Microsoft.Xna.Framework;
+using Celeste;
 using Monocle;
+using Microsoft.Xna.Framework;
 using MonoMod.Utils;
 
 namespace Celeste.Mod.TASHelper.Utils;
-internal static class SpinnerSpritesHelper {
+internal static class SpinnerSpritesHelper{
 
     public static void Load() {
         On.Celeste.CrystalStaticSpinner.ctor_Vector2_bool_CrystalColor += SpinnerRenderKiller;

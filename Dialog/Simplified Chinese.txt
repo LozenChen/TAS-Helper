@@ -52,6 +52,7 @@ TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部透明度
 TAS_HELPER_PIXEL_GRID=                                     像素网格
 TAS_HELPER_ENABLE_PIXEL_GRID=                              开关
 TAS_HELPER_PIXEL_GRID_WIDTH=                               宽度
+TAS_HELPER_PIXEL_GRID_OPACITY=                             不透明度
 
 # ============================================= Camera Target =====================================================
 TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标

@@ -51,6 +51,7 @@ TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacit
 TAS_HELPER_PIXEL_GRID=                                     Pixel Grid
 TAS_HELPER_ENABLE_PIXEL_GRID=                              Enable
 TAS_HELPER_PIXEL_GRID_WIDTH=                               Width
+TAS_HELPER_PIXEL_GRID_OPACITY=                             Opacity
 
 # ============================================= Camera Target =====================================================
 TAS_HELPER_CAMERA_TARGET=                                  Camera Target

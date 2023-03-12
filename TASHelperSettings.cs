@@ -22,7 +22,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool spinnerEnabled = true;
 
-    public bool SpinnerEnabled { get => Enabled && spinnerEnabled; set => spinnerEnabled = value; }
+    public bool SpinnerEnabled { get => Enabled && spinnerEnabled ; set => spinnerEnabled = value; }
 
     #region SpinnerMainSwitch
     private void EnabledEnforceRaiseSettings(bool raiseAll) {
@@ -173,15 +173,15 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public enum ClearSpritesMode { WhenSimplifyGraphics, Always };
+    public enum ClearSpritesMode {WhenSimplifyGraphics, Always};
 
     private ClearSpritesMode enforceClearSprites = ClearSpritesMode.Always;
 
     public ClearSpritesMode EnforceClearSprites {
         get => enforceClearSprites;
         set => enforceClearSprites = value;
-    }
-    public bool ClearSpinnerSprites => CelesteTasSettings.Instance.SimplifiedGraphics || EnforceClearSprites == ClearSpritesMode.Always;
+    } 
+    public bool ClearSpinnerSprites => EnforceClearSprites == ClearSpritesMode.Always || (CelesteTasSettings.Instance.SimplifiedGraphics && CelesteTasSettings.Instance.ShowHitboxes);
 
     [SettingRange(0, 9)]
     public int SpinnerFillerOpacity { get; set; } = 4;
@@ -226,7 +226,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #endregion
 
-
+   
     private bool usingCameraTarget = false;
 
     [SettingName("TAS_HELPER_CAMERA_TARGET")]
@@ -244,13 +244,13 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int PixelGridWidth = 2;
 
-
+    [SettingRange(1, 10)]
+    public int PixelGridOpacity { get; set; } = 8;
 
     #region HotKey
     private static ButtonBinding keySpinnerMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
     private static ButtonBinding keyCountDown { get; set; } = new(0, Keys.LeftControl, Keys.R);
     private static ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
-
     private static ButtonBinding keyPixelGridWidth { get; set; } = new(0, Keys.LeftControl, Keys.F);
 
     [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
@@ -289,7 +289,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public ButtonBinding KeyPixelGridWidth {
         get => keyPixelGridWidth;
         set {
-            KeyPixelGridWidth = value;
+            keyPixelGridWidth = value;
             PixelGridWidthHotkey = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
         }
     }
@@ -330,12 +330,12 @@ public class TASHelperSettings : EverestModuleSettings {
             }
         }
         if (PixelGridWidthHotkey.Pressed) {
-            switch (PixelGridWidth) {
-                case < 2: PixelGridWidth = 2; break;
-                case < 4: PixelGridWidth = 4; break;
-                case < 8: PixelGridWidth = 8; break;
-                default: PixelGridWidth = 0; break;
-            }
+            PixelGridWidth = PixelGridWidth switch {
+                < 2 => 2,
+                < 4 => 4,
+                < 8 => 8,
+                _ => 0,
+            };
         }
     }
 

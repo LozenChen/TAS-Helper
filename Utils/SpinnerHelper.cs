@@ -10,9 +10,9 @@ public static class SpinnerHelper {
             ModHazardTypes.Add(frostSpinnerType, Tuple.Create(spinner, treatSpecial));
         }
 
-
+        
     }
-
+    
     public static Dictionary<Type, Tuple<int, bool>> ModHazardTypes = new();
 
     internal const int spinner = 0;
@@ -25,7 +25,7 @@ public static class SpinnerHelper {
         if (self is DustStaticSpinner) return dust;
         if (self is Lightning) return lightning;
         Type type = self.GetType();
-        if (ModHazardTypes.TryGetValue(type, out Tuple<int, bool> value)) {
+        if (ModHazardTypes.TryGetValue(type, out Tuple <int, bool> value)) { 
             if (value.Item2) {
                 return value.Item1;
             }
