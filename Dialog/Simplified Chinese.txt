@@ -49,7 +49,9 @@ TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              总是
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部透明度
 
 # ============================================= Pixel Grid =====================================================
-TAS_HELPER_ENABLE_PIXEL_GRID=                              像素网格
+TAS_HELPER_PIXEL_GRID=                                     像素网格
+TAS_HELPER_ENABLE_PIXEL_GRID=                              开关
+TAS_HELPER_PIXEL_GRID_WIDTH=                               宽度
 
 # ============================================= Camera Target =====================================================
 TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标
@@ -61,3 +63,4 @@ TAS_HELPER_HOTKEY_DESCRIPTION=                             绑定多个按键表
 TAS_HELPER_MAIN_SWITCH_HOTKEY=                             圆刺功能的主开关
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       切换倒计时
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       切换加载范围
+TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY=                 切换像素网格宽度

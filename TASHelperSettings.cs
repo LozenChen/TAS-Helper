@@ -22,7 +22,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool spinnerEnabled = true;
 
-    public bool SpinnerEnabled { get => Enabled && spinnerEnabled ; set => spinnerEnabled = value; }
+    public bool SpinnerEnabled { get => Enabled && spinnerEnabled; set => spinnerEnabled = value; }
 
     #region SpinnerMainSwitch
     private void EnabledEnforceRaiseSettings(bool raiseAll) {
@@ -173,14 +173,14 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public enum ClearSpritesMode {WhenSimplifyGraphics, Always};
+    public enum ClearSpritesMode { WhenSimplifyGraphics, Always };
 
     private ClearSpritesMode enforceClearSprites = ClearSpritesMode.Always;
 
     public ClearSpritesMode EnforceClearSprites {
         get => enforceClearSprites;
         set => enforceClearSprites = value;
-    } 
+    }
     public bool ClearSpinnerSprites => CelesteTasSettings.Instance.SimplifiedGraphics || EnforceClearSprites == ClearSpritesMode.Always;
 
     [SettingRange(0, 9)]
@@ -226,10 +226,32 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #endregion
 
+
+    private bool usingCameraTarget = false;
+
+    [SettingName("TAS_HELPER_CAMERA_TARGET")]
+    public bool UsingCameraTarget {
+        get => Enabled && usingCameraTarget;
+        set => usingCameraTarget = value;
+    }
+
+    [SettingRange(1, 9)]
+    [SettingName("TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY")]
+    public int CameraTargetLinkOpacity { get; set; } = 6;
+
+    private bool enablePixelGrid = true;
+    public bool EnablePixelGrid { get => Enabled && enablePixelGrid; set => enablePixelGrid = value; }
+
+    public int PixelGridWidth = 2;
+
+
+
     #region HotKey
     private static ButtonBinding keySpinnerMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
     private static ButtonBinding keyCountDown { get; set; } = new(0, Keys.LeftControl, Keys.R);
     private static ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
+
+    private static ButtonBinding keyPixelGridWidth { get; set; } = new(0, Keys.LeftControl, Keys.F);
 
     [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
     [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
@@ -262,19 +284,29 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    [SettingIgnore]
+    [SettingName("TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.F)]
+    public ButtonBinding KeyPixelGridWidth {
+        get => keyPixelGridWidth;
+        set {
+            KeyPixelGridWidth = value;
+            PixelGridWidthHotkey = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
+        }
+    }
+
     public Hotkey SpinnerMainSwitchHotkey { get; private set; } = new Hotkey(keySpinnerMainSwitch.Keys, keySpinnerMainSwitch.Buttons, true, false);
 
-    [SettingIgnore]
     public Hotkey CountDownHotkey { get; private set; } = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
 
-    [SettingIgnore]
     public Hotkey LoadRangeHotkey { get; private set; } = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
+
+    public Hotkey PixelGridWidthHotkey { get; private set; } = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
 
     public void SettingsHotkeysPressed() {
         SpinnerMainSwitchHotkey.Update();
         CountDownHotkey.Update();
         LoadRangeHotkey.Update();
+        PixelGridWidthHotkey.Update();
         if (SpinnerMainSwitchHotkey.Pressed) {
             switch (SpinnerMainSwitch) {
                 case SpinnerMainSwitchModes.Off: SpinnerMainSwitch = SpinnerMainSwitchModes.OnlyDefault; break;
@@ -282,21 +314,27 @@ public class TASHelperSettings : EverestModuleSettings {
                 case SpinnerMainSwitchModes.AllowAll: SpinnerMainSwitch = SpinnerMainSwitchModes.Off; break;
             }
         }
-        if (Enabled) {
-            if (CountDownHotkey.Pressed) {
-                switch (CountdownMode) {
-                    case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
-                    case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
-                    case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
-                }
+        if (CountDownHotkey.Pressed) {
+            switch (CountdownMode) {
+                case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
+                case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
+                case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
             }
-            if (LoadRangeHotkey.Pressed) {
-                switch (LoadRangeMode) {
-                    case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
-                    case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
-                    case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; break;
-                    case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
-                }
+        }
+        if (LoadRangeHotkey.Pressed) {
+            switch (LoadRangeMode) {
+                case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
+                case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
+                case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; break;
+                case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
+            }
+        }
+        if (PixelGridWidthHotkey.Pressed) {
+            switch (PixelGridWidth) {
+                case < 2: PixelGridWidth = 2; break;
+                case < 4: PixelGridWidth = 4; break;
+                case < 8: PixelGridWidth = 8; break;
+                default: PixelGridWidth = 0; break;
             }
         }
     }
@@ -304,20 +342,5 @@ public class TASHelperSettings : EverestModuleSettings {
     #endregion
 
 
-
-    private bool usingCameraTarget = false;
-
-    [SettingName("TAS_HELPER_CAMERA_TARGET")]
-    public bool UsingCameraTarget {
-        get => Enabled && usingCameraTarget;
-        set => usingCameraTarget = value;
-    }
-
-    [SettingRange(1, 9)]
-    [SettingName("TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY")]
-    public int CameraTargetLinkOpacity { get; set; } = 6;
-
-    private bool enablePixelGrid = true;
-    public bool EnablePixelGrid { get => Enabled && enablePixelGrid; set => enablePixelGrid = value; }
 }
 

@@ -48,7 +48,9 @@ TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              Always
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity
 
 # ============================================= Pixel Grid =====================================================
-TAS_HELPER_ENABLE_PIXEL_GRID=                              Pixel Grid
+TAS_HELPER_PIXEL_GRID=                                     Pixel Grid
+TAS_HELPER_ENABLE_PIXEL_GRID=                              Enable
+TAS_HELPER_PIXEL_GRID_WIDTH=                               Width
 
 # ============================================= Camera Target =====================================================
 TAS_HELPER_CAMERA_TARGET=                                  Camera Target
@@ -60,3 +62,4 @@ TAS_HELPER_HOTKEY_DESCRIPTION=                             Binding multiple keys
 TAS_HELPER_MAIN_SWITCH_HOTKEY=                             Main Switch for Hazard-related
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       Switch Countdown
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       Switch Load Range
+TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY=                 Switch Pixel Grid Width

@@ -1,14 +1,9 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
+using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
-using FMOD.Studio;
 using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
-using MonoMod.Utils;
-using System.Reflection;
-using TAS.Module;
-using YamlDotNet.Core;
 
 namespace Celeste.Mod.TASHelper;
 
@@ -51,7 +46,7 @@ public class TASHelperModule : EverestModule {
         On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
         IL.Celeste.Player.Update -= PlayerPositionBeforeCameraUpdateIL;
         RenderHelper.Unload();
-        SpinnerSpritesHelper.Unload(); 
+        SpinnerSpritesHelper.Unload();
         HookHelper.Unload();
         TASHelper.Utils.Debug.DebugHelper.Unload();
     }
@@ -83,7 +78,7 @@ public class TASHelperModule : EverestModule {
     }
 
     private static void PatchHazardUpdate(Entity self) {
-        if (SpinnerHelper.HazardType(self)!= null && player != null) {
+        if (SpinnerHelper.HazardType(self) != null && player != null) {
             if (PlayerPositionChangedCount == 0) {
                 PlayerPositionChangedCount++;
                 PlayerPosition = player.Position;
@@ -115,15 +110,15 @@ public class TASHelperModule : EverestModule {
         PatchHazardUpdate(self);
     }
     private static void PatchCustomHazardUpdate(ILContext il) {
-        ILCursor ilcursor = new (il);
+        ILCursor ilcursor = new(il);
         ilcursor.Emit(OpCodes.Ldarg_0);
         ilcursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
-}
-    
+    }
+
     private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
         if (self is Level level) {
             CameraPosition = level.Camera.Position;
-            if (player!= null) {
+            if (player != null) {
                 if (PlayerPositionChangedCount == 0) {
                     PlayerPositionChangedCount++;
                     PlayerPosition = player.Position;
@@ -177,7 +172,7 @@ public class TASHelperModule : EverestModule {
         if (SpinnerHelper.GetOffset(self) is not float offset) {
             return;
         }
-        
+
         RenderHelper.DrawCycleHitboxColor(self, camera, TimeActive, offset, CameraPosition);
         // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
         if (TasHelperSettings.UsingLoadRange) {

@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Monocle;
-using System.ComponentModel;
 using TAS.EverestInterop.Hitboxes;
 using TAS.Module;
 
@@ -30,7 +29,7 @@ internal static class RenderHelper {
     private static Color InViewRangeColor = Color.Yellow * 0.8f;
     private static Color NearPlayerRangeColor = Color.Lime * 0.8f;
     private static Color CameraTargetVectorColor = Color.Goldenrod;
-   
+
 
     public static void Initialize() {
     }
@@ -183,12 +182,12 @@ internal static class RenderHelper {
         float Xc = (float)Math.Floor(CameraPosition.X + TopLeft2Center.X);
         float Yc = (float)Math.Floor(CameraPosition.Y + TopLeft2Center.Y);
         float Xleft = Math.Min(X1, X2);
-        float Xright = Math.Max(X1,X2);
+        float Xright = Math.Max(X1, X2);
         float Yup = Math.Min(Y1, Y2);
         float Ydown = Math.Max(Y1, Y2);
         Color color = CameraTargetVectorColor * (0.1f * TasHelperSettings.CameraTargetLinkOpacity);
-        Monocle.Draw.Rect(Xleft + 1, Y1, Xright-Xleft - 1f , 1f, color );
-        Monocle.Draw.Rect(X2, Yup +1f, 1f, Ydown-Yup -1f, color);
+        Monocle.Draw.Rect(Xleft + 1, Y1, Xright - Xleft - 1f, 1f, color);
+        Monocle.Draw.Rect(X2, Yup + 1f, 1f, Ydown - Yup - 1f, color);
         Monocle.Draw.Point(new Vector2(X2, Y1), color);
         Monocle.Draw.Point(new Vector2(Xc, Yc), Color.Lime * 1f);
         Monocle.Draw.Point(new Vector2(X1, Y1), Color.Lime * 0.6f);
@@ -207,60 +206,93 @@ internal static class RenderHelper {
     }
 
     public class PixelGrid : Entity {
-        int outerwidth;
-        Action<Entity> UpdateBeforeRender;
-        public PixelGrid(int outerwidth, Action<Entity> UpdateBeforeRender) {
+        public Func<bool> visibleGetter;
+        public Func<int> widthGetter;
+        public Action<PixelGrid> UpdateBeforeRender;
+        public bool fadeOut = false;
+        public PixelGrid(Func<bool> visibleGetter, Func<int> widthGetter, Action<PixelGrid> UpdateBeforeRender, bool fadeOut = false) {
             base.Depth = 8900;
             // lower than BackgroudTiles
             base.Collidable = false;
-            this.outerwidth = outerwidth;
+            base.Collider = new Hitbox(0f, 0f);
+            this.visibleGetter = visibleGetter;
+            this.widthGetter = widthGetter;
             this.UpdateBeforeRender = UpdateBeforeRender;
+            this.fadeOut = fadeOut;
         }
 
 
-        public static Color GetGridColor(int index) {
+        public static Color GetGridColor(int index, float alpha = 0.5f) {
             return (Math.Abs(index) % 2) switch {
-                0 => Color.White * 0.5f,
-                1 => Color.Gray * 0.5f,
+                0 => Color.White * alpha,
+                1 => Color.Gray * alpha,
             };
+        }
+
+        public Color FadeOutColor(float RelativeX, float RelativeY, float width) {
+            return GetGridColor((int)(RelativeX + RelativeY), fadeOut ? 0.5f : (1 - Distance(RelativeX, RelativeY) / width) * 0.5f);
+        }
+
+        public float Distance(float RelativeX, float RelativeY) {
+            float DistX = 0f;
+            float DistY = 0f;
+            if (RelativeX < Collider.Left) {
+                DistX = Collider.Left - RelativeX;
+            }
+            else if (RelativeX > Collider.Right) {
+                DistX = RelativeX - Collider.Right;
+            }
+            if (RelativeY < Collider.Top) {
+                DistY = Collider.Top - RelativeY;
+            }
+            else if (RelativeY > Collider.Bottom) {
+                DistY = RelativeY - Collider.Bottom;
+            }
+            return Math.Max(DistX, DistY);
         }
 
         public override void Update() {
             // do nothing
         }
         public override void Render() {
-            if (CelesteTasSettings.Instance.ShowGameplay) {
+            if (visibleGetter() && CelesteTasSettings.Instance.ShowGameplay) {
                 UpdateBeforeRender(this);
                 RenderWithoutCondition();
             }
         }
 
         public override void DebugRender(Camera camera) {
-            if (!CelesteTasSettings.Instance.ShowGameplay) {
+            if (!CelesteTasSettings.Instance.ShowGameplay && visibleGetter()) {
                 UpdateBeforeRender(this);
                 RenderWithoutCondition();
             }
         }
 
         public void RenderWithoutCondition() {
+            int outerwidth = widthGetter();
             for (float x = Collider.Left - outerwidth; x < Collider.Right + outerwidth; x += 1f) {
                 for (float y = Collider.Top - outerwidth; y < Collider.Bottom + outerwidth; y += 1f) {
-                    Monocle.Draw.Point(new Vector2(Position.X + x, Position.Y + y), GetGridColor((int)(x + y)));
+                    Monocle.Draw.Point(new Vector2(Position.X + x, Position.Y + y), FadeOutColor(x, y, outerwidth));
                 }
             }
         }
     }
 
-    private static void PixelGridAroundPlayerUpdate(Entity self) {
-        self.Visible = TasHelperSettings.EnablePixelGrid;
+    private static void PixelGridAroundPlayerUpdate(PixelGrid self) {
         if (TASHelperModule.player is Player player) {
             self.Position = player.Position;
-            self.Collider = player.Collider;
+            self.Collider.Width = player.Collider.Width;
+            self.Collider.Height = player.Collider.Height;
+            self.Collider.Left = player.Collider.Left;
+            self.Collider.Top = player.Collider.Top;
+            // when use self.Collider = player.Collider, and turn off Celeste TAS's ShowHitboxes,
+            // if you demodash into wall, then player will stuck in wall
+            // don't know why
         }
     }
     private static void CreatePixelGridAroundPlayer(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
         orig(self, playerIntro, isFromLoader);
-        self.Add(new PixelGrid(5, PixelGridAroundPlayerUpdate));
+        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid, () => TasHelperSettings.PixelGridWidth, PixelGridAroundPlayerUpdate, true));
     }
 
 }
