@@ -229,16 +229,25 @@ internal static class RenderHelper {
             // do nothing
         }
         public override void Render() {
-            UpdateBeforeRender(this);
-            for (float x = Position.X + Collider.Left - outerwidth; x < Position.X + Collider.Right + outerwidth; x += 1f) {
-                for (float y = Position.Y + Collider.Top - outerwidth; y < Position.Y + Collider.Bottom + outerwidth; y += 1f) {
-                    Monocle.Draw.Point(new Vector2(x, y), GetGridColor((int)(x + y)));
-                }
+            if (CelesteTasSettings.Instance.ShowGameplay) {
+                UpdateBeforeRender(this);
+                RenderWithoutCondition();
             }
         }
 
         public override void DebugRender(Camera camera) {
-            // do nothing
+            if (!CelesteTasSettings.Instance.ShowGameplay) {
+                UpdateBeforeRender(this);
+                RenderWithoutCondition();
+            }
+        }
+
+        public void RenderWithoutCondition() {
+            for (float x = Collider.Left - outerwidth; x < Collider.Right + outerwidth; x += 1f) {
+                for (float y = Collider.Top - outerwidth; y < Collider.Bottom + outerwidth; y += 1f) {
+                    Monocle.Draw.Point(new Vector2(Position.X + x, Position.Y + y), GetGridColor((int)(x + y)));
+                }
+            }
         }
     }
 
