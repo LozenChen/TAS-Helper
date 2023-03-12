@@ -20,6 +20,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region Spinner Settings
 
+    private bool spinnerEnabled = true;
+
+    public bool SpinnerEnabled { get => Enabled && spinnerEnabled ; set => spinnerEnabled = value; }
+
     #region SpinnerMainSwitch
     private void EnabledEnforceRaiseSettings(bool raiseAll) {
         ShowCycleHitboxColors = ShowCycleHitboxColors;
@@ -37,15 +41,18 @@ public class TASHelperSettings : EverestModuleSettings {
     public SpinnerMainSwitchModes SpinnerMainSwitch {
         get => spinnerMainSwitch;
         set {
+            if (!Enabled) {
+                return;
+            }
             spinnerMainSwitch = value;
-            Enabled = (value != SpinnerMainSwitchModes.Off);
+            SpinnerEnabled = (value != SpinnerMainSwitchModes.Off);
             if (value == SpinnerMainSwitchModes.AllowAll) {
                 MainSwitch2All();
             }
             else {
                 MainSwitch2Default();
             }
-            if (Enabled) {
+            if (SpinnerEnabled) {
                 EnabledEnforceRaiseSettings(value == SpinnerMainSwitchModes.AllowAll);
                 if (value == SpinnerMainSwitchModes.OnlyDefault) {
                     MainSwitch2DefaultPart2();
@@ -96,8 +103,8 @@ public class TASHelperSettings : EverestModuleSettings {
     private bool showCycleHitboxColor = true;
 
     public bool ShowCycleHitboxColors {
-        get => Enabled && EnableCycleHitboxColors && showCycleHitboxColor;
-        set { if (Enabled) showCycleHitboxColor = value; }
+        get => SpinnerEnabled && EnableCycleHitboxColors && showCycleHitboxColor;
+        set { if (SpinnerEnabled) showCycleHitboxColor = value; }
     }
     #endregion
 
@@ -108,9 +115,9 @@ public class TASHelperSettings : EverestModuleSettings {
     private CountdownModes countdownMode = CountdownModes._3fCycle;
 
     public CountdownModes CountdownMode {
-        get => Enabled && EnableCountdownModes ? countdownMode : CountdownModes.Off;
+        get => SpinnerEnabled && EnableCountdownModes ? countdownMode : CountdownModes.Off;
         set {
-            if (Enabled) {
+            if (SpinnerEnabled) {
                 countdownMode = value;
                 EnableCountdownModes = true;
                 UpdateAuxiliaryVariable();
@@ -128,9 +135,9 @@ public class TASHelperSettings : EverestModuleSettings {
     private LoadRangeModes loadRangeMode = LoadRangeModes.Both;
 
     public LoadRangeModes LoadRangeMode {
-        get => Enabled && EnableLoadRange ? loadRangeMode : LoadRangeModes.Neither;
+        get => SpinnerEnabled && EnableLoadRange ? loadRangeMode : LoadRangeModes.Neither;
         set {
-            if (Enabled) {
+            if (SpinnerEnabled) {
                 loadRangeMode = value;
                 EnableLoadRange = true;
                 UpdateAuxiliaryVariable();
@@ -157,9 +164,9 @@ public class TASHelperSettings : EverestModuleSettings {
     private bool enableSimplifiedSpinner { get; set; } = true;
 
     public bool EnableSimplifiedSpinner {
-        get => Enabled && EnableEnableSimplifiedSpinner && enableSimplifiedSpinner;
+        get => SpinnerEnabled && EnableEnableSimplifiedSpinner && enableSimplifiedSpinner;
         set {
-            if (Enabled) {
+            if (SpinnerEnabled) {
                 enableSimplifiedSpinner = value;
                 EnableEnableSimplifiedSpinner = true;
             }
@@ -310,5 +317,7 @@ public class TASHelperSettings : EverestModuleSettings {
     [SettingName("TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY")]
     public int CameraTargetLinkOpacity { get; set; } = 6;
 
+    private bool enablePixelGrid = true;
+    public bool EnablePixelGrid { get => Enabled && enablePixelGrid; set => enablePixelGrid = value; }
 }
 

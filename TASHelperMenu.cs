@@ -17,7 +17,6 @@ internal static class TASHelperMenu {
     private static TextMenu.Item hotkeysSubMenu;
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ","_"));
 
-
     private static TextMenuExt.SubMenu CreateLoadRangeSubMenu(TextMenu menu) {
         return new TextMenuExt.SubMenu("Load Range".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item LoadRangeModeItem;
@@ -135,6 +134,7 @@ internal static class TASHelperMenu {
         CountdownModeItem.AddDescription(menu,"Countdown Mode Description".ToDialogText());
         menu.Add(CreateLoadRangeSubMenu(menu));
         menu.Add(CreateSimplifiedSpinnerSubMenu(menu));
+        menu.Add(new TextMenu.OnOff("Enable Pixel Grid".ToDialogText(), TasHelperSettings.EnablePixelGrid).Change(value => TasHelperSettings.EnablePixelGrid = value));
         menu.Add(CreateCameraTargetSubMenu(menu));
         menu.Add(CreateHotkeysSubMenu(everestModule, menu));
         hotkeysSubMenu.AddDescription(menu, "Hotkey Description".ToDialogText());

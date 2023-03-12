@@ -36,11 +36,11 @@ internal static class RenderHelper {
     }
 
     public static void Load() {
-
+        On.Celeste.Level.LoadLevel += CreatePixelGridAroundPlayer;
     }
 
     public static void Unload() {
-
+        On.Celeste.Level.LoadLevel -= CreatePixelGridAroundPlayer;
     }
 
     public static Color GetSpinnerColor(int index) {
@@ -209,15 +209,14 @@ internal static class RenderHelper {
     public class PixelGrid : Entity {
         int outerwidth;
         Action<Entity> UpdateBeforeRender;
-        public PixelGrid(Vector2 position, Collider collider, int outerwidth, Action<Entity> UpdateBeforeRender) {
-            base.Depth = 9999;
+        public PixelGrid(int outerwidth, Action<Entity> UpdateBeforeRender) {
+            base.Depth = 8900;
             // lower than BackgroudTiles
             base.Collidable = false;
-            base.Position = position;
-            base.Collider = collider;
             this.outerwidth = outerwidth;
             this.UpdateBeforeRender = UpdateBeforeRender;
         }
+
 
         public static Color GetGridColor(int index) {
             return (Math.Abs(index) % 2) switch {
@@ -237,9 +236,22 @@ internal static class RenderHelper {
                 }
             }
         }
+
+        public override void DebugRender(Camera camera) {
+            // do nothing
+        }
     }
 
-    public static void PixelGridAroundPlayerUpdate() {
-
+    private static void PixelGridAroundPlayerUpdate(Entity self) {
+        self.Visible = TasHelperSettings.EnablePixelGrid;
+        if (TASHelperModule.player is Player player) {
+            self.Position = player.Position;
+            self.Collider = player.Collider;
+        }
     }
+    private static void CreatePixelGridAroundPlayer(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
+        orig(self, playerIntro, isFromLoader);
+        self.Add(new PixelGrid(5, PixelGridAroundPlayerUpdate));
+    }
+
 }

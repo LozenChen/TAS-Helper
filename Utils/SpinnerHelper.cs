@@ -7,30 +7,39 @@ namespace Celeste.Mod.TASHelper.Utils;
 public static class SpinnerHelper {
     public static void Initialize() {
         if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
-            ModTypes.Add(frostSpinnerType, Tuple.Create(spinner, "offset",));
+            ModHazardTypes.Add(frostSpinnerType, Tuple.Create(spinner, treatSpecial));
         }
 
+        
     }
     
-    public static Dictionary<Type, Tuple<int, string, Func<bool, Entity>>> ModTypes = new();
+    public static Dictionary<Type, Tuple<int, bool>> ModHazardTypes = new();
 
     internal const int spinner = 0;
     internal const int dust = 1;
     internal const int lightning = 2;
+    private const bool treatTrivial = true;
+    private const bool treatSpecial = false;
     public static int? HazardType(Entity self) {
         if (self is CrystalStaticSpinner) return spinner;
         if (self is DustStaticSpinner) return dust;
         if (self is Lightning) return lightning;
-        if (self is FrostHelper.CustomSpinner customSpinner) {
-            return customSpinner.HasCollider ? spinner : null;
+        Type type = self.GetType();
+        if (ModHazardTypes.TryGetValue(type, out Tuple <int, bool> value)) { 
+            if (value.Item2) {
+                return value.Item1;
+            }
+            if (TASHelperModule.FrostHelperInstalled) {
+                if (self is FrostHelper.CustomSpinner customSpinner) {
+                    return customSpinner.HasCollider ? spinner : null;
+                }
+            }
         }
-        // if (self is VivHelper.Entities.CustomSpinner) return spinner;
-        // i dont know why but it just can't work
         return null;
     }
     public static float? GetOffset(Entity self) {
-        if (HazardType(self) == null) return null;
-        string fieldname = HazardType(self) == lightning ? "toggleOffset" : "offset";
+        if (HazardType(self) is not int type) return null;
+        string fieldname = type == lightning ? "toggleOffset" : "offset";
         FieldInfo field = self.GetType().GetField(fieldname, BindingFlags.Instance | BindingFlags.NonPublic);
         return (float)field.GetValue(self);
     }

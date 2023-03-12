@@ -20,25 +20,14 @@ public class TASHelperModule : EverestModule {
     }
 
     public override Type SettingsType => typeof(TASHelperSettings);
-    private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
-        ILCursor cursor = new ILCursor(il);
-        if (cursor.TryGotoNext(MoveType.After,
-                ins => ins.OpCode == OpCodes.Stfld && ins.Operand.ToString() == "System.Boolean Celeste.Player::StrawberriesBlocked"
-                // stfld bool Celeste.Player::StrawberriesBlocked
-            )) {
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldfld, typeof(Entity).GetField("Position"));
-            cursor.Emit(OpCodes.Stfld, typeof(TASHelperModule).GetField("PlayerPositionBeforeCameraUpdate"));
-        }
-    }
 
+    public static bool FrostHelperInstalled = false;
     public override void Load() {
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         On.Celeste.CrystalStaticSpinner.Update += PatchCrysSpinnerUpdate;
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
-        if (ModUtils.IsInstalled("FrostHelper")) {
+        if (FrostHelperInstalled) {
             typeof(FrostHelper.CustomSpinner).GetMethod("Update").IlHook(PatchCustomHazardUpdate);
         }
         On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
@@ -70,6 +59,7 @@ public class TASHelperModule : EverestModule {
     public override void Initialize() {
         RenderHelper.Initialize();
         SpinnerHelper.Initialize();
+        FrostHelperInstalled = ModUtils.IsInstalled("FrostHelper");
     }
 
     public override void LoadContent(bool firstLoad) {
@@ -142,6 +132,19 @@ public class TASHelperModule : EverestModule {
             }
         }
         orig(self);
+    }
+
+    private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
+        ILCursor cursor = new ILCursor(il);
+        if (cursor.TryGotoNext(MoveType.After,
+                ins => ins.OpCode == OpCodes.Stfld && ins.Operand.ToString() == "System.Boolean Celeste.Player::StrawberriesBlocked"
+                // stfld bool Celeste.Player::StrawberriesBlocked
+            )) {
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(OpCodes.Ldfld, typeof(Entity).GetField("Position"));
+            cursor.Emit(OpCodes.Stfld, typeof(TASHelperModule).GetField("PlayerPositionBeforeCameraUpdate"));
+        }
     }
 
     #region some mess

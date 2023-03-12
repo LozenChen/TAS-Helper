@@ -47,6 +47,9 @@ TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=When Simplified G
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              Always
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity
 
+# ============================================= Pixel Grid =====================================================
+TAS_HELPER_ENABLE_PIXEL_GRID=                              Pixel Grid
+
 # ============================================= Camera Target =====================================================
 TAS_HELPER_CAMERA_TARGET=                                  Camera Target
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity
