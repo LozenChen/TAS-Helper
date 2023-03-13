@@ -6,22 +6,15 @@ namespace Celeste.Mod.TASHelper.Entities;
 internal static class LoadRangeCountDownCameraTarget {
 
     public static void Load() {
-        On.Monocle.Entity.DebugRender += PatchDebugRender;
         On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
     }
 
     public static void Unload() {
-        On.Monocle.Entity.DebugRender -= PatchDebugRender;
         On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
     }
 
-    private static void PatchDebugRender(On.Monocle.Entity.orig_DebugRender orig, Entity self, Camera camera) {
-        if (!TasHelperSettings.Enabled || SpinnerHelper.HazardType(self) == null) {
-            orig(self, camera);
-            return;
-        }
+    public static void DrawLoadRangeColliderCountdown(Entity self) {
         float offset = SpinnerHelper.GetOffset(self).Value;
-
         if (TasHelperSettings.UsingLoadRange) {
             RenderHelper.DrawLoadRangeCollider(self.Position, self.Width, self.Height, PlayerHelper.CameraPosition, SpinnerHelper.isLightning(self));
         }
@@ -36,7 +29,6 @@ internal static class LoadRangeCountDownCameraTarget {
             RenderHelper.DrawCountdown(CountdownPos, SpinnerHelper.PredictCountdown(SpinnerHelper.TimeActive, offset, SpinnerHelper.isDust(self)));
         }
     }
-
     private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
         orig(self, camera);
         if (TasHelperSettings.UsingCameraTarget) {

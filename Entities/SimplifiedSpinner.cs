@@ -48,7 +48,7 @@ internal static class SimplifiedSpinner {
 
 
     private static void PatchDebugRender(On.Monocle.Entity.orig_DebugRender orig, Entity self, Camera camera) {
-        if (!TasHelperSettings.Enabled || SpinnerHelper.HazardType(self) == null) {
+        if (!TasHelperSettings.SpinnerEnabled || SpinnerHelper.HazardType(self) == null) {
             orig(self, camera);
             return;
         }
@@ -63,6 +63,7 @@ internal static class SimplifiedSpinner {
             self.Collider.Render(camera, color * (self.Collidable ? 1f : HitboxColor.UnCollidableAlpha));
         }
 
+        LoadRangeCountDownCameraTarget.DrawLoadRangeColliderCountdown(self);
     }
 
 
