@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework.Input;
 using TAS.EverestInterop;
 using static TAS.EverestInterop.Hotkeys;
 
-namespace Celeste.Mod.TASHelper;
+namespace Celeste.Mod.TASHelper.Module;
 
 [SettingName("TAS_HELPER_NAME")]
 public class TASHelperSettings : EverestModuleSettings {

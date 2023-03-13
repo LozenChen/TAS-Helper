@@ -1,6 +1,6 @@
 using Monocle;
 
-namespace Celeste.Mod.TASHelper.Utils.Debug;
+namespace Celeste.Mod.TASHelper.Utils;
 
 // only for developing this mod
 internal static class DebugHelper {

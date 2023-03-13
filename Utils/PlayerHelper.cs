@@ -1,3 +1,4 @@
+using Celeste.Mod.TASHelper.Module;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -16,14 +17,17 @@ internal static class PlayerHelper {
     internal static Vector2 PlayerPositionBeforeCameraUpdate = Vector2.Zero;
     internal static int PlayerPositionChangedCount = 0;
 
+    public static void Initialize() {
+        if (ModUtils.FrostHelperInstalled) {
+            PatchCustomHazardUpdate();
+        }
+    }
+
     public static void Load() {
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         On.Celeste.CrystalStaticSpinner.Update += PatchCrysSpinnerUpdate;
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
-        if (ModUtils.FrostHelperInstalled) {
-            typeof(FrostHelper.CustomSpinner).GetMethod("Update").IlHook(PatchCustomHazardUpdate);
-        }
         On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
         IL.Celeste.Player.Update += PlayerPositionBeforeCameraUpdateIL;
     }
@@ -90,10 +94,12 @@ internal static class PlayerHelper {
         orig(self);
         PatchHazardUpdate(self);
     }
-    private static void PatchCustomHazardUpdate(ILContext il) {
-        ILCursor ilcursor = new(il);
-        ilcursor.Emit(OpCodes.Ldarg_0);
-        ilcursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+
+    private static void PatchCustomHazardUpdate() {
+        typeof(FrostHelper.CustomSpinner).GetMethod("Update").IlHook((cursor, _) => {
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+        });
     }
 
     private static void PatchHazardUpdate(Entity self) {

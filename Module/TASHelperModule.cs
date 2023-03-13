@@ -1,7 +1,7 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
 using FMOD.Studio;
 
-namespace Celeste.Mod.TASHelper;
+namespace Celeste.Mod.TASHelper.Module;
 
 public class TASHelperModule : EverestModule {
 
