@@ -14,14 +14,13 @@ public static class SpinnerHelper {
         On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
     }
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
+        orig(self);
         TimeActive = self.TimeActive;
     }
     public static void Initialize() {
         if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
             ModHazardTypes.Add(frostSpinnerType, Tuple.Create(spinner, treatSpecial));
         }
-
-
     }
 
     public static Dictionary<Type, Tuple<int, bool>> ModHazardTypes = new();
@@ -40,14 +39,22 @@ public static class SpinnerHelper {
             if (value.Item2) {
                 return value.Item1;
             }
+
             if (ModUtils.FrostHelperInstalled) {
-                if (self is FrostHelper.CustomSpinner customSpinner) {
-                    return customSpinner.HasCollider ? spinner : null;
-                }
+                return FrostHelperHazardType(self);
             }
         }
         return null;
     }
+
+    private static int? FrostHelperHazardType(Entity self) {
+        if (self is FrostHelper.CustomSpinner customSpinner) {
+            return customSpinner.HasCollider ? spinner : null;
+        }
+
+        return null;
+    }
+
     public static float? GetOffset(Entity self) {
         if (HazardType(self) is not int type) return null;
         string fieldname = type == lightning ? "toggleOffset" : "offset";
