@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework.Input;
 using TAS.EverestInterop;
-using TAS.Module;
 using static TAS.EverestInterop.Hotkeys;
 
 namespace Celeste.Mod.TASHelper;
@@ -22,7 +21,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool spinnerEnabled = true;
 
-    public bool SpinnerEnabled { get => Enabled && spinnerEnabled ; set => spinnerEnabled = value; }
+    public bool SpinnerEnabled { get => Enabled && spinnerEnabled; set => spinnerEnabled = value; }
 
     #region SpinnerMainSwitch
     private void EnabledEnforceRaiseSettings(bool raiseAll) {
@@ -173,15 +172,15 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public enum ClearSpritesMode {WhenSimplifyGraphics, Always};
+    public enum ClearSpritesMode { WhenSimplifyGraphics, Always };
 
     private ClearSpritesMode enforceClearSprites = ClearSpritesMode.Always;
 
     public ClearSpritesMode EnforceClearSprites {
         get => enforceClearSprites;
         set => enforceClearSprites = value;
-    } 
-    public bool ClearSpinnerSprites => EnforceClearSprites == ClearSpritesMode.Always || (CelesteTasSettings.Instance.SimplifiedGraphics && CelesteTasSettings.Instance.ShowHitboxes);
+    }
+    public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || TasSettings.SimplifiedGraphics);
 
     [SettingRange(0, 9)]
     public int SpinnerFillerOpacity { get; set; } = 4;
@@ -226,7 +225,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #endregion
 
-   
+
     private bool usingCameraTarget = false;
 
     [SettingName("TAS_HELPER_CAMERA_TARGET")]
@@ -330,12 +329,16 @@ public class TASHelperSettings : EverestModuleSettings {
             }
         }
         if (PixelGridWidthHotkey.Pressed) {
+            EnablePixelGrid = true;
             PixelGridWidth = PixelGridWidth switch {
                 < 2 => 2,
                 < 4 => 4,
                 < 8 => 8,
                 _ => 0,
             };
+            if (PixelGridWidth == 0) {
+                EnablePixelGrid = false;
+            }
         }
     }
 

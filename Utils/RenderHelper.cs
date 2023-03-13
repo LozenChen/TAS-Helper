@@ -1,8 +1,5 @@
 using Microsoft.Xna.Framework;
 using Monocle;
-using System.ComponentModel;
-using TAS.EverestInterop.Hitboxes;
-using TAS.Module;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -30,25 +27,23 @@ internal static class RenderHelper {
     private static Color InViewRangeColor = Color.Yellow * 0.8f;
     private static Color NearPlayerRangeColor = Color.Lime * 0.8f;
     private static Color CameraTargetVectorColor = Color.Goldenrod;
-   
+
 
     public static void Initialize() {
     }
 
     public static void Load() {
-        On.Celeste.Level.LoadLevel += CreatePixelGridAroundPlayer;
     }
 
     public static void Unload() {
-        On.Celeste.Level.LoadLevel -= CreatePixelGridAroundPlayer;
     }
 
     public static Color GetSpinnerColor(int index) {
         return index switch {
-            0 => CelesteTasSettings.Instance.CycleHitboxColor1,
-            1 => CelesteTasSettings.Instance.CycleHitboxColor2,
-            2 => CelesteTasSettings.Instance.CycleHitboxColor3,
-            3 => CelesteTasSettings.Instance.OtherCyclesHitboxColor,
+            0 => TasSettings.CycleHitboxColor1,
+            1 => TasSettings.CycleHitboxColor2,
+            2 => TasSettings.CycleHitboxColor3,
+            3 => TasSettings.OtherCyclesHitboxColor,
         };
     }
 
@@ -68,32 +63,18 @@ internal static class RenderHelper {
         }
     }
 
-    public static void DrawCycleHitboxColor(Entity self, Camera camera, float TimeActive, float offset, Vector2 CameraPosition) {
-        Color color;
+    public static Color CycleHitboxColor(Entity self, float TimeActive, float offset, Vector2 CameraPosition) {
         if (!TasHelperSettings.ShowCycleHitboxColors) {
-            color = CelesteTasSettings.Instance.EntityHitboxColor;
+            return TasSettings.EntityHitboxColor;
         }
-        else if (TasHelperSettings.isUsingInViewRange && !SpinnerHelper.InView(self, CameraPosition) && !(SpinnerHelper.isDust(self))) {
-            color = HazardNotInViewColor;
+        if (TasHelperSettings.isUsingInViewRange && !SpinnerHelper.InView(self, CameraPosition) && !(SpinnerHelper.isDust(self))) {
+            return HazardNotInViewColor;
         }
-        else {
-            int group = SpinnerHelper.CalculateSpinnerGroup(TimeActive, offset);
-            color = GetSpinnerColor(group);
-            if (TimeActive >= 524288f && group < 3) {
-                color = GetSpinnerColor(0);
-            }
+        int group = SpinnerHelper.CalculateSpinnerGroup(TimeActive, offset);
+        if (TimeActive >= 524288f && group < 3) {
+            return GetSpinnerColor(0);
         }
-        if (SpinnerHelper.isLightning(self)) {
-            self.Collider.Render(camera, color * (self.Collidable ? 1f : HitboxColor.UnCollidableAlpha));
-        }
-        else {
-            if (TasHelperSettings.EnableSimplifiedSpinner) {
-                DrawSpinnerCollider(self.Position, color, self.Collidable, HitboxColor.UnCollidableAlpha, true);
-            }
-            else {
-                self.Collider.Render(camera, color * (self.Collidable ? 1f : HitboxColor.UnCollidableAlpha));
-            }
-        }
+        return GetSpinnerColor(group);
     }
 
     public static void DrawSpinnerCollider(Vector2 Position, Color color, bool Collidable, float alpha, bool Filled) {
@@ -183,12 +164,12 @@ internal static class RenderHelper {
         float Xc = (float)Math.Floor(CameraPosition.X + TopLeft2Center.X);
         float Yc = (float)Math.Floor(CameraPosition.Y + TopLeft2Center.Y);
         float Xleft = Math.Min(X1, X2);
-        float Xright = Math.Max(X1,X2);
+        float Xright = Math.Max(X1, X2);
         float Yup = Math.Min(Y1, Y2);
         float Ydown = Math.Max(Y1, Y2);
         Color color = CameraTargetVectorColor * (0.1f * TasHelperSettings.CameraTargetLinkOpacity);
-        Monocle.Draw.Rect(Xleft + 1, Y1, Xright-Xleft - 1f , 1f, color );
-        Monocle.Draw.Rect(X2, Yup +1f, 1f, Ydown-Yup -1f, color);
+        Monocle.Draw.Rect(Xleft + 1, Y1, Xright - Xleft - 1f, 1f, color);
+        Monocle.Draw.Rect(X2, Yup + 1f, 1f, Ydown - Yup - 1f, color);
         Monocle.Draw.Point(new Vector2(X2, Y1), color);
         Monocle.Draw.Point(new Vector2(Xc, Yc), Color.Lime * 1f);
         Monocle.Draw.Point(new Vector2(X1, Y1), Color.Lime * 0.6f);
@@ -204,96 +185,6 @@ internal static class RenderHelper {
             Monocle.Draw.Point(new Vector2(X2 + 2f, Y2 + sign * 4f), color);
             Monocle.Draw.Point(new Vector2(X2 + 2f, Y2 + sign * 5f), color);
         }
-    }
-
-    public class PixelGrid : Entity {
-        public Func<bool> visibleGetter;
-        public Func<int> widthGetter;
-        public Action<PixelGrid> UpdateBeforeRender;
-        public bool fadeOut = false;
-        public PixelGrid(Func<bool> visibleGetter, Func<int> widthGetter, Action<PixelGrid> UpdateBeforeRender, bool fadeOut = false) {
-            base.Depth = 8900;
-            // lower than BackgroudTiles
-            base.Collidable = false;
-            base.Collider = new Hitbox(0f, 0f);
-            this.visibleGetter = visibleGetter;
-            this.widthGetter = widthGetter;
-            this.UpdateBeforeRender = UpdateBeforeRender;
-            this.fadeOut = fadeOut;
-        }
-
-
-        public static Color GetGridColor(int index, float alpha = 0.5f) {
-            return (Math.Abs(index) % 2) switch {
-                0 => Color.White * alpha,
-                1 => Color.Gray * alpha,
-            };
-        }
-
-        public Color FadeOutColor(int RelativeX, int RelativeY, float width) {
-            return GetGridColor(RelativeX + RelativeY, fadeOut ? (1 - Distance(RelativeX, RelativeY) / width) * TasHelperSettings.PixelGridOpacity * 0.1f: TasHelperSettings.PixelGridOpacity * 0.1f);
-        }
-
-        public float Distance(int RelativeX, int RelativeY) {
-            float DistX = 0f;
-            float DistY = 0f;
-            if (RelativeX < Collider.Left - 1) {
-                DistX = Collider.Left - 1 - RelativeX;
-            }
-            else if (RelativeX > Collider.Right) {
-                DistX = RelativeX - Collider.Right;
-            }
-            if (RelativeY < Collider.Top - 1) {
-                DistY = Collider.Top -1 - RelativeY;
-            }
-            else if (RelativeY > Collider.Bottom) {
-                DistY = RelativeY - Collider.Bottom;
-            }
-            return Math.Max(DistX, DistY);
-        }
-
-        public override void Update() {
-            // do nothing
-        }
-        public override void Render() {
-            if (visibleGetter() && CelesteTasSettings.Instance.ShowGameplay) {
-                UpdateBeforeRender(this);
-                RenderWithoutCondition();
-            }
-        }
-
-        public override void DebugRender(Camera camera) {
-            if (!CelesteTasSettings.Instance.ShowGameplay && visibleGetter()) {
-                UpdateBeforeRender(this);
-                RenderWithoutCondition();
-            }
-        }
-
-        public void RenderWithoutCondition() {
-            int outerwidth = widthGetter();
-            for (int x = (int)(Collider.Left - outerwidth); x < Collider.Right + outerwidth; x ++) {
-                for (int y = (int)(Collider.Top - outerwidth); y < Collider.Bottom + outerwidth; y ++) {
-                    Monocle.Draw.Point(new Vector2(Position.X + x, Position.Y + y), FadeOutColor(x,y, outerwidth));
-                }
-            }
-        }
-    }
-
-    private static void PixelGridAroundPlayerUpdate(PixelGrid self) {
-        if (TASHelperModule.player is Player player) {
-            self.Position = player.Position;
-            self.Collider.Width = player.Collider.Width;
-            self.Collider.Height = player.Collider.Height;
-            self.Collider.Left = player.Collider.Left;
-            self.Collider.Top = player.Collider.Top;
-            // when use self.Collider = player.Collider, and turn off Celeste TAS's ShowHitboxes,
-            // if you demodash into wall, then player will stuck in wall
-            // don't know why
-        }
-    }
-    private static void CreatePixelGridAroundPlayer(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
-        orig(self, playerIntro, isFromLoader);
-        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid , () => TasHelperSettings.PixelGridWidth, PixelGridAroundPlayerUpdate, false));
     }
 
 }

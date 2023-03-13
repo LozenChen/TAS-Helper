@@ -5,14 +5,25 @@ using System.Reflection;
 namespace Celeste.Mod.TASHelper.Utils;
 
 public static class SpinnerHelper {
+
+    public static float TimeActive = 0f;
+    public static void Load() {
+        On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
+    }
+    public static void Unload() {
+        On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
+    }
+    private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
+        TimeActive = self.TimeActive;
+    }
     public static void Initialize() {
         if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
             ModHazardTypes.Add(frostSpinnerType, Tuple.Create(spinner, treatSpecial));
         }
 
-        
+
     }
-    
+
     public static Dictionary<Type, Tuple<int, bool>> ModHazardTypes = new();
 
     internal const int spinner = 0;
@@ -25,11 +36,11 @@ public static class SpinnerHelper {
         if (self is DustStaticSpinner) return dust;
         if (self is Lightning) return lightning;
         Type type = self.GetType();
-        if (ModHazardTypes.TryGetValue(type, out Tuple <int, bool> value)) { 
+        if (ModHazardTypes.TryGetValue(type, out Tuple<int, bool> value)) {
             if (value.Item2) {
                 return value.Item1;
             }
-            if (TASHelperModule.FrostHelperInstalled) {
+            if (ModUtils.FrostHelperInstalled) {
                 if (self is FrostHelper.CustomSpinner customSpinner) {
                     return customSpinner.HasCollider ? spinner : null;
                 }

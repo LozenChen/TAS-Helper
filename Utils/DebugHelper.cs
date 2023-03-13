@@ -1,7 +1,3 @@
-using System.Reflection;
-using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
-using Celeste;
 using Monocle;
 
 namespace Celeste.Mod.TASHelper.Utils.Debug;
@@ -9,7 +5,7 @@ namespace Celeste.Mod.TASHelper.Utils.Debug;
 // only for developing this mod
 internal static class DebugHelper {
     public static bool usingDebug = false;
-    
+
     public static void Load() {
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         On.Monocle.Scene.Update += PatchUpdate;
@@ -40,7 +36,7 @@ internal static class DebugHelper {
     private static void PatchUpdate(On.Monocle.Scene.orig_Update orig, Scene self) {
         orig(self);
         if (usingDebug && self is Level) {
-            if (TASHelperModule.player is Player Player && Player.Speed.Y < -200f) {
+            if (PlayerHelper.player is Player Player && Player.Speed.Y < -200f) {
                 if (triggerTimer <= 0f && !StartToLog) {
                     triggered = true;
                     triggerTimer = triggerBuffer;

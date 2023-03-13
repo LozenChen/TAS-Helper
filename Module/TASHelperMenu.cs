@@ -1,11 +1,6 @@
-using System.Reflection;
-using System.Xml.Linq;
-using Celeste;
-using Celeste.Mod;
-using FrostHelper;
 using Microsoft.Xna.Framework;
 using Monocle;
-using TAS.Module;
+using System.Reflection;
 using static Celeste.Mod.TASHelper.TASHelperSettings;
 
 namespace Celeste.Mod.TASHelper;
@@ -15,7 +10,7 @@ internal static class TASHelperMenu {
     private static readonly MethodInfo CreateKeyboardConfigUi = typeof(EverestModule).GetMethod("CreateKeyboardConfigUI", BindingFlags.NonPublic);
     private static readonly MethodInfo CreateButtonConfigUI = typeof(EverestModule).GetMethod("CreateButtonConfigUI", BindingFlags.NonPublic);
     private static TextMenu.Item hotkeysSubMenu;
-    internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ","_"));
+    internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
 
     private static TextMenuExt.SubMenu CreateLoadRangeSubMenu(TextMenu menu) {
         return new TextMenuExt.SubMenu("Load Range".ToDialogText(), false).Apply(subMenu => {
@@ -33,9 +28,9 @@ internal static class TASHelperMenu {
 
     private static TextMenuExt.SubMenu CreateSimplifiedSpinnerSubMenu(TextMenu menu) {
         return new TextMenuExt.SubMenu("Simplified Spinners".ToDialogText(), false).Apply(subMenu => {
-        subMenu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.EnableSimplifiedSpinner).Change(value =>  TasHelperSettings.EnableSimplifiedSpinner = value));
-        subMenu.Add(new TextMenuExt.EnumerableSlider<ClearSpritesMode>("Clear Spinner Sprites".ToDialogText(), CreateClearSpritesModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
-        subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity).Change(value => TasHelperSettings.SpinnerFillerOpacity = value));
+            subMenu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.EnableSimplifiedSpinner).Change(value => TasHelperSettings.EnableSimplifiedSpinner = value));
+            subMenu.Add(new TextMenuExt.EnumerableSlider<ClearSpritesMode>("Clear Spinner Sprites".ToDialogText(), CreateClearSpritesModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity).Change(value => TasHelperSettings.SpinnerFillerOpacity = value));
         });
     }
 
@@ -134,12 +129,12 @@ internal static class TASHelperMenu {
         TextMenu.Item SpinnerMainSwitchItem;
         menu.Add(SpinnerMainSwitchItem = new TextMenuExt.EnumerableSlider<SpinnerMainSwitchModes>("Spinner Main Switch".ToDialogText(), CreateSpinnerMainSwitchOptions(),
                 TasHelperSettings.SpinnerMainSwitch).Change(value => TasHelperSettings.SpinnerMainSwitch = value));
-        SpinnerMainSwitchItem.AddDescription(menu,"Spinner Main Switch Description".ToDialogText());
+        SpinnerMainSwitchItem.AddDescription(menu, "Spinner Main Switch Description".ToDialogText());
         menu.Add(new TextMenu.OnOff("Show Cycle Hitbox Colors".ToDialogText(), TasHelperSettings.ShowCycleHitboxColors).Change(value => TasHelperSettings.ShowCycleHitboxColors = value));
         TextMenu.Item CountdownModeItem;
         menu.Add(CountdownModeItem = new TextMenuExt.EnumerableSlider<CountdownModes>("Countdown Mode".ToDialogText(), CreateCountdownOptions(),
                 TasHelperSettings.CountdownMode).Change(value => TasHelperSettings.CountdownMode = value));
-        CountdownModeItem.AddDescription(menu,"Countdown Mode Description".ToDialogText());
+        CountdownModeItem.AddDescription(menu, "Countdown Mode Description".ToDialogText());
         menu.Add(CreateLoadRangeSubMenu(menu));
         menu.Add(CreateSimplifiedSpinnerSubMenu(menu));
         menu.Add(CreatePixelGridSubMenu(menu));

@@ -1,9 +1,5 @@
-using System;
-using System.Linq;
-using System.Reflection;
-using Celeste;
-using Celeste.Mod;
 using Celeste.Mod.Helpers;
+using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -33,5 +29,10 @@ internal static class ModUtils {
 
     public static Assembly GetAssembly(string modName) {
         return GetModule(modName)?.GetType().Assembly;
+    }
+
+    public static bool FrostHelperInstalled = false;
+    public static void Initialize() {
+        FrostHelperInstalled = IsInstalled("FrostHelper");
     }
 }
