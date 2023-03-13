@@ -1,3 +1,4 @@
+using Celeste.Mod.TASHelper.Module;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;

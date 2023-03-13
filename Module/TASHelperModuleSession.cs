@@ -1,4 +1,4 @@
-namespace Celeste.Mod.TASHelper {
+namespace Celeste.Mod.TASHelper.Module {
     public class TASHelperModuleSession : EverestModuleSession {
 
     }

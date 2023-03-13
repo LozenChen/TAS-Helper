@@ -1,9 +1,9 @@
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System.Reflection;
-using static Celeste.Mod.TASHelper.TASHelperSettings;
+using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 
-namespace Celeste.Mod.TASHelper;
+namespace Celeste.Mod.TASHelper.Module;
 
 internal static class TASHelperMenu {
     // basically taken from Celeste TAS
