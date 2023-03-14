@@ -24,10 +24,11 @@ public class TASHelperModule : EverestModule {
     }
 
     public override void Initialize() {
-        Loader.HelperInitialize();
+        Loader.Initialize();
     }
 
     public override void LoadContent(bool firstLoad) {
+        Loader.LoadContent();
     }
 
     public override void CreateModMenuSection(TextMenu menu, bool inGame, EventInstance snapshot) {

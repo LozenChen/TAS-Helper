@@ -1,6 +1,6 @@
-using System.Reflection;
 using Microsoft.Xna.Framework;
 using Monocle;
+using System.Reflection;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -29,8 +29,14 @@ internal static class TASHelperMenu {
     private static TextMenuExt.SubMenu CreateSimplifiedSpinnerSubMenu(TextMenu menu) {
         return new TextMenuExt.SubMenu("Simplified Spinners".ToDialogText(), false).Apply(subMenu => {
             subMenu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.EnableSimplifiedSpinner).Change(value => TasHelperSettings.EnableSimplifiedSpinner = value));
-            subMenu.Add(new TextMenuExt.EnumerableSlider<ClearSpritesMode>("Clear Spinner Sprites".ToDialogText(), CreateClearSpritesModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
+            TextMenu.Item ClearSpinnerSpritesItem;
+            subMenu.Add(ClearSpinnerSpritesItem = new TextMenuExt.EnumerableSlider<ClearSpritesMode>("Clear Spinner Sprites".ToDialogText(), CreateClearSpritesModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
+            subMenu.AddDescription(menu, ClearSpinnerSpritesItem, "Clear Spinner Sprites Description".ToDialogText());
             subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity).Change(value => TasHelperSettings.SpinnerFillerOpacity = value));
+
+            TextMenu.Item DustSprites;
+            subMenu.Add(DustSprites = new TextMenu.OnOff("Also Clear Dust Sprites", TasHelperSettings.AlsoClearDust).Change(value => TasHelperSettings.AlsoClearDust = value));
+            subMenu.AddDescription(menu, DustSprites, "There is some serious bug with this function");
         });
     }
 
@@ -108,6 +114,7 @@ internal static class TASHelperMenu {
     }
     private static IEnumerable<KeyValuePair<ClearSpritesMode, string>> CreateClearSpritesModeOptions() {
         return new List<KeyValuePair<ClearSpritesMode, string>> {
+            new(ClearSpritesMode.Off, "Clear Spinner Sprites Mode Off".ToDialogText()),
             new(ClearSpritesMode.WhenSimplifyGraphics, "Clear Spinner Sprites Mode When Simplified Graphics".ToDialogText()),
             new(ClearSpritesMode.Always, "Clear Spinner Sprites Mode Always".ToDialogText()),
         };

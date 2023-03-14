@@ -172,7 +172,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public enum ClearSpritesMode { WhenSimplifyGraphics, Always };
+    public enum ClearSpritesMode { Off, WhenSimplifyGraphics, Always };
 
     private ClearSpritesMode enforceClearSprites = ClearSpritesMode.Always;
 
@@ -180,10 +180,12 @@ public class TASHelperSettings : EverestModuleSettings {
         get => enforceClearSprites;
         set => enforceClearSprites = value;
     }
-    public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || TasSettings.SimplifiedGraphics);
+    public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
 
     [SettingRange(0, 9)]
-    public int SpinnerFillerOpacity { get; set; } = 4;
+    public int SpinnerFillerOpacity { get; set; } = 3;
+
+    public bool AlsoClearDust = false;
     #endregion
 
     #region Auxilary Variables

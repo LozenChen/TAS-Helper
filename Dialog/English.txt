@@ -43,8 +43,10 @@ TAS_HELPER_LOAD_RANGE_OPACITY=                             Load Range Opacity
 # ============================================= Simplified Spinners =====================================================
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            Simplified Spinners
 TAS_HELPER_CLEAR_SPINNER_SPRITES=                          Clear Spinner Sprites
+TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_OFF=                 Off
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=When Simplified Graphics
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              Always
+TAS_HELPER_CLEAR_SPINNER_SPRITES_DESCRIPTION=              Some will take effect after room transition
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity
 
 # ============================================= Pixel Grid =====================================================

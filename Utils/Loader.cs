@@ -32,10 +32,14 @@ internal static class Loader {
         DebugHelper.Unload();
     }
 
-    public static void HelperInitialize() {
+    public static void Initialize() {
         PlayerHelper.Initialize();
         RenderHelper.Initialize();
         SpinnerHelper.Initialize();
+        SimplifiedSpinner.Initialize();
         ModUtils.Initialize();
+    }
+
+    public static void LoadContent() {
     }
 }

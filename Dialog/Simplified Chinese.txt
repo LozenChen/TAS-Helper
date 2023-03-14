@@ -39,14 +39,16 @@ TAS_HELPER_IN_VIEW_RANGE_WIDTH=                            InView 区域的边�
 TAS_HELPER_IN_VIEW_DESCRIPTION=                            当 InView 区域的边缘宽度为 16,{n}
                                                            它与 Celeste TAS 的 Camera Hitboxes 功能恰好吻合.
 TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer 区域的边缘宽度
-TAS_HELPER_LOAD_RANGE_OPACITY=                             加载范围的透明度
+TAS_HELPER_LOAD_RANGE_OPACITY=                             加载范围的不透明度
 
 # ============================================= Simplified Spinners =====================================================
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            简化圆刺
 TAS_HELPER_CLEAR_SPINNER_SPRITES=                          清除圆刺贴图
+TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_OFF=                 关
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=简化图形时
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              总是
-TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部透明度
+TAS_HELPER_CLEAR_SPINNER_SPRITES_DESCRIPTION=              部分效果在切换房间后生效
+TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部不透明度
 
 # ============================================= Pixel Grid =====================================================
 TAS_HELPER_PIXEL_GRID=                                     像素网格
@@ -56,7 +58,7 @@ TAS_HELPER_PIXEL_GRID_OPACITY=                             不透明度
 
 # ============================================= Camera Target =====================================================
 TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标
-TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   镜头-目标 连线的透明度
+TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   镜头-目标 连线的不透明度
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        快捷键

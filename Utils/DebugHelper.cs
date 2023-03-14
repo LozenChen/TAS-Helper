@@ -4,7 +4,7 @@ namespace Celeste.Mod.TASHelper.Utils;
 
 // only for developing this mod
 internal static class DebugHelper {
-    public static bool usingDebug = false;
+    public static bool usingDebug = true;
 
     public static void Load() {
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;

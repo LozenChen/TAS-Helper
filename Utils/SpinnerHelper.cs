@@ -17,49 +17,61 @@ public static class SpinnerHelper {
         orig(self);
         TimeActive = self.TimeActive;
     }
-    public static void Initialize() {
-        if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
-            ModHazardTypes.Add(frostSpinnerType, Tuple.Create(spinner, treatSpecial));
-        }
+
+    private static void DictionaryAdderNormal(Type type, string offsetName, int HazardType) {
+        HazardTypesTreatNormal.Add(type, HazardType);
+        OffsetGetters.Add(type, type.CreateGetDelegate<object, float>(offsetName));
+    }
+    private static void DictionaryAdderSpecial(Type type, string offsetName, GetDelegate<object, int?> HazardTypeGetter) {
+        HazardTypesTreatSpecial.Add(type, HazardTypeGetter);
+        OffsetGetters.Add(type, type.CreateGetDelegate<object, float>(offsetName));
     }
 
-    public static Dictionary<Type, Tuple<int, bool>> ModHazardTypes = new();
+    public static void Initialize() {
+        Assembly Vanilla = ModUtils.VanillaAssembly;
+        DictionaryAdderNormal(Vanilla.GetType("Celeste.CrystalStaticSpinner"), "offset", spinner);
+        DictionaryAdderNormal(Vanilla.GetType("Celeste.Lightning"), "toggleOffset", lightning);
+        DictionaryAdderNormal(Vanilla.GetType("Celeste.DustStaticSpinner"), "offset", dust);
+
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
+            DictionaryAdderSpecial(frostSpinnerType, "offset", FrostSpinnerHazardType);
+        }
+
+    }
+
+    private static Dictionary<Type, int> HazardTypesTreatNormal = new();
+
+    private static Dictionary<Type, GetDelegate<object, int?>> HazardTypesTreatSpecial = new();
+
+    private static Dictionary<Type, GetDelegate<object, float>> OffsetGetters = new();
 
     internal const int spinner = 0;
     internal const int dust = 1;
     internal const int lightning = 2;
-    private const bool treatTrivial = true;
-    private const bool treatSpecial = false;
-    public static int? HazardType(Entity self) {
-        if (self is CrystalStaticSpinner) return spinner;
-        if (self is DustStaticSpinner) return dust;
-        if (self is Lightning) return lightning;
-        Type type = self.GetType();
-        if (ModHazardTypes.TryGetValue(type, out Tuple<int, bool> value)) {
-            if (value.Item2) {
-                return value.Item1;
-            }
 
-            if (ModUtils.FrostHelperInstalled) {
-                return FrostHelperHazardType(self);
-            }
+    public static int? HazardType(Entity self) {
+        Type type = self.GetType();
+        if (HazardTypesTreatNormal.TryGetValue(type, out int value)) {
+            return value;
+        }
+        else if (HazardTypesTreatSpecial.TryGetValue(type, out GetDelegate<object, int?> getter)) {
+            return getter(self);
         }
         return null;
     }
 
-    private static int? FrostHelperHazardType(Entity self) {
+    private static int? FrostSpinnerHazardType(Object self) {
         if (self is FrostHelper.CustomSpinner customSpinner) {
             return customSpinner.HasCollider ? spinner : null;
         }
-
         return null;
     }
 
     public static float? GetOffset(Entity self) {
-        if (HazardType(self) is not int type) return null;
-        string fieldname = type == lightning ? "toggleOffset" : "offset";
-        FieldInfo field = self.GetType().GetField(fieldname, BindingFlags.Instance | BindingFlags.NonPublic);
-        return (float)field.GetValue(self);
+        if (OffsetGetters.TryGetValue(self.GetType(), out GetDelegate<object, float> getter)) {
+            return getter(self);
+        }
+        return null;
     }
     public static bool isSpinnner(Entity self) {
         return HazardType(self) == spinner;
