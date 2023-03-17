@@ -33,10 +33,6 @@ internal static class TASHelperMenu {
             subMenu.Add(ClearSpinnerSpritesItem = new TextMenuExt.EnumerableSlider<ClearSpritesMode>("Clear Spinner Sprites".ToDialogText(), CreateClearSpritesModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
             subMenu.AddDescription(menu, ClearSpinnerSpritesItem, "Clear Spinner Sprites Description".ToDialogText());
             subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity).Change(value => TasHelperSettings.SpinnerFillerOpacity = value));
-
-            TextMenu.Item DustSprites;
-            subMenu.Add(DustSprites = new TextMenu.OnOff("Also Clear Dust Sprites", TasHelperSettings.AlsoClearDust).Change(value => TasHelperSettings.AlsoClearDust = value));
-            subMenu.AddDescription(menu, DustSprites, "There is some serious bug with this function");
         });
     }
 

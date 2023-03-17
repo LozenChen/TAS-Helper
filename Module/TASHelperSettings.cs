@@ -184,8 +184,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     [SettingRange(0, 9)]
     public int SpinnerFillerOpacity { get; set; } = 3;
-
-    public bool AlsoClearDust = false;
     #endregion
 
     #region Auxilary Variables
