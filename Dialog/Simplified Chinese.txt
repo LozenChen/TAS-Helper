@@ -47,7 +47,7 @@ TAS_HELPER_CLEAR_SPINNER_SPRITES=                          清除圆刺贴图
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_OFF=                 关
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=简化图形时
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              总是
-TAS_HELPER_CLEAR_SPINNER_SPRITES_DESCRIPTION=              部分效果在切换房间后生效
+TAS_HELPER_CLEAR_SPINNER_SPRITES_DESCRIPTION=              在切换房间后生效
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部不透明度
 
 # ============================================= Pixel Grid =====================================================

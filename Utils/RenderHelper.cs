@@ -4,22 +4,7 @@ using Monocle;
 namespace Celeste.Mod.TASHelper.Utils;
 
 internal static class RenderHelper {
-    private static Color B = Color.Black;
-    private static Color W = Color.White;
-    private static Color N = Color.Transparent;
-    private static Color c0 = W;
-    private static Color c1 = W;
-    private static Color c2 = W;
-    private static Color c3 = W;
-    private static Color c4 = W;
-    private static Color c5 = W;
-    private static Color c6 = W;
-    private static Color c7 = W;
-    private static Color c8 = W;
-    private static Color c9 = W;
-    private static readonly Color[,,] DrawNumber = new Color[,,] { { { B, B, B, B, B }, { B, c0, c0, c0, B }, { B, c0, B, c0, B }, { B, c0, B, c0, B }, { B, c0, B, c0, B }, { B, c0, c0, c0, B }, { B, B, B, B, B } }, { { B, B, B, B, N }, { B, c1, c1, B, N }, { B, B, c1, B, N }, { N, B, c1, B, N }, { B, B, c1, B, B }, { B, c1, c1, c1, B }, { B, B, B, B, B } }, { { B, B, B, B, B }, { B, c2, c2, c2, B }, { B, B, B, c2, B }, { B, c2, c2, c2, B }, { B, c2, B, B, B }, { B, c2, c2, c2, B }, { B, B, B, B, B } }, { { B, B, B, B, B }, { B, c3, c3, c3, B }, { B, B, B, c3, B }, { B, c3, c3, c3, B }, { B, B, B, c3, B }, { B, c3, c3, c3, B }, { B, B, B, B, B } }, { { B, B, B, B, B }, { B, c4, B, c4, B }, { B, c4, B, c4, B }, { B, c4, c4, c4, B }, { B, B, B, c4, B }, { N, N, B, c4, B }, { N, N, B, B, B } }, { { B, B, B, B, B }, { B, c5, c5, c5, B }, { B, c5, B, B, B }, { B, c5, c5, c5, B }, { B, B, B, c5, B }, { B, c5, c5, c5, B }, { B, B, B, B, B } }, { { B, B, B, B, B }, { B, c6, c6, c6, B }, { B, c6, B, B, B }, { B, c6, c6, c6, B }, { B, c6, B, c6, B }, { B, c6, c6, c6, B }, { B, B, B, B, B } }, { { B, B, B, B, B }, { B, c7, c7, c7, B }, { B, B, B, c7, B }, { N, N, B, c7, B }, { N, N, B, c7, B }, { N, N, B, c7, B }, { N, N, B, B, B } }, { { B, B, B, B, B }, { B, c8, c8, c8, B }, { B, c8, B, c8, B }, { B, c8, c8, c8, B }, { B, c8, B, c8, B }, { B, c8, c8, c8, B }, { B, B, B, B, B } }, { { B, B, B, B, B }, { B, c9, c9, c9, B }, { B, c9, B, c9, B }, { B, c9, c9, c9, B }, { B, B, B, c9, B }, { B, c9, c9, c9, B }, { B, B, B, B, B } } };
-
-
+    private static MTexture[] numbers;
 
     private static readonly Vector2 TopLeft2Center = new(160f, 90f);
     private static Color SpinnerCenterColor = Color.Lime;
@@ -30,6 +15,16 @@ internal static class RenderHelper {
 
 
     public static void Initialize() {
+        // copied from ExtendedVariants.Entities.DashCountIndicator
+        MTexture source = GFX.Game["pico8/font"];
+        numbers = new MTexture[10];
+        int index = 0;
+        for (int i = 104; index < 4; i += 4) {
+            numbers[index++] = source.GetSubtexture(i, 0, 3, 5);
+        }
+        for (int i = 0; index < 10; i += 4) {
+            numbers[index++] = source.GetSubtexture(i, 6, 3, 5);
+        }
     }
 
     public static void Load() {
@@ -49,18 +44,10 @@ internal static class RenderHelper {
 
     public static void DrawCountdown(Vector2 Position, int CountdownTimer) {
         if (CountdownTimer > 9) {
-            for (int i = 0; i <= 6; i++) {
-                for (int j = 0; j <= 4; j++) {
-                    Monocle.Draw.Point(Position + new Vector2(j - 4, i), DrawNumber[CountdownTimer / 10, i, j]);
-                }
-            }
+            numbers[CountdownTimer / 10].DrawOutline(Position + new Vector2(-4, 0));
             CountdownTimer %= 10;
         }
-        for (int i = 0; i <= 6; i++) {
-            for (int j = 0; j <= 4; j++) {
-                Monocle.Draw.Point(Position + new Vector2(j, i), DrawNumber[CountdownTimer, i, j]);
-            }
-        }
+        numbers[CountdownTimer].DrawOutline(Position);
     }
 
     public static Color CycleHitboxColor(Entity self, float TimeActive, float offset, Vector2 CameraPosition) {

@@ -1,8 +1,8 @@
-using Celeste.Mod.TASHelper.Module;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Utils;
 internal static class PlayerHelper {
@@ -29,7 +29,7 @@ internal static class PlayerHelper {
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
         On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
-        IL.Celeste.Player.Update += PlayerPositionBeforeCameraUpdateIL;
+        typeof(Player).GetMethod("orig_Update").IlHook(PlayerPositionBeforeCameraUpdateIL);
     }
 
     public static void Unload() {
@@ -38,9 +38,7 @@ internal static class PlayerHelper {
         On.Celeste.Lightning.Update -= PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update -= PatchDustUpdate;
         On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
-        IL.Celeste.Player.Update -= PlayerPositionBeforeCameraUpdateIL;
     }
-
 
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         orig(self);
@@ -65,16 +63,15 @@ internal static class PlayerHelper {
         orig(self);
     }
 
-    private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
+    internal static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
         ILCursor cursor = new ILCursor(il);
         if (cursor.TryGotoNext(MoveType.After,
                 ins => ins.OpCode == OpCodes.Stfld && ins.Operand.ToString() == "System.Boolean Celeste.Player::StrawberriesBlocked"
             // stfld bool Celeste.Player::StrawberriesBlocked
             )) {
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldarg_0);
             cursor.Emit(OpCodes.Ldfld, typeof(Entity).GetField("Position"));
-            cursor.Emit(OpCodes.Stfld, typeof(TASHelperModule).GetField("PlayerPositionBeforeCameraUpdate"));
+            cursor.Emit(OpCodes.Stsfld, typeof(PlayerHelper).GetField("PlayerPositionBeforeCameraUpdate", BindingFlags.NonPublic | BindingFlags.Static));
         }
     }
 

@@ -21,10 +21,10 @@ internal static class LoadRangeCountDownCameraTarget {
         if (TasHelperSettings.isUsingCountDown && !SpinnerHelper.FarFromRange(self, PlayerHelper.PlayerPosition, PlayerHelper.CameraPosition, 0.25f)) {
             Vector2 CountdownPos;
             if (SpinnerHelper.isLightning(self)) {
-                CountdownPos = self.Center + new Vector2(-2f, -4f);
+                CountdownPos = self.Center + new Vector2(-1f, -2f);
             }
             else {
-                CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-2f, 2f) : new Vector2(-2f, -4f));
+                CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
             RenderHelper.DrawCountdown(CountdownPos, SpinnerHelper.PredictCountdown(SpinnerHelper.TimeActive, offset, SpinnerHelper.isDust(self)));
         }
