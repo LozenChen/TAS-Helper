@@ -85,11 +85,11 @@ internal static class RenderHelper {
 
         if (Filled) {
             color *= TasHelperSettings.SpinnerFillerAlpha;
-            Monocle.Draw.Rect(x - 4f, y - 5f, 8f, 10f, color);
+            Monocle.Draw.Rect(x - 5f, y - 4f, 10f, 8f, color);
+            Monocle.Draw.Rect(x - 4f, y - 5f, 8f, 1f, color);
+            Monocle.Draw.Rect(x - 4f, y + 4f, 8f, 1f, color);
             Monocle.Draw.Rect(x - 7f, y - 2f, 1f, 2f, color);
             Monocle.Draw.Rect(x + 6f, y - 2f, 1f, 2f, color);
-            Monocle.Draw.Rect(x - 5f, y - 4f, 1f, 8f, color);
-            Monocle.Draw.Rect(x + 4f, y - 4f, 1f, 8f, color);
         }
     }
 

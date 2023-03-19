@@ -63,7 +63,7 @@ internal static class PlayerHelper {
         orig(self);
     }
 
-    internal static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
+    private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
         ILCursor cursor = new ILCursor(il);
         if (cursor.TryGotoNext(MoveType.After,
                 ins => ins.OpCode == OpCodes.Stfld && ins.Operand.ToString() == "System.Boolean Celeste.Player::StrawberriesBlocked"
@@ -79,6 +79,7 @@ internal static class PlayerHelper {
         // some mod (like PandorasBox mod) will hook CrystalStaticSpinner.Update() (which still use orig(self) and thus should use Entity.Update()?)
         // i don't know why but it seems in this case, if we hook Entity.Update, it will not work
         // also note some Hazards (like CrysSpinner) will not always call base.Update()
+        // frosthelper spinners even never call base.Update()
         // so let's just hook them individually
         orig(self);
         PatchHazardUpdate(self);
