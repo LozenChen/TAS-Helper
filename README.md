@@ -20,6 +20,8 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Hotkeys -> you can change some of the settings using hotkeys.
 
+- Settings -> Some settings are inherited from CelesteTAS.
+
 # Known issues:
 
 - Actual Collide Hitboxes are overridden -> it's actually bad to use actual collide hitboxes when doing a spinner stun, you really need the exact frame the hazard becomes collidable (opaque). So personnally i do not suggest using actual collide hitboxes in this case. Appended hitbox sounds good but current implement relies on opacity to show information. I have no good idea about it so it's set aside.
