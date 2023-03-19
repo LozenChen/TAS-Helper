@@ -16,7 +16,7 @@ A Celeste Mod degigned to be a tool in TAS making.
 
 - Camera Target -> show which direction the camera moves towards. Basically *CameraTarget = Player's position + CameraOffset*, plus CameraTarget should be bounded in room and some other modification, then *Position = (1-r)\*PreviousPosition + r\*CameraTarget*, where *r = 0.074*. We visualize this by drawing the points Position, PreviousPosition and CameraTarget, and drawing a link from PreviousPosition to CameraTarget.
 
-- Hotkeys -> sure you can change some of the settings using hotkeys.
+- Hotkeys -> you can change some of the settings using hotkeys.
 
 # Known issues:
 
