@@ -2,7 +2,7 @@
 
 https://gamebanana.com/tools/12383
 
-A Celeste Mod degigned to be a tool in TAS making.
+A Celeste Mod designed to be a tool in TAS making.
 
 # Features:
 
