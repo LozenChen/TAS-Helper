@@ -180,8 +180,9 @@ public class TASHelperSettings : EverestModuleSettings {
         get => enforceClearSprites;
         set => enforceClearSprites = value;
     }
-    public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
 
+    public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
+    
     [SettingRange(0, 9)]
     public int SpinnerFillerOpacity { get; set; } = 3;
     #endregion

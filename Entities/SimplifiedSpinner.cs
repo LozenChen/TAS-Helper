@@ -3,52 +3,59 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
+using VivHelper.Entities.Spinner2;
 
 namespace Celeste.Mod.TASHelper.Entities;
 internal static class SimplifiedSpinner {
 
-    // spinner and dust will clear sprites after room transition
-
-    public static bool LevelSpritesCleared = false;
-    public static bool LevelSpritesClearedMethod() => LevelSpritesCleared;
-
     private static bool DebugRendered => HitboxToggle.DrawHitboxes || Engine.Commands.Open || GameplayRenderer.RenderDebug;
 
+    public static bool SpritesCleared => DebugRendered && TasHelperSettings.ClearSpinnerSprites;
+
+    private static readonly FieldInfo CrysBorderGetter = typeof(CrystalStaticSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance);
+
+    private static readonly FieldInfo CrysFillerGetter = typeof(CrystalStaticSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance);
+
+    private static readonly List<FieldInfo> CrysExtraComponentGetter = new();
     public static void Load() {
-        On.Celeste.Level.LoadLevel += TryClearSpinnerSprites;
-        On.Monocle.Entity.Render += PatchRender;
         On.Monocle.Entity.DebugRender += PatchDebugRender;
-
-        On.Celeste.DustStaticSpinner.ctor_Vector2_bool_bool += StaticDustSpriteKiller;
-
-        Type t = typeof(SimplifiedSpinner);
-        HookHelper.SkipMethod(t, nameof(LevelSpritesClearedMethod), "CreateSprites", typeof(CrystalStaticSpinner));
-        HookHelper.SkipMethod(t, nameof(LevelSpritesClearedMethod), "AddSprite", typeof(CrystalStaticSpinner));
-        HookHelper.SkipMethod(t, nameof(LevelSpritesClearedMethod), "Render", typeof(CrystalStaticSpinner).GetNestedType("Border", BindingFlags.NonPublic));
+        On.Monocle.Scene.BeforeRender += UpdateHazardSpritesVisibility;
     }
 
     public static void Unload() {
-        On.Celeste.DustStaticSpinner.ctor_Vector2_bool_bool -= StaticDustSpriteKiller;
-
-        On.Celeste.Level.LoadLevel -= TryClearSpinnerSprites;
-        On.Monocle.Entity.Render -= PatchRender;
         On.Monocle.Entity.DebugRender -= PatchDebugRender;
+        On.Monocle.Scene.BeforeRender -= UpdateHazardSpritesVisibility;
     }
 
     public static void Initialize() {
+        CrysExtraComponentGetter.Add(CrysBorderGetter);
+        CrysExtraComponentGetter.Add(CrysFillerGetter);
     }
 
-    private static void TryClearSpinnerSprites(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
-        LevelSpritesCleared = TasHelperSettings.ClearSpinnerSprites;
-        orig(self, playerIntro, isFromLoader);
+    private static void UpdateHazardSpritesVisibility(On.Monocle.Scene.orig_BeforeRender orig, Scene self) {
+        foreach (Entity entity in self.Entities) {
+            if (entity is DustStaticSpinner dust) {
+                UpdateComponentVisiblity(dust);
+            }
+            else if (entity is CrystalStaticSpinner spinner) {
+                UpdateComponentVisiblity(spinner);
+                foreach (FieldInfo getter in CrysExtraComponentGetter) {
+                    object obj = getter.GetValue(spinner);
+                    if (obj != null) {
+                        obj.SetFieldValue("Visible", !SpritesCleared);
+                    }
+                }
+            }
+        }
+        orig(self);
     }
-
-    private static void StaticDustSpriteKiller(On.Celeste.DustStaticSpinner.orig_ctor_Vector2_bool_bool orig, DustStaticSpinner self, Vector2 position, bool attachToSolid, bool ignoreSolids) {
-        orig(self, position, attachToSolid, ignoreSolids);
+    private static void UpdateComponentVisiblity(Entity self) {
         foreach (Component component in self.Components) {
-            component.Visible = !LevelSpritesCleared;
+            component.Visible = !SpritesCleared;
         }
     }
+
+
     // How DustStaticSpinner (in the following, call Dust) works:
     // DustStaticSpinner has a component DustGraphic called Sprite
     // DustGraphic has 2 parts to render, DustGraphic.Eyeballs and DustGraphic itself
@@ -62,23 +69,6 @@ internal static class SimplifiedSpinner {
 
     // So we need to make DustGraphic and DustEdge invisible, instead of just DustGraphic
     // We should not make Dust itself invivible, otherwise Dust.Render and thus our compensation will not be called 
-
-    private static void PatchRender(On.Monocle.Entity.orig_Render orig, Entity self) {
-        if (!TasHelperSettings.Enabled || SpinnerHelper.HazardType(self) == null) {
-            orig(self);
-            return;
-        }
-        bool HasRender = DebugRendered || !LevelSpritesCleared || SpinnerHelper.HazardType(self) == SpinnerHelper.lightning;
-        if (HasRender) {
-            orig(self);
-            return;
-        }
-
-        // in this case, we use DebugRender to compensate
-        float offset = SpinnerHelper.GetOffset(self).Value;
-        Color color = RenderHelper.CycleHitboxColor(self, SpinnerHelper.TimeActive, offset, PlayerHelper.CameraPosition);
-        RenderHelper.DrawSpinnerCollider(self.Position, color, self.Collidable, HitboxColor.UnCollidableAlpha, true);
-    }
 
 
     private static void PatchDebugRender(On.Monocle.Entity.orig_DebugRender orig, Entity self, Camera camera) {
