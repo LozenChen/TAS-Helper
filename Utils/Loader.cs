@@ -33,11 +33,11 @@ internal static class Loader {
     }
 
     public static void Initialize() {
+        ModUtils.InitializeAtFirst();
         PlayerHelper.Initialize();
         RenderHelper.Initialize();
         SpinnerHelper.Initialize();
         SimplifiedSpinner.Initialize();
-        ModUtils.Initialize();
     }
 
     public static void LoadContent() {

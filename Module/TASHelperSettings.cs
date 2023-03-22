@@ -174,7 +174,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum ClearSpritesMode { Off, WhenSimplifyGraphics, Always };
 
-    private ClearSpritesMode enforceClearSprites = ClearSpritesMode.Always;
+    private ClearSpritesMode enforceClearSprites = ClearSpritesMode.WhenSimplifyGraphics;
 
     public ClearSpritesMode EnforceClearSprites {
         get => enforceClearSprites;

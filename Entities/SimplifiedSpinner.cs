@@ -1,9 +1,11 @@
 using Celeste.Mod.TASHelper.Utils;
+using FrostHelper;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
-using VivHelper.Entities.Spinner2;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 
 namespace Celeste.Mod.TASHelper.Entities;
 internal static class SimplifiedSpinner {
@@ -12,44 +14,59 @@ internal static class SimplifiedSpinner {
 
     public static bool SpritesCleared => DebugRendered && TasHelperSettings.ClearSpinnerSprites;
 
-    private static readonly FieldInfo CrysBorderGetter = typeof(CrystalStaticSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance);
-
-    private static readonly FieldInfo CrysFillerGetter = typeof(CrystalStaticSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance);
-
-    private static readonly List<FieldInfo> CrysExtraComponentGetter = new();
+    private static List<FieldInfo> CrysExtraComponentGetter = new();
     public static void Load() {
         On.Monocle.Entity.DebugRender += PatchDebugRender;
-        On.Monocle.Scene.BeforeRender += UpdateHazardSpritesVisibility;
+        On.Monocle.Scene.BeforeRender += OnSceneBeforeRender;
     }
 
     public static void Unload() {
         On.Monocle.Entity.DebugRender -= PatchDebugRender;
-        On.Monocle.Scene.BeforeRender -= UpdateHazardSpritesVisibility;
+        On.Monocle.Scene.BeforeRender -= OnSceneBeforeRender;
     }
 
     public static void Initialize() {
-        CrysExtraComponentGetter.Add(CrysBorderGetter);
-        CrysExtraComponentGetter.Add(CrysFillerGetter);
+        CrysExtraComponentGetter.Add(typeof(CrystalStaticSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance));
+        CrysExtraComponentGetter.Add(typeof(CrystalStaticSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance));
+
+        if (ModUtils.FrostHelperInstalled) {
+            typeof(Monocle.Scene).GetMethod("BeforeRender").IlHook((cursor, _) => {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Action<Scene>>(FrostBeforeRender);
+            });
+        }
     }
 
-    private static void UpdateHazardSpritesVisibility(On.Monocle.Scene.orig_BeforeRender orig, Scene self) {
-        foreach (Entity entity in self.Entities) {
-            if (entity is DustStaticSpinner dust) {
-                UpdateComponentVisiblity(dust);
-            }
-            else if (entity is CrystalStaticSpinner spinner) {
-                UpdateComponentVisiblity(spinner);
-                foreach (FieldInfo getter in CrysExtraComponentGetter) {
-                    object obj = getter.GetValue(spinner);
-                    if (obj != null) {
-                        obj.SetFieldValue("Visible", !SpritesCleared);
-                    }
+    private static void OnSceneBeforeRender(On.Monocle.Scene.orig_BeforeRender orig, Scene self) {
+        foreach (Entity dust in self.Tracker.GetEntities<DustStaticSpinner>()) {
+            dust.UpdateComponentVisiblity();
+        }
+        foreach (Entity spinner in self.Tracker.GetEntities<CrystalStaticSpinner>()) {
+            spinner.UpdateComponentVisiblity();
+            foreach (FieldInfo getter in CrysExtraComponentGetter) {
+                object obj = getter.GetValue(spinner);
+                if (obj != null) {
+                    obj.SetFieldValue("Visible", !SpritesCleared);
                 }
             }
         }
         orig(self);
     }
-    private static void UpdateComponentVisiblity(Entity self) {
+    private static void FrostBeforeRender(Scene self) {
+        foreach (Entity customSpinner in self.Tracker.GetEntities<FrostHelper.CustomSpinner>()) {
+            customSpinner.UpdateComponentVisiblity();
+        }
+        foreach (Entity renderer in self.Tracker.GetEntities<FrostHelper.SpinnerConnectorRenderer>()) {
+            renderer.Visible = !SpritesCleared;
+        }
+        foreach (Entity renderer in self.Tracker.GetEntities<FrostHelper.SpinnerBorderRenderer>()) {
+            renderer.Visible = !SpritesCleared;
+        }
+        foreach (Entity renderer in self.Tracker.GetEntities<FrostHelper.SpinnerDecoRenderer>()) {
+            renderer.Visible = !SpritesCleared;
+        }
+    }
+    private static void UpdateComponentVisiblity(this Entity self) {
         foreach (Component component in self.Components) {
             component.Visible = !SpritesCleared;
         }
