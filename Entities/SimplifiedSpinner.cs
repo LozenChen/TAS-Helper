@@ -17,12 +17,12 @@ internal static class SimplifiedSpinner {
     private static List<FieldInfo> CrysExtraComponentGetter = new();
     public static void Load() {
         On.Monocle.Entity.DebugRender += PatchDebugRender;
-        On.Monocle.Scene.BeforeRender += OnSceneBeforeRender;
+        On.Celeste.Level.BeforeRender += OnSceneBeforeRender;
     }
 
     public static void Unload() {
         On.Monocle.Entity.DebugRender -= PatchDebugRender;
-        On.Monocle.Scene.BeforeRender -= OnSceneBeforeRender;
+        On.Celeste.Level.BeforeRender -= OnSceneBeforeRender;
     }
 
     public static void Initialize() {
@@ -30,14 +30,14 @@ internal static class SimplifiedSpinner {
         CrysExtraComponentGetter.Add(typeof(CrystalStaticSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance));
 
         if (ModUtils.FrostHelperInstalled) {
-            typeof(Monocle.Scene).GetMethod("BeforeRender").IlHook((cursor, _) => {
+            typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Scene>>(FrostBeforeRender);
+                cursor.EmitDelegate<Action<Level>>(FrostBeforeRender);
             });
         }
     }
 
-    private static void OnSceneBeforeRender(On.Monocle.Scene.orig_BeforeRender orig, Scene self) {
+    private static void OnSceneBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level self) {
         foreach (Entity dust in self.Tracker.GetEntities<DustStaticSpinner>()) {
             dust.UpdateComponentVisiblity();
         }
@@ -52,7 +52,7 @@ internal static class SimplifiedSpinner {
         }
         orig(self);
     }
-    private static void FrostBeforeRender(Scene self) {
+    private static void FrostBeforeRender(Level self) {
         foreach (Entity customSpinner in self.Tracker.GetEntities<FrostHelper.CustomSpinner>()) {
             customSpinner.UpdateComponentVisiblity();
         }
