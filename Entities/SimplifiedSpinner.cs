@@ -95,7 +95,8 @@ internal static class SimplifiedSpinner {
         }
         float offset = SpinnerHelper.GetOffset(self).Value;
 
-        Color color = RenderHelper.CycleHitboxColor(self, SpinnerHelper.TimeActive, offset, PlayerHelper.CameraPosition);
+        RenderHelper.SpinnerColorIndex index = RenderHelper.CycleHitboxColorIndex(self, SpinnerHelper.TimeActive, offset, PlayerHelper.CameraPosition);
+        Color color = RenderHelper.GetSpinnerColor(index);
         // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
         if (!SpinnerHelper.isLightning(self) && TasHelperSettings.EnableSimplifiedSpinner) {
             RenderHelper.DrawSpinnerCollider(self.Position, color, self.Collidable, HitboxColor.UnCollidableAlpha, true);
@@ -104,7 +105,7 @@ internal static class SimplifiedSpinner {
             self.Collider.Render(camera, color * (self.Collidable ? 1f : HitboxColor.UnCollidableAlpha));
         }
 
-        LoadRangeCountDownCameraTarget.DrawLoadRangeColliderCountdown(self);
+        LoadRangeCountDownCameraTarget.DrawLoadRangeColliderCountdown(self, index);
     }
 
 }

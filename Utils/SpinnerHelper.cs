@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Reflection;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -37,6 +39,12 @@ public static class SpinnerHelper {
             DictionaryAdderSpecial(frostSpinnerType, "offset", FrostSpinnerHazardType);
         }
 
+        if (ModUtils.FrostHelperInstalled) {
+            typeof(SpinnerHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate(FrostPatch);
+            });
+        }
     }
 
     private static Dictionary<Type, int> HazardTypesTreatNormal = new();
@@ -44,6 +52,25 @@ public static class SpinnerHelper {
     private static Dictionary<Type, GetDelegate<object, int?>> HazardTypesTreatSpecial = new();
 
     private static Dictionary<Type, GetDelegate<object, float>> OffsetGetters = new();
+
+    private static bool ModNoCycle = false;
+    public static bool NoCycle(Entity self) {
+        bool ModNoCycleCopy = ModNoCycle;
+        ModNoCycle = false;
+        return ModNoCycleCopy;
+    }
+
+    private static void FrostPatch(Entity self) {
+        if (ModNoCycle) {
+            return;
+        }
+        if (self is FrostHelper.CustomSpinner spinner) {
+            if (typeof(FrostHelper.CustomSpinner).GetFieldInfo("controller").GetValue(spinner) is FrostHelper.CustomSpinnerController controller) {
+                ModNoCycle = controller.NoCycles;
+                return;
+            }
+        }
+    }
 
     internal const int spinner = 0;
     internal const int dust = 1;

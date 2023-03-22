@@ -8,7 +8,6 @@ internal static class RenderHelper {
 
     private static readonly Vector2 TopLeft2Center = new(160f, 90f);
     private static Color SpinnerCenterColor = Color.Lime;
-    private static Color HazardNotInViewColor = Color.Lime;
     private static Color InViewRangeColor = Color.Yellow * 0.8f;
     private static Color NearPlayerRangeColor = Color.Lime * 0.8f;
     private static Color CameraTargetVectorColor = Color.Goldenrod;
@@ -33,16 +32,34 @@ internal static class RenderHelper {
     public static void Unload() {
     }
 
-    public static Color GetSpinnerColor(int index) {
+    private static Color DefaultColor => TasSettings.EntityHitboxColor;
+    private static Color NotInViewColor = Color.Lime;
+    private static Color NeverActivateColor = new Color(0.25f, 1f, 1f);
+    private static Color ActivatesEveryFrameColor = new Color(0.8f, 0f, 0f);
+
+    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, ActivatesEveryFrame};
+    public static Color GetSpinnerColor(SpinnerColorIndex index) {
         return index switch {
-            0 => TasSettings.CycleHitboxColor1,
-            1 => TasSettings.CycleHitboxColor2,
-            2 => TasSettings.CycleHitboxColor3,
-            3 => TasSettings.OtherCyclesHitboxColor,
+            SpinnerColorIndex.Default => DefaultColor,
+            SpinnerColorIndex.Group1 => TasSettings.CycleHitboxColor1,
+            SpinnerColorIndex.Group2 => TasSettings.CycleHitboxColor2,
+            SpinnerColorIndex.Group3 => TasSettings.CycleHitboxColor3,
+            SpinnerColorIndex.MoreThan3 => TasSettings.OtherCyclesHitboxColor,
+            SpinnerColorIndex.NotInView => NotInViewColor,
+            SpinnerColorIndex.NeverActivate => NeverActivateColor,
+            SpinnerColorIndex.ActivatesEveryFrame => ActivatesEveryFrameColor,
         };
     }
 
-    public static void DrawCountdown(Vector2 Position, int CountdownTimer) {
+    public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index) {
+        if (index == SpinnerColorIndex.NeverActivate) {
+            numbers[9].DrawOutline(Position);
+            return;
+        }
+        if (index == SpinnerColorIndex.ActivatesEveryFrame) {
+            numbers[0].DrawOutline(Position);
+            return;
+        }
         if (CountdownTimer > 9) {
             numbers[CountdownTimer / 10].DrawOutline(Position + new Vector2(-4, 0));
             CountdownTimer %= 10;
@@ -50,18 +67,26 @@ internal static class RenderHelper {
         numbers[CountdownTimer].DrawOutline(Position);
     }
 
-    public static Color CycleHitboxColor(Entity self, float TimeActive, float offset, Vector2 CameraPosition) {
+    public static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float TimeActive, float offset, Vector2 CameraPosition) {
         if (!TasHelperSettings.ShowCycleHitboxColors) {
-            return TasSettings.EntityHitboxColor;
+            return SpinnerColorIndex.Default;
         }
         if (TasHelperSettings.isUsingInViewRange && !SpinnerHelper.InView(self, CameraPosition) && !(SpinnerHelper.isDust(self))) {
-            return HazardNotInViewColor;
+            return SpinnerColorIndex.NotInView;
+        }
+        if (SpinnerHelper.NoCycle(self)) {
+            return SpinnerColorIndex.ActivatesEveryFrame;
         }
         int group = SpinnerHelper.CalculateSpinnerGroup(TimeActive, offset);
-        if (TimeActive >= 524288f && group < 3) {
-            return GetSpinnerColor(0);
+        if (TimeActive >= 524288f) {
+            return group < 3 ? SpinnerColorIndex.ActivatesEveryFrame : SpinnerColorIndex.NeverActivate;
         }
-        return GetSpinnerColor(group);
+        return group switch {
+            0 => SpinnerColorIndex.Group1,
+            1 => SpinnerColorIndex.Group2,
+            2 => SpinnerColorIndex.Group3,
+            >2 => SpinnerColorIndex.MoreThan3
+        } ;
     }
 
     public static void DrawSpinnerCollider(Vector2 Position, Color color, bool Collidable, float alpha, bool Filled) {

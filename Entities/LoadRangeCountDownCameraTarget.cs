@@ -13,7 +13,7 @@ internal static class LoadRangeCountDownCameraTarget {
         On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
     }
 
-    public static void DrawLoadRangeColliderCountdown(Entity self) {
+    public static void DrawLoadRangeColliderCountdown(Entity self, RenderHelper.SpinnerColorIndex index) {
         float offset = SpinnerHelper.GetOffset(self).Value;
         if (TasHelperSettings.UsingLoadRange) {
             RenderHelper.DrawLoadRangeCollider(self.Position, self.Width, self.Height, PlayerHelper.CameraPosition, SpinnerHelper.isLightning(self));
@@ -26,7 +26,7 @@ internal static class LoadRangeCountDownCameraTarget {
             else {
                 CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
-            RenderHelper.DrawCountdown(CountdownPos, SpinnerHelper.PredictCountdown(SpinnerHelper.TimeActive, offset, SpinnerHelper.isDust(self)));
+            RenderHelper.DrawCountdown(CountdownPos, SpinnerHelper.PredictCountdown(SpinnerHelper.TimeActive, offset, SpinnerHelper.isDust(self)), index);
         }
     }
     private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
