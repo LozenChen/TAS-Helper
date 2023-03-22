@@ -24,6 +24,10 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Settings -> Some settings are inherited from CelesteTAS.
 
+# Some details:
+
+- FrostHelper's CustomSpinner may have "no cycle", which means they will turn on/off collidable every frame.
+
 # WIP:
 
 - Support for other hazards.
