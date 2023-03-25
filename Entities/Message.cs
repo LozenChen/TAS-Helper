@@ -20,7 +20,7 @@ public static class Messenger {
         }
     }
 
-    private static Type EntityActivatorType = typeof(Entity);
+    private static Type? EntityActivatorType = typeof(Entity);
 
     private static void HelloWorld(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) { 
         orig(level, playerIntro, isFromLoader);
@@ -38,9 +38,7 @@ public static class Messenger {
     }
 
     private static void CreateEntityActivatorWarner(Entity activator) {
-        if (PlayerHelper.player is Player player) {
-            player.Scene.Add(new EntityActivatorWarner(activator));
-        }
+           PlayerHelper.scene.Add(new EntityActivatorWarner(activator));
     }
 
     public class EntityActivatorWarner: Message {
@@ -73,9 +71,9 @@ public static class Messenger {
             if (lifetimer / lifetime < 0.1f) {
                 alpha = 10 * lifetimer / lifetime;
             }
+            base.Update();
         }
         public override void Render() {
-            
             RenderAt(Position);
         }
     }
@@ -100,12 +98,6 @@ public class Message : Entity {
         alpha = 1f;
     }
     public override void Update() {
-        Player player = base.Scene.Tracker.GetEntity<Player>();
-        if (player != null) {
-            //alpha = Ease.CubeInOut(Calc.ClampedMap(Math.Abs(base.X - player.X), 0f, 128f, 1f, 0f));
-            alpha = 1f;
-            Position = player.Position;
-        }
         base.Update();
     }
 

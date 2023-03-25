@@ -8,6 +8,7 @@ using VivEntites = VivHelper.Entities;
 namespace Celeste.Mod.TASHelper.Utils;
 internal static class PlayerHelper {
 
+    internal static Scene scene;
     internal static Player? player;
     internal static Vector2 PreviousCameraPos = Vector2.Zero;
     internal static Vector2 CameraPosition = Vector2.Zero;
@@ -47,6 +48,7 @@ internal static class PlayerHelper {
     }
 
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
+        scene = self;
         orig(self);
         if (self is Level level) {
             PlayerPositionChangedCount = 0;

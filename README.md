@@ -18,6 +18,8 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Pixel Grid -> a pixel grid around player to help you find out the distance easily. Usually to check if player can climbjump/wallbounce.
 
+- Entity Activator Minder -> remind you when a PandorasBox mod's Entity Activator is created.
+
 - Camera Target -> show which direction the camera moves towards. Basically *CameraTarget = Player's position + CameraOffset*, plus CameraTarget should be bounded in room and some other modification, then *CameraPosition = (1-r)\*PreviousCameraPosition + r\*CameraTarget*, where *r = 0.074*. We visualize this by drawing the points Position, PreviousPosition and CameraTarget, and drawing a link from PreviousPosition to CameraTarget.
 
 - Hotkeys -> you can change some of the settings using hotkeys.
