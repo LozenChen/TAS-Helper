@@ -6,7 +6,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 # Features:
 
-- In the following, hazards mean vanilla's CrystalStaticSpinner, Lightning and DustStaticSpinner, and FrostHelper's CustomSpinner.
+- In the following, hazards mean vanilla's CrystalStaticSpinner, Lightning and DustStaticSpinner, FrostHelper's CustomSpinner, and VivHelper's CustomSpinner.
 
 - Cycle Hitbox Colors -> basically same as that in CelesteTAS mod, plus a bit modification when hazards are not in view or when spinner freezes.
 
@@ -37,3 +37,7 @@ A Celeste Mod designed to be a tool in TAS making.
 # Known issues:
 
 - Actual Collide Hitboxes are overridden -> it's actually bad to use actual collide hitboxes when doing a spinner stun, you really need the exact frame the hazard becomes collidable (opaque). So personnally i do not suggest using actual collide hitboxes in this case. Appended hitbox sounds good but current implement relies on opacity to show information. I have no good idea about it so it's set aside.
+
+- Main Switch for Hazard-related is confusing -> will change it if I know how to make a subsubmenu.
+
+- VivHelper spinner isn't fully supported if it's not a regular one -> maybe will add support for them.
