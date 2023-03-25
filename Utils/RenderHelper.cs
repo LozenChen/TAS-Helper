@@ -1,5 +1,9 @@
 using Microsoft.Xna.Framework;
 using Monocle;
+using System.Reflection;
+using TAS.EverestInterop.Hitboxes;
+using VivEntities = VivHelper.Entities;
+using Mono.Cecil.Cil;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -23,6 +27,17 @@ internal static class RenderHelper {
         }
         for (int i = 0; index < 10; i += 4) {
             numbers[index++] = source.GetSubtexture(i, 6, 3, 5);
+        }
+
+        if (ModUtils.VivHelperInstalled) {
+            typeof(RenderHelper).GetMethod("DrawSpinnerCollider").IlHook((cursor, _) => {
+                Instruction skipViv = cursor.Next;
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.EmitDelegate(DrawVivCollider);
+                cursor.Emit(OpCodes.Brfalse, skipViv);
+                cursor.Emit(OpCodes.Ret);
+            });
         }
     }
 
@@ -89,7 +104,32 @@ internal static class RenderHelper {
         } ;
     }
 
-    public static void DrawSpinnerCollider(Vector2 Position, Color color, bool Collidable, float alpha, bool Filled) {
+    public static void DrawSpinnerCollider(Entity self, Color color) {
+        DrawVanillaCollider(self.Position, color, self.Collidable, HitboxColor.UnCollidableAlpha, true);
+    }
+
+    public static bool DrawVivCollider(Entity self, Color color) {
+        if (self is VivEntities.CustomSpinner spinner) {
+            color *= spinner.Collidable ? 1f : HitboxColor.UnCollidableAlpha;
+            Color innerColor = color * TasHelperSettings.SpinnerFillerAlpha;
+            Collider[] list = (spinner.Collider as ColliderList).colliders;
+            foreach (Collider collider in list) {
+                if (collider is Hitbox hitbox) {
+                    Monocle.Draw.HollowRect(hitbox, color);
+                }
+            }
+            foreach (Collider collider in list) {
+                if (collider is Circle circle) {
+                    Monocle.Draw.Circle(circle.AbsolutePosition, circle.Radius, color, 4);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+    public static void DrawVanillaCollider(Vector2 Position, Color color, bool Collidable, float alpha, bool Filled) {
         float x = Position.X;
         float y = Position.Y;
         color *= Collidable ? 1f : alpha;

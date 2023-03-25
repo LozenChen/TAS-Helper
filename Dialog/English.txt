@@ -39,6 +39,8 @@ TAS_HELPER_IN_VIEW_DESCRIPTION=                            When InView Range Wid
                                                            It matches Celeste TAS's Camera Hitboxes.
 TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer Range Width
 TAS_HELPER_LOAD_RANGE_OPACITY=                             Load Range Opacity
+TAS_HELPER_APPLY_CAMERA_ZOOM=                              InView Range zoom with Camera
+TAS_HELPER_APPLY_CAMERA_ZOOM_DESCRIPTION=                  Turn it on only when need checking VivHelper.CustomSpinner is InView or not.
 
 # ============================================= Simplified Spinners =====================================================
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            Simplified Spinners

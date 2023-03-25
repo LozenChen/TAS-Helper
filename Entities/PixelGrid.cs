@@ -34,6 +34,7 @@ public class PixelGrid : Entity {
     public Func<int> widthGetter;
     public Action<PixelGrid> UpdateBeforeRender;
     public bool fadeOut = false;
+
     public PixelGrid(Func<bool> visibleGetter, Func<int> widthGetter, Action<PixelGrid> UpdateBeforeRender, bool fadeOut = false) {
         Depth = 8900;
         // lower than BackgroudTiles

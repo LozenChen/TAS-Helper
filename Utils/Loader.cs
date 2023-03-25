@@ -21,6 +21,7 @@ internal static class Loader {
         RenderHelper.Load();
         SpinnerHelper.Load();
         SimplifiedSpinner.Load();
+        Logger.Load();
         DebugHelper.Load();
     }
     public static void HelperUnload() {
@@ -29,6 +30,7 @@ internal static class Loader {
         SpinnerHelper.Unload();
         SimplifiedSpinner.Unload();
         HookHelper.Unload();
+        Logger.Unload();
         DebugHelper.Unload();
     }
 

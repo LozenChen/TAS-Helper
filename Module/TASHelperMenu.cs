@@ -23,6 +23,9 @@ internal static class TASHelperMenu {
             subMenu.AddDescription(menu, InViewRangeWidthItem, "In View Description".ToDialogText());
             subMenu.Add(new TextMenuExt.IntSlider("Near Player Range Width".ToDialogText(), 1, 16, TasHelperSettings.NearPlayerRangeWidth).Change(value => TasHelperSettings.NearPlayerRangeWidth = value));
             subMenu.Add(new TextMenuExt.IntSlider("Load Range Opacity".ToDialogText(), 0, 9, TasHelperSettings.LoadRangeOpacity).Change(value => TasHelperSettings.LoadRangeOpacity = value));
+            TextMenu.Item CameraZoomItem;
+            subMenu.Add(CameraZoomItem = new TextMenu.OnOff("Apply Camera Zoom".ToDialogText(), TasHelperSettings.ApplyCameraZoom).Change(value => TasHelperSettings.ApplyCameraZoom = value));
+            subMenu.AddDescription(menu, CameraZoomItem ,"Apply Camera Zoom Description".ToDialogText());
         });
     }
 

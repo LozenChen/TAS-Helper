@@ -3,6 +3,7 @@ using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using System.Reflection;
+using VivEntites = VivHelper.Entities;
 
 namespace Celeste.Mod.TASHelper.Utils;
 internal static class PlayerHelper {
@@ -10,6 +11,8 @@ internal static class PlayerHelper {
     internal static Player? player;
     internal static Vector2 PreviousCameraPos = Vector2.Zero;
     internal static Vector2 CameraPosition = Vector2.Zero;
+    internal static float CameraZoom = 1f;
+    // only change when there is entity which needs Camera.Zoom in its InView() and ApplyCameraZoom is on
     internal static Vector2 CameraTowards = Vector2.Zero;
     internal static Vector2 PlayerPosition = Vector2.Zero;
     // Player's position when Hazards update
@@ -19,7 +22,10 @@ internal static class PlayerHelper {
 
     public static void Initialize() {
         if (ModUtils.FrostHelperInstalled) {
-            PatchCustomHazardUpdate();
+            PatchFrostSpinnerUpdate();
+        }
+        if (ModUtils.VivHelperInstalled) {
+            PatchVivSpinnerUpdate();
         }
     }
 
@@ -46,6 +52,7 @@ internal static class PlayerHelper {
             PlayerPositionChangedCount = 0;
             PreviousCameraPos = level.Camera.Position;
             player = self.Tracker.GetEntity<Player>();
+            CameraZoom = 1f;
         }
     }
 
@@ -93,12 +100,28 @@ internal static class PlayerHelper {
         PatchHazardUpdate(self);
     }
 
-    private static void PatchCustomHazardUpdate() {
+    private static void PatchFrostSpinnerUpdate() {
         typeof(FrostHelper.CustomSpinner).GetMethod("Update").IlHook((cursor, _) => {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
         });
     }
+
+    private static void PatchVivSpinnerUpdate() {
+        typeof(VivEntites.CustomSpinner).GetMethod("Update").IlHook((cursor, _) => {
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Entity>>(GetCameraZoom);
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+        });
+    }
+
+    private static void GetCameraZoom(Entity self) {
+        if (TasHelperSettings.ApplyCameraZoom) {
+            CameraZoom = (self.Scene as Level).Camera.Zoom;
+        }
+    }
+
 
     private static void PatchHazardUpdate(Entity self) {
         if (SpinnerHelper.HazardType(self) != null && player != null) {

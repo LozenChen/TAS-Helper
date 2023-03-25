@@ -35,11 +35,13 @@ TAS_HELPER_LOAD_RANGE_MODE_NEAR_PLAYER_RANGE=              NearPlayer 范围
 TAS_HELPER_LOAD_RANGE_MODE_BOTH=                           同时使用
 TAS_HELPER_LOAD_RANGE_DESCRIPTION=                         InView: 在镜头周围的 352px*212px 矩形区域内.{n}
                                                            NearPlayer: 在玩家周围的 256px*256px 方形区域内.
-TAS_HELPER_IN_VIEW_RANGE_WIDTH=                            InView 区域的边缘宽度
-TAS_HELPER_IN_VIEW_DESCRIPTION=                            当 InView 区域的边缘宽度为 16,{n}
+TAS_HELPER_IN_VIEW_RANGE_WIDTH=                            InView 范围的边缘宽度
+TAS_HELPER_IN_VIEW_DESCRIPTION=                            当 InView 范围的边缘宽度为 16,{n}
                                                            它与 Celeste TAS 的 Camera Hitboxes 功能恰好吻合.
-TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer 区域的边缘宽度
+TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer 范围的边缘宽度
 TAS_HELPER_LOAD_RANGE_OPACITY=                             加载范围的不透明度
+TAS_HELPER_APPLY_CAMERA_ZOOM=                              InView 范围随镜头缩放
+TAS_HELPER_APPLY_CAMERA_ZOOM_DESCRIPTION=                  仅在需要判定 VivHelper.CustomSpinner 是否 InView 时需要开启此项
 
 # ============================================= Simplified Spinners =====================================================
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            简化圆刺

@@ -153,6 +153,8 @@ public class TASHelperSettings : EverestModuleSettings {
     [SettingRange(0, 9)]
     public int LoadRangeOpacity { get; set; } = 4;
 
+    public bool ApplyCameraZoom { get; set; } = false;
+
     #endregion
 
     #region Simplified Spinner

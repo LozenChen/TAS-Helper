@@ -32,7 +32,10 @@ internal static class ModUtils {
     }
 
     public static bool FrostHelperInstalled = false;
+
+    public static bool VivHelperInstalled = false;
     public static void InitializeAtFirst() {
         FrostHelperInstalled = IsInstalled("FrostHelper");
+        VivHelperInstalled = IsInstalled("VivHelper");
     }
 }

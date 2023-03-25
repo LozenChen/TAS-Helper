@@ -3,6 +3,8 @@ using Monocle;
 using System.Reflection;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using VivEntites = VivHelper.Entities;
+// VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -39,12 +41,18 @@ public static class SpinnerHelper {
             DictionaryAdderSpecial(frostSpinnerType, "offset", FrostSpinnerHazardType);
         }
 
+        if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType) {
+            DictionaryAdderSpecial(vivSpinnerType, "offset", VivSpinnerHazardType);
+        }
+
         if (ModUtils.FrostHelperInstalled) {
+            VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString" , BindingFlags.NonPublic | BindingFlags.Instance);
             typeof(SpinnerHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(FrostPatch);
             });
         }
+
     }
 
     private static Dictionary<Type, int> HazardTypesTreatNormal = new();
@@ -52,6 +60,8 @@ public static class SpinnerHelper {
     private static Dictionary<Type, GetDelegate<object, int?>> HazardTypesTreatSpecial = new();
 
     private static Dictionary<Type, GetDelegate<object, float>> OffsetGetters = new();
+
+    public static FieldInfo VivHitboxStringGetter;
 
     private static bool ModNoCycle = false;
     public static bool NoCycle(Entity self) {
@@ -94,6 +104,13 @@ public static class SpinnerHelper {
         return null;
     }
 
+    private static int? VivSpinnerHazardType(Object self) {
+        if (self is VivEntites.CustomSpinner customSpinner) {
+            return customSpinner.Collider is null ? null : spinner;
+        }
+        return null;
+    }
+
     public static float? GetOffset(Entity self) {
         if (OffsetGetters.TryGetValue(self.GetType(), out GetDelegate<object, float> getter)) {
             return getter(self);
@@ -111,11 +128,21 @@ public static class SpinnerHelper {
     }
 
     public static bool InView(Entity self, Vector2 CameraPos) {
+        float zoom = PlayerHelper.CameraZoom;
         if (isLightning(self)) {
-            return self.X + self.Width > CameraPos.X - 16f && self.Y + self.Height > CameraPos.Y - 16f && self.X < CameraPos.X + 320f + 16f && self.Y < CameraPos.Y + 180f + 16f;
+            return self.X + self.Width > CameraPos.X - 16f && self.Y + self.Height > CameraPos.Y - 16f && self.X < CameraPos.X + 320f * zoom + 16f && self.Y < CameraPos.Y + 180f * zoom + 16f;
         }
         else {
-            return self.X > CameraPos.X - 16f && self.Y > CameraPos.Y - 16f && self.X < CameraPos.X + 320f + 16f && self.Y < CameraPos.Y + 180f + 16f;
+            return self.X > CameraPos.X - 16f && self.Y > CameraPos.Y - 16f && self.X < CameraPos.X + 320f * zoom + 16f && self.Y < CameraPos.Y + 180f * zoom + 16f;
+        }
+    }
+    public static bool InView(Vector2 pos, float Width, float Height, Vector2 CameraPos, bool isLightning) {
+        float zoom = PlayerHelper.CameraZoom;
+        if (isLightning) {
+            return pos.X + Width > CameraPos.X - 16f && pos.Y + Height > CameraPos.Y - 16f && pos.X < CameraPos.X + 320f * zoom + 16f && pos.Y < CameraPos.Y + 180f * zoom + 16f;
+        }
+        else {
+            return pos.X > CameraPos.X - 16f && pos.Y > CameraPos.Y - 16f && pos.X < CameraPos.X + 320f * zoom + 16f && pos.Y < CameraPos.Y + 180f * zoom + 16f;
         }
     }
 
@@ -133,14 +160,6 @@ public static class SpinnerHelper {
         return false;
     }
 
-    public static bool InView(Vector2 pos, float Width, float Height, Vector2 CameraPos, bool isLightning) {
-        if (isLightning) {
-            return pos.X + Width > CameraPos.X - 16f && pos.Y + Height > CameraPos.Y - 16f && pos.X < CameraPos.X + 320f + 16f && pos.Y < CameraPos.Y + 180f + 16f;
-        }
-        else {
-            return pos.X > CameraPos.X - 16f && pos.Y > CameraPos.Y - 16f && pos.X < CameraPos.X + 320f + 16f && pos.Y < CameraPos.Y + 180f + 16f;
-        }
-    }
     public static int PredictCountdown(float TimeActive, float offset, bool isDust) {
         float interval = isDust ? 0.05f : TasHelperSettings.SpinnerInterval;
         for (int i = 0; i < TasHelperSettings.SpinnerCountdownUpperBound; i++) {
