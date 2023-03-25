@@ -9,3 +9,5 @@
   OptionalDependencies:
     - Name: FrostHelper
       Version: 1.38.0
+    - Name: VivHelper
+      Version: 1.10.11

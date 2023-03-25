@@ -39,6 +39,8 @@ internal static class RenderHelper {
                 cursor.Emit(OpCodes.Ret);
             });
         }
+
+        ColliderListHelper.Initialize();
     }
 
     public static void Load() {
@@ -105,29 +107,57 @@ internal static class RenderHelper {
     }
 
     public static void DrawSpinnerCollider(Entity self, Color color) {
-        DrawVanillaCollider(self.Position, color, self.Collidable, HitboxColor.UnCollidableAlpha, true);
+        if (OnGrid(self)) {
+            DrawVanillaCollider(self.Position, color, self.Collidable, HitboxColor.UnCollidableAlpha, true);
+        }
+        else {
+            DrawComplexSpinnerCollider(self, color);
+        }
     }
 
     public static bool DrawVivCollider(Entity self, Color color) {
         if (self is VivEntities.CustomSpinner spinner) {
-            color *= spinner.Collidable ? 1f : HitboxColor.UnCollidableAlpha;
-            Color innerColor = color * TasHelperSettings.SpinnerFillerAlpha;
-            Collider[] list = (spinner.Collider as ColliderList).colliders;
-            foreach (Collider collider in list) {
-                if (collider is Hitbox hitbox) {
-                    Monocle.Draw.HollowRect(hitbox, color);
+            if (OnGrid(self)) {
+                string[] hitboxString = SpinnerHelper.VivHitboxStringGetter.GetValue(spinner) as string[];
+                float scale = spinner.scale;
+                string key = ColliderListHelper.ColliderListKey(hitboxString, scale);
+                if (ColliderListHelper.CachedRectangle.TryGetValue(key, out ColliderListHelper.ColliderListValue value)) {
+                    int x = (int)Math.Floor(self.Position.X);
+                    int y = (int)Math.Floor(self.Position.Y);
+                    color *= spinner.Collidable ? 1f : HitboxColor.UnCollidableAlpha;
+                    Color insideColor = color * TasHelperSettings.SpinnerFillerAlpha;
+                    foreach (Rectangle outline in value.Outline) {
+                        Monocle.Draw.Rect(outline.at(x,y), color);
+                    }
+                    foreach (Rectangle inside in value.Inside) {
+                        Monocle.Draw.Rect(inside.at(x,y), insideColor);
+                    }
+                    return true;
                 }
             }
-            foreach (Collider collider in list) {
-                if (collider is Circle circle) {
-                    Monocle.Draw.Circle(circle.AbsolutePosition, circle.Radius, color, 4);
-                }
-            }
+            DrawComplexSpinnerCollider(spinner, color);
             return true;
         }
         return false;
     }
+    public static bool OnGrid(Entity self) {
+        return self.Position.X == Math.Floor(self.Position.X) && self.Position.Y == Math.Floor(self.Position.Y);
+    }
 
+    public static void DrawComplexSpinnerCollider(Entity spinner, Color color) {
+        color *= spinner.Collidable ? 1f : HitboxColor.UnCollidableAlpha;
+        Collider[] list = (spinner.Collider as ColliderList).colliders;
+        foreach (Collider collider in list) {
+            if (collider is Hitbox hitbox) {
+                Monocle.Draw.HollowRect(hitbox, color);
+            }
+        }
+        foreach (Collider collider in list) {
+            if (collider is Circle circle) {
+                Monocle.Draw.Circle(circle.AbsolutePosition, circle.Radius, color, 4);
+            }
+        }
+    }
 
     public static void DrawVanillaCollider(Vector2 Position, Color color, bool Collidable, float alpha, bool Filled) {
         float x = Position.X;
@@ -239,4 +269,99 @@ internal static class RenderHelper {
         }
     }
 
+}
+
+
+public static class ColliderListHelper {
+
+    public struct ColliderListValue {
+        public List<Rectangle> Outline;
+        public List<Rectangle> Inside;
+        public ColliderListValue(List<Rectangle> Outline, List<Rectangle> Inside) {
+            this.Outline = Outline.GetRange(0, Outline.Count);
+            this.Inside = Inside.GetRange(0,Inside.Count);
+        }
+    }
+
+    public static List<Rectangle> Clone(List<Rectangle> list) {
+        return list.GetRange(0, list.Count);
+    }
+
+    public static string ColliderListKey(string hitboxString, float scale) {
+        return hitboxString + "//" + scale.ToString();
+    }
+
+    public static string ColliderListKey(string[] hitboxString, float scale) {
+        return String.Join("|",hitboxString) + "//" + scale.ToString();
+    }
+
+    public static Rectangle at(this Rectangle rect, int x , int y) {
+        return new (rect.X + x , rect.Y+ y , rect.Width , rect.Height);
+    }
+
+    public static Dictionary<string, ColliderListValue> CachedRectangle = new();
+    // i can make it add rectangles dynamically, but there is some bug, so i just add manually for now
+    public static void Initialize() {
+        List<Rectangle> outlineC6 = new();
+        List<Rectangle> insideC6 = new();
+        outlineC6.Add(new(-4, -6, 8, 1));
+        outlineC6.Add(new(-4, +5, 8, 1));
+        outlineC6.Add(new(-6, -4, 1, 8));
+        outlineC6.Add(new(+5, -4, 1, 8));
+        outlineC6.Add(new(-5, -5, 1, 1));
+        outlineC6.Add(new(+4, -5, 1, 1));
+        outlineC6.Add(new(-5, +4, 1, 1));
+        outlineC6.Add(new(+4, +4, 1, 1));
+        insideC6.Add(new(-5, -4, 10, 8));
+        insideC6.Add(new(-4,-5,8,1));
+        insideC6.Add(new(-4, +4, 8, 1));
+        CachedRectangle.Add(ColliderListKey("C:6;0,0", 1f), new ColliderListValue(outlineC6, insideC6));
+
+        List<Rectangle> outlineVanilla = Clone(outlineC6);
+        List<Rectangle> insideVanilla = Clone(insideC6);
+        outlineVanilla.Add(new(-8, -3, 1, 4));
+        outlineVanilla.Add(new(+7, -3, 1, 4));
+        outlineVanilla.Add(new(-7, -3, 1, 1));
+        outlineVanilla.Add(new(-7, 0, 1, 1));
+        outlineVanilla.Add(new(+6, -3, 1, 1));
+        outlineVanilla.Add(new(+6, 0, 1, 1));
+        insideVanilla.Add(new(-7,-2,1,2));
+        insideVanilla.Add(new(+6, -2, 1, 2));
+        CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,4;-8,*1@-4", 1f), new ColliderListValue(outlineVanilla, insideVanilla));
+        CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,*4;-8,*-3", 1f), new ColliderListValue(outlineVanilla, insideVanilla));
+
+        List<Rectangle> outlineIeverted = Clone(outlineC6);
+        List<Rectangle> insideIeverted = Clone(insideC6);
+        outlineIeverted.Add(new(-8, -1, 1, 4));
+        outlineIeverted.Add(new(+7, -1, 1, 4));
+        outlineIeverted.Add(new(-7, -1, 1, 1));
+        outlineIeverted.Add(new(-7, 2, 1, 1));
+        outlineIeverted.Add(new(+6, -1, 1, 1));
+        outlineIeverted.Add(new(+6, 2, 1, 1));
+        insideIeverted.Add(new(-7, 0, 1, 2));
+        insideIeverted.Add(new(+6, 0, 1, 2));
+        CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,*4;-8,*-1", 1f), new ColliderListValue(outlineIeverted, insideIeverted));
+        CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,4;-8,*-1", 1f), new ColliderListValue(outlineIeverted, insideIeverted));
+
+        List<Rectangle> outlineC8 = new();
+        List<Rectangle> insideC8 = new();
+        outlineC8.Add(new(-4,-8,8,1));
+        outlineC8.Add(new(4,-7,2,1));
+        outlineC8.Add(new(6,-6,1,2));
+        outlineC8.Add(new(7,-4,1,8));
+        outlineC8.Add(new(6,4,1,2));
+        outlineC8.Add(new(4, 6, 2, 1));
+        outlineC8.Add(new(-4, 7, 8, 1));
+        outlineC8.Add(new(-6,6,2,1));
+        outlineC8.Add(new(-7, 4, 1, 2));
+        outlineC8.Add(new(-8,-4,1,8));
+        outlineC8.Add(new(-7, -6, 1, 2));
+        outlineC8.Add(new(-6, -7, 2, 1));
+        insideC8.Add(new(-4,-7,8,1));
+        insideC8.Add(new(-6,-6,12,2));
+        insideC8.Add(new(-7, -4, 14, 8));
+        insideC8.Add(new(-6, 4, 12, 2));
+        insideC8.Add(new(-4, 6, 8, 1));
+        CachedRectangle.Add(ColliderListKey("C:8;0,0", 1f), new ColliderListValue(outlineC8,insideC8));
+    }
 }

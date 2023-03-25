@@ -1,4 +1,6 @@
 global using static Celeste.Mod.TASHelper.Module.GlobalVariables;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 using TAS.Module;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -15,4 +17,5 @@ internal static class GlobalMethod {
         action(obj);
         return obj;
     }
+
 }

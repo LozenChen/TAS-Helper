@@ -46,13 +46,15 @@ public static class SpinnerHelper {
         }
 
         if (ModUtils.FrostHelperInstalled) {
-            VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString" , BindingFlags.NonPublic | BindingFlags.Instance);
             typeof(SpinnerHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(FrostPatch);
             });
         }
 
+        if (ModUtils.VivHelperInstalled) {
+            VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
+        }
     }
 
     private static Dictionary<Type, int> HazardTypesTreatNormal = new();
