@@ -8,12 +8,14 @@ internal static class Loader {
         LoadRangeCountDownCameraTarget.Load();
         PixelGridHook.Load();
         SimplifiedSpinner.Load();
+        Messenger.Load();
     }
 
     public static void EntityUnload() {
         LoadRangeCountDownCameraTarget.Unload();
         PixelGridHook.Unload();
         SimplifiedSpinner.Unload();
+        Messenger.Unload();
     }
 
     public static void HelperLoad() {
@@ -40,6 +42,7 @@ internal static class Loader {
         RenderHelper.Initialize();
         SpinnerHelper.Initialize();
         SimplifiedSpinner.Initialize();
+        Messenger.Initialize();
     }
 
     public static void LoadContent() {

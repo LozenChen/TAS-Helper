@@ -34,6 +34,9 @@
       <HintPath>Libs\MMHOOK_Celeste.dll</HintPath>
     </Reference>
     <PackageReference Include="MonoMod.RuntimeDetour" Version="22.01.04.03" />
+    <Reference Include="PandorasBox">
+      <HintPath>Libs\PandorasBox.dll</HintPath>
+    </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="VivHelper">
       <HintPath>Libs\VivHelper.dll</HintPath>

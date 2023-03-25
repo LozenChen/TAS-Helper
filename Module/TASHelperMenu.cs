@@ -25,7 +25,7 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenuExt.IntSlider("Load Range Opacity".ToDialogText(), 0, 9, TasHelperSettings.LoadRangeOpacity).Change(value => TasHelperSettings.LoadRangeOpacity = value));
             TextMenu.Item CameraZoomItem;
             subMenu.Add(CameraZoomItem = new TextMenu.OnOff("Apply Camera Zoom".ToDialogText(), TasHelperSettings.ApplyCameraZoom).Change(value => TasHelperSettings.ApplyCameraZoom = value));
-            subMenu.AddDescription(menu, CameraZoomItem ,"Apply Camera Zoom Description".ToDialogText());
+            subMenu.AddDescription(menu, CameraZoomItem, "Apply Camera Zoom Description".ToDialogText());
         });
     }
 
@@ -88,6 +88,7 @@ internal static class TASHelperMenu {
     }
 
     private static IEnumerable<KeyValuePair<SpinnerMainSwitchModes, string>> CreateSpinnerMainSwitchOptions() {
+        // no longer use this
         return new List<KeyValuePair<SpinnerMainSwitchModes, string>> {
             new(SpinnerMainSwitchModes.Off, "Spinner Main Switch Mode Off".ToDialogText()),
             new(SpinnerMainSwitchModes.OnlyDefault, "Spinner Main Switch Mode Only Default".ToDialogText()),
@@ -130,10 +131,9 @@ internal static class TASHelperMenu {
 
     public static void CreateMenu(EverestModule everestModule, TextMenu menu, bool inGame) {
         menu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.Enabled).Change((value) => { TasHelperSettings.Enabled = value; }));
-        TextMenu.Item SpinnerMainSwitchItem;
-        menu.Add(SpinnerMainSwitchItem = new TextMenuExt.EnumerableSlider<SpinnerMainSwitchModes>("Spinner Main Switch".ToDialogText(), CreateSpinnerMainSwitchOptions(),
-                TasHelperSettings.SpinnerMainSwitch).Change(value => TasHelperSettings.SpinnerMainSwitch = value));
-        SpinnerMainSwitchItem.AddDescription(menu, "Spinner Main Switch Description".ToDialogText());
+        TextMenu.Item SpinnerMainItem;
+        menu.Add(SpinnerMainItem = new TextMenu.OnOff("Spinner Main Switch".ToDialogText(), TasHelperSettings.SpinnerEnabled).Change((value) => { TasHelperSettings.SpinnerEnabled = value; }));
+        SpinnerMainItem.AddDescription(menu, "Spinner Main Switch Description".ToDialogText());
         menu.Add(new TextMenu.OnOff("Show Cycle Hitbox Colors".ToDialogText(), TasHelperSettings.ShowCycleHitboxColors).Change(value => TasHelperSettings.ShowCycleHitboxColors = value));
         TextMenu.Item CountdownModeItem;
         menu.Add(CountdownModeItem = new TextMenuExt.EnumerableSlider<CountdownModes>("Countdown Mode".ToDialogText(), CreateCountdownOptions(),
@@ -142,6 +142,9 @@ internal static class TASHelperMenu {
         menu.Add(CreateLoadRangeSubMenu(menu));
         menu.Add(CreateSimplifiedSpinnerSubMenu(menu));
         menu.Add(CreatePixelGridSubMenu(menu));
+        TextMenu.Item EntityActivatorReminderItem;
+        menu.Add(EntityActivatorReminderItem = new TextMenu.OnOff("Entity Activator Reminder".ToDialogText(), TasHelperSettings.EntityActivatorReminder).Change((value) => TasHelperSettings.EntityActivatorReminder = value));
+        EntityActivatorReminderItem.AddDescription(menu,"Entity Activator Reminder Description".ToDialogText());
         menu.Add(CreateCameraTargetSubMenu(menu));
         menu.Add(CreateHotkeysSubMenu(everestModule, menu));
         hotkeysSubMenu.AddDescription(menu, "Hotkey Description".ToDialogText());

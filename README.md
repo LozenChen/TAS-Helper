@@ -41,3 +41,5 @@ A Celeste Mod designed to be a tool in TAS making.
 - Main Switch for Hazard-related is confusing -> will change it if I know how to make a subsubmenu.
 
 - VivHelper spinner isn't fully supported if it's not a regular one -> maybe will add support for them.
+
+- Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide)

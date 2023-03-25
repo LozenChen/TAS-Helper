@@ -4,6 +4,89 @@ using System.Collections;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
+public static class DebugHelper {
+
+    // only for developing this mod, so make it readonly
+    // and set usingDebug = false when release
+    public static readonly bool usingDebug = true;
+    public static float PlayerIntPositionX { get => PlayerHelper.player.X; set => PlayerHelper.player.X = value; }
+    public static float PlayerIntPositionY { get => PlayerHelper.player.Y; set => PlayerHelper.player.Y = value; }
+
+    public static Dictionary<string, int> dict = new();
+    internal static void Load() {
+        if (usingDebug) {
+            On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
+            On.Monocle.Scene.Update += PatchUpdate;
+            On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
+            On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
+        }
+    }
+    internal static void Unload() {
+        if (usingDebug) {
+            On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
+            On.Monocle.Scene.Update -= PatchUpdate;
+            On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
+            On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
+        }
+    }
+
+    public static float triggerBuffer = 1.0f;
+    public static float triggerTimer = 0.0f;
+    public static int lineLength = 140;
+
+    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
+        orig(self, camera);
+        if (usingDebug) {
+            if (PlayerHelper.player is Player player) {
+                Monocle.Draw.Point(player.Position, Color.MediumPurple);
+            }
+        }
+    }
+
+    private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
+        orig(self);
+        if (usingDebug && self is Level) {
+            if (triggerTimer > 0f) {
+                triggerTimer -= Engine.DeltaTime;
+            }
+        }
+    }
+
+    private static void PatchUpdate(On.Monocle.Scene.orig_Update orig, Scene self) {
+        orig(self);
+        if (usingDebug && !StartToLog && self is Level) {
+            if (PlayerHelper.player is Player Player && Player.Speed.Y < -200f && triggerTimer <= 0f) {
+                StartToLog = true;
+                triggerTimer = triggerBuffer;
+                foreach (Entity entity in self.Entities) {
+                    string str = "(" + entity.Depth.ToString() + "," + entity.GetType().ToString() + "," + entity.Visible + ")";
+                    if (!dict.Keys.Contains(str)) {
+                        dict.Add(str, 1);
+                    }
+                    else {
+                        dict[str]++;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
+        if (usingDebug && StartToLog && self is Level) {
+            foreach (string str in dict.Keys) {
+                string strN = str + "*" + dict[str].ToString() + ",";
+                Logger.Log(strN);
+            }
+            StartToLog = false;
+            dict.Clear();
+        }
+        orig(self);
+    }
+    public static bool StartToLog = false;
+
+}
+
+
 public static class Logger {
     public static int stringLength = 0;
     public static int lineLength = 140;
@@ -43,9 +126,9 @@ public static class Logger {
         }
         if (obj is Hitbox hitbox) {
             Log("Hitbox:{");
-            Log(hitbox.Left,  sep ,"Left");
-            Log(hitbox.Top, sep , "Top");
-            Log(hitbox.Width, sep , "Width");
+            Log(hitbox.Left, sep, "Left");
+            Log(hitbox.Top, sep, "Top");
+            Log(hitbox.Width, sep, "Width");
             Log(hitbox.Height, null, "Height");
             Log("}");
             return;
@@ -78,7 +161,7 @@ public static class Logger {
 
     private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
         orig(self);
-        if (String.IsNullOrWhiteSpace(stringToLog)){
+        if (String.IsNullOrWhiteSpace(stringToLog)) {
             stringToLog = "";
         }
         else {
@@ -100,86 +183,5 @@ public static class Logger {
             // we assume \n is always at the end...
         }
     }
-
-}
-public static class DebugHelper {
-
-    // only for developing this mod, so make it readonly
-    // and set usingDebug = false when release
-    public static readonly bool usingDebug = false;
-    public static float PlayerIntPositionX { get => PlayerHelper.player.X; set => PlayerHelper.player.X = value; }
-    public static float PlayerIntPositionY { get => PlayerHelper.player.Y; set => PlayerHelper.player.Y = value; }
-
-    public static Dictionary<string, int> dict = new();
-    internal static void Load() {
-        if (usingDebug) {
-            On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
-            On.Monocle.Scene.Update += PatchUpdate;
-            On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
-            On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
-        }
-    }
-    internal static void Unload() {
-        if (usingDebug) {
-            On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
-            On.Monocle.Scene.Update -= PatchUpdate;
-            On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
-            On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
-        }
-    }
-
-    public static float triggerBuffer = 1.0f;
-    public static float triggerTimer = 0.0f;
-    public static int lineLength = 140;
-
-    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
-        orig(self, camera);
-        if (usingDebug) {
-            if (PlayerHelper.player is Player player) {
-                Monocle.Draw.Point(player.Position, Color.MediumPurple);
-            }
-        }
-    }
-    
-    private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
-        orig(self);
-        if (usingDebug && self is Level) {
-            if (triggerTimer > 0f) {
-                triggerTimer -= Engine.DeltaTime;
-            }
-        }
-    }
-
-    private static void PatchUpdate(On.Monocle.Scene.orig_Update orig, Scene self) {
-        orig(self);
-        if (usingDebug && !StartToLog && self is Level) {
-            if (PlayerHelper.player is Player Player && Player.Speed.Y < -200f && triggerTimer <= 0f) {
-                StartToLog = true;
-                triggerTimer = triggerBuffer;
-                foreach(Entity entity in self.Entities) {
-                    string str = "(" + entity.Depth.ToString() + "," + entity.GetType().ToString() + "," + entity.Visible + ")";
-                    if (!dict.Keys.Contains(str)) {
-                        dict.Add(str, 1);
-                    }
-                    else {
-                        dict[str]++;
-                    }
-                }
-            }
-        }
-    }
-
-    private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
-        if (usingDebug && StartToLog && self is Level) {
-            foreach (string str in dict.Keys) {
-                string strN = str + "*" + dict[str].ToString() + ",";
-                Logger.Log(strN);
-            }
-            StartToLog = false;
-            dict.Clear();
-        }
-        orig(self);
-    }
-    public static bool StartToLog = false;
 
 }

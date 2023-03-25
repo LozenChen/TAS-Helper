@@ -56,6 +56,11 @@ TAS_HELPER_ENABLE_PIXEL_GRID=                              Enable
 TAS_HELPER_PIXEL_GRID_WIDTH=                               Width
 TAS_HELPER_PIXEL_GRID_OPACITY=                             Opacity
 
+# ============================================= Entity Activator Reminder =====================================================
+TAS_HELPER_ENTITY_ACTIVATOR_REMINDER=                      Entity Activator Reminder
+TAS_HELPER_ENTITY_ACTIVATOR_REMINDER_DESCRIPTION=          Activator Reminder may interfere Spinner Stun.{n}
+                                                           This option will remind you when you enter a room with Activator Reminder.
+
 # ============================================= Camera Target =====================================================
 TAS_HELPER_CAMERA_TARGET=                                  Camera Target
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity

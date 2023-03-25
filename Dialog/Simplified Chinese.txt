@@ -57,6 +57,10 @@ TAS_HELPER_ENABLE_PIXEL_GRID=                              开关
 TAS_HELPER_PIXEL_GRID_WIDTH=                               宽度
 TAS_HELPER_PIXEL_GRID_OPACITY=                             不透明度
 
+# ============================================= Entity Activator Reminder =====================================================
+TAS_HELPER_ENTITY_ACTIVATOR_REMINDER=                      提示有实体激活器
+TAS_HELPER_ENTITY_ACTIVATOR_REMINDER_DESCRIPTION=          实体激活器有可能影响 Spinner Stun, 此功能会提示您进入了有实体激活器的房间.
+
 # ============================================= Camera Target =====================================================
 TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   镜头-目标 连线的不透明度

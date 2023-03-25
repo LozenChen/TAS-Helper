@@ -1,9 +1,8 @@
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
-using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
 using VivEntities = VivHelper.Entities;
-using Mono.Cecil.Cil;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -54,7 +53,7 @@ internal static class RenderHelper {
     private static Color NeverActivateColor = new Color(0.25f, 1f, 1f);
     private static Color ActivatesEveryFrameColor = new Color(0.8f, 0f, 0f);
 
-    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, ActivatesEveryFrame};
+    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, ActivatesEveryFrame };
     public static Color GetSpinnerColor(SpinnerColorIndex index) {
         return index switch {
             SpinnerColorIndex.Default => DefaultColor,
@@ -102,8 +101,8 @@ internal static class RenderHelper {
             0 => SpinnerColorIndex.Group1,
             1 => SpinnerColorIndex.Group2,
             2 => SpinnerColorIndex.Group3,
-            >2 => SpinnerColorIndex.MoreThan3
-        } ;
+            > 2 => SpinnerColorIndex.MoreThan3
+        };
     }
 
     public static void DrawSpinnerCollider(Entity self, Color color) {
@@ -127,10 +126,10 @@ internal static class RenderHelper {
                     color *= spinner.Collidable ? 1f : HitboxColor.UnCollidableAlpha;
                     Color insideColor = color * TasHelperSettings.SpinnerFillerAlpha;
                     foreach (Rectangle outline in value.Outline) {
-                        Monocle.Draw.Rect(outline.at(x,y), color);
+                        Monocle.Draw.Rect(outline.at(x, y), color);
                     }
                     foreach (Rectangle inside in value.Inside) {
-                        Monocle.Draw.Rect(inside.at(x,y), insideColor);
+                        Monocle.Draw.Rect(inside.at(x, y), insideColor);
                     }
                     return true;
                 }
@@ -279,7 +278,7 @@ public static class ColliderListHelper {
         public List<Rectangle> Inside;
         public ColliderListValue(List<Rectangle> Outline, List<Rectangle> Inside) {
             this.Outline = Outline.GetRange(0, Outline.Count);
-            this.Inside = Inside.GetRange(0,Inside.Count);
+            this.Inside = Inside.GetRange(0, Inside.Count);
         }
     }
 
@@ -292,11 +291,11 @@ public static class ColliderListHelper {
     }
 
     public static string ColliderListKey(string[] hitboxString, float scale) {
-        return String.Join("|",hitboxString) + "//" + scale.ToString();
+        return String.Join("|", hitboxString) + "//" + scale.ToString();
     }
 
-    public static Rectangle at(this Rectangle rect, int x , int y) {
-        return new (rect.X + x , rect.Y+ y , rect.Width , rect.Height);
+    public static Rectangle at(this Rectangle rect, int x, int y) {
+        return new(rect.X + x, rect.Y + y, rect.Width, rect.Height);
     }
 
     public static Dictionary<string, ColliderListValue> CachedRectangle = new();
@@ -313,7 +312,7 @@ public static class ColliderListHelper {
         outlineC6.Add(new(-5, +4, 1, 1));
         outlineC6.Add(new(+4, +4, 1, 1));
         insideC6.Add(new(-5, -4, 10, 8));
-        insideC6.Add(new(-4,-5,8,1));
+        insideC6.Add(new(-4, -5, 8, 1));
         insideC6.Add(new(-4, +4, 8, 1));
         CachedRectangle.Add(ColliderListKey("C:6;0,0", 1f), new ColliderListValue(outlineC6, insideC6));
 
@@ -325,7 +324,7 @@ public static class ColliderListHelper {
         outlineVanilla.Add(new(-7, 0, 1, 1));
         outlineVanilla.Add(new(+6, -3, 1, 1));
         outlineVanilla.Add(new(+6, 0, 1, 1));
-        insideVanilla.Add(new(-7,-2,1,2));
+        insideVanilla.Add(new(-7, -2, 1, 2));
         insideVanilla.Add(new(+6, -2, 1, 2));
         CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,4;-8,*1@-4", 1f), new ColliderListValue(outlineVanilla, insideVanilla));
         CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,*4;-8,*-3", 1f), new ColliderListValue(outlineVanilla, insideVanilla));
@@ -345,23 +344,23 @@ public static class ColliderListHelper {
 
         List<Rectangle> outlineC8 = new();
         List<Rectangle> insideC8 = new();
-        outlineC8.Add(new(-4,-8,8,1));
-        outlineC8.Add(new(4,-7,2,1));
-        outlineC8.Add(new(6,-6,1,2));
-        outlineC8.Add(new(7,-4,1,8));
-        outlineC8.Add(new(6,4,1,2));
+        outlineC8.Add(new(-4, -8, 8, 1));
+        outlineC8.Add(new(4, -7, 2, 1));
+        outlineC8.Add(new(6, -6, 1, 2));
+        outlineC8.Add(new(7, -4, 1, 8));
+        outlineC8.Add(new(6, 4, 1, 2));
         outlineC8.Add(new(4, 6, 2, 1));
         outlineC8.Add(new(-4, 7, 8, 1));
-        outlineC8.Add(new(-6,6,2,1));
+        outlineC8.Add(new(-6, 6, 2, 1));
         outlineC8.Add(new(-7, 4, 1, 2));
-        outlineC8.Add(new(-8,-4,1,8));
+        outlineC8.Add(new(-8, -4, 1, 8));
         outlineC8.Add(new(-7, -6, 1, 2));
         outlineC8.Add(new(-6, -7, 2, 1));
-        insideC8.Add(new(-4,-7,8,1));
-        insideC8.Add(new(-6,-6,12,2));
+        insideC8.Add(new(-4, -7, 8, 1));
+        insideC8.Add(new(-6, -6, 12, 2));
         insideC8.Add(new(-7, -4, 14, 8));
         insideC8.Add(new(-6, 4, 12, 2));
         insideC8.Add(new(-4, 6, 8, 1));
-        CachedRectangle.Add(ColliderListKey("C:8;0,0", 1f), new ColliderListValue(outlineC8,insideC8));
+        CachedRectangle.Add(ColliderListKey("C:8;0,0", 1f), new ColliderListValue(outlineC8, insideC8));
     }
 }

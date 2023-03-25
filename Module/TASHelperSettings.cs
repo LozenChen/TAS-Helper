@@ -103,7 +103,12 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ShowCycleHitboxColors {
         get => SpinnerEnabled && EnableCycleHitboxColors && showCycleHitboxColor;
-        set { if (SpinnerEnabled) showCycleHitboxColor = value; }
+        set { 
+            showCycleHitboxColor = value; 
+            if (value) { 
+                SpinnerEnabled = true; 
+            }
+        }
     }
     #endregion
 
@@ -116,11 +121,12 @@ public class TASHelperSettings : EverestModuleSettings {
     public CountdownModes CountdownMode {
         get => SpinnerEnabled && EnableCountdownModes ? countdownMode : CountdownModes.Off;
         set {
-            if (SpinnerEnabled) {
-                countdownMode = value;
-                EnableCountdownModes = true;
-                UpdateAuxiliaryVariable();
+            countdownMode = value;
+            EnableCountdownModes = true;
+            if (value != CountdownModes.Off) {
+                SpinnerEnabled = true;
             }
+            UpdateAuxiliaryVariable();
         }
     }
 
@@ -136,11 +142,13 @@ public class TASHelperSettings : EverestModuleSettings {
     public LoadRangeModes LoadRangeMode {
         get => SpinnerEnabled && EnableLoadRange ? loadRangeMode : LoadRangeModes.Neither;
         set {
-            if (SpinnerEnabled) {
-                loadRangeMode = value;
-                EnableLoadRange = true;
-                UpdateAuxiliaryVariable();
+            loadRangeMode = value;
+            EnableLoadRange = true;
+            if (value != LoadRangeModes.Neither) {
+                SpinnerEnabled = true;
             }
+            UpdateAuxiliaryVariable();
+
         }
     }
 
@@ -167,9 +175,10 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool EnableSimplifiedSpinner {
         get => SpinnerEnabled && EnableEnableSimplifiedSpinner && enableSimplifiedSpinner;
         set {
-            if (SpinnerEnabled) {
-                enableSimplifiedSpinner = value;
-                EnableEnableSimplifiedSpinner = true;
+            enableSimplifiedSpinner = value;
+            EnableEnableSimplifiedSpinner = true;
+            if (value) {
+                SpinnerEnabled = true;
             }
         }
     }
@@ -184,10 +193,17 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
-    
+
     [SettingRange(0, 9)]
     public int SpinnerFillerOpacity { get; set; } = 3;
     #endregion
+
+    private bool entityActivatorReminder = true;
+
+    public bool EntityActivatorReminder {
+        get => Enabled && entityActivatorReminder;
+        set => entityActivatorReminder = value;
+    }
 
     #region Auxilary Variables
     public void UpdateAuxiliaryVariable() {
