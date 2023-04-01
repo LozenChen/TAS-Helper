@@ -8,7 +8,7 @@ public static class DebugHelper {
 
     // only for developing this mod, so make it readonly
     // and set usingDebug = false when release
-    public static readonly bool usingDebug = true;
+    public static readonly bool usingDebug = false;
     public static float PlayerIntPositionX { get => PlayerHelper.player.X; set => PlayerHelper.player.X = value; }
     public static float PlayerIntPositionY { get => PlayerHelper.player.Y; set => PlayerHelper.player.Y = value; }
 
@@ -86,17 +86,23 @@ public static class DebugHelper {
 
 }
 
-
 public static class Logger {
     public static int stringLength = 0;
     public static int lineLength = 140;
     public static string stringToLog = "";
     public const string sep = ", ";
-    public static void Log(this object? obj, string? after = null, string? before = null) {
+
+    public static void Log(this object? obj, string? after = null, string? before = null, bool onlyDebug = true) {
+        if (onlyDebug && !DebugHelper.usingDebug) {
+            return;
+        }
+        orig_Log(obj, after, before);
+    }
+    public static void orig_Log(this object? obj, string? after = null, string? before = null) {
         if (before != null || after != null) {
-            Log(before);
-            Log(obj);
-            Log(after);
+            orig_Log(before);
+            orig_Log(obj);
+            orig_Log(after);
             return;
         }
         if (obj is null) {
@@ -106,62 +112,66 @@ public static class Logger {
             LogString(str);
             return;
         }
+        if (obj is string[] strings) {
+            orig_Log("Array:{");
+            foreach (string str2 in strings) {
+                orig_Log(str2, sep);
+            }
+            orig_Log("}");
+            return;
+        }
         if (obj.isList()) {
             List<object> list = ((IEnumerable)obj).Cast<object>().ToList();
-            Log("List:{");
+            orig_Log("List:{");
             foreach (var item in list) {
-                Log(item, sep);
+                orig_Log(item, sep);
             }
-            Log("}");
+            orig_Log("}");
             return;
         }
         if (obj is Rectangle rect) {
-            Log("Rectangle:{");
-            Log(rect.X, sep, "Left");
-            Log(rect.Y, sep, "Top");
-            Log(rect.Width, sep, "Width");
-            Log(rect.Height, null, "Height");
-            Log("}");
+            orig_Log("Rectangle:{");
+            orig_Log(rect.X, sep, "Left");
+            orig_Log(rect.Y, sep, "Top");
+            orig_Log(rect.Width, sep, "Width");
+            orig_Log(rect.Height, null, "Height");
+            orig_Log("}");
             return;
         }
         if (obj is Hitbox hitbox) {
-            Log("Hitbox:{");
-            Log(hitbox.Left, sep, "Left");
-            Log(hitbox.Top, sep, "Top");
-            Log(hitbox.Width, sep, "Width");
-            Log(hitbox.Height, null, "Height");
-            Log("}");
+            orig_Log("Hitbox:{");
+            orig_Log(hitbox.Left, sep, "Left");
+            orig_Log(hitbox.Top, sep, "Top");
+            orig_Log(hitbox.Width, sep, "Width");
+            orig_Log(hitbox.Height, null, "Height");
+            orig_Log("}");
             return;
         }
         if (obj is Circle circle) {
-            Log("Circle:{");
-            Log(circle.Radius, sep, "Radius");
-            Log(circle.Position, null, "Offset");
-            Log("}");
+            orig_Log("Circle:{");
+            orig_Log(circle.Radius, sep, "Radius");
+            orig_Log(circle.Position, null, "Offset");
+            orig_Log("}");
             return;
         }
         LogString(obj.ToString());
         return;
     }
 
-    internal static bool isList(this object obj) {
+    private static bool isList(this object obj) {
         return obj.GetType().IsGenericType && obj is System.Collections.IEnumerable;
     }
 
     internal static void Load() {
-        if (DebugHelper.usingDebug) {
-            On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
-        }
+        On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
     }
     internal static void Unload() {
-        if (DebugHelper.usingDebug) {
-            On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
-        }
+        On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
     }
 
     private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
         orig(self);
-        if (String.IsNullOrWhiteSpace(stringToLog)) {
+        if (string.IsNullOrWhiteSpace(stringToLog)) {
             stringToLog = "";
         }
         else {

@@ -1,17 +1,19 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
-using Monocle;
-using System.Reflection;
 using Mono.Cecil.Cil;
+using Monocle;
 using MonoMod.Cil;
+using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Entities;
 
 public static class Messenger {
     public static void Load() {
+        On.Celeste.Level.LoadLevel += OnLoadLevel;
     }
 
     public static void Unload() {
+        On.Celeste.Level.LoadLevel -= OnLoadLevel;
     }
 
     public static void Initialize() {
@@ -20,49 +22,78 @@ public static class Messenger {
         }
     }
 
-    private static Type? EntityActivatorType = typeof(Entity);
-
-    private static void HelloWorld(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) { 
+    private static void HelloWorld(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         orig(level, playerIntro, isFromLoader);
-        level.Add(new Message("Hello\nWorld",Vector2.Zero));
+        level.Add(new Message("Hello\nWorld", Vector2.Zero));
     }
 
     private static void PandorasBoxPatch() {
-        EntityActivatorType = ModUtils.GetType("PandorasBox", "Celeste.Mod.PandorasBox.EntityActivator");
-        EntityActivatorType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[]{ typeof(EntityData), typeof(Vector2) }, null).IlHook((cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.Before,ins => ins.OpCode == OpCodes.Ret)) {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Entity>>(CreateEntityActivatorWarner);
+        Type EntityActivatorType = ModUtils.GetType("PandorasBox", "Celeste.Mod.PandorasBox.EntityActivator");
+        EntityActivatorType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(EntityData), typeof(Vector2) }, null).IlHook((cursor, _) => {
+            if (cursor.TryGotoNext(MoveType.Before, ins => ins.OpCode == OpCodes.Ret)) {
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.EmitDelegate(WatchEntityActivator);
             }
         });
     }
 
-    private static void CreateEntityActivatorWarner(Entity activator) {
-           PlayerHelper.scene.Add(new EntityActivatorWarner(activator));
+    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
+        EntityActivatorWarner.MessageCount = 0;
+        orig(level, playerIntro, isFromLoader);
     }
 
-    public class EntityActivatorWarner: Message {
+    private static void WatchEntityActivator(EntityData data) {
+        if (PlayerHelper.scene is Level level) {
+            EntityActivatorWarner watcher = new EntityActivatorWarner();
+            level.Add(watcher);
+            watcher.Watch(data);
+        }
+    }
+
+    [Tracked(false)]
+    public class EntityActivatorWarner : Message {
+
+        public static int MessageCount = 0;
 
         public static float lifetime = 5f;
 
         public float lifetimer = lifetime;
-        public EntityActivatorWarner(Entity activator) : base("", new Vector2(960f, 20f)) {
+        public EntityActivatorWarner() : base("", new Vector2(960f, 20f)) {
             // hud renderer range: [0, 1920] * [0, 1080]
-            Visible = TasHelperSettings.EntityActivatorReminder;
             this.Depth = -20000;
-            HashSet<Type> Targets = (HashSet<Type>)EntityActivatorType.GetFieldInfo("Targets").GetValue(activator);
-            if (Targets.Count != 0) {
-                text = "EntityActivator Targets: ";
-                foreach (Type type in Targets) {
-                    text += type.ToString() + "; ";
-                }
+            this.Visible = false;
+            this.Active = false;
+        }
+
+        public void Watch(EntityData data) {
+            // it seems there is some bug, if use Hashset<Types> targets = (hooked) EntityActivator.Targets, foreach (Type type in targets), text += type.ToString().
+            // it seems type.ToString() may throw NullReferenceException, in SJ beginner lobby
+            // wtf? does some type override ToString() in a bad way??
+
+            // anyway, now that we use hook, why not just directly use EntityData
+
+            string targets = data.Attr("targets", "").Replace(" ", "").Replace(",", "; ");
+            if (string.IsNullOrWhiteSpace(targets)) {
+                Visible = false;
+                Active = false;
             }
             else {
-                Visible = false;
+                text = "EntityActivator Targets: " + targets;
+                Visible = true;
+                Active = true;
+                lifetimer = lifetime;
+                this.Position.Y += 30f * MessageCount;
+                MessageCount++;
             }
         }
 
+        public override void Removed(Scene scene) {
+            MessageCount--;
+            base.Removed(scene);
+        }
+
         public override void Update() {
+            Visible = TasHelperSettings.EntityActivatorReminder;
             lifetimer -= Engine.RawDeltaTime;
             if (lifetimer < 0) {
                 RemoveSelf();
@@ -79,6 +110,7 @@ public static class Messenger {
     }
 }
 
+[Tracked(false)]
 public class Message : Entity {
     private static readonly Language english = Dialog.Languages["english"];
 

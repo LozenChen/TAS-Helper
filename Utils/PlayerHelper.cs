@@ -31,6 +31,7 @@ internal static class PlayerHelper {
     }
 
     public static void Load() {
+        On.Celeste.Level.LoadLevel += OnLoadLevel;
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         On.Celeste.CrystalStaticSpinner.Update += PatchCrysSpinnerUpdate;
         On.Celeste.Lightning.Update += PatchLightningUpdate;
@@ -40,6 +41,7 @@ internal static class PlayerHelper {
     }
 
     public static void Unload() {
+        On.Celeste.Level.LoadLevel -= OnLoadLevel;
         On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
         On.Celeste.CrystalStaticSpinner.Update -= PatchCrysSpinnerUpdate;
         On.Celeste.Lightning.Update -= PatchLightningUpdate;
@@ -47,6 +49,10 @@ internal static class PlayerHelper {
         On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
     }
 
+    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
+        scene = level;
+        orig(level, playerIntro, isFromLoader);
+    }
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         scene = self;
         orig(self);

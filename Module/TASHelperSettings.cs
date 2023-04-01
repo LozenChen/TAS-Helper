@@ -103,10 +103,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ShowCycleHitboxColors {
         get => SpinnerEnabled && EnableCycleHitboxColors && showCycleHitboxColor;
-        set { 
-            showCycleHitboxColor = value; 
-            if (value) { 
-                SpinnerEnabled = true; 
+        set {
+            showCycleHitboxColor = value;
+            if (value) {
+                SpinnerEnabled = true;
             }
         }
     }

@@ -144,7 +144,7 @@ internal static class TASHelperMenu {
         menu.Add(CreatePixelGridSubMenu(menu));
         TextMenu.Item EntityActivatorReminderItem;
         menu.Add(EntityActivatorReminderItem = new TextMenu.OnOff("Entity Activator Reminder".ToDialogText(), TasHelperSettings.EntityActivatorReminder).Change((value) => TasHelperSettings.EntityActivatorReminder = value));
-        EntityActivatorReminderItem.AddDescription(menu,"Entity Activator Reminder Description".ToDialogText());
+        EntityActivatorReminderItem.AddDescription(menu, "Entity Activator Reminder Description".ToDialogText());
         menu.Add(CreateCameraTargetSubMenu(menu));
         menu.Add(CreateHotkeysSubMenu(everestModule, menu));
         hotkeysSubMenu.AddDescription(menu, "Hotkey Description".ToDialogText());

@@ -29,6 +29,8 @@ internal static class PixelGridHook {
     }
 
 }
+
+[Tracked(false)]
 public class PixelGrid : Entity {
     public Func<bool> visibleGetter;
     public Func<int> widthGetter;
