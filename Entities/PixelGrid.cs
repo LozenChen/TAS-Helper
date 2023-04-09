@@ -82,10 +82,11 @@ public class PixelGrid : Entity {
         // do nothing
     }
     public override void Render() {
-        if (visibleGetter() && TasSettings.ShowGameplay) {
+        if (visibleGetter() && TasSettings.ShowGameplay && DebugRendered) {
             UpdateBeforeRender(this);
             RenderWithoutCondition();
         }
+        // we render it either in Render and DebugRender, to have the right depth
     }
 
     public override void DebugRender(Camera camera) {

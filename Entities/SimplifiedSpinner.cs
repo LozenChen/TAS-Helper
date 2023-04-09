@@ -9,8 +9,6 @@ using VivEntities = VivHelper.Entities;
 namespace Celeste.Mod.TASHelper.Entities;
 internal static class SimplifiedSpinner {
 
-    private static bool DebugRendered => HitboxToggle.DrawHitboxes || Engine.Commands.Open || GameplayRenderer.RenderDebug;
-
     public static bool SpritesCleared => DebugRendered && TasHelperSettings.ClearSpinnerSprites;
 
     private static List<FieldInfo> CrysExtraComponentGetter = new();

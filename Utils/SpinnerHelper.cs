@@ -52,7 +52,7 @@ public static class SpinnerHelper {
         }
 
         if (ModUtils.VivHelperInstalled) {
-            VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
+            SetVivHitboxStringGetter();
         }
     }
 
@@ -63,6 +63,10 @@ public static class SpinnerHelper {
     private static Dictionary<Type, GetDelegate<object, float>> OffsetGetters = new();
 
     public static FieldInfo VivHitboxStringGetter;
+
+    private static void SetVivHitboxStringGetter() {
+        VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
+    }
 
     private static bool ModNoCycle = false;
     public static bool NoCycle(Entity self) {
