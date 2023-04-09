@@ -30,6 +30,7 @@ TAS_HELPER_FONT=                                           字体
 TAS_HELPER_HIRES_FONT=                                     高清字体
 TAS_HELPER_PIXEL_FONT=                                     像素字体
 TAS_HELPER_HIRES_FONT_SIZE=                                高清字体大小
+TAS_HELPER_HIRES_FONT_STROKE=                              高清字体描边
 
 # ============================================= Load Range =====================================================
 TAS_HELPER_LOAD_RANGE=                                     加载范围

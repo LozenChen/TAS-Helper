@@ -138,6 +138,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool usingHiresFont => CountdownFont == CountdownFonts.HiresFont;
 
+    public int HiresFontStroke = 5;
+
     #endregion
 
     #region LoadRange

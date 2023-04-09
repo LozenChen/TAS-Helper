@@ -151,4 +151,7 @@ public class Message : Entity {
     public static void RenderMessage(string str, Vector2 Position, Vector2 justify, Vector2 scale) {
         Font.DrawOutline(BaseSize, str, Position, justify, scale, Color.White, 2f, Color.Black);
     }
+    public static void RenderMessage(string str, Vector2 Position, Vector2 justify, Vector2 scale, float stroke) {
+        Font.DrawOutline(BaseSize, str, Position, justify, scale, Color.White, stroke, Color.Black);
+    }
 }

@@ -155,7 +155,7 @@ public class OneFrameTextRenderer : THRenderer {
     }
 
     public override void Render() {
-        Message.RenderMessage(text, position, new Vector2(0.5f, 0.2f), new Vector2(TasHelperSettings.HiresFontSize / 10f));
+        Message.RenderMessage(text, position, new Vector2(0.5f, 0.2f), new Vector2(TasHelperSettings.HiresFontSize / 10f), TasHelperSettings.HiresFontStroke * 0.4f);
         HiresLevelRenderer.Remove(this);
     }
 }

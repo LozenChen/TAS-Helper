@@ -21,6 +21,7 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenuExt.EnumerableSlider<CountdownFonts>("Font".ToDialogText(), CreateCountdownFontOptions(),
                 TasHelperSettings.CountdownFont).Change(value => TasHelperSettings.CountdownFont = value));
             subMenu.Add(new TextMenuExt.IntSlider("Hires Font Size".ToDialogText(), 1, 20, TasHelperSettings.HiresFontSize).Change(value => TasHelperSettings.HiresFontSize = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Hires Font Stroke".ToDialogText(), 0, 20, TasHelperSettings.HiresFontStroke).Change(value => TasHelperSettings.HiresFontStroke = value));
         });
     }
     private static TextMenuExt.SubMenu CreateLoadRangeSubMenu(TextMenu menu) {
