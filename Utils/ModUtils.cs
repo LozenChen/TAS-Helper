@@ -1,4 +1,5 @@
 using Celeste.Mod.Helpers;
+using ExtendedVariants.Module;
 using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Utils;
@@ -36,9 +37,17 @@ internal static class ModUtils {
     public static bool VivHelperInstalled = false;
 
     public static bool PandorasBoxInstalled = false;
+
+    public static bool ExtendedVariantInstalled = false;
+    private static bool upsideDown => (bool)ExtendedVariantsModule.Instance.TriggerManager.GetCurrentVariantValue(ExtendedVariantsModule.Variant.UpsideDown);
+    public static bool UpsideDown => ExtendedVariantInstalled && upsideDown;
     public static void InitializeAtFirst() {
         FrostHelperInstalled = IsInstalled("FrostHelper");
         VivHelperInstalled = IsInstalled("VivHelper");
         PandorasBoxInstalled = IsInstalled("PandorasBox");
+        ExtendedVariantInstalled = IsInstalled("ExtendedVariantMode");
+    }
+
+    public static void LoadContent() {
     }
 }

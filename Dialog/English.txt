@@ -13,7 +13,8 @@ TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ALLOW_ALL=             All
 TAS_HELPER_SHOW_CYCLE_HITBOX_COLORS=                       Show Cycle Hitbox Colors
 
 # ============================================= Hazard Countdown =====================================================
-TAS_HELPER_COUNTDOWN_MODE=                                 Hazard Countdown
+TAS_HELPER_COUNTDOWN=                                      Hazard Countdown
+TAS_HELPER_COUNTDOWN_MODE=                                 Mode
 TAS_HELPER_COUNTDOWN_MODE_OFF=                             Off
 TAS_HELPER_COUNTDOWN_MODE_3F_CYCLE=                        3f Cycle
 TAS_HELPER_COUNTDOWN_MODE_15F_CYCLE=                       15f Cycle
@@ -24,6 +25,10 @@ TAS_HELPER_COUNTDOWN_MODE_DESCRIPTION=                     Every 3 frames, check
                                                            Every 15 frames, check the conditions of the following actions:{n}
                                                               - Spinner become invisible (InView),{n}
                                                               - Lightning turn off collision (InView).
+TAS_HELPER_FONT=                                           Font
+TAS_HELPER_HIRES_FONT=                                     Hires Font
+TAS_HELPER_PIXEL_FONT=                                     Pixel Font
+TAS_HELPER_HIRES_FONT_SIZE=                                Hires Font Size
 
 # ============================================= Load Range =====================================================
 TAS_HELPER_LOAD_RANGE=                                     Load Range

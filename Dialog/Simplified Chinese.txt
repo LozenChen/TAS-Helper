@@ -14,7 +14,8 @@ TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ALLOW_ALL=             全部
 TAS_HELPER_SHOW_CYCLE_HITBOX_COLORS=                       周期性实体颜色
 
 # ============================================= Hazard Countdown =====================================================
-TAS_HELPER_COUNTDOWN_MODE=                                 圆刺倒计时
+TAS_HELPER_COUNTDOWN=                                      圆刺倒计时
+TAS_HELPER_COUNTDOWN_MODE=                                 模式
 TAS_HELPER_COUNTDOWN_MODE_OFF=                             关
 TAS_HELPER_COUNTDOWN_MODE_3F_CYCLE=                        3 帧循环
 TAS_HELPER_COUNTDOWN_MODE_15F_CYCLE=                       15 帧循环
@@ -25,6 +26,10 @@ TAS_HELPER_COUNTDOWN_MODE_DESCRIPTION=                     每 3 帧一次, 检�
                                                            每 15 帧一次, 检测以下行为的条件:{n}
                                                               - Spinner become invisible (InView),{n}
                                                               - Lightning turn off collision (InView).
+TAS_HELPER_FONT=                                           字体
+TAS_HELPER_HIRES_FONT=                                     高清字体
+TAS_HELPER_PIXEL_FONT=                                     像素字体
+TAS_HELPER_HIRES_FONT_SIZE=                                高清字体大小
 
 # ============================================= Load Range =====================================================
 TAS_HELPER_LOAD_RANGE=                                     加载范围

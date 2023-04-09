@@ -143,4 +143,12 @@ public class Message : Entity {
     public void RenderAt(Vector2 Position) {
         Font.Draw(BaseSize, text, Position, new Vector2(0.5f, 0.5f), Vector2.One * 0.5f, Color.White * alpha, 0f, Color.Transparent, 0f, Color.Transparent);
     }
+
+    public static void RenderMessage(string str, Vector2 Position, Vector2 scale) {
+        RenderMessage(str, Position, Vector2.One * 0.5f, scale);
+    }
+
+    public static void RenderMessage(string str, Vector2 Position, Vector2 justify, Vector2 scale) {
+        Font.DrawOutline(BaseSize, str, Position, justify, scale, Color.White, 2f, Color.Black);
+    }
 }

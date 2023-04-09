@@ -48,6 +48,7 @@ internal static class RenderHelper {
     public static void Unload() {
     }
 
+
     private static Color DefaultColor => TasSettings.EntityHitboxColor;
     private static Color NotInViewColor = Color.Lime;
     private static Color NeverActivateColor = new Color(0.25f, 1f, 1f);
@@ -68,6 +69,17 @@ internal static class RenderHelper {
     }
 
     public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index) {
+        if (TasHelperSettings.usingHiresFont) {
+            string str = index switch {
+                SpinnerColorIndex.NeverActivate => "oo",
+                SpinnerColorIndex.ActivatesEveryFrame => "0",
+                _ => CountdownTimer.ToString(),
+            };
+            HiresLevelRenderer.Add(new OneFrameTextRenderer(str, (Position + new Vector2(1.5f, -0.5f)) * 6f));
+            return;
+        }
+
+
         if (index == SpinnerColorIndex.NeverActivate) {
             numbers[9].DrawOutline(Position);
             return;
@@ -269,7 +281,6 @@ internal static class RenderHelper {
     }
 
 }
-
 
 public static class ColliderListHelper {
 

@@ -24,6 +24,9 @@
       <HintPath>Libs\CelesteTAS-EverestInterop.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="ExtendedVariantMode">
+      <HintPath>Libs\ExtendedVariantMode.dll</HintPath>
+    </Reference>
     <Reference Include="FNA">
       <HintPath>Libs\FNA.dll</HintPath>
     </Reference>

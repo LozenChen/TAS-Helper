@@ -23,6 +23,7 @@ internal static class Loader {
         RenderHelper.Load();
         SpinnerHelper.Load();
         SimplifiedSpinner.Load();
+        HiresLevelRenderer.Load();
         Logger.Load();
         DebugHelper.Load();
     }
@@ -31,6 +32,7 @@ internal static class Loader {
         RenderHelper.Unload();
         SpinnerHelper.Unload();
         SimplifiedSpinner.Unload();
+        HiresLevelRenderer.Unload();
         HookHelper.Unload();
         Logger.Unload();
         DebugHelper.Unload();
@@ -46,5 +48,6 @@ internal static class Loader {
     }
 
     public static void LoadContent() {
+        ModUtils.LoadContent();
     }
 }

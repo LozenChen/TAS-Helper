@@ -12,6 +12,17 @@ internal static class TASHelperMenu {
     private static TextMenu.Item hotkeysSubMenu;
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
 
+    private static TextMenuExt.SubMenu CreateCountdownSubMenu(TextMenu menu) {
+        return new TextMenuExt.SubMenu("Countdown".ToDialogText(), false).Apply(subMenu => {
+            TextMenu.Item CountdownModeItem;
+            subMenu.Add(CountdownModeItem = new TextMenuExt.EnumerableSlider<CountdownModes>("Countdown Mode".ToDialogText(), CreateCountdownOptions(),
+                    TasHelperSettings.CountdownMode).Change(value => TasHelperSettings.CountdownMode = value));
+            subMenu.AddDescription(menu, CountdownModeItem, "Countdown Mode Description".ToDialogText());
+            subMenu.Add(new TextMenuExt.EnumerableSlider<CountdownFonts>("Font".ToDialogText(), CreateCountdownFontOptions(),
+                TasHelperSettings.CountdownFont).Change(value => TasHelperSettings.CountdownFont = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Hires Font Size".ToDialogText(), 1, 20, TasHelperSettings.HiresFontSize).Change(value => TasHelperSettings.HiresFontSize = value));
+        });
+    }
     private static TextMenuExt.SubMenu CreateLoadRangeSubMenu(TextMenu menu) {
         return new TextMenuExt.SubMenu("Load Range".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item LoadRangeModeItem;
@@ -102,6 +113,13 @@ internal static class TASHelperMenu {
             new(CountdownModes._15fCycle, "Countdown Mode 15f Cycle".ToDialogText()),
         };
     }
+    private static IEnumerable<KeyValuePair<CountdownFonts, string>> CreateCountdownFontOptions() {
+        return new List<KeyValuePair<CountdownFonts, string>> {
+            new(CountdownFonts.PixelFont, "Pixel Font".ToDialogText()),
+            new(CountdownFonts.HiresFont, "Hires Font".ToDialogText()),
+        };
+    }
+
     private static IEnumerable<KeyValuePair<LoadRangeModes, string>> CreateLoadRangeOptions() {
         return new List<KeyValuePair<LoadRangeModes, string>> {
             new(LoadRangeModes.Neither, "Load Range Mode Neither".ToDialogText()),
@@ -135,10 +153,7 @@ internal static class TASHelperMenu {
         menu.Add(SpinnerMainItem = new TextMenu.OnOff("Spinner Main Switch".ToDialogText(), TasHelperSettings.SpinnerEnabled).Change((value) => { TasHelperSettings.SpinnerEnabled = value; }));
         SpinnerMainItem.AddDescription(menu, "Spinner Main Switch Description".ToDialogText());
         menu.Add(new TextMenu.OnOff("Show Cycle Hitbox Colors".ToDialogText(), TasHelperSettings.ShowCycleHitboxColors).Change(value => TasHelperSettings.ShowCycleHitboxColors = value));
-        TextMenu.Item CountdownModeItem;
-        menu.Add(CountdownModeItem = new TextMenuExt.EnumerableSlider<CountdownModes>("Countdown Mode".ToDialogText(), CreateCountdownOptions(),
-                TasHelperSettings.CountdownMode).Change(value => TasHelperSettings.CountdownMode = value));
-        CountdownModeItem.AddDescription(menu, "Countdown Mode Description".ToDialogText());
+        menu.Add(CreateCountdownSubMenu(menu));
         menu.Add(CreateLoadRangeSubMenu(menu));
         menu.Add(CreateSimplifiedSpinnerSubMenu(menu));
         menu.Add(CreatePixelGridSubMenu(menu));

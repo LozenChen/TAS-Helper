@@ -28,7 +28,9 @@ public class TASHelperModule : EverestModule {
     }
 
     public override void LoadContent(bool firstLoad) {
-        Loader.LoadContent();
+        if (firstLoad) {
+            Loader.LoadContent();
+        }
     }
 
     public override void CreateModMenuSection(TextMenu menu, bool inGame, EventInstance snapshot) {

@@ -130,6 +130,14 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    public enum CountdownFonts { PixelFont, HiresFont };
+
+    public CountdownFonts CountdownFont = CountdownFonts.HiresFont;
+
+    public int HiresFontSize = 8;
+
+    public bool usingHiresFont => CountdownFont == CountdownFonts.HiresFont;
+
     #endregion
 
     #region LoadRange
