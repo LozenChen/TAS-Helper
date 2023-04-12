@@ -39,6 +39,7 @@ internal static class Loader {
     }
 
     public static void Initialize() {
+        TasHelperSettings.InitializeSettings();
         ModUtils.InitializeAtFirst();
         PlayerHelper.Initialize();
         RenderHelper.Initialize();

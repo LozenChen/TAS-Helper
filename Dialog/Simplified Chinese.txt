@@ -4,14 +4,20 @@ TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        开关
 
 # ============================================= Spinner Main Switch =====================================================
-TAS_HELPER_SPINNER_MAIN_SWITCH=                            圆刺功能的主开关
+TAS_HELPER_SPINNER_MAIN_SWITCH=                            切换主要圆刺功能
 TAS_HELPER_SPINNER_MAIN_SWITCH_DESCRIPTION=                包含周期性实体颜色, 圆刺倒计时, 加载范围, 简化圆刺.
 TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_OFF=                   关
 TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ONLY_DEFAULT=          默认
 TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ALLOW_ALL=             全部
 
 # ============================================= Cycle Hitbox Colors =====================================================
+TAS_HELPER_COLORS=                                         色彩
 TAS_HELPER_SHOW_CYCLE_HITBOX_COLORS=                       周期性实体颜色
+TAS_HELPER_USING_NOTINVIEW_COLOR_MODES=                    镜头外全用一种颜色
+TAS_HELPER_NOTINVIEW_COLOR_MODES_OFF=                      关
+TAS_HELPER_NOTINVIEW_COLOR_MODES_WHEN=                     仅当开启 InView 范围时
+TAS_HELPER_NOTINVIEW_COLOR_MODES_ALWAYS=                   开
+TAS_HELPER_USING_NOTINVIEW_COLOR_DESCRIPTION=              对受到 InView 影响的实体 (圆刺, 闪电) 有效.
 
 # ============================================= Hazard Countdown =====================================================
 TAS_HELPER_COUNTDOWN=                                      圆刺倒计时

@@ -96,11 +96,12 @@ internal static class RenderHelper {
     }
 
     public static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float TimeActive, float offset, Vector2 CameraPosition) {
+        if (TasHelperSettings.UsingNotInViewColor && !SpinnerHelper.InView(self, CameraPosition) && !(SpinnerHelper.isDust(self))) {
+            // NotInView Color is in some sense, not a cycle hitbox color, we make it independent
+            return SpinnerColorIndex.NotInView;
+        }
         if (!TasHelperSettings.ShowCycleHitboxColors) {
             return SpinnerColorIndex.Default;
-        }
-        if (TasHelperSettings.isUsingInViewRange && !SpinnerHelper.InView(self, CameraPosition) && !(SpinnerHelper.isDust(self))) {
-            return SpinnerColorIndex.NotInView;
         }
         if (SpinnerHelper.NoCycle(self)) {
             return SpinnerColorIndex.ActivatesEveryFrame;

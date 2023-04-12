@@ -18,7 +18,7 @@ internal static class LoadRangeCountDownCameraTarget {
         if (TasHelperSettings.UsingLoadRange) {
             RenderHelper.DrawLoadRangeCollider(self.Position, self.Width, self.Height, PlayerHelper.CameraPosition, SpinnerHelper.isLightning(self));
         }
-        if (TasHelperSettings.isUsingCountDown && !SpinnerHelper.FarFromRange(self, PlayerHelper.PlayerPosition, PlayerHelper.CameraPosition, 0.25f)) {
+        if (TasHelperSettings.UsingCountDown && !SpinnerHelper.FarFromRange(self, PlayerHelper.PlayerPosition, PlayerHelper.CameraPosition, 0.25f)) {
             Vector2 CountdownPos;
             if (SpinnerHelper.isLightning(self)) {
                 CountdownPos = self.Center + new Vector2(-1f, -2f);
@@ -34,12 +34,12 @@ internal static class LoadRangeCountDownCameraTarget {
         if (TasHelperSettings.UsingCameraTarget) {
             RenderHelper.DrawCameraTarget(PlayerHelper.PreviousCameraPos, PlayerHelper.CameraPosition, PlayerHelper.CameraTowards);
         }
-        if (TasHelperSettings.isUsingNearPlayerRange) {
+        if (TasHelperSettings.UsingNearPlayerRange) {
             // to see whether it works, teleport to Farewell [a-01] and updash
             // (teleport modifies your actualDepth, otherwise you need to set depth, or just die in this room)
             RenderHelper.DrawNearPlayerRange(PlayerHelper.PlayerPosition, PlayerHelper.PreviousPlayerPosition, PlayerHelper.PlayerPositionChangedCount);
         }
-        if (TasHelperSettings.isUsingInViewRange) {
+        if (TasHelperSettings.UsingInViewRange) {
             RenderHelper.DrawInViewRange(PlayerHelper.CameraPosition);
         }
     }

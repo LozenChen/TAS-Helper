@@ -42,7 +42,6 @@ public class TASHelperModule : EverestModule {
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
         orig(self);
         TasHelperSettings.SettingsHotkeysPressed();
-        TasHelperSettings.UpdateAuxiliaryVariable();
         // if you call Instance.SaveSettings() here, then the game will crash if you open Menu-Mod Options in a Level and close the menu.
         // i don't know why, but just never do this.
     }

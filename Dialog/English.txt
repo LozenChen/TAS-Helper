@@ -10,7 +10,13 @@ TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ONLY_DEFAULT=          Default
 TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ALLOW_ALL=             All
 
 # ============================================= Cycle Hitbox Colors =====================================================
+TAS_HELPER_COLORS=                                         Colors
 TAS_HELPER_SHOW_CYCLE_HITBOX_COLORS=                       Show Cycle Hitbox Colors
+TAS_HELPER_USING_NOTINVIEW_COLOR_MODES=                    NotInView Color
+TAS_HELPER_NOTINVIEW_COLOR_MODES_OFF=                      Off
+TAS_HELPER_NOTINVIEW_COLOR_MODES_WHEN=                     When Using InView Range
+TAS_HELPER_NOTINVIEW_COLOR_MODES_ALWAYS=                   On
+TAS_HELPER_USING_NOTINVIEW_COLOR_DESCRIPTION=              Available to entities affected by InView (Spinner and Lightning).
 
 # ============================================= Hazard Countdown =====================================================
 TAS_HELPER_COUNTDOWN=                                      Hazard Countdown

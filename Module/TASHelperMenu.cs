@@ -12,6 +12,17 @@ internal static class TASHelperMenu {
     private static TextMenu.Item hotkeysSubMenu;
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
 
+    private static TextMenuExt.SubMenu CreateCycleHitboxColorSubMenu(TextMenu menu) {
+        return new TextMenuExt.SubMenu("Colors".ToDialogText(), false).Apply(subMenu => {
+            subMenu.Add(new TextMenu.OnOff("Show Cycle Hitbox Colors".ToDialogText(), TasHelperSettings.ShowCycleHitboxColors).Change(value => TasHelperSettings.ShowCycleHitboxColors = value));
+            TextMenu.Item NotInViewColorItem;
+            subMenu.Add(NotInViewColorItem = new TextMenuExt.EnumerableSlider<UsingNotInViewColorModes>("Using NotInView Color Modes".ToDialogText(), CreateUsingNotInViewColorOptions(),
+                TasHelperSettings.UsingNotInViewColorMode).Change(value => TasHelperSettings.UsingNotInViewColorMode = value));
+            subMenu.AddDescription(menu, NotInViewColorItem, "Using NotInView Color Description".ToDialogText());
+        });
+    }
+
+
     private static TextMenuExt.SubMenu CreateCountdownSubMenu(TextMenu menu) {
         return new TextMenuExt.SubMenu("Countdown".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item CountdownModeItem;
@@ -99,12 +110,22 @@ internal static class TASHelperMenu {
         }).Apply(subMenu => hotkeysSubMenu = subMenu);
     }
 
+    /*
     private static IEnumerable<KeyValuePair<SpinnerMainSwitchModes, string>> CreateSpinnerMainSwitchOptions() {
-        // no longer use this
+        // no longer use this, now we use {on, off} two state in menu (SpinnerEnabled), but call it SpinnerMainSwitch as well
+        // and use {Off, OnlyDefault, AllowAll} three states for hotkey (the real SpinnerMainSwitch)
         return new List<KeyValuePair<SpinnerMainSwitchModes, string>> {
             new(SpinnerMainSwitchModes.Off, "Spinner Main Switch Mode Off".ToDialogText()),
             new(SpinnerMainSwitchModes.OnlyDefault, "Spinner Main Switch Mode Only Default".ToDialogText()),
             new(SpinnerMainSwitchModes.AllowAll, "Spinner Main Switch Mode Allow All".ToDialogText()),
+        };
+    }
+    */
+    private static IEnumerable<KeyValuePair<UsingNotInViewColorModes, string>> CreateUsingNotInViewColorOptions() {
+        return new List<KeyValuePair<UsingNotInViewColorModes, string>> {
+            new(UsingNotInViewColorModes.Off, "NotInView Color Modes Off".ToDialogText()),
+            new(UsingNotInViewColorModes.WhenUsingInViewRange, "NotInView Color Modes When".ToDialogText()),
+            new(UsingNotInViewColorModes.Always, "NotInView Color Modes Always".ToDialogText()),
         };
     }
     private static IEnumerable<KeyValuePair<CountdownModes, string>> CreateCountdownOptions() {
@@ -150,10 +171,11 @@ internal static class TASHelperMenu {
 
     public static void CreateMenu(EverestModule everestModule, TextMenu menu, bool inGame) {
         menu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.Enabled).Change((value) => { TasHelperSettings.Enabled = value; }));
-        TextMenu.Item SpinnerMainItem;
-        menu.Add(SpinnerMainItem = new TextMenu.OnOff("Spinner Main Switch".ToDialogText(), TasHelperSettings.SpinnerEnabled).Change((value) => { TasHelperSettings.SpinnerEnabled = value; }));
-        SpinnerMainItem.AddDescription(menu, "Spinner Main Switch Description".ToDialogText());
-        menu.Add(new TextMenu.OnOff("Show Cycle Hitbox Colors".ToDialogText(), TasHelperSettings.ShowCycleHitboxColors).Change(value => TasHelperSettings.ShowCycleHitboxColors = value));
+        // SpinnerEnabled is too foolish, i decide to abandon it
+        // TextMenu.Item SpinnerMainItem;
+        //menu.Add(SpinnerMainItem = new TextMenu.OnOff("Spinner Main Switch".ToDialogText(), TasHelperSettings.SpinnerEnabled).Change((value) => { TasHelperSettings.SpinnerEnabled = value; }));
+        //SpinnerMainItem.AddDescription(menu, "Spinner Main Switch Description".ToDialogText());
+        menu.Add(CreateCycleHitboxColorSubMenu(menu));
         menu.Add(CreateCountdownSubMenu(menu));
         menu.Add(CreateLoadRangeSubMenu(menu));
         menu.Add(CreateSimplifiedSpinnerSubMenu(menu));
