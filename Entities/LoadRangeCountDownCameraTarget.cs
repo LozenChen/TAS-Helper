@@ -14,11 +14,14 @@ internal static class LoadRangeCountDownCameraTarget {
     }
 
     public static void DrawLoadRangeColliderCountdown(Entity self, RenderHelper.SpinnerColorIndex index) {
-        float offset = SpinnerHelper.GetOffset(self).Value;
+        if (TasHelperSettings.DoNotRenderWhenFarFromView && SpinnerHelper.FarFromRange(self, PlayerHelper.PlayerPosition, PlayerHelper.CameraPosition, 0.25f)) {
+            return;
+        }
         if (TasHelperSettings.UsingLoadRange) {
             RenderHelper.DrawLoadRangeCollider(self.Position, self.Width, self.Height, PlayerHelper.CameraPosition, SpinnerHelper.isLightning(self));
         }
-        if (TasHelperSettings.UsingCountDown && !SpinnerHelper.FarFromRange(self, PlayerHelper.PlayerPosition, PlayerHelper.CameraPosition, 0.25f)) {
+        if (TasHelperSettings.UsingCountDown) {
+            float offset = SpinnerHelper.GetOffset(self).Value;
             Vector2 CountdownPos;
             if (SpinnerHelper.isLightning(self)) {
                 CountdownPos = self.Center + new Vector2(-1f, -2f);

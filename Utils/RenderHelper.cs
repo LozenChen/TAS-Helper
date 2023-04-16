@@ -39,7 +39,7 @@ internal static class RenderHelper {
             });
         }
 
-        ColliderListHelper.Initialize();
+        SpinnerColliderHelper.Initialize();
     }
 
     public static void Load() {
@@ -120,7 +120,7 @@ internal static class RenderHelper {
 
     public static void DrawSpinnerCollider(Entity self, Color color) {
         if (OnGrid(self)) {
-            DrawVanillaCollider(self.Position, color, self.Collidable, HitboxColor.UnCollidableAlpha, true);
+            DrawVanillaCollider(self.Position, color, self.Collidable, HitboxColor.UnCollidableAlpha);
         }
         else {
             DrawComplexSpinnerCollider(self, color);
@@ -132,18 +132,11 @@ internal static class RenderHelper {
             if (OnGrid(self)) {
                 string[] hitboxString = SpinnerHelper.VivHitboxStringGetter.GetValue(spinner) as string[];
                 float scale = spinner.scale;
-                string key = ColliderListHelper.ColliderListKey(hitboxString, scale);
-                if (ColliderListHelper.CachedRectangle.TryGetValue(key, out ColliderListHelper.ColliderListValue value)) {
-                    int x = (int)Math.Floor(self.Position.X);
-                    int y = (int)Math.Floor(self.Position.Y);
+                string key = SpinnerColliderHelper.SpinnerColliderKey(hitboxString, scale);
+                if (SpinnerColliderHelper.SpinnerColliderTextures.TryGetValue(key, out SpinnerColliderHelper.SpinnerColliderValue value)) {
                     color *= spinner.Collidable ? 1f : HitboxColor.UnCollidableAlpha;
-                    Color insideColor = color * TasHelperSettings.SpinnerFillerAlpha;
-                    foreach (Rectangle outline in value.Outline) {
-                        Monocle.Draw.Rect(outline.at(x, y), color);
-                    }
-                    foreach (Rectangle inside in value.Inside) {
-                        Monocle.Draw.Rect(inside.at(x, y), insideColor);
-                    }
+                    value.Outline.DrawCentered(self.Position, color);
+                    value.Inside.DrawCentered(self.Position, color * TasHelperSettings.SpinnerFillerAlpha);
                     return true;
                 }
             }
@@ -171,37 +164,16 @@ internal static class RenderHelper {
         }
     }
 
-    public static void DrawVanillaCollider(Vector2 Position, Color color, bool Collidable, float alpha, bool Filled) {
-        float x = Position.X;
-        float y = Position.Y;
+    public static void DrawVanillaCollider(Vector2 Position, Color color, bool Collidable, float alpha) {
         color *= Collidable ? 1f : alpha;
-        Monocle.Draw.Rect(x - 4f, y - 6f, 8f, 1f, color);
-        Monocle.Draw.Rect(x - 4f, y + 5f, 8f, 1f, color);
-        Monocle.Draw.Rect(x - 6f, y - 4f, 1f, 8f, color);
-        Monocle.Draw.Rect(x + 5f, y - 4f, 1f, 8f, color);
-        Monocle.Draw.Rect(x - 8f, y - 3f, 1f, 4f, color);
-        Monocle.Draw.Rect(x + 7f, y - 3f, 1f, 4f, color);
-        Monocle.Draw.Point(new(x - 5f, y - 5f), color);
-        Monocle.Draw.Point(new(x + 4f, y - 5f), color);
-        Monocle.Draw.Point(new(x - 5f, y + 4f), color);
-        Monocle.Draw.Point(new(x + 4f, y + 4f), color);
-        Monocle.Draw.Point(new(x - 7f, y - 3f), color);
-        Monocle.Draw.Point(new(x - 7f, y), color);
-        Monocle.Draw.Point(new(x + 6f, y - 3f), color);
-        Monocle.Draw.Point(new(x + 6f, y), color);
-
-        if (Filled) {
-            color *= TasHelperSettings.SpinnerFillerAlpha;
-            Monocle.Draw.Rect(x - 5f, y - 4f, 10f, 8f, color);
-            Monocle.Draw.Rect(x - 4f, y - 5f, 8f, 1f, color);
-            Monocle.Draw.Rect(x - 4f, y + 4f, 8f, 1f, color);
-            Monocle.Draw.Rect(x - 7f, y - 2f, 1f, 2f, color);
-            Monocle.Draw.Rect(x + 6f, y - 2f, 1f, 2f, color);
-        }
+        SpinnerColliderHelper.Vanilla.Outline.DrawCentered(Position, color);
+        color *= TasHelperSettings.SpinnerFillerAlpha;
+        SpinnerColliderHelper.Vanilla.Inside.DrawCentered(Position, color);
     }
 
     public static void DrawLoadRangeCollider(Vector2 Position, float Width, float Height, Vector2 CameraPos, bool isLightning) {
-        if (isLightning) {
+        if (isLightning && TasHelperSettings.UsingInViewRange) {
+            // only check in view for lightning
             if (SpinnerHelper.InView(Position, Width, Height, CameraPos, true)) {
                 // do nothing
             }
@@ -210,11 +182,14 @@ internal static class RenderHelper {
             }
         }
         else {
-            Monocle.Draw.Point(Position, SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(-1f, -1f), SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(-1f, 1f), SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(1f, -1f), SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(1f, 1f), SpinnerCenterColor);
+            // spinner use in view for visible, and near player for collidable
+            // dust use in view for graphics establish, and near player for collidable
+            // so we render the center when using load range
+                Monocle.Draw.Point(Position, SpinnerCenterColor);
+                Monocle.Draw.Point(Position + new Vector2(-1f, -1f), SpinnerCenterColor);
+                Monocle.Draw.Point(Position + new Vector2(-1f, 1f), SpinnerCenterColor);
+                Monocle.Draw.Point(Position + new Vector2(1f, -1f), SpinnerCenterColor);
+                Monocle.Draw.Point(Position + new Vector2(1f, 1f), SpinnerCenterColor);
         }
     }
 
@@ -283,96 +258,49 @@ internal static class RenderHelper {
 
 }
 
-public static class ColliderListHelper {
+public static class SpinnerColliderHelper {
 
-    public struct ColliderListValue {
-        public List<Rectangle> Outline;
-        public List<Rectangle> Inside;
-        public ColliderListValue(List<Rectangle> Outline, List<Rectangle> Inside) {
-            this.Outline = Outline.GetRange(0, Outline.Count);
-            this.Inside = Inside.GetRange(0, Inside.Count);
+    public struct SpinnerColliderValue {
+        public MTexture Outline;
+        public MTexture Inside;
+        public SpinnerColliderValue(MTexture Outline, MTexture Inside) {
+            this.Outline = Outline;
+            this.Inside = Inside;
         }
     }
 
-    public static List<Rectangle> Clone(List<Rectangle> list) {
-        return list.GetRange(0, list.Count);
-    }
-
-    public static string ColliderListKey(string hitboxString, float scale) {
+    public static string SpinnerColliderKey(string hitboxString, float scale) {
         return hitboxString + "//" + scale.ToString();
     }
 
-    public static string ColliderListKey(string[] hitboxString, float scale) {
+    public static string SpinnerColliderKey(string[] hitboxString, float scale) {
         return String.Join("|", hitboxString) + "//" + scale.ToString();
     }
 
-    public static Rectangle at(this Rectangle rect, int x, int y) {
-        return new(rect.X + x, rect.Y + y, rect.Width, rect.Height);
-    }
+    public static Dictionary<string, SpinnerColliderValue> SpinnerColliderTextures = new();
 
-    public static Dictionary<string, ColliderListValue> CachedRectangle = new();
-    // i can make it add rectangles dynamically, but there is some bug, so i just add manually for now
+    public static SpinnerColliderValue Vanilla;
+
     public static void Initialize() {
-        List<Rectangle> outlineC6 = new();
-        List<Rectangle> insideC6 = new();
-        outlineC6.Add(new(-4, -6, 8, 1));
-        outlineC6.Add(new(-4, +5, 8, 1));
-        outlineC6.Add(new(-6, -4, 1, 8));
-        outlineC6.Add(new(+5, -4, 1, 8));
-        outlineC6.Add(new(-5, -5, 1, 1));
-        outlineC6.Add(new(+4, -5, 1, 1));
-        outlineC6.Add(new(-5, +4, 1, 1));
-        outlineC6.Add(new(+4, +4, 1, 1));
-        insideC6.Add(new(-5, -4, 10, 8));
-        insideC6.Add(new(-4, -5, 8, 1));
-        insideC6.Add(new(-4, +4, 8, 1));
-        CachedRectangle.Add(ColliderListKey("C:6;0,0", 1f), new ColliderListValue(outlineC6, insideC6));
+        // learn from https://github.com/EverestAPI/Resources/wiki/Adding-Sprites#using-a-spritebank-file
 
-        List<Rectangle> outlineVanilla = Clone(outlineC6);
-        List<Rectangle> insideVanilla = Clone(insideC6);
-        outlineVanilla.Add(new(-8, -3, 1, 4));
-        outlineVanilla.Add(new(+7, -3, 1, 4));
-        outlineVanilla.Add(new(-7, -3, 1, 1));
-        outlineVanilla.Add(new(-7, 0, 1, 1));
-        outlineVanilla.Add(new(+6, -3, 1, 1));
-        outlineVanilla.Add(new(+6, 0, 1, 1));
-        insideVanilla.Add(new(-7, -2, 1, 2));
-        insideVanilla.Add(new(+6, -2, 1, 2));
-        CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,4;-8,*1@-4", 1f), new ColliderListValue(outlineVanilla, insideVanilla));
-        CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,*4;-8,*-3", 1f), new ColliderListValue(outlineVanilla, insideVanilla));
+        MTexture C6_o = GFX.Game["TASHelper/SpinnerCollider/C600_outline"];
+        MTexture C6_i = GFX.Game["TASHelper/SpinnerCollider/C600_inside"];
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0", 1f), new SpinnerColliderValue(C6_o, C6_i));
 
-        List<Rectangle> outlineIeverted = Clone(outlineC6);
-        List<Rectangle> insideIeverted = Clone(insideC6);
-        outlineIeverted.Add(new(-8, -1, 1, 4));
-        outlineIeverted.Add(new(+7, -1, 1, 4));
-        outlineIeverted.Add(new(-7, -1, 1, 1));
-        outlineIeverted.Add(new(-7, 2, 1, 1));
-        outlineIeverted.Add(new(+6, -1, 1, 1));
-        outlineIeverted.Add(new(+6, 2, 1, 1));
-        insideIeverted.Add(new(-7, 0, 1, 2));
-        insideIeverted.Add(new(+6, 0, 1, 2));
-        CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,*4;-8,*-1", 1f), new ColliderListValue(outlineIeverted, insideIeverted));
-        CachedRectangle.Add(ColliderListKey("C:6;0,0|R:16,4;-8,*-1", 1f), new ColliderListValue(outlineIeverted, insideIeverted));
+        MTexture vanilla_o = GFX.Game["TASHelper/SpinnerCollider/vanilla_outline"];
+        MTexture vanilla_i = GFX.Game["TASHelper/SpinnerCollider/vanilla_inside"];
+        Vanilla = new SpinnerColliderValue(vanilla_o, vanilla_i);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,4;-8,*1@-4", 1f), Vanilla);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,*4;-8,*-3", 1f), Vanilla);
 
-        List<Rectangle> outlineC8 = new();
-        List<Rectangle> insideC8 = new();
-        outlineC8.Add(new(-4, -8, 8, 1));
-        outlineC8.Add(new(4, -7, 2, 1));
-        outlineC8.Add(new(6, -6, 1, 2));
-        outlineC8.Add(new(7, -4, 1, 8));
-        outlineC8.Add(new(6, 4, 1, 2));
-        outlineC8.Add(new(4, 6, 2, 1));
-        outlineC8.Add(new(-4, 7, 8, 1));
-        outlineC8.Add(new(-6, 6, 2, 1));
-        outlineC8.Add(new(-7, 4, 1, 2));
-        outlineC8.Add(new(-8, -4, 1, 8));
-        outlineC8.Add(new(-7, -6, 1, 2));
-        outlineC8.Add(new(-6, -7, 2, 1));
-        insideC8.Add(new(-4, -7, 8, 1));
-        insideC8.Add(new(-6, -6, 12, 2));
-        insideC8.Add(new(-7, -4, 14, 8));
-        insideC8.Add(new(-6, 4, 12, 2));
-        insideC8.Add(new(-4, 6, 8, 1));
-        CachedRectangle.Add(ColliderListKey("C:8;0,0", 1f), new ColliderListValue(outlineC8, insideC8));
+        MTexture reverted_o = GFX.Game["TASHelper/SpinnerCollider/reverted_outline"];
+        MTexture reverted_i = GFX.Game["TASHelper/SpinnerCollider/reverted_inside"];
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,*4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
+
+        MTexture C800_o = GFX.Game["TASHelper/SpinnerCollider/C800_outline"];
+        MTexture C800_i = GFX.Game["TASHelper/SpinnerCollider/C800_inside"];
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:8;0,0", 1f), new SpinnerColliderValue(C800_o, C800_i));
     }
 }

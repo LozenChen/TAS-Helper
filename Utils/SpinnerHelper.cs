@@ -46,8 +46,12 @@ public static class SpinnerHelper {
 
         if (ModUtils.FrostHelperInstalled) {
             typeof(SpinnerHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
+                Instruction skipFrost = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(FrostPatch);
+                cursor.Emit(OpCodes.Brfalse, skipFrost);
+                cursor.Emit(OpCodes.Ldc_I4_1);
+                cursor.Emit(OpCodes.Ret);
             });
         }
 
@@ -67,24 +71,17 @@ public static class SpinnerHelper {
     private static void SetVivHitboxStringGetter() {
         VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
     }
-
-    private static bool ModNoCycle = false;
     public static bool NoCycle(Entity self) {
-        bool ModNoCycleCopy = ModNoCycle;
-        ModNoCycle = false;
-        return ModNoCycleCopy;
+        return false;
     }
 
-    private static void FrostPatch(Entity self) {
-        if (ModNoCycle) {
-            return;
-        }
+    private static bool FrostPatch(Entity self) {
         if (self is FrostHelper.CustomSpinner spinner) {
             if (typeof(FrostHelper.CustomSpinner).GetFieldInfo("controller").GetValue(spinner) is FrostHelper.CustomSpinnerController controller) {
-                ModNoCycle = controller.NoCycles;
-                return;
+                return controller.NoCycles;
             }
         }
+        return false;
     }
 
     internal const int spinner = 0;
@@ -158,8 +155,8 @@ public static class SpinnerHelper {
             }
         }
         else {
-            if (self.X < CameraPos.X - 320f * scale - 16f || self.Y < CameraPos.Y - 180f * scale - 16f || self.X > CameraPos.X + 320f * scale + 320f + 16f || self.Y > CameraPos.Y + 180f * scale + 180f + 16f) {
-                return (Math.Abs(self.X - PlayerPosition.X) > 128f + 128f * 2f * scale || Math.Abs(self.Y - PlayerPosition.Y) > 128f + 128f * 2f * scale);
+            if (self.X < CameraPos.X - 320f * scale - 16f || self.Y < CameraPos.Y - 180f * scale - 16f || self.X > CameraPos.X + 320f * scale + 336f || self.Y > CameraPos.Y + 180f * scale + 196f) {
+                return (Math.Abs(self.X - PlayerPosition.X) > 128f + 256f * scale || Math.Abs(self.Y - PlayerPosition.Y) > 128f + 256f * scale);
             }
         }
         return false;

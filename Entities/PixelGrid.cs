@@ -75,7 +75,7 @@ public class PixelGrid : Entity {
         else if (RelativeY > Collider.Bottom) {
             DistY = RelativeY - Collider.Bottom;
         }
-        return Math.Max(DistX, DistY);
+        return (float)Math.Sqrt(DistX * DistX + DistY * DistY);
     }
 
     public override void Update() {

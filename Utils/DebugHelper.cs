@@ -9,6 +9,8 @@ public static class DebugHelper {
     // only for developing this mod, so make it readonly
     // and set usingDebug = false when release
     public static readonly bool usingDebug = false;
+
+    public static bool LogFPS = false;
     public static float PlayerIntPositionX { get => PlayerHelper.player.X; set => PlayerHelper.player.X = value; }
     public static float PlayerIntPositionY { get => PlayerHelper.player.Y; set => PlayerHelper.player.Y = value; }
 
@@ -67,6 +69,11 @@ public static class DebugHelper {
                         dict[str]++;
                     }
                 }
+            }
+        }
+        if (usingDebug && LogFPS) {
+            if (Engine.FPS < 60) {
+                Celeste.Commands.Log(self.TimeActive.ToString() + "," + Engine.FPS.ToString());
             }
         }
     }

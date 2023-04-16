@@ -178,6 +178,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int HiresFontStroke = 5;
 
+    public bool DoNotRenderWhenFarFromView = true;
+
     #endregion
 
     #region LoadRange
@@ -193,9 +195,10 @@ public class TASHelperSettings : EverestModuleSettings {
             loadRangeMode = value;
             Awake_LoadRange = true;
 
-            UsingLoadRange = (LoadRangeMode != LoadRangeModes.Neither);
-            UsingInViewRange = (LoadRangeMode == LoadRangeModes.InViewRange || LoadRangeMode == LoadRangeModes.Both);
-            UsingNearPlayerRange = (LoadRangeMode == LoadRangeModes.NearPlayerRange || LoadRangeMode == LoadRangeModes.Both);
+            UsingLoadRange = LoadRangeMode != LoadRangeModes.Neither;
+            UsingInViewRange = LoadRangeMode == LoadRangeModes.InViewRange || LoadRangeMode == LoadRangeModes.Both;
+            UsingNearPlayerRange = LoadRangeMode == LoadRangeModes.NearPlayerRange || LoadRangeMode == LoadRangeModes.Both;
+            UsingNotInViewColor = (UsingNotInViewColorMode == UsingNotInViewColorModes.Always) || (UsingNotInViewColorMode == UsingNotInViewColorModes.WhenUsingInViewRange && UsingInViewRange);
 
             if (UsingLoadRange) {
                 SpinnerEnabled = true;

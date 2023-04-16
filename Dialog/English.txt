@@ -36,6 +36,8 @@ TAS_HELPER_HIRES_FONT=                                     Hires Font
 TAS_HELPER_PIXEL_FONT=                                     Pixel Font
 TAS_HELPER_HIRES_FONT_SIZE=                                Hires Font Size
 TAS_HELPER_HIRES_FONT_STROKE=                              Hires Font Stroke
+TAS_HELPER_PERFORMANCE_OPTIMIZATION=                       Performance Optimization
+TAS_HELPER_PERFORMANCE_OPTIMIZATION_DESCRIPTION=           Countdown and LoadRangeCollider will not render when far from view.
 
 # ============================================= Load Range =====================================================
 TAS_HELPER_LOAD_RANGE=                                     Load Range

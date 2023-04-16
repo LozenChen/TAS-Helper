@@ -37,6 +37,8 @@ TAS_HELPER_HIRES_FONT=                                     高清字体
 TAS_HELPER_PIXEL_FONT=                                     像素字体
 TAS_HELPER_HIRES_FONT_SIZE=                                高清字体大小
 TAS_HELPER_HIRES_FONT_STROKE=                              高清字体描边
+TAS_HELPER_PERFORMANCE_OPTIMIZATION=                       性能优化
+TAS_HELPER_PERFORMANCE_OPTIMIZATION_DESCRIPTION=           在较远处时将不再显示倒计时和实体的加载范围碰撞箱
 
 # ============================================= Load Range =====================================================
 TAS_HELPER_LOAD_RANGE=                                     加载范围
