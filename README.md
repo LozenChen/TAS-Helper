@@ -6,7 +6,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 # Features:
 
-- In the following, hazards mean vanilla's CrystalStaticSpinner, Lightning and DustStaticSpinner, FrostHelper's CustomSpinner, and VivHelper's CustomSpinner.
+- In the following, hazards mean vanilla's CrystalStaticSpinner, Lightning and DustStaticSpinner, FrostHelper's CustomSpinner/AttachedLightning, VivHelper's CustomSpinner, and ChronoHelper's ShatterSpinner/DarkLightning.
 
 - Cycle Hitbox Colors -> basically same as that in CelesteTAS mod, plus a bit modification when hazards are not in view or when spinner freezes.
 
@@ -30,9 +30,9 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - FrostHelper's CustomSpinner may have "no cycle", which means they will turn on/off collidable every frame.
 
-# WIP:
+- BrokemiaHelper's CassetteSpinner, is considered as "no cycle", since its collidablity is completely determined by cassette music. However, its visibility do have a 15f cycle (useless, it can't interact with collidablity).
 
-- Support for other hazards.
+# WIP:
 
 - Customizable colors.
 
@@ -40,8 +40,6 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Actual Collide Hitboxes are overridden -> it's actually bad to use actual collide hitboxes when doing a spinner stun, you really need the exact frame the hazard becomes collidable (opaque). So personnally i do not suggest using actual collide hitboxes in this case. Appended hitbox sounds good but current implement relies on opacity to show information. I have no good idea about it so it's set aside.
 
-- Main Switch for Hazard-related is confusing -> will change it if I know how to make a subsubmenu.
-
 - VivHelper spinner isn't fully supported if it's not a regular one -> maybe will add support for them.
 
-- Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide)
+- Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7

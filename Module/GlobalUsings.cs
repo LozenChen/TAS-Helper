@@ -1,7 +1,7 @@
 global using static Celeste.Mod.TASHelper.Module.GlobalVariables;
+using Monocle;
 using TAS.EverestInterop.Hitboxes;
 using TAS.Module;
-using Monocle;
 
 namespace Celeste.Mod.TASHelper.Module;
 

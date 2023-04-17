@@ -39,6 +39,12 @@ internal static class ModUtils {
     public static bool PandorasBoxInstalled = false;
 
     public static bool ExtendedVariantInstalled = false;
+
+    public static bool ChronoHelperInstalled = false;
+
+    public static bool BrokemiaHelperInstalled = false;
+
+    public static bool IsaGrabBagInstalled = false;
     private static bool upsideDown => (bool)ExtendedVariantsModule.Instance.TriggerManager.GetCurrentVariantValue(ExtendedVariantsModule.Variant.UpsideDown);
     public static bool UpsideDown => ExtendedVariantInstalled && upsideDown;
     public static void InitializeAtFirst() {
@@ -46,6 +52,9 @@ internal static class ModUtils {
         VivHelperInstalled = IsInstalled("VivHelper");
         PandorasBoxInstalled = IsInstalled("PandorasBox");
         ExtendedVariantInstalled = IsInstalled("ExtendedVariantMode");
+        ChronoHelperInstalled = IsInstalled("ChronoHelper");
+        BrokemiaHelperInstalled = IsInstalled("BrokemiaHelper");
+        IsaGrabBagInstalled = IsInstalled("IsaGrabBag");
     }
 
     public static void LoadContent() {

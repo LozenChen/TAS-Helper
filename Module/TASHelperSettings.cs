@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework.Input;
-using TAS.EverestInterop;
 using static TAS.EverestInterop.Hotkeys;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -46,7 +45,7 @@ public class TASHelperSettings : EverestModuleSettings {
             }
             spinnerMainSwitch = value;
             switch (value) {
-                case SpinnerMainSwitchModes.Off: 
+                case SpinnerMainSwitchModes.Off:
                     Sleep();
                     UpdateAuxiliaryVariable();
                     return;
@@ -161,7 +160,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 SpinnerCountdownUpperBound = 99;
                 SpinnerInterval = 0.25f;
             }
-            
+
             if (UsingCountDown) {
                 SpinnerEnabled = true;
             }
@@ -213,8 +212,8 @@ public class TASHelperSettings : EverestModuleSettings {
     public int NearPlayerRangeWidth { get; set; } = 8;
 
     private int loadRangeOpacity = 4;
-    public int LoadRangeOpacity { 
-        get => loadRangeOpacity; 
+    public int LoadRangeOpacity {
+        get => loadRangeOpacity;
         set {
             loadRangeOpacity = value;
             RangeAlpha = value * 0.1f;
@@ -262,7 +261,7 @@ public class TASHelperSettings : EverestModuleSettings {
             spinnerFillerOpacity = value;
             SpinnerFillerAlpha = value * 0.1f;
         }
-    } 
+    }
     #endregion
 
     private bool entityActivatorReminder = true;
@@ -276,7 +275,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public void UpdateAuxiliaryVariable() {
         // update the variables associated to variables govern by spinner main switch
         // it can happen their value is changed but not via the setter (i.e. change the Awake_...s)
-        
+
         UsingNotInViewColor = (UsingNotInViewColorMode == UsingNotInViewColorModes.Always) || (UsingNotInViewColorMode == UsingNotInViewColorModes.WhenUsingInViewRange && UsingInViewRange);
         UsingCountDown = (CountdownMode != CountdownModes.Off);
         if (CountdownMode == CountdownModes._3fCycle) {

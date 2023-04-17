@@ -1,5 +1,5 @@
 - Name: TASHelper
-  Version: 1.4.7
+  Version: 1.4.8
   DLL: bin/Release/net4.5.2/TASHelper.dll
   Dependencies:
     - Name: Everest
@@ -13,3 +13,9 @@
       Version: 1.10.11
     - Name: PandorasBox
       Version: 1.0.45
+    - Name: ChronoHelper
+      Version: 1.1.1
+    - Name: BrokemiaHelper
+      Version: 1.7.2
+    - Name: IsaGrabBag
+      Version: 1.6.12

@@ -40,8 +40,88 @@ public static class SpinnerHelper {
             DictionaryAdderSpecial(frostSpinnerType, "offset", FrostSpinnerHazardType);
         }
 
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.AttachedLightning") is { } frostAttLightningType) {
+            DictionaryAdderNormal(frostAttLightningType, "toggleOffset", lightning);
+            // this is a subclass of Lightning. CelesteTAS use "... is Lightning ..." so it applies to this derived class. I want to be more precise so i implement it type by type. So CassetteSpinner can be elsewhere carefully included
+        }
+
+        //if (ModUtils.GetType("FrostHelper", "FrostHelper.ArbitraryShapeLightning") is { } frostArbLightningType) {
+        //    HazardTypesTreatNormal.Add(frostArbLightningType, lightning);
+        //    OffsetGetters.Add(frostArbLightningType, _ => 0);
+        //}
+        // i can do this and hook its debug render alone, but that would be... really no difference from its original implmentation
+
         if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType) {
             DictionaryAdderSpecial(vivSpinnerType, "offset", VivSpinnerHazardType);
+        }
+
+        if (ModUtils.GetType("VivHelper", "VivHelper.Entities.AnimatedSpinner") is { } vivAnimSpinnerType) {
+            DictionaryAdderSpecial(vivAnimSpinnerType, "offset", VivSpinnerHazardType);
+        }
+
+        if (ModUtils.GetType("VivHelper", "VivHelper.Entities.MovingSpinner") is { } vivMoveSpinnerType) {
+            DictionaryAdderSpecial(vivMoveSpinnerType, "offset", VivSpinnerHazardType);
+        }
+
+        if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
+            DictionaryAdderNormal(chronoSpinnerType, "offset", spinner);
+        }
+
+        if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.DarkLightning") is { } chronoLightningType) {
+            DictionaryAdderNormal(chronoLightningType, "toggleOffset", lightning);
+        }
+
+        if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) {
+            HazardTypesTreatNormal.Add(cassetteSpinnerType, spinner);
+            OffsetGetters.Add(cassetteSpinnerType, OffsetGetters[typeof(CrystalStaticSpinner)]);
+            // CassetteSpinner also has a MethodInfo field called offset
+            // visible is still governed by offset
+            // but collidable is completely determined by cassette, so we consider it as no cycle
+        }
+
+        if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinner") is { } dreamSpinnerType) {
+            HazardTypesTreatNormal.Add(dreamSpinnerType, spinner);
+            OffsetGetters.Add(dreamSpinnerType, _ => 0);
+        }
+
+
+        //if (ModUtils.GetType("Scuffed Helper", "ScuffedHelperCode.RandomSpinner") is { } randomSpinnerType) {
+        //    DictionaryAdderNormal(randomSpinnerType, "offset", spinner);
+        //}
+        // no, ScuffedHelperCode.RandomSpinner is internel so i can't track it easily
+        // this really annoyed me so i won't add support for this
+
+        // Conqueror's Peak has a DestructableSpinner, which is later integrated into ShatterSpinner in ChronoHelper i guess
+        // unnecessary to add support for DestructibleSpinner
+
+        // will update this according to https://maddie480.ovh/celeste/custom-entity-catalog
+        // [Todo] IsaGrabBag.DreamSpinner: used in UltraDifficult. have no cycle. static. affected by in view. need to clear sprites and simplify
+
+        // [Meaningless] FrostHelper.ArbitraryShapeLightning: have no cycle. its hitbox is ... interesting
+        // [Done] BrokemiaHelper.CassetteSpinner: brokemia defines a CassetteEntity interface, which is basically same as CassetteBlock? and CassetteSpinner is a crys spinner with CassetteEntity interface, its update is also affected. only need to clear sprites and simplify
+        // [BANNED] ScuffedHelper.RandomSpinner: same as crys spinner, but will remove self randomly on load level.
+        // [Irrelavent] LunaticHelper.CustomDust: it's a backdrop, not a dust spinner.
+
+        if (ModUtils.IsaGrabBagInstalled) {
+            typeof(SpinnerHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
+                Instruction skipIsaGrabBag = cursor.Next;
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate(IsaGrabBagPatch);
+                cursor.Emit(OpCodes.Brfalse, skipIsaGrabBag);
+                cursor.Emit(OpCodes.Ldc_I4_1);
+                cursor.Emit(OpCodes.Ret);
+            });
+        }
+
+        if (ModUtils.BrokemiaHelperInstalled) {
+            typeof(SpinnerHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
+                Instruction skipBrokemia = cursor.Next;
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate(BrokemiaPatch);
+                cursor.Emit(OpCodes.Brfalse, skipBrokemia);
+                cursor.Emit(OpCodes.Ldc_I4_1);
+                cursor.Emit(OpCodes.Ret);
+            });
         }
 
         if (ModUtils.FrostHelperInstalled) {
@@ -73,6 +153,12 @@ public static class SpinnerHelper {
     }
     public static bool NoCycle(Entity self) {
         return false;
+    }
+    private static bool IsaGrabBagPatch(Entity self) {
+        return self is IsaGrabBag.DreamSpinner;
+    }
+    private static bool BrokemiaPatch(Entity self) {
+        return self is BrokemiaHelper.CassetteSpinner;
     }
 
     private static bool FrostPatch(Entity self) {

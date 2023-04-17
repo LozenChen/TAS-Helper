@@ -53,6 +53,7 @@ internal static class RenderHelper {
     private static Color NotInViewColor = Color.Lime;
     private static Color NeverActivateColor = new Color(0.25f, 1f, 1f);
     private static Color ActivatesEveryFrameColor = new Color(0.8f, 0f, 0f);
+    // ActivatesEveryFrame now consists of 2 cases: (a) update collidability every frame (b) keep collidable forever. The latter is mainly used for some custom hazards
 
     public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, ActivatesEveryFrame };
     public static Color GetSpinnerColor(SpinnerColorIndex index) {
@@ -167,8 +168,7 @@ internal static class RenderHelper {
     public static void DrawVanillaCollider(Vector2 Position, Color color, bool Collidable, float alpha) {
         color *= Collidable ? 1f : alpha;
         SpinnerColliderHelper.Vanilla.Outline.DrawCentered(Position, color);
-        color *= TasHelperSettings.SpinnerFillerAlpha;
-        SpinnerColliderHelper.Vanilla.Inside.DrawCentered(Position, color);
+        SpinnerColliderHelper.Vanilla.Inside.DrawCentered(Position, color * TasHelperSettings.SpinnerFillerAlpha);
     }
 
     public static void DrawLoadRangeCollider(Vector2 Position, float Width, float Height, Vector2 CameraPos, bool isLightning) {
@@ -185,11 +185,11 @@ internal static class RenderHelper {
             // spinner use in view for visible, and near player for collidable
             // dust use in view for graphics establish, and near player for collidable
             // so we render the center when using load range
-                Monocle.Draw.Point(Position, SpinnerCenterColor);
-                Monocle.Draw.Point(Position + new Vector2(-1f, -1f), SpinnerCenterColor);
-                Monocle.Draw.Point(Position + new Vector2(-1f, 1f), SpinnerCenterColor);
-                Monocle.Draw.Point(Position + new Vector2(1f, -1f), SpinnerCenterColor);
-                Monocle.Draw.Point(Position + new Vector2(1f, 1f), SpinnerCenterColor);
+            Monocle.Draw.Point(Position, SpinnerCenterColor);
+            Monocle.Draw.Point(Position + new Vector2(-1f, -1f), SpinnerCenterColor);
+            Monocle.Draw.Point(Position + new Vector2(-1f, 1f), SpinnerCenterColor);
+            Monocle.Draw.Point(Position + new Vector2(1f, -1f), SpinnerCenterColor);
+            Monocle.Draw.Point(Position + new Vector2(1f, 1f), SpinnerCenterColor);
         }
     }
 
@@ -284,23 +284,33 @@ public static class SpinnerColliderHelper {
     public static void Initialize() {
         // learn from https://github.com/EverestAPI/Resources/wiki/Adding-Sprites#using-a-spritebank-file
 
+        // it's quite foolish, as it cant spot identical expressions, i have to manually add some after i find it not working properly
+
         MTexture C6_o = GFX.Game["TASHelper/SpinnerCollider/C600_outline"];
         MTexture C6_i = GFX.Game["TASHelper/SpinnerCollider/C600_inside"];
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6", 1f), new SpinnerColliderValue(C6_o, C6_i));
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0", 1f), new SpinnerColliderValue(C6_o, C6_i));
 
         MTexture vanilla_o = GFX.Game["TASHelper/SpinnerCollider/vanilla_outline"];
         MTexture vanilla_i = GFX.Game["TASHelper/SpinnerCollider/vanilla_inside"];
         Vanilla = new SpinnerColliderValue(vanilla_o, vanilla_i);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,-3", 1f), Vanilla);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,*1@-4", 1f), Vanilla);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,*4;-8,*-3", 1f), Vanilla);
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,4;-8,*1@-4", 1f), Vanilla);
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,*4;-8,*-3", 1f), Vanilla);
 
         MTexture reverted_o = GFX.Game["TASHelper/SpinnerCollider/reverted_outline"];
         MTexture reverted_i = GFX.Game["TASHelper/SpinnerCollider/reverted_inside"];
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,*4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,*4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
 
         MTexture C800_o = GFX.Game["TASHelper/SpinnerCollider/C800_outline"];
         MTexture C800_i = GFX.Game["TASHelper/SpinnerCollider/C800_inside"];
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:8", 1f), new SpinnerColliderValue(C800_o, C800_i));
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:8;0,0", 1f), new SpinnerColliderValue(C800_o, C800_i));
     }
 }
