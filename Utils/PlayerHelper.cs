@@ -4,6 +4,7 @@ using Monocle;
 using MonoMod.Cil;
 using System.Reflection;
 using VivEntites = VivHelper.Entities;
+using ChronoEnitites = Celeste.Mod.ChronoHelper.Entities;
 
 namespace Celeste.Mod.TASHelper.Utils;
 internal static class PlayerHelper {
@@ -28,12 +29,29 @@ internal static class PlayerHelper {
         if (ModUtils.VivHelperInstalled) {
             PatchVivSpinnerUpdate();
         }
+        if (ModUtils.ChronoHelperInstalled) {
+            PatchChronoUpdate();
+        }
+        typeof(CrystalStaticSpinner).GetMethod("Update").IlHook((cursor, _) => {
+            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
+                if (ModUtils.BrokemiaHelperInstalled) {
+                    Instruction gotoRet = cursor.Next;
+                    cursor.Emit(OpCodes.Ldarg_0);
+                    cursor.EmitDelegate(PatchBrokemiaUpdate);
+                    cursor.Emit(OpCodes.Brtrue, gotoRet);
+                }
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate(PatchHazardUpdate);
+            }
+        });
+        if (ModUtils.IsaGrabBagInstalled) {
+            // do nothing
+        }
     }
 
     public static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
-        On.Celeste.CrystalStaticSpinner.Update += PatchCrysSpinnerUpdate;
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
         On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
@@ -43,7 +61,6 @@ internal static class PlayerHelper {
     public static void Unload() {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
         On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
-        On.Celeste.CrystalStaticSpinner.Update -= PatchCrysSpinnerUpdate;
         On.Celeste.Lightning.Update -= PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update -= PatchDustUpdate;
         On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
@@ -90,14 +107,19 @@ internal static class PlayerHelper {
         }
     }
 
-    private static void PatchCrysSpinnerUpdate(On.Celeste.CrystalStaticSpinner.orig_Update orig, CrystalStaticSpinner self) {
+    //private static void PatchCrysSpinnerUpdate(On.Celeste.CrystalStaticSpinner.orig_Update orig, CrystalStaticSpinner self) {
         // some mod (like PandorasBox mod) will hook CrystalStaticSpinner.Update() (which still use orig(self) and thus should use Entity.Update()?)
         // i don't know why but it seems in this case, if we hook Entity.Update, it will not work
         // also note some Hazards (like CrysSpinner) will not always call base.Update()
         // frosthelper spinners even never call base.Update()
         // so let's just hook them individually
-        orig(self);
-        PatchHazardUpdate(self);
+
+        // should not apply to BrokemiaHelper.CassetteSpinner
+        // everything is moved to ilhook
+    //}
+
+    private static bool PatchBrokemiaUpdate(Entity self) {
+        return self is BrokemiaHelper.CassetteSpinner;
     }
     private static void PatchDustUpdate(On.Celeste.DustStaticSpinner.orig_Update orig, DustStaticSpinner self) {
         orig(self);
@@ -106,21 +128,42 @@ internal static class PlayerHelper {
     private static void PatchLightningUpdate(On.Celeste.Lightning.orig_Update orig, Lightning self) {
         orig(self);
         PatchHazardUpdate(self);
+        // also applies to FrostHelper.AttachedLightning
     }
 
     private static void PatchFrostSpinnerUpdate() {
         typeof(FrostHelper.CustomSpinner).GetMethod("Update").IlHook((cursor, _) => {
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+            }
         });
     }
 
     private static void PatchVivSpinnerUpdate() {
         typeof(VivEntites.CustomSpinner).GetMethod("Update").IlHook((cursor, _) => {
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Action<Entity>>(GetCameraZoom);
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Action<Entity>>(GetCameraZoom);
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+            }
+        });
+        // also applies to VivHelper.Entities.AnimatedSpinner, MovingSpinner
+    }
+
+    private static void PatchChronoUpdate() {
+        typeof(ChronoEnitites.ShatterSpinner).GetMethod("Update").IlHook((cursor, _) => {
+            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+            }
+        });
+        typeof(ChronoEnitites.DarkLightning).GetMethod("Update").IlHook((cursor, _) => {
+            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+            }
         });
     }
 

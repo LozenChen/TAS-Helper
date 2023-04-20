@@ -95,8 +95,8 @@ public static class SpinnerHelper {
         // unnecessary to add support for DestructibleSpinner
 
         // will update this according to https://maddie480.ovh/celeste/custom-entity-catalog
-        // [Todo] IsaGrabBag.DreamSpinner: used in UltraDifficult. have no cycle. static. affected by in view. need to clear sprites and simplify
 
+        // [Done] IsaGrabBag.DreamSpinner: used in UltraDifficult. have no cycle. static. affected by in view. need to clear sprites and simplify
         // [Meaningless] FrostHelper.ArbitraryShapeLightning: have no cycle. its hitbox is ... interesting
         // [Done] BrokemiaHelper.CassetteSpinner: brokemia defines a CassetteEntity interface, which is basically same as CassetteBlock? and CassetteSpinner is a crys spinner with CassetteEntity interface, its update is also affected. only need to clear sprites and simplify
         // [BANNED] ScuffedHelper.RandomSpinner: same as crys spinner, but will remove self randomly on load level.
