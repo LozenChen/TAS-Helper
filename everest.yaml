@@ -1,21 +1,8 @@
 - Name: TASHelper
-  Version: 1.4.10
+  Version: 1.4.11
   DLL: bin/Release/net4.5.2/TASHelper.dll
   Dependencies:
     - Name: Everest
       Version: 1.3471.0
     - Name: CelesteTAS
       Version: 3.22.0
-  OptionalDependencies:
-    - Name: FrostHelper
-      Version: 1.38.0
-    - Name: VivHelper
-      Version: 1.10.11
-    - Name: PandorasBox
-      Version: 1.0.45
-    - Name: ChronoHelper
-      Version: 1.1.1
-    - Name: BrokemiaHelper
-      Version: 1.7.2
-    - Name: IsaGrabBag
-      Version: 1.6.12

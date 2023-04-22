@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework.Input;
+using TAS.EverestInterop;
 using static TAS.EverestInterop.Hotkeys;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -316,7 +317,7 @@ public class TASHelperSettings : EverestModuleSettings {
     [SettingName("TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY")]
     public int CameraTargetLinkOpacity { get; set; } = 6;
 
-    private bool enablePixelGrid = true;
+    private bool enablePixelGrid = false;
     public bool EnablePixelGrid { get => Enabled && enablePixelGrid; set => enablePixelGrid = value; }
 
     public int PixelGridWidth = 2;
@@ -325,6 +326,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public int PixelGridOpacity { get; set; } = 8;
 
     #region HotKey
+
     private static ButtonBinding keySpinnerMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
     private static ButtonBinding keyCountDown { get; set; } = new(0, Keys.LeftControl, Keys.R);
     private static ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
@@ -332,6 +334,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
     [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.E)]
     public ButtonBinding KeySpinnerMainSwitch {
         get => keySpinnerMainSwitch;
         set {
@@ -341,6 +344,7 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     [SettingName("TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.R)]
     public ButtonBinding KeyCountDown {
         get => keyCountDown;
         set {
@@ -350,6 +354,7 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     [SettingName("TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.T)]
     public ButtonBinding KeyLoadRange {
         get => keyLoadRange;
         set {
@@ -359,6 +364,7 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     [SettingName("TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.F)]
     public ButtonBinding KeyPixelGridWidth {
         get => keyPixelGridWidth;
         set {
@@ -367,13 +373,13 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public Hotkey SpinnerMainSwitchHotkey { get; private set; } = new Hotkey(keySpinnerMainSwitch.Keys, keySpinnerMainSwitch.Buttons, true, false);
+    private Hotkey SpinnerMainSwitchHotkey { get; set; } = new Hotkey(keySpinnerMainSwitch.Keys, keySpinnerMainSwitch.Buttons, true, false);
 
-    public Hotkey CountDownHotkey { get; private set; } = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
+    private Hotkey CountDownHotkey { get; set; } = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
 
-    public Hotkey LoadRangeHotkey { get; private set; } = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
+    private Hotkey LoadRangeHotkey { get; set; } = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
 
-    public Hotkey PixelGridWidthHotkey { get; private set; } = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
+    private Hotkey PixelGridWidthHotkey { get; set; } = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
 
     public void SettingsHotkeysPressed() {
         SpinnerMainSwitchHotkey.Update();

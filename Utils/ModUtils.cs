@@ -8,6 +8,7 @@ namespace Celeste.Mod.TASHelper.Utils;
 internal static class ModUtils {
     public static readonly Assembly VanillaAssembly = typeof(Player).Assembly;
 
+#pragma warning disable CS8603
     public static Type GetType(string modName, string name, bool throwOnError = false, bool ignoreCase = false) {
         return GetAssembly(modName)?.GetType(name, throwOnError, ignoreCase);
     }
@@ -31,6 +32,7 @@ internal static class ModUtils {
     public static Assembly GetAssembly(string modName) {
         return GetModule(modName)?.GetType().Assembly;
     }
+#pragma warning restore CS8603
 
     public static bool FrostHelperInstalled = false;
 
@@ -57,6 +59,4 @@ internal static class ModUtils {
         IsaGrabBagInstalled = IsInstalled("IsaGrabBag");
     }
 
-    public static void LoadContent() {
-    }
 }

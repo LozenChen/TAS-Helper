@@ -4,6 +4,7 @@ using System.Collections;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
+#pragma warning disable CS8602
 public static class DebugHelper {
 
     // only for developing this mod, so make it readonly

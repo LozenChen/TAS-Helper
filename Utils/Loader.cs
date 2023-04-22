@@ -4,6 +4,7 @@ namespace Celeste.Mod.TASHelper.Utils;
 
 internal static class Loader {
 
+    // order: all mods load -> all mods initialize ~= all mods load content
     public static void EntityLoad() {
         LoadRangeCountDownCameraTarget.Load();
         PixelGridHook.Load();
@@ -26,6 +27,7 @@ internal static class Loader {
         HookHelper.Load();
         Logger.Load();
         DebugHelper.Load();
+        TH_Hotkeys.Load();
     }
     public static void HelperUnload() {
         PlayerHelper.Unload();
@@ -35,6 +37,7 @@ internal static class Loader {
         HookHelper.Unload();
         Logger.Unload();
         DebugHelper.Unload();
+        TH_Hotkeys.Unload();
     }
 
     public static void Initialize() {
@@ -48,6 +51,5 @@ internal static class Loader {
     }
 
     public static void LoadContent() {
-        ModUtils.LoadContent();
     }
 }

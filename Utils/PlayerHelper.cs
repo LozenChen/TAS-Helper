@@ -168,9 +168,11 @@ internal static class PlayerHelper {
     }
 
     private static void GetCameraZoom(Entity self) {
+#pragma warning disable CS8602
         if (TasHelperSettings.ApplyCameraZoom) {
             CameraZoom = (self.Scene as Level).Camera.Zoom;
         }
+#pragma warning restore CS8602
     }
 
 

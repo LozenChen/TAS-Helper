@@ -57,6 +57,7 @@ internal static class RenderHelper {
 
     public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, ActivatesEveryFrame };
     public static Color GetSpinnerColor(SpinnerColorIndex index) {
+#pragma warning disable CS8524
         return index switch {
             SpinnerColorIndex.Default => DefaultColor,
             SpinnerColorIndex.Group1 => TasSettings.CycleHitboxColor1,
@@ -67,6 +68,7 @@ internal static class RenderHelper {
             SpinnerColorIndex.NeverActivate => NeverActivateColor,
             SpinnerColorIndex.ActivatesEveryFrame => ActivatesEveryFrameColor,
         };
+#pragma warning restore CS8524
     }
 
     public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index) {
@@ -111,12 +113,14 @@ internal static class RenderHelper {
         if (TimeActive >= 524288f) {
             return group < 3 ? SpinnerColorIndex.ActivatesEveryFrame : SpinnerColorIndex.NeverActivate;
         }
+#pragma warning disable CS8509
         return group switch {
             0 => SpinnerColorIndex.Group1,
             1 => SpinnerColorIndex.Group2,
             2 => SpinnerColorIndex.Group3,
             > 2 => SpinnerColorIndex.MoreThan3
         };
+#pragma warning restore CS8509
     }
 
     public static void DrawSpinnerCollider(Entity self, Color color) {
@@ -131,9 +135,11 @@ internal static class RenderHelper {
     public static bool DrawVivCollider(Entity self, Color color) {
         if (self is VivEntities.CustomSpinner spinner) {
             if (OnGrid(self)) {
+#pragma warning disable CS8600, CS8604
                 string[] hitboxString = SpinnerHelper.VivHitboxStringGetter.GetValue(spinner) as string[];
                 float scale = spinner.scale;
                 string key = SpinnerColliderHelper.SpinnerColliderKey(hitboxString, scale);
+#pragma warning restore CS8600, CS8604
                 if (SpinnerColliderHelper.SpinnerColliderTextures.TryGetValue(key, out SpinnerColliderHelper.SpinnerColliderValue value)) {
                     color *= spinner.Collidable ? 1f : HitboxColor.UnCollidableAlpha;
                     value.Outline.DrawCentered(self.Position, color);
@@ -152,7 +158,10 @@ internal static class RenderHelper {
 
     public static void DrawComplexSpinnerCollider(Entity spinner, Color color) {
         color *= spinner.Collidable ? 1f : HitboxColor.UnCollidableAlpha;
-        Collider[] list = (spinner.Collider as ColliderList).colliders;
+        if (spinner.Collider is not ColliderList clist) {
+            return;
+        }
+        Collider[] list = clist.colliders;
         foreach (Collider collider in list) {
             if (collider is Hitbox hitbox) {
                 Monocle.Draw.HollowRect(hitbox, color);

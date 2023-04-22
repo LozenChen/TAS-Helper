@@ -133,12 +133,14 @@ public class Message : Entity {
         base.Update();
     }
 
+#pragma warning disable CS8602
     public override void Render() {
         Vector2 position = (base.Scene as Level).Camera.Position;
         Vector2 vector = position + new Vector2(160f, 90f);
         Vector2 position2 = (Position - position + (Position - vector) * 0.2f) * 6f;
         RenderAt(position2);
     }
+#pragma warning restore CS8602
 
     public void RenderAt(Vector2 Position) {
         Font.Draw(BaseSize, text, Position, new Vector2(0.5f, 0.5f), Vector2.One * 0.5f, Color.White * alpha, 0f, Color.Transparent, 0f, Color.Transparent);

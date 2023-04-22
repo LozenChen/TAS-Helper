@@ -7,8 +7,12 @@ namespace Celeste.Mod.TASHelper.Utils;
 
 // copy from Celeste TAS
 
-internal delegate TReturn GetDelegate<in TInstance, out TReturn>(TInstance instance);
+#pragma warning disable CS8600
+#pragma warning disable CS8601
+#pragma warning disable CS8603
+#pragma warning disable CS8625
 
+internal delegate TReturn GetDelegate<in TInstance, out TReturn>(TInstance instance);
 internal static class FastReflection {
     // ReSharper disable UnusedMember.Local
     private record struct DelegateKey(Type Type, string Name, Type InstanceType, Type ReturnType) {

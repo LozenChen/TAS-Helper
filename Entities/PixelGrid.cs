@@ -48,13 +48,14 @@ public class PixelGrid : Entity {
         this.fadeOut = fadeOut;
     }
 
-
+#pragma warning disable CS8509
     public static Color GetGridColor(int index, float alpha = 0.5f) {
         return (Math.Abs(index) % 2) switch {
             0 => Color.White * alpha,
             1 => Color.Gray * alpha,
         };
     }
+#pragma warning restore CS8509
 
     public Color FadeOutColor(int RelativeX, int RelativeY, float width) {
         return GetGridColor(RelativeX + RelativeY, fadeOut ? (1 - Distance(RelativeX, RelativeY) / width) * TasHelperSettings.PixelGridOpacity * 0.1f : TasHelperSettings.PixelGridOpacity * 0.1f);
