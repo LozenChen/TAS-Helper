@@ -3,8 +3,8 @@ using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using System.Reflection;
-using VivEntites = VivHelper.Entities;
 using ChronoEnitites = Celeste.Mod.ChronoHelper.Entities;
+using VivEntites = VivHelper.Entities;
 
 namespace Celeste.Mod.TASHelper.Utils;
 internal static class PlayerHelper {
@@ -108,14 +108,14 @@ internal static class PlayerHelper {
     }
 
     //private static void PatchCrysSpinnerUpdate(On.Celeste.CrystalStaticSpinner.orig_Update orig, CrystalStaticSpinner self) {
-        // some mod (like PandorasBox mod) will hook CrystalStaticSpinner.Update() (which still use orig(self) and thus should use Entity.Update()?)
-        // i don't know why but it seems in this case, if we hook Entity.Update, it will not work
-        // also note some Hazards (like CrysSpinner) will not always call base.Update()
-        // frosthelper spinners even never call base.Update()
-        // so let's just hook them individually
+    // some mod (like PandorasBox mod) will hook CrystalStaticSpinner.Update() (which still use orig(self) and thus should use Entity.Update()?)
+    // i don't know why but it seems in this case, if we hook Entity.Update, it will not work
+    // also note some Hazards (like CrysSpinner) will not always call base.Update()
+    // frosthelper spinners even never call base.Update()
+    // so let's just hook them individually
 
-        // should not apply to BrokemiaHelper.CassetteSpinner
-        // everything is moved to ilhook
+    // should not apply to BrokemiaHelper.CassetteSpinner
+    // everything is moved to ilhook
     //}
 
     private static bool PatchBrokemiaUpdate(Entity self) {
