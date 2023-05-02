@@ -98,7 +98,7 @@ internal static class RenderHelper {
         numbers[CountdownTimer].DrawOutline(Position);
     }
 
-    public static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float TimeActive, float offset, Vector2 CameraPosition) {
+    public static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float offset, Vector2 CameraPosition) {
         if (TasHelperSettings.UsingNotInViewColor && !SpinnerHelper.InView(self, CameraPosition) && !(SpinnerHelper.isDust(self))) {
             // NotInView Color is in some sense, not a cycle hitbox color, we make it independent
             return SpinnerColorIndex.NotInView;
@@ -109,8 +109,8 @@ internal static class RenderHelper {
         if (SpinnerHelper.NoCycle(self)) {
             return SpinnerColorIndex.ActivatesEveryFrame;
         }
-        int group = SpinnerHelper.CalculateSpinnerGroup(TimeActive, offset);
-        if (TimeActive >= 524288f) {
+        int group = SpinnerHelper.CalculateSpinnerGroup(offset);
+        if (SpinnerHelper.TimeActive >= 524288f) {
             return group < 3 ? SpinnerColorIndex.ActivatesEveryFrame : SpinnerColorIndex.NeverActivate;
         }
 #pragma warning disable CS8509

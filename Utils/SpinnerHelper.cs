@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using VivEntites = VivHelper.Entities;
 // VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
@@ -9,7 +10,10 @@ namespace Celeste.Mod.TASHelper.Utils;
 
 public static class SpinnerHelper {
 
-    public static float TimeActive = 0f;
+    public static float TimeActive = 0;
+
+    public static float[] PredictLoadTimeActive = new float[10];
+    public static float[] PredictUnloadTimeActive = new float[100];
     public static void Load() {
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
     }
@@ -18,7 +22,16 @@ public static class SpinnerHelper {
     }
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         orig(self);
-        TimeActive = self.TimeActive;
+        float time = self.TimeActive;
+        TimeActive = time;
+        for (int i = 0; i <= 9; i++) {
+            PredictLoadTimeActive[i] = PredictUnloadTimeActive[i] = time;
+            time += Engine.DeltaTime;
+        }
+        for (int i = 10; i<= 99; i++) {
+            PredictUnloadTimeActive[i] = time;
+            time += Engine.DeltaTime;
+        }
     }
 
     private static void DictionaryAdderNormal(Type type, string offsetName, int HazardType) {
@@ -248,28 +261,38 @@ public static class SpinnerHelper {
         return false;
     }
 
-    public static int PredictCountdown(float TimeActive, float offset, bool isDust) {
-        float interval = isDust ? 0.05f : TasHelperSettings.SpinnerInterval;
-        for (int i = 0; i < TasHelperSettings.SpinnerCountdownUpperBound; i++) {
-            if (Math.Floor((TimeActive - offset - Monocle.Engine.DeltaTime) / interval) < Math.Floor((TimeActive - offset) / interval)) {
-                return i;
-            }
-            else {
-                TimeActive += Monocle.Engine.DeltaTime;
-            }
-        }
-        return TasHelperSettings.SpinnerCountdownUpperBound;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool OnInterval(float TimeActive, float interval, float offset) {
+        // this function should match https://github.com/EverestAPI/Everest/commit/fa7fc64f74a904eaf4d56f508d25561dde26597f
+        return Math.Floor(((double)TimeActive - offset - Engine.DeltaTime) / interval) < Math.Floor(((double)TimeActive - offset) / interval);
     }
 
-    public static int CalculateSpinnerGroup(float TimeActive, float offset) {
-        int CountdownTimer = 0;
-        while (Math.Floor((TimeActive - offset - Monocle.Engine.DeltaTime) / 0.05f) >= Math.Floor((TimeActive - offset) / 0.05f) && CountdownTimer < 3) {
-            TimeActive += Monocle.Engine.DeltaTime;
-            CountdownTimer++;
+    public static int PredictCountdown(float offset, bool isDust) {
+        float interval = isDust ? 0.05f : TasHelperSettings.SpinnerInterval;
+        if (TasHelperSettings.SpinnerCountdownLoad) {
+            for (int i = 0; i< 9; i++) {
+                if (OnInterval(PredictLoadTimeActive[i], interval, offset)) return i;
+            }
+            return 9;
         }
-        if (CountdownTimer < 3) {
-            return (CountdownTimer + TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter) % 3;
+        else {
+            for (int i = 0; i< 99; i++) {
+                if (OnInterval(PredictUnloadTimeActive[i], interval, offset)) return i;
+            }
+            return 99;
         }
-        else return 3;
+    }
+
+    public static int CalculateSpinnerGroup(float offset) {
+        if (OnInterval(PredictLoadTimeActive[0] , 0.05f, offset)){
+            return TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter;
+        }
+        if (OnInterval(PredictLoadTimeActive[1], 0.05f, offset)) {
+            return (1 + TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter) % 3;
+        }
+        if (OnInterval(PredictLoadTimeActive[2], 0.05f, offset)) {
+            return (2 + TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter) % 3;
+        }
+        return 3;
     }
 }

@@ -154,11 +154,11 @@ public class TASHelperSettings : EverestModuleSettings {
 
             UsingCountDown = (CountdownMode != CountdownModes.Off);
             if (CountdownMode == CountdownModes._3fCycle) {
-                SpinnerCountdownUpperBound = 9;
+                SpinnerCountdownLoad = true;
                 SpinnerInterval = 0.05f;
             }
             else {
-                SpinnerCountdownUpperBound = 99;
+                SpinnerCountdownLoad = false;
                 SpinnerInterval = 0.25f;
             }
 
@@ -280,11 +280,11 @@ public class TASHelperSettings : EverestModuleSettings {
         UsingNotInViewColor = (UsingNotInViewColorMode == UsingNotInViewColorModes.Always) || (UsingNotInViewColorMode == UsingNotInViewColorModes.WhenUsingInViewRange && UsingInViewRange);
         UsingCountDown = (CountdownMode != CountdownModes.Off);
         if (CountdownMode == CountdownModes._3fCycle) {
-            SpinnerCountdownUpperBound = 9;
+            SpinnerCountdownLoad = true;
             SpinnerInterval = 0.05f;
         }
         else {
-            SpinnerCountdownUpperBound = 99;
+            SpinnerCountdownLoad = false;
             SpinnerInterval = 0.25f;
         }
         UsingLoadRange = (LoadRangeMode != LoadRangeModes.Neither);
@@ -296,7 +296,10 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool UsingLoadRange = true;
     public bool UsingInViewRange = true;
     public bool UsingNearPlayerRange = true;
-    public int SpinnerCountdownUpperBound = 9;
+    public bool SpinnerCountdownLoad = true;
+
+    [Obsolete]
+    public int SpinnerCountdownUpperBound => SpinnerCountdownLoad ? 9 : 99;
     public float SpinnerInterval = 0.05f;
     public float RangeAlpha = 0.4f;
     public float SpinnerFillerAlpha = 0.4f;

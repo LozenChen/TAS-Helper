@@ -32,7 +32,7 @@ internal static class LoadRangeCountDownCameraTarget {
             else {
                 CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
-            RenderHelper.DrawCountdown(CountdownPos, SpinnerHelper.PredictCountdown(SpinnerHelper.TimeActive, offset, SpinnerHelper.isDust(self)), index);
+            RenderHelper.DrawCountdown(CountdownPos, SpinnerHelper.PredictCountdown(offset, SpinnerHelper.isDust(self)), index);
         }
     }
     private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {

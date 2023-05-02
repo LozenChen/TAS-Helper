@@ -222,7 +222,7 @@ internal static class SimplifiedSpinner {
         }
 
 #pragma warning disable CS8629
-        RenderHelper.SpinnerColorIndex index = RenderHelper.CycleHitboxColorIndex(self, SpinnerHelper.TimeActive, SpinnerHelper.GetOffset(self).Value, PlayerHelper.CameraPosition);
+        RenderHelper.SpinnerColorIndex index = RenderHelper.CycleHitboxColorIndex(self, SpinnerHelper.GetOffset(self).Value, PlayerHelper.CameraPosition);
 #pragma warning restore CS8629
         Color color = RenderHelper.GetSpinnerColor(index);
         // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
