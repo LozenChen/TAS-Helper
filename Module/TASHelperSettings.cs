@@ -303,6 +303,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public float SpinnerInterval = 0.05f;
     public float RangeAlpha = 0.4f;
     public float SpinnerFillerAlpha = 0.4f;
+    public bool UsingFreezeColor = true;
     #endregion
 
     #endregion

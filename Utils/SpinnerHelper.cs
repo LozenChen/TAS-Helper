@@ -10,7 +10,7 @@ namespace Celeste.Mod.TASHelper.Utils;
 
 public static class SpinnerHelper {
 
-    public static float TimeActive = 0;
+    public static float TimeActive = 0f;
 
     public static float[] PredictLoadTimeActive = new float[10];
     public static float[] PredictUnloadTimeActive = new float[100];
@@ -20,10 +20,12 @@ public static class SpinnerHelper {
     public static void Unload() {
         On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
     }
+
+    // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
+    [MethodImpl(MethodImplOptions.NoOptimization)]
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         orig(self);
-        float time = self.TimeActive;
-        TimeActive = time;
+        float time = TimeActive = self.TimeActive;
         for (int i = 0; i <= 9; i++) {
             PredictLoadTimeActive[i] = PredictUnloadTimeActive[i] = time;
             time += Engine.DeltaTime;
@@ -231,6 +233,7 @@ public static class SpinnerHelper {
     public static bool InView(Entity self, Vector2 CameraPos) {
         float zoom = PlayerHelper.CameraZoom;
         if (isLightning(self)) {
+            // i guess this order of comparison is more efficient
             return self.X + self.Width > CameraPos.X - 16f && self.Y + self.Height > CameraPos.Y - 16f && self.X < CameraPos.X + 320f * zoom + 16f && self.Y < CameraPos.Y + 180f * zoom + 16f;
         }
         else {
@@ -240,26 +243,32 @@ public static class SpinnerHelper {
     public static bool InView(Vector2 pos, float Width, float Height, Vector2 CameraPos, bool isLightning) {
         float zoom = PlayerHelper.CameraZoom;
         if (isLightning) {
-            return pos.X + Width > CameraPos.X - 16f && pos.Y + Height > CameraPos.Y - 16f && pos.X < CameraPos.X + 320f * zoom + 16f && pos.Y < CameraPos.Y + 180f * zoom + 16f;
+            return pos.X < CameraPos.X + 320f * zoom + 16f && pos.Y < CameraPos.Y + 180f * zoom + 16f && pos.Y + Height > CameraPos.Y - 16f && pos.X + Width > CameraPos.X - 16f;
         }
         else {
-            return pos.X > CameraPos.X - 16f && pos.Y > CameraPos.Y - 16f && pos.X < CameraPos.X + 320f * zoom + 16f && pos.Y < CameraPos.Y + 180f * zoom + 16f;
+            return pos.X < CameraPos.X + 320f * zoom + 16f && pos.Y < CameraPos.Y + 180f * zoom + 16f && pos.Y > CameraPos.Y - 16f && pos.X > CameraPos.X - 16f;
         }
     }
 
     public static bool FarFromRange(Entity self, Vector2 PlayerPosition, Vector2 CameraPos, float scale) {
         if (isLightning(self)) {
-            if (self.X + self.Width < CameraPos.X - 320f * scale - 16f || self.Y + self.Height < CameraPos.Y - 180f * scale - 16f || self.X > CameraPos.X + 320f * scale + 320f + 16f || self.Y > CameraPos.Y + 180f * scale + 180f + 16f) {
+            if (self.X > CameraPos.X + 320f * scale + 320f + 16f || self.Y > CameraPos.Y + 180f * scale + 180f + 16f || self.Y + self.Height < CameraPos.Y - 180f * scale - 16f || self.X + self.Width < CameraPos.X - 320f * scale - 16f) {
                 return true;
             }
         }
         else {
-            if (self.X < CameraPos.X - 320f * scale - 16f || self.Y < CameraPos.Y - 180f * scale - 16f || self.X > CameraPos.X + 320f * scale + 336f || self.Y > CameraPos.Y + 180f * scale + 196f) {
+            if (self.X > CameraPos.X + 320f * scale + 336f || self.Y > CameraPos.Y + 180f * scale + 196f || self.Y < CameraPos.Y - 180f * scale - 16f || self.X < CameraPos.X - 320f * scale - 16f) {
                 return (Math.Abs(self.X - PlayerPosition.X) > 128f + 256f * scale || Math.Abs(self.Y - PlayerPosition.Y) > 128f + 256f * scale);
             }
         }
         return false;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool OnInterval(float TimeActive, float interval, float offset, float DeltaTime) {
+        return Math.Floor(((double)TimeActive - offset - DeltaTime) / interval) < Math.Floor(((double)TimeActive - offset) / interval);
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool OnInterval(float TimeActive, float interval, float offset) {

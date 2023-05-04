@@ -19,6 +19,7 @@ internal static class TASHelperMenu {
             subMenu.Add(NotInViewColorItem = new TextMenuExt.EnumerableSlider<UsingNotInViewColorModes>("Using NotInView Color Modes".ToDialogText(), CreateUsingNotInViewColorOptions(),
                 TasHelperSettings.UsingNotInViewColorMode).Change(value => TasHelperSettings.UsingNotInViewColorMode = value));
             subMenu.AddDescription(menu, NotInViewColorItem, "Using NotInView Color Description".ToDialogText());
+            subMenu.Add(new TextMenu.OnOff("Color Customization (N/A)", false));
         });
     }
 

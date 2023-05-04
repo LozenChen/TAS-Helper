@@ -1,5 +1,5 @@
 - Name: TASHelper
-  Version: 1.4.12
+  Version: 1.4.13
   DLL: bin/Release/net4.5.2/TASHelper.dll
   Dependencies:
     - Name: Everest

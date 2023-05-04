@@ -71,26 +71,26 @@ internal static class RenderHelper {
 #pragma warning restore CS8524
     }
 
+    private const string infinity = "oo";
     public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index) {
         if (TasHelperSettings.usingHiresFont) {
-            string str = index switch {
-                SpinnerColorIndex.NeverActivate => "oo",
-                SpinnerColorIndex.ActivatesEveryFrame => "0",
-                _ => CountdownTimer.ToString(),
-            };
+            // when TimeRate > 1, NeverActivate can activate; when TimeRate < 1, ActivatesEveryFrame can take more than 0 frame.
+            // here by TimeRate i actually mean DeltaTime / RawDeltaTime
+            // note in 2023 Jan, Everest introduced TimeRateModifier in the calculation of Engine.DeltaTime, so it's no longer DeltaTime = RawDeltaTime * TimeRate * TimeRateB
+            string str = index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime ? infinity : CountdownTimer.ToString();
             HiresLevelRenderer.Add(new OneFrameTextRenderer(str, (Position + new Vector2(1.5f, -0.5f)) * 6f));
             return;
         }
 
 
-        if (index == SpinnerColorIndex.NeverActivate) {
+        if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
             numbers[9].DrawOutline(Position);
             return;
         }
-        if (index == SpinnerColorIndex.ActivatesEveryFrame) {
-            numbers[0].DrawOutline(Position);
-            return;
-        }
+        //if (index == SpinnerColorIndex.ActivatesEveryFrame) {
+        //    numbers[0].DrawOutline(Position);
+        //    return;
+        //}
         if (CountdownTimer > 9) {
             numbers[CountdownTimer / 10].DrawOutline(Position + new Vector2(-4, 0));
             CountdownTimer %= 10;
@@ -99,7 +99,7 @@ internal static class RenderHelper {
     }
 
     public static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float offset, Vector2 CameraPosition) {
-        if (TasHelperSettings.UsingNotInViewColor && !SpinnerHelper.InView(self, CameraPosition) && !(SpinnerHelper.isDust(self))) {
+        if (TasHelperSettings.UsingNotInViewColor && !SpinnerHelper.InView(self, CameraPosition) && !SpinnerHelper.isDust(self)) {
             // NotInView Color is in some sense, not a cycle hitbox color, we make it independent
             return SpinnerColorIndex.NotInView;
         }
@@ -109,10 +109,14 @@ internal static class RenderHelper {
         if (SpinnerHelper.NoCycle(self)) {
             return SpinnerColorIndex.ActivatesEveryFrame;
         }
-        int group = SpinnerHelper.CalculateSpinnerGroup(offset);
-        if (SpinnerHelper.TimeActive >= 524288f) {
-            return group < 3 ? SpinnerColorIndex.ActivatesEveryFrame : SpinnerColorIndex.NeverActivate;
+        if (TasHelperSettings.UsingFreezeColor && SpinnerHelper.TimeActive >= 524288f) {
+            // we assume the normal state is TimeRate = 1, so we do not detect time freeze by TimeActive + DeltaTime == TimeActive, instead just check >= 524288f
+            // so freeze colors will not appear too early in some extreme case like slow down of collecting heart
+            // we make the color reflects its state at TimeRate = 1, so it will not flash during slowdown like collecting heart
+            // unfortunately it will flash if TimeRate > 1, hope this will never happen
+            return SpinnerHelper.OnInterval(SpinnerHelper.TimeActive, 0.05f, offset, Engine.RawDeltaTime) ? SpinnerColorIndex.ActivatesEveryFrame : SpinnerColorIndex.NeverActivate;
         }
+        int group = SpinnerHelper.CalculateSpinnerGroup(offset);
 #pragma warning disable CS8509
         return group switch {
             0 => SpinnerColorIndex.Group1,
