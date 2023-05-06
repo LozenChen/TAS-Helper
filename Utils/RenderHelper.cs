@@ -53,7 +53,7 @@ internal static class RenderHelper {
     internal static Color NotInViewColor => TasHelperSettings.NotInViewColor;
     internal static Color NeverActivateColor => TasHelperSettings.NeverActivateColor;
     internal static Color ActivateEveryFrameColor => TasHelperSettings.ActivateEveryFrameColor;
-    // ActivatesEveryFrame now consists of 2 cases: (a) update collidability every frame (b) keep collidable forever. The latter is mainly used for some custom hazards
+    // ActivatesEveryFrame now consists of 2 cases: (a) nocycle mod hazards (b) when time freeze
 
     public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, FreezeActivateEveryFrame , NoCycle};
     public static Color GetSpinnerColor(SpinnerColorIndex index) {
@@ -76,7 +76,8 @@ internal static class RenderHelper {
     private const string infinity = "oo";
     public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index) {
         if (TasHelperSettings.usingHiresFont) {
-            // when TimeRate > 1, NeverActivate can activate; when TimeRate < 1, ActivatesEveryFrame can take more than 0 frame.
+            // when TimeRate > 1, NeverActivate can activate; when TimeRate < 1, FreezeActivatesEveryFrame can take more than 0 frame.
+            // so in these cases i just use CountdownTimer
             // here by TimeRate i actually mean DeltaTime / RawDeltaTime
             // note in 2023 Jan, Everest introduced TimeRateModifier in the calculation of Engine.DeltaTime, so it's no longer DeltaTime = RawDeltaTime * TimeRate * TimeRateB
             string str;
@@ -92,24 +93,25 @@ internal static class RenderHelper {
             HiresLevelRenderer.Add(new OneFrameTextRenderer(str, (Position + new Vector2(1.5f, -0.5f)) * 6f));
             return;
         }
-
-        if (index == SpinnerColorIndex.NoCycle) {
-            numbers[0].DrawOutline(Position);
-            return;
+        else {
+            if (index == SpinnerColorIndex.NoCycle) {
+                numbers[0].DrawOutline(Position);
+                return;
+            }
+            if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
+                numbers[9].DrawOutline(Position);
+                return;
+            }
+            //if (index == SpinnerColorIndex.ActivatesEveryFrame) {
+            //    numbers[0].DrawOutline(Position);
+            //    return;
+            //}
+            if (CountdownTimer > 9) {
+                numbers[CountdownTimer / 10].DrawOutline(Position + new Vector2(-4, 0));
+                CountdownTimer %= 10;
+            }
+            numbers[CountdownTimer].DrawOutline(Position);
         }
-        if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
-            numbers[9].DrawOutline(Position);
-            return;
-        }
-        //if (index == SpinnerColorIndex.ActivatesEveryFrame) {
-        //    numbers[0].DrawOutline(Position);
-        //    return;
-        //}
-        if (CountdownTimer > 9) {
-            numbers[CountdownTimer / 10].DrawOutline(Position + new Vector2(-4, 0));
-            CountdownTimer %= 10;
-        }
-        numbers[CountdownTimer].DrawOutline(Position);
     }
 
     public static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float offset, Vector2 CameraPosition) {

@@ -14,7 +14,7 @@ TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ALLOW_ALL=             全部
 # ============================================= Cycle Hitbox Colors =====================================================
 TAS_HELPER_COLORS=                                         色彩
 TAS_HELPER_SHOW_CYCLE_HITBOX_COLORS=                       周期性实体颜色
-TAS_HELPER_USING_NOTINVIEW_COLOR_MODES=                    镜头外全用一种颜色
+TAS_HELPER_USING_NOTINVIEW_COLOR_MODES=                    镜头外颜色
 TAS_HELPER_NOTINVIEW_COLOR_MODES_OFF=                      关
 TAS_HELPER_NOTINVIEW_COLOR_MODES_WHEN=                     仅当开启 InView 范围时
 TAS_HELPER_NOTINVIEW_COLOR_MODES_ALWAYS=                   开
@@ -22,6 +22,8 @@ TAS_HELPER_USING_NOTINVIEW_COLOR_DESCRIPTION=              对受到 InView 影�
 TAS_HELPER_USING_FREEZE_COLOR=                             冻结色
 TAS_HELPER_USING_FREEZE_COLOR_DESCRIPTION=                 当 TimeActive 达到 524288 后使用的颜色,
                                                            包括永不激活的圆刺的颜色, 与每帧都激活的圆刺的颜色.
+                                                           一些 mod 中使用的无周期性的圆刺也被视为每帧都激活,
+                                                           例如 FrostHelper.CustomSpinner 就可以设定为无周期性.
 TAS_HELPER_COLOR_CUSTOMIZATION=                            色彩配置
 TAS_HELPER_COLOR_CUSTOMIZATION_FINISHED=                   完成
 TAS_HELPER_COLOR_CUSTOMIZATION_ONOFF=                      开关
@@ -66,7 +68,7 @@ TAS_HELPER_PIXEL_FONT=                                     像素字体
 TAS_HELPER_HIRES_FONT_SIZE=                                高清字体大小
 TAS_HELPER_HIRES_FONT_STROKE=                              高清字体描边
 TAS_HELPER_PERFORMANCE_OPTIMIZATION=                       性能优化
-TAS_HELPER_PERFORMANCE_OPTIMIZATION_DESCRIPTION=           在较远处时将不再显示倒计时和实体的加载范围碰撞箱
+TAS_HELPER_PERFORMANCE_OPTIMIZATION_DESCRIPTION=           在较远处时将不再显示倒计时和实体的加载范围碰撞箱.
 
 # ============================================= Load Range =====================================================
 TAS_HELPER_LOAD_RANGE=                                     加载范围
@@ -83,7 +85,7 @@ TAS_HELPER_IN_VIEW_DESCRIPTION=                            当 InView 范围的�
 TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer 范围的边缘宽度
 TAS_HELPER_LOAD_RANGE_OPACITY=                             加载范围的不透明度
 TAS_HELPER_APPLY_CAMERA_ZOOM=                              InView 范围随镜头缩放
-TAS_HELPER_APPLY_CAMERA_ZOOM_DESCRIPTION=                  仅在需要判定 VivHelper.CustomSpinner 是否 InView 时需要开启此项
+TAS_HELPER_APPLY_CAMERA_ZOOM_DESCRIPTION=                  仅在需要判定 VivHelper.CustomSpinner 是否 InView 时需要开启此项.
 
 # ============================================= Simplified Spinners =====================================================
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            简化圆刺
