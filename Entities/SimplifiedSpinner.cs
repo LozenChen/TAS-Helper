@@ -21,6 +21,10 @@ internal static class SimplifiedSpinner {
     private static bool wasSpritesCleared = !SpritesCleared;
 
     private static bool AddingEntities = true;
+
+    // sprites are created by e.g. AddSprites(), so they do not necessarily exist when load level
+    // so we have to: a) just update each frame; b) watch those entities; c) instead watch EntityList update
+    // a) is awful, b) is good but tiring, so i choose c)
     private static bool Updated => !AddingEntities && wasSpritesCleared == SpritesCleared;
     public static void Load() {
         On.Monocle.Entity.DebugRender += PatchDebugRender;
@@ -34,6 +38,19 @@ internal static class SimplifiedSpinner {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
     }
 
+    private static void CreateVivGetter() {
+        VivSpinnerExtraComponentGetter = new() {
+                typeof(VivEntities.CustomSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
+                typeof(VivEntities.CustomSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
+            };
+    }
+
+    private static void CreateChronoGetter() {
+        ChronoSpinnerExtraComponentGetter = new() {
+                typeof(ChronoEntities.ShatterSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
+                typeof(ChronoEntities.ShatterSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
+            };
+    }
     public static void Initialize() {
         CrysExtraComponentGetter = new() {
             typeof(CrystalStaticSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
@@ -53,10 +70,7 @@ internal static class SimplifiedSpinner {
             });
         }
         if (ModUtils.VivHelperInstalled) {
-            VivSpinnerExtraComponentGetter = new() {
-                typeof(VivEntities.CustomSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
-                typeof(VivEntities.CustomSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
-            };
+            CreateVivGetter();
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Action<Level>>(VivBeforeRender);
@@ -64,10 +78,7 @@ internal static class SimplifiedSpinner {
         }
 
         if (ModUtils.ChronoHelperInstalled) {
-            ChronoSpinnerExtraComponentGetter = new() {
-                typeof(ChronoEntities.ShatterSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
-                typeof(ChronoEntities.ShatterSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
-            };
+            CreateChronoGetter();
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Action<Level>>(ChronoBeforeRender);

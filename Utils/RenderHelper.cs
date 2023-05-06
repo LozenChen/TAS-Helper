@@ -201,12 +201,9 @@ internal static class RenderHelper {
     }
 
     public static void DrawLoadRangeCollider(Vector2 Position, float Width, float Height, Vector2 CameraPos, bool isLightning) {
-        if (isLightning && TasHelperSettings.UsingInViewRange) {
+        if (isLightning) {
             // only check in view for lightning
-            if (SpinnerHelper.InView(Position, Width, Height, CameraPos, true)) {
-                // do nothing
-            }
-            else {
+            if (TasHelperSettings.UsingInViewRange && !SpinnerHelper.InView(Position, Width, Height, CameraPos, true)) {
                 Monocle.Draw.HollowRect(Position, Width + 1, Height + 1, SpinnerCenterColor);
             }
         }

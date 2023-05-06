@@ -153,7 +153,7 @@ public static class SpinnerHelper {
         }
 
         if (ModUtils.VivHelperInstalled) {
-            SetVivHitboxStringGetter();
+            CreateVivHitboxStringGetter();
         }
     }
 
@@ -167,7 +167,7 @@ public static class SpinnerHelper {
 
     public static FieldInfo VivHitboxStringGetter;
 
-    private static void SetVivHitboxStringGetter() {
+    private static void CreateVivHitboxStringGetter() {
         VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
     }
     public static bool NoCycle(Entity self) {
