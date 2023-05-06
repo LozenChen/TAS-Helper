@@ -20,17 +20,19 @@ internal static class SimplifiedSpinner {
 
     private static bool wasSpritesCleared = !SpritesCleared;
 
-    // to save resources, we assume all spinners are added to level on the frame of entering level
-    private static bool Updated => wasSpritesCleared == SpritesCleared;
+    private static bool AddingEntities = true;
+    private static bool Updated => !AddingEntities && wasSpritesCleared == SpritesCleared;
     public static void Load() {
         On.Monocle.Entity.DebugRender += PatchDebugRender;
         On.Celeste.Level.BeforeRender += OnLevelBeforeRender;
+        On.Monocle.EntityList.UpdateLists += OnLevelAddEntity;
         On.Celeste.Level.LoadLevel += OnLoadLevel;
     }
 
     public static void Unload() {
         On.Monocle.Entity.DebugRender -= PatchDebugRender;
         On.Celeste.Level.BeforeRender -= OnLevelBeforeRender;
+        On.Monocle.EntityList.UpdateLists -= OnLevelAddEntity;
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
     }
 
@@ -96,6 +98,13 @@ internal static class SimplifiedSpinner {
         wasSpritesCleared = !SpritesCleared;
     }
 
+    private static void OnLevelAddEntity(On.Monocle.EntityList.orig_UpdateLists orig, EntityList self) {
+        if (self.Scene is Level) {
+            AddingEntities |= self.ToAdd.Count > 0;
+        }
+        orig(self);
+    }
+
     private static void OnLevelBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level self) {
         // here i assume all the components are always visible
         // if that's not the case, then this implementation has bug
@@ -117,7 +126,9 @@ internal static class SimplifiedSpinner {
             // we must set it here immediately, instead of setting this at e.g. Level.AfterRender
             // coz SpritesCleared may change during this period of time, in that case wasSpritesCleared will not detect this change
             wasSpritesCleared = SpritesCleared;
+            AddingEntities = false;
         }
+        
         orig(self);
     }
 
