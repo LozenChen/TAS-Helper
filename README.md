@@ -34,12 +34,12 @@ A Celeste Mod designed to be a tool in TAS making.
 
 # WIP:
 
-- Customizable colors.
+- Better custom info.
 
 # Known issues:
 
 - Actual Collide Hitboxes are overridden -> it's actually bad to use actual collide hitboxes when doing a spinner stun, you really need the exact frame the hazard becomes collidable (opaque). So personnally i do not suggest using actual collide hitboxes in this case. Appended hitbox sounds good but current implement relies on opacity to show information. I have no good idea about it so it's set aside.
 
-- VivHelper spinner isn't fully supported if it's not a regular one -> maybe will add support for them.
+- VivHelper spinner isn't fully supported if its hitbox is not prestored -> maybe will add support for them.
 
 - Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7

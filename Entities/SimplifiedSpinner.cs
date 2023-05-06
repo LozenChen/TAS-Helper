@@ -24,14 +24,12 @@ internal static class SimplifiedSpinner {
     private static bool Updated => !AddingEntities && wasSpritesCleared == SpritesCleared;
     public static void Load() {
         On.Monocle.Entity.DebugRender += PatchDebugRender;
-        On.Celeste.Level.BeforeRender += OnLevelBeforeRender;
         On.Monocle.EntityList.UpdateLists += OnLevelAddEntity;
         On.Celeste.Level.LoadLevel += OnLoadLevel;
     }
 
     public static void Unload() {
         On.Monocle.Entity.DebugRender -= PatchDebugRender;
-        On.Celeste.Level.BeforeRender -= OnLevelBeforeRender;
         On.Monocle.EntityList.UpdateLists -= OnLevelAddEntity;
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
     }
@@ -41,6 +39,12 @@ internal static class SimplifiedSpinner {
             typeof(CrystalStaticSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
             typeof(CrystalStaticSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
         };
+
+        // this one must be at first
+        typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate<Action<Level>>(IlLevelBeforeRender);
+        });
 
         if (ModUtils.FrostHelperInstalled) {
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
@@ -85,12 +89,13 @@ internal static class SimplifiedSpinner {
             typeof(Level).GetMethod("LoadLevel").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(TrackDreamSpinnerRenderer);
-            });
+           });
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Action<Level>>(IsaGrabBagBeforeRender);
             });
         }
+
     }
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
@@ -105,7 +110,7 @@ internal static class SimplifiedSpinner {
         orig(self);
     }
 
-    private static void OnLevelBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level self) {
+    private static void IlLevelBeforeRender(Level self) {
         // here i assume all the components are always visible
         // if that's not the case, then this implementation has bug
 
@@ -128,8 +133,6 @@ internal static class SimplifiedSpinner {
             wasSpritesCleared = SpritesCleared;
             AddingEntities = false;
         }
-        
-        orig(self);
     }
 
     private static void FrostBeforeRender(Level self) {

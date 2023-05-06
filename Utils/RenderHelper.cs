@@ -55,7 +55,7 @@ internal static class RenderHelper {
     internal static Color ActivateEveryFrameColor => TasHelperSettings.ActivateEveryFrameColor;
     // ActivatesEveryFrame now consists of 2 cases: (a) update collidability every frame (b) keep collidable forever. The latter is mainly used for some custom hazards
 
-    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, ActivateEveryFrame };
+    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, FreezeActivateEveryFrame , NoCycle};
     public static Color GetSpinnerColor(SpinnerColorIndex index) {
 #pragma warning disable CS8524
         return index switch {
@@ -66,23 +66,37 @@ internal static class RenderHelper {
             SpinnerColorIndex.MoreThan3 => TasSettings.OtherCyclesHitboxColor,
             SpinnerColorIndex.NotInView => NotInViewColor,
             SpinnerColorIndex.NeverActivate => NeverActivateColor,
-            SpinnerColorIndex.ActivateEveryFrame => ActivateEveryFrameColor,
+            SpinnerColorIndex.FreezeActivateEveryFrame => ActivateEveryFrameColor,
+            SpinnerColorIndex.NoCycle => ActivateEveryFrameColor,
         };
 #pragma warning restore CS8524
     }
 
+    private const string nocycle = "0";
     private const string infinity = "oo";
     public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index) {
         if (TasHelperSettings.usingHiresFont) {
             // when TimeRate > 1, NeverActivate can activate; when TimeRate < 1, ActivatesEveryFrame can take more than 0 frame.
             // here by TimeRate i actually mean DeltaTime / RawDeltaTime
             // note in 2023 Jan, Everest introduced TimeRateModifier in the calculation of Engine.DeltaTime, so it's no longer DeltaTime = RawDeltaTime * TimeRate * TimeRateB
-            string str = index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime ? infinity : CountdownTimer.ToString();
+            string str;
+            if (index == SpinnerColorIndex.NoCycle) {
+                str = nocycle;
+            }
+            else if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
+                str = infinity;
+            }
+            else {
+                str = CountdownTimer.ToString(); 
+            }
             HiresLevelRenderer.Add(new OneFrameTextRenderer(str, (Position + new Vector2(1.5f, -0.5f)) * 6f));
             return;
         }
 
-
+        if (index == SpinnerColorIndex.NoCycle) {
+            numbers[0].DrawOutline(Position);
+            return;
+        }
         if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
             numbers[9].DrawOutline(Position);
             return;
@@ -109,14 +123,14 @@ internal static class RenderHelper {
             return SpinnerColorIndex.Default;
         }
         if (SpinnerHelper.NoCycle(self)) {
-            return SpinnerColorIndex.ActivateEveryFrame;
+            return SpinnerColorIndex.NoCycle;
         }
         if (TasHelperSettings.UsingFreezeColor && SpinnerHelper.TimeActive >= 524288f) {
             // we assume the normal state is TimeRate = 1, so we do not detect time freeze by TimeActive + DeltaTime == TimeActive, instead just check >= 524288f (actually works for TimeRate <= 1.8)
             // so freeze colors will not appear too early in some extreme case like slow down of collecting heart
             // we make the color reflects its state at TimeRate = 1, so it will not flash during slowdown like collecting heart
             // unfortunately it will flash if TimeRate > 1, hope this will never happen
-            return SpinnerHelper.OnInterval(SpinnerHelper.TimeActive, 0.05f, offset, Engine.RawDeltaTime) ? SpinnerColorIndex.ActivateEveryFrame : SpinnerColorIndex.NeverActivate;
+            return SpinnerHelper.OnInterval(SpinnerHelper.TimeActive, 0.05f, offset, Engine.RawDeltaTime) ? SpinnerColorIndex.FreezeActivateEveryFrame : SpinnerColorIndex.NeverActivate;
         }
         int group = SpinnerHelper.CalculateSpinnerGroup(offset);
 #pragma warning disable CS8509

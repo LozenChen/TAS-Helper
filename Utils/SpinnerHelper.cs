@@ -89,9 +89,10 @@ public static class SpinnerHelper {
         if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) {
             HazardTypesTreatNormal.Add(cassetteSpinnerType, spinner);
             OffsetGetters.Add(cassetteSpinnerType, OffsetGetters[typeof(CrystalStaticSpinner)]);
+            NoPeriodicCheckInViewTypes.Add(cassetteSpinnerType);
             // CassetteSpinner also has a MethodInfo field called offset
             // visible is still governed by offset
-            // but collidable is completely determined by cassette, so we consider it as no cycle
+            // but collidable is completely determined by cassette, so we consider it as no cycle and no in view behavior
         }
 
         if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinner") is { } dreamSpinnerType) {
@@ -177,8 +178,7 @@ public static class SpinnerHelper {
         if (self.isDust()) {
             return true;
         }
-        Type t = self.GetType();
-        if (NoPeriodicCheckInViewTypes.Contains(t)) {
+        if (NoPeriodicCheckInViewTypes.Contains(self.GetType())) {
             return true;
         }
         return false;
