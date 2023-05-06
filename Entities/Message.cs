@@ -79,7 +79,7 @@ public static class Messenger {
             }
             else {
                 text = "EntityActivator Targets: " + targets;
-                Visible = true;
+                Visible = TasHelperSettings.EntityActivatorReminder;
                 Active = true;
                 lifetimer = lifetime;
                 this.Position.Y += 30f * MessageCount;

@@ -23,8 +23,7 @@ internal static class SimplifiedSpinner {
     private static bool AddingEntities = true;
 
     // sprites are created by e.g. AddSprites(), so they do not necessarily exist when load level
-    // so we have to: a) just update each frame; b) watch those entities; c) instead watch EntityList update
-    // a) is awful, b) is good but tiring, so i choose c)
+
     private static bool Updated => !AddingEntities && wasSpritesCleared == SpritesCleared;
     public static void Load() {
         On.Monocle.Entity.DebugRender += PatchDebugRender;
