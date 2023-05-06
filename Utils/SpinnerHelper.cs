@@ -97,6 +97,7 @@ public static class SpinnerHelper {
         if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinner") is { } dreamSpinnerType) {
             HazardTypesTreatNormal.Add(dreamSpinnerType, spinner);
             OffsetGetters.Add(dreamSpinnerType, _ => 0);
+            NoPeriodicCheckInViewTypes.Add(dreamSpinnerType);
         }
 
 
@@ -161,12 +162,25 @@ public static class SpinnerHelper {
 
     private static Dictionary<Type, GetDelegate<object, float>> OffsetGetters = new();
 
+    private static List<Type> NoPeriodicCheckInViewTypes = new();
+
     public static FieldInfo VivHitboxStringGetter;
 
     private static void SetVivHitboxStringGetter() {
         VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
     }
     public static bool NoCycle(Entity self) {
+        return false;
+    }
+
+    public static bool NoPeriodicCheckInViewBehavior(Entity self) {
+        if (self.isDust()) {
+            return true;
+        }
+        Type t = self.GetType();
+        if (NoPeriodicCheckInViewTypes.Contains(t)) {
+            return true;
+        }
         return false;
     }
     private static bool IsaGrabBagPatch(Entity self) {
@@ -220,13 +234,13 @@ public static class SpinnerHelper {
         }
         return null;
     }
-    public static bool isSpinnner(Entity self) {
+    public static bool isSpinnner(this Entity self) {
         return HazardType(self) == spinner;
     }
-    public static bool isLightning(Entity self) {
+    public static bool isLightning(this Entity self) {
         return HazardType(self) == lightning;
     }
-    public static bool isDust(Entity self) {
+    public static bool isDust(this Entity self) {
         return HazardType(self) == dust;
     }
 

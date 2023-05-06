@@ -307,13 +307,13 @@ public class TASHelperSettings : EverestModuleSettings {
     public float SpinnerFillerAlpha = 0.4f;
     public bool UsingFreezeColor = true;
 
-    public Color SpinnerCenterColor = CustomColors.defaultSpinnerCenterColor;
+    public Color LoadRangeColliderColor = CustomColors.defaultLoadRangeColliderColor;
     public Color InViewRangeColor = CustomColors.defaultInViewRangeColor;
     public Color NearPlayerRangeColor = CustomColors.defaultNearPlayerRangeColor;
-    public Color CameraTargetVectorColor = CustomColors.defaultCameraTargetVectorColor;
+    public Color CameraTargetColor = CustomColors.defaultCameraTargetColor;
     public Color NotInViewColor = CustomColors.defaultNotInViewColor;
     public Color NeverActivateColor = CustomColors.defaultNeverActivateColor;
-    public Color ActivatesEveryFrameColor = CustomColors.defaultActivatesEveryFrameColor;
+    public Color ActivateEveryFrameColor = CustomColors.defaultActivateEveryFrameColor;
 
     #endregion
 

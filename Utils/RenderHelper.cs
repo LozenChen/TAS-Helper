@@ -10,10 +10,10 @@ internal static class RenderHelper {
     private static MTexture[] numbers;
 
     private static readonly Vector2 TopLeft2Center = new(160f, 90f);
-    internal static Color SpinnerCenterColor => TasHelperSettings.SpinnerCenterColor;
+    internal static Color SpinnerCenterColor => TasHelperSettings.LoadRangeColliderColor;
     internal static Color InViewRangeColor => TasHelperSettings.InViewRangeColor;
     internal static Color NearPlayerRangeColor => TasHelperSettings.NearPlayerRangeColor;
-    internal static Color CameraTargetVectorColor => TasHelperSettings.CameraTargetVectorColor;
+    internal static Color CameraTargetVectorColor => TasHelperSettings.CameraTargetColor;
 
 
     public static void Initialize() {
@@ -52,10 +52,10 @@ internal static class RenderHelper {
     internal static Color DefaultColor => TasSettings.EntityHitboxColor;
     internal static Color NotInViewColor => TasHelperSettings.NotInViewColor;
     internal static Color NeverActivateColor => TasHelperSettings.NeverActivateColor;
-    internal static Color ActivatesEveryFrameColor => TasHelperSettings.ActivatesEveryFrameColor;
+    internal static Color ActivateEveryFrameColor => TasHelperSettings.ActivateEveryFrameColor;
     // ActivatesEveryFrame now consists of 2 cases: (a) update collidability every frame (b) keep collidable forever. The latter is mainly used for some custom hazards
 
-    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, ActivatesEveryFrame };
+    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, ActivateEveryFrame };
     public static Color GetSpinnerColor(SpinnerColorIndex index) {
 #pragma warning disable CS8524
         return index switch {
@@ -66,7 +66,7 @@ internal static class RenderHelper {
             SpinnerColorIndex.MoreThan3 => TasSettings.OtherCyclesHitboxColor,
             SpinnerColorIndex.NotInView => NotInViewColor,
             SpinnerColorIndex.NeverActivate => NeverActivateColor,
-            SpinnerColorIndex.ActivatesEveryFrame => ActivatesEveryFrameColor,
+            SpinnerColorIndex.ActivateEveryFrame => ActivateEveryFrameColor,
         };
 #pragma warning restore CS8524
     }
@@ -99,22 +99,24 @@ internal static class RenderHelper {
     }
 
     public static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float offset, Vector2 CameraPosition) {
-        if (TasHelperSettings.UsingNotInViewColor && !SpinnerHelper.InView(self, CameraPosition) && !SpinnerHelper.isDust(self)) {
+        if (TasHelperSettings.UsingNotInViewColor && !SpinnerHelper.InView(self, CameraPosition) && !SpinnerHelper.NoPeriodicCheckInViewBehavior(self)) {
             // NotInView Color is in some sense, not a cycle hitbox color, we make it independent
+            // Dust needs InView to establish graphics, but that's almost instant (actually every frame can establish up to 25 dust graphics)
+            // so InView seems meaningless for Dusts, especially if we only care about those 3f/15f periodic behaviors
             return SpinnerColorIndex.NotInView;
         }
         if (!TasHelperSettings.ShowCycleHitboxColors) {
             return SpinnerColorIndex.Default;
         }
         if (SpinnerHelper.NoCycle(self)) {
-            return SpinnerColorIndex.ActivatesEveryFrame;
+            return SpinnerColorIndex.ActivateEveryFrame;
         }
         if (TasHelperSettings.UsingFreezeColor && SpinnerHelper.TimeActive >= 524288f) {
             // we assume the normal state is TimeRate = 1, so we do not detect time freeze by TimeActive + DeltaTime == TimeActive, instead just check >= 524288f (actually works for TimeRate <= 1.8)
             // so freeze colors will not appear too early in some extreme case like slow down of collecting heart
             // we make the color reflects its state at TimeRate = 1, so it will not flash during slowdown like collecting heart
             // unfortunately it will flash if TimeRate > 1, hope this will never happen
-            return SpinnerHelper.OnInterval(SpinnerHelper.TimeActive, 0.05f, offset, Engine.RawDeltaTime) ? SpinnerColorIndex.ActivatesEveryFrame : SpinnerColorIndex.NeverActivate;
+            return SpinnerHelper.OnInterval(SpinnerHelper.TimeActive, 0.05f, offset, Engine.RawDeltaTime) ? SpinnerColorIndex.ActivateEveryFrame : SpinnerColorIndex.NeverActivate;
         }
         int group = SpinnerHelper.CalculateSpinnerGroup(offset);
 #pragma warning disable CS8509

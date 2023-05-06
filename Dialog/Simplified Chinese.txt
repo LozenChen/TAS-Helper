@@ -1,4 +1,5 @@
 ﻿# https://github.com/EverestAPI/Resources/wiki/Adding-Custom-Dialogue
+# https://maddie480.ovh/celeste/font-generator
 # ============================================= TAS Helper =====================================================
 TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        开关
@@ -28,7 +29,7 @@ TAS_HELPER_COLOR_CUSTOMIZATION_SPINNER_COLOR=              周期性实体颜色
 TAS_HELPER_COLOR_CUSTOMIZATION_OTHER=                      其他
 TAS_HELPER_COLOR_CUSTOMIZATION_REMIND=                     请到标题页 Mod 菜单中修改色彩配置,{n}
                                                            或者在控制台使用相应指令.
-TAS_HELPER_COLOR_CUSTOMIZATION_COLOR_FORMAT=               颜色格式: ARGB, 例如. 红色: #FFFF0000.
+TAS_HELPER_COLOR_CUSTOMIZATION_COLOR_FORMAT=               颜色格式: ARGB, 例如 红色: #FFFF0000.
 TAS_HELPER_COLOR_CUSTOMIZATION_SPINNERCOLOR_FOOTNOTE=      最后 5 个颜色取自 CelesteTAS mod,{n}
                                                            在这里或在 CelesteTAS 的设置中更改它们, 是一样的.
 TAS_HELPER_SPINNERCOLOR_NOTINVIEW=                         镜头外颜色

@@ -3,7 +3,9 @@ using Celeste.Mod.UI;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Collections;
+using System.Text.RegularExpressions;
 using TAS.EverestInterop.Hitboxes;
+using TAS.Module;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 using static Celeste.TextMenuExt;
 using static TAS.EverestInterop.Hitboxes.HitboxColor;
@@ -12,25 +14,25 @@ namespace Celeste.Mod.TASHelper.Utils;
 
 public static class CustomColors {
 
-    internal static readonly Color defaultSpinnerCenterColor = Color.Lime;
+    internal static readonly Color defaultLoadRangeColliderColor = Color.Lime;
     internal static readonly Color defaultInViewRangeColor = Color.Yellow * 0.8f;
     internal static readonly Color defaultNearPlayerRangeColor = Color.Lime * 0.8f;
-    internal static readonly Color defaultCameraTargetVectorColor = Color.Goldenrod;
+    internal static readonly Color defaultCameraTargetColor = Color.Goldenrod;
     internal static readonly Color defaultNotInViewColor = Color.Lime;
     internal static readonly Color defaultNeverActivateColor = new Color(0.25f, 1f, 1f);
-    internal static readonly Color defaultActivatesEveryFrameColor = new Color(0.8f, 0f, 0f);
+    internal static readonly Color defaultActivateEveryFrameColor = new Color(0.8f, 0f, 0f);
 
     public static void ResetOtherColor() {
-        LoadRangeColliderColor = defaultSpinnerCenterColor;
+        LoadRangeColliderColor = defaultLoadRangeColliderColor;
         InViewRangeColor = defaultInViewRangeColor;
         NearPlayerRangeColor = defaultNearPlayerRangeColor;
-        CameraTargetColor = defaultCameraTargetVectorColor;
+        CameraTargetColor = defaultCameraTargetColor;
     }
 
     public static void ResetSpinnerColor() {
         SpinnerColor_NotInView = defaultNotInViewColor;
         SpinnerColor_NeverActivate = defaultNeverActivateColor;
-        SpinnerColor_ActivateEveryFrame = defaultActivatesEveryFrameColor;
+        SpinnerColor_ActivateEveryFrame = defaultActivateEveryFrameColor;
         SpinnerColor_TasModEntityHitboxColor = HitboxColor.DefaultEntityColor;
         SpinnerColor_TasModCycleHitboxColor1 = CycleHitboxColor.DefaultColor1;
         SpinnerColor_TasModCycleHitboxColor2 = CycleHitboxColor.DefaultColor2;
@@ -40,14 +42,15 @@ public static class CustomColors {
 
 
     // whenever change these names, update Dialog and cmd
-    public static Color LoadRangeColliderColor { get => TasHelperSettings.SpinnerCenterColor; set => TasHelperSettings.SpinnerCenterColor = value; }
+
+    public static Color LoadRangeColliderColor { get => TasHelperSettings.LoadRangeColliderColor; set => TasHelperSettings.LoadRangeColliderColor = value; }
     public static Color InViewRangeColor { get => TasHelperSettings.InViewRangeColor; set => TasHelperSettings.InViewRangeColor = value; }
     public static Color NearPlayerRangeColor { get => TasHelperSettings.NearPlayerRangeColor; set => TasHelperSettings.NearPlayerRangeColor = value; }
-    public static Color CameraTargetColor { get => TasHelperSettings.CameraTargetVectorColor; set => TasHelperSettings.CameraTargetVectorColor = value; }
+    public static Color CameraTargetColor { get => TasHelperSettings.CameraTargetColor; set => TasHelperSettings.CameraTargetColor = value; }
 
     public static Color SpinnerColor_NotInView { get => TasHelperSettings.NotInViewColor; set => TasHelperSettings.NotInViewColor = value; }
     public static Color SpinnerColor_NeverActivate { get => TasHelperSettings.NeverActivateColor; set => TasHelperSettings.NeverActivateColor = value; }
-    public static Color SpinnerColor_ActivateEveryFrame { get => TasHelperSettings.ActivatesEveryFrameColor; set => TasHelperSettings.ActivatesEveryFrameColor = value; }
+    public static Color SpinnerColor_ActivateEveryFrame { get => TasHelperSettings.ActivateEveryFrameColor; set => TasHelperSettings.ActivateEveryFrameColor = value; }
 
     public static Color SpinnerColor_TasModEntityHitboxColor { get => TasSettings.EntityHitboxColor; set => TasSettings.EntityHitboxColor = value; }
     public static Color SpinnerColor_TasModCycleHitboxColor1 { get => TasSettings.CycleHitboxColor1; set => TasSettings.CycleHitboxColor1 = value; }
@@ -61,7 +64,7 @@ public static class CustomColors {
 
 
     public static TextMenu.Item CreateChangeColorItem(Func<Color> getter, Action<Color> setter, string name, TextMenu textMenu, bool inGame) {
-        TextMenu.Item item = new ButtonColorExt(name.ToDialogText() + $": {ColorToHex(getter())}", getter).Pressed(
+        TextMenu.Item item = new ButtonColorExt(name.ToDialogText(), getter).Pressed(
             () => {
                 Audio.Play("event:/ui/main/savefile_rename_start");
                 textMenu.SceneAs<Overworld>().Goto<OuiModOptionStringHexColor>()
@@ -72,7 +75,7 @@ public static class CustomColors {
         return item;
     }
 
-    public static void AddDescription(this List<TextMenu.Item> page, TextMenu menu, TextMenu.Item item, string description) {
+    public static void AddDescriptionOnEnter(this List<TextMenu.Item> page, TextMenu menu, TextMenu.Item item, string description) {
         TextMenuExt.EaseInSubHeaderExt descriptionText = new(description, false, menu) {
             TextColor = Color.Gray,
             HeightExtra = 0f
@@ -86,10 +89,14 @@ public static class CustomColors {
         TextMenu.Item item = CreateChangeColorItem(getter, setter, name, menu, inGame);
         page.Add(item);
         if (!string.IsNullOrEmpty(description)) {
-            page.AddDescription(menu, item, description);
+            page.AddDescriptionOnEnter(menu, item, description);
         }
         if (!string.IsNullOrEmpty(cmd) && inGame) {
-            page.AddDescription(menu, item, cmd);
+            TextMenuExt.SubHeaderExt cmdText = new(cmd) {
+                TextColor = Color.Gray,
+                HeightExtra = 0f
+            };
+            page.Add(cmdText);
         }
     }
 
@@ -107,14 +114,14 @@ public static class CustomColors {
             HeightExtra = 0f
         };
         page.Add(formatText);
-        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_NotInView, value => SpinnerColor_NotInView = value, "SpinnerColor_NotInView");
-        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_NeverActivate, value => SpinnerColor_NeverActivate = value, "SpinnerColor_NeverActivate");
-        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_ActivateEveryFrame, value => SpinnerColor_ActivateEveryFrame = value, "SpinnerColor_ActivateEveryFrame");
-        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModEntityHitboxColor, value => SpinnerColor_TasModEntityHitboxColor = value, "SpinnerColor_TasModEntityHitboxColor");
-        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModCycleHitboxColor1, value => SpinnerColor_TasModCycleHitboxColor1 = value, "SpinnerColor_TasModCycleHitboxColor1");
-        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModCycleHitboxColor2, value => SpinnerColor_TasModCycleHitboxColor2 = value, "SpinnerColor_TasModCycleHitboxColor2");
-        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModCycleHitboxColor3, value => SpinnerColor_TasModCycleHitboxColor3 = value, "SpinnerColor_TasModCycleHitboxColor3");
-        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModOtherCyclesHitboxColor, value => SpinnerColor_TasModOtherCyclesHitboxColor = value, "SpinnerColor_TasModOtherCyclesHitboxColor");
+        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_NotInView, value => SpinnerColor_NotInView = value, "SpinnerColor_NotInView", "Console command: tashelper_custom_color, SpinnerColor_NotInView, FF00FF00");
+        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_NeverActivate, value => SpinnerColor_NeverActivate = value, "SpinnerColor_NeverActivate", "Console command: tashelper_custom_color, SpinnerColor_NeverActivate, FF3FFFFF");
+        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_ActivateEveryFrame, value => SpinnerColor_ActivateEveryFrame = value, "SpinnerColor_ActivateEveryFrame", "Console command: tashelper_custom_color, SpinnerColor_ActivateEveryFrame, FFCC0000");
+        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModEntityHitboxColor, value => SpinnerColor_TasModEntityHitboxColor = value, "SpinnerColor_TasModEntityHitboxColor", "Console command: tashelper_custom_color, SpinnerColor_TasModEntityHitboxColor, FFFF0000");
+        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModCycleHitboxColor1, value => SpinnerColor_TasModCycleHitboxColor1 = value, "SpinnerColor_TasModCycleHitboxColor1", "Console command: tashelper_custom_color, SpinnerColor_TasModCycleHitboxColor1, FFFF0000");
+        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModCycleHitboxColor2, value => SpinnerColor_TasModCycleHitboxColor2 = value, "SpinnerColor_TasModCycleHitboxColor2", "Console command: tashelper_custom_color, SpinnerColor_TasModCycleHitboxColor2, FFFFFF00");
+        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModCycleHitboxColor3, value => SpinnerColor_TasModCycleHitboxColor3 = value, "SpinnerColor_TasModCycleHitboxColor3", "Console command: tashelper_custom_color, SpinnerColor_TasModCycleHitboxColor3, FF1933FF");
+        AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModOtherCyclesHitboxColor, value => SpinnerColor_TasModOtherCyclesHitboxColor = value, "SpinnerColor_TasModOtherCyclesHitboxColor", "Console command: tashelper_custom_color, SpinnerColor_TasModOtherCyclesHitboxColor, FF3FFF7F");
         TextMenuExt.SubHeaderExt descriptionText = new("Color Customization SpinnerColor Footnote".ToDialogText()) {
             TextColor = Color.Gray,
             HeightExtra = 0f
@@ -138,10 +145,10 @@ public static class CustomColors {
             HeightExtra = 0f
         };
         page.Add(formatText);
-        AddItemWithDescription(menu, page, inGame, () => InViewRangeColor, value => InViewRangeColor = value, "InView Range Color");
-        AddItemWithDescription(menu, page, inGame, () => NearPlayerRangeColor, value => NearPlayerRangeColor = value, "NearPlayer Range Color");
-        AddItemWithDescription(menu, page, inGame, () => CameraTargetColor, value => CameraTargetColor = value, "CameraTarget Color");
-        AddItemWithDescription(menu, page, inGame, () => LoadRangeColliderColor, value => LoadRangeColliderColor = value, "Load Range Collider Color", "", "Load Range Collider Description".ToDialogText());
+        AddItemWithDescription(menu, page, inGame, () => InViewRangeColor, value => InViewRangeColor = value, "InView Range Color", "Console command: tashelper_custom_color, InViewRangeColor, CCCCCC00");
+        AddItemWithDescription(menu, page, inGame, () => NearPlayerRangeColor, value => NearPlayerRangeColor = value, "NearPlayer Range Color", "Console command: tashelper_custom_color, NearPlayerRangeColor, CC00CC00");
+        AddItemWithDescription(menu, page, inGame, () => CameraTargetColor, value => CameraTargetColor = value, "CameraTarget Color", "Console command: tashelper_custom_color, CameraTargetColor, FFDAA520");
+        AddItemWithDescription(menu, page, inGame, () => LoadRangeColliderColor, value => LoadRangeColliderColor = value, "Load Range Collider Color", "Console command: tashelper_custom_color, LoadRangeColliderColor, FF00FF00", "Load Range Collider Description".ToDialogText());
         return page;
     }
 
@@ -152,10 +159,10 @@ public static class CustomColors {
                     TasHelperSettings.UsingNotInViewColorMode).Change(value => TasHelperSettings.UsingNotInViewColorMode = value);
         // NotInViewColorItem.IncludeWidthInMeasurement = false;
         page.Add(NotInViewColorItem);
-        page.AddDescription(menu, NotInViewColorItem, "Using NotInView Color Description".ToDialogText());
+        page.AddDescriptionOnEnter(menu, NotInViewColorItem, "Using NotInView Color Description".ToDialogText());
         TextMenu.Item UsingFreezeColorItem;
         page.Add(UsingFreezeColorItem = new TextMenu.OnOff("Using Freeze Color".ToDialogText(), TasHelperSettings.UsingFreezeColor).Change(value => TasHelperSettings.UsingFreezeColor = value));
-        page.AddDescription(menu, UsingFreezeColorItem, "Using Freeze Color Description".ToDialogText());
+        page.AddDescriptionOnEnter(menu, UsingFreezeColorItem, "Using Freeze Color Description".ToDialogText());
         TextMenu.Item resetButton = new TextMenu.Button("Reset Custom Color".ToDialogText()).Pressed(
             () => {
                 Audio.Play("event:/ui/main/rename_entry_accept");
@@ -165,6 +172,126 @@ public static class CustomColors {
         );
         page.Add(resetButton);
         return page;
+    }
+
+
+    [Command("tashelper_custom_color", "Check TASHelper mod options menu for help.")]
+    public static void CmdCustomColor(string field, string color) {
+        switch (field) {
+            case "SpinnerColor_NotInView": {
+                    SpinnerColor_NotInView = HexToColorWithLog(color, defaultNotInViewColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "SpinnerColor_NeverActivate": {
+                    SpinnerColor_NeverActivate = HexToColorWithLog(color, defaultNeverActivateColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "SpinnerColor_ActivateEveryFrame": {
+                    SpinnerColor_ActivateEveryFrame = HexToColorWithLog(color, defaultActivateEveryFrameColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "SpinnerColor_TasModEntityHitboxColor": {
+                    SpinnerColor_TasModEntityHitboxColor = HexToColorWithLog(color, HitboxColor.DefaultEntityColor);
+                    CelesteTasModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "SpinnerColor_TasModCycleHitboxColor1": {
+                    SpinnerColor_TasModCycleHitboxColor1 = HexToColorWithLog(color, CycleHitboxColor.DefaultColor1);
+                    CelesteTasModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "SpinnerColor_TasModCycleHitboxColor2": {
+                    SpinnerColor_TasModCycleHitboxColor2 = HexToColorWithLog(color, CycleHitboxColor.DefaultColor2);
+                    CelesteTasModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "SpinnerColor_TasModCycleHitboxColor3": {
+                    SpinnerColor_TasModCycleHitboxColor3 = HexToColorWithLog(color, CycleHitboxColor.DefaultColor3);
+                    CelesteTasModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "SpinnerColor_TasModOtherCyclesHitboxColor": {
+                    SpinnerColor_TasModOtherCyclesHitboxColor = HexToColorWithLog(color, CycleHitboxColor.DefaultOthersColor);
+                    CelesteTasModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "LoadRangeColliderColor": {
+                    LoadRangeColliderColor = HexToColorWithLog(color, defaultLoadRangeColliderColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "CameraTargetColor": {
+                    CameraTargetColor = HexToColorWithLog(color, defaultCameraTargetColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "NearPlayerRangeColor": {
+                    NearPlayerRangeColor = HexToColorWithLog(color, defaultNearPlayerRangeColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+
+            case "InViewRangeColor": {
+                    InViewRangeColor = HexToColorWithLog(color, defaultInViewRangeColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+
+            default: {
+                    Celeste.Commands.Log("Invalid field name");
+                    return;
+                }
+        }
+    }
+
+    private static readonly Regex HexChar = new Regex("^[0-9a-f]*$", RegexOptions.IgnoreCase);
+    public static Color HexToColorWithLog(string hex, Color defaultColor) {
+        if (string.IsNullOrWhiteSpace(hex)) {
+            return defaultColor;
+        }
+
+        hex = hex.Replace("#", "");
+        if (!HexChar.IsMatch(hex)) {
+            Celeste.Commands.Log("Invaild Color");
+            return defaultColor;
+        }
+
+        if (hex.Length > 8) {
+            hex = hex.Substring(0, 8);
+        }
+
+        if (hex.Length == 3 || hex.Length == 4) {
+            hex = (from c in hex.ToCharArray()
+                   select $"{c}{c}").Aggregate((string s, string s1) => s + s1);
+        }
+
+        hex = hex.PadLeft(8, 'F');
+        try {
+            long num = Convert.ToInt64(hex, 16);
+            Color result = default(Color);
+            result.A = (byte)(num >> 24);
+            result.R = (byte)(num >> 16);
+            result.G = (byte)(num >> 8);
+            result.B = (byte)num;
+            return result;
+        }
+        catch (FormatException) {
+            Celeste.Commands.Log("Invaild Color");
+            return defaultColor;
+        }
     }
 }
 
@@ -645,7 +772,7 @@ public class ButtonColorExt : TextMenu.Button, IItemExt {
     public Func<Color> CubeColorGetter = () => Color.White;
     public Color TextColor { get; set; } = Color.White;
 
-
+    public string name;
     public Color TextColorDisabled { get; set; } = Color.DarkSlateGray;
 
 
@@ -675,9 +802,11 @@ public class ButtonColorExt : TextMenu.Button, IItemExt {
         : base(label) {
         CubeColorGetter = cubecolorGetter;
         Icon = icon;
+        name = label;
     }
 
     public override void Render(Vector2 position, bool highlighted) {
+        Label = name + $": {ColorToHex(CubeColorGetter())}";
         position += Offset;
         float num = Container.Alpha * Alpha;
         Color color = (Disabled ? TextColorDisabled : (highlighted ? Container.HighlightColor : TextColor)) * num;
