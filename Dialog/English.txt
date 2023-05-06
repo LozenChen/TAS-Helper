@@ -17,6 +17,33 @@ TAS_HELPER_NOTINVIEW_COLOR_MODES_OFF=                      Off
 TAS_HELPER_NOTINVIEW_COLOR_MODES_WHEN=                     When Using InView Range
 TAS_HELPER_NOTINVIEW_COLOR_MODES_ALWAYS=                   On
 TAS_HELPER_USING_NOTINVIEW_COLOR_DESCRIPTION=              Available to entities affected by InView (Spinner and Lightning).
+TAS_HELPER_USING_FREEZE_COLOR=                             Freeze Colors
+TAS_HELPER_USING_FREEZE_COLOR_DESCRIPTION=                 Colors which appear when TimeActive is 524288,
+                                                           include SpinnerColor_NeverActivate and SpinnerColor_ActivateEveryFrame.
+TAS_HELPER_COLOR_CUSTOMIZATION=                            Custom Colors Config
+TAS_HELPER_COLOR_CUSTOMIZATION_FINISHED=                   Finished
+TAS_HELPER_COLOR_CUSTOMIZATION_ONOFF=                      Switches
+TAS_HELPER_COLOR_CUSTOMIZATION_SPINNER_COLOR=              Cycle Hitbox Colors
+TAS_HELPER_COLOR_CUSTOMIZATION_OTHER=                      Other
+TAS_HELPER_COLOR_CUSTOMIZATION_REMIND=                     Custom colors can only be edited in the menu of the title screen,{n}
+                                                           or use commands in the console.
+TAS_HELPER_COLOR_CUSTOMIZATION_COLOR_FORMAT=               Color format: ARGB, e.g. Red: #FFFF0000.
+TAS_HELPER_COLOR_CUSTOMIZATION_SPINNERCOLOR_FOOTNOTE=      The last 5 colors are taken from CelesteTAS mod,{n}
+                                                           it's same to edit them here or in CelesteTAS mod settings.
+TAS_HELPER_SPINNERCOLOR_NOTINVIEW=                         NotInView Color
+TAS_HELPER_SPINNERCOLOR_NEVERACTIVATE=                     Never-Activate Color
+TAS_HELPER_SPINNERCOLOR_ACTIVATEEVERYFRAME=                Activate-Every-Frame Color
+TAS_HELPER_SPINNERCOLOR_TASMODENTITYHITBOXCOLOR=           Entity Hitbox Color
+TAS_HELPER_SPINNERCOLOR_TASMODCYCLEHITBOXCOLOR1=           Cycle 1 Hitbox Color
+TAS_HELPER_SPINNERCOLOR_TASMODCYCLEHITBOXCOLOR2=           Cycle 2 Hitbox Color
+TAS_HELPER_SPINNERCOLOR_TASMODCYCLEHITBOXCOLOR3=           Cycle 3 Hitbox Color
+TAS_HELPER_SPINNERCOLOR_TASMODOTHERCYCLESHITBOXCOLOR=      Other Cycles Hitbox Color
+TAS_HELPER_INVIEW_RANGE_COLOR=                             InView Range Color
+TAS_HELPER_NEARPLAYER_RANGE_COLOR=                         NearPlayer Range Color
+TAS_HELPER_CAMERATARGET_COLOR=                             CameraTarget Color
+TAS_HELPER_LOAD_RANGE_COLLIDER_COLOR=                      LoadRange Collider Color
+TAS_HELPER_LOAD_RANGE_COLLIDER_DESCRIPTION=                i.e. color of the center of spinners
+TAS_HELPER_RESET_CUSTOM_COLOR=                             Reset Custom Colors to Default
 
 # ============================================= Hazard Countdown =====================================================
 TAS_HELPER_COUNTDOWN=                                      Hazard Countdown

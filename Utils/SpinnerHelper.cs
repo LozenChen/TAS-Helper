@@ -30,7 +30,7 @@ public static class SpinnerHelper {
             PredictLoadTimeActive[i] = PredictUnloadTimeActive[i] = time;
             time += Engine.DeltaTime;
         }
-        for (int i = 10; i<= 99; i++) {
+        for (int i = 10; i <= 99; i++) {
             PredictUnloadTimeActive[i] = time;
             time += Engine.DeltaTime;
         }
@@ -279,13 +279,13 @@ public static class SpinnerHelper {
     public static int PredictCountdown(float offset, bool isDust) {
         float interval = isDust ? 0.05f : TasHelperSettings.SpinnerInterval;
         if (TasHelperSettings.SpinnerCountdownLoad) {
-            for (int i = 0; i< 9; i++) {
+            for (int i = 0; i < 9; i++) {
                 if (OnInterval(PredictLoadTimeActive[i], interval, offset)) return i;
             }
             return 9;
         }
         else {
-            for (int i = 0; i< 99; i++) {
+            for (int i = 0; i < 99; i++) {
                 if (OnInterval(PredictUnloadTimeActive[i], interval, offset)) return i;
             }
             return 99;
@@ -293,7 +293,7 @@ public static class SpinnerHelper {
     }
 
     public static int CalculateSpinnerGroup(float offset) {
-        if (OnInterval(PredictLoadTimeActive[0] , 0.05f, offset)){
+        if (OnInterval(PredictLoadTimeActive[0], 0.05f, offset)) {
             return TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter;
         }
         if (OnInterval(PredictLoadTimeActive[1], 0.05f, offset)) {

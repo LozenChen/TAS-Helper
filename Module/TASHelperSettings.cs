@@ -1,3 +1,5 @@
+using Celeste.Mod.TASHelper.Utils;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using TAS.EverestInterop;
 using static TAS.EverestInterop.Hotkeys;
@@ -304,6 +306,15 @@ public class TASHelperSettings : EverestModuleSettings {
     public float RangeAlpha = 0.4f;
     public float SpinnerFillerAlpha = 0.4f;
     public bool UsingFreezeColor = true;
+
+    public Color SpinnerCenterColor = CustomColors.defaultSpinnerCenterColor;
+    public Color InViewRangeColor = CustomColors.defaultInViewRangeColor;
+    public Color NearPlayerRangeColor = CustomColors.defaultNearPlayerRangeColor;
+    public Color CameraTargetVectorColor = CustomColors.defaultCameraTargetVectorColor;
+    public Color NotInViewColor = CustomColors.defaultNotInViewColor;
+    public Color NeverActivateColor = CustomColors.defaultNeverActivateColor;
+    public Color ActivatesEveryFrameColor = CustomColors.defaultActivatesEveryFrameColor;
+
     #endregion
 
     #endregion

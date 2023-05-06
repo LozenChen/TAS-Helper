@@ -32,6 +32,9 @@ internal static class PixelGridHook {
 
 [Tracked(false)]
 public class PixelGrid : Entity {
+    public static Color color1 = Color.White;
+    public static Color color2 = Color.Gray;
+
     public Func<bool> visibleGetter;
     public Func<int> widthGetter;
     public Action<PixelGrid> UpdateBeforeRender;
@@ -51,8 +54,8 @@ public class PixelGrid : Entity {
 #pragma warning disable CS8509
     public static Color GetGridColor(int index, float alpha = 0.5f) {
         return (Math.Abs(index) % 2) switch {
-            0 => Color.White * alpha,
-            1 => Color.Gray * alpha,
+            0 => color1 * alpha,
+            1 => color2 * alpha,
         };
     }
 #pragma warning restore CS8509

@@ -1,3 +1,4 @@
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Reflection;
@@ -12,15 +13,14 @@ internal static class TASHelperMenu {
     private static TextMenu.Item hotkeysSubMenu;
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
 
-    private static TextMenuExt.SubMenu CreateCycleHitboxColorSubMenu(TextMenu menu) {
-        return new TextMenuExt.SubMenu("Colors".ToDialogText(), false).Apply(subMenu => {
-            subMenu.Add(new TextMenu.OnOff("Show Cycle Hitbox Colors".ToDialogText(), TasHelperSettings.ShowCycleHitboxColors).Change(value => TasHelperSettings.ShowCycleHitboxColors = value));
-            TextMenu.Item NotInViewColorItem;
-            subMenu.Add(NotInViewColorItem = new TextMenuExt.EnumerableSlider<UsingNotInViewColorModes>("Using NotInView Color Modes".ToDialogText(), CreateUsingNotInViewColorOptions(),
-                TasHelperSettings.UsingNotInViewColorMode).Change(value => TasHelperSettings.UsingNotInViewColorMode = value));
-            subMenu.AddDescription(menu, NotInViewColorItem, "Using NotInView Color Description".ToDialogText());
-            subMenu.Add(new TextMenu.OnOff("Color Customization (N/A)", false));
-        });
+    private static OptionSubMenuCountExt CreateColorCustomizationSubMenu(TextMenu menu, bool inGame) {
+        OptionSubMenuCountExt ColorCustomizationItem = new OptionSubMenuCountExt("Color Customization".ToDialogText());
+        ColorCustomizationItem.OnLeave += () => ColorCustomizationItem.MenuIndex = 0;
+        ColorCustomizationItem.Add("Color Customization Finished".ToDialogText(), new List<TextMenu.Item>());
+        ColorCustomizationItem.Add("Color Customization OnOff".ToDialogText(), CustomColors.CreateColorCustomization_PageOnOff(menu, inGame));
+        ColorCustomizationItem.Add("Color Customization Spinner Color".ToDialogText(), CustomColors.CreateColorCustomization_PageSpinnerColor(menu, inGame));
+        ColorCustomizationItem.Add("Color Customization Other".ToDialogText(), CustomColors.CreateColorCustomization_PageOther(menu, inGame));
+        return ColorCustomizationItem;
     }
 
 
@@ -125,7 +125,7 @@ internal static class TASHelperMenu {
         };
     }
     */
-    private static IEnumerable<KeyValuePair<UsingNotInViewColorModes, string>> CreateUsingNotInViewColorOptions() {
+    internal static IEnumerable<KeyValuePair<UsingNotInViewColorModes, string>> CreateUsingNotInViewColorOptions() {
         return new List<KeyValuePair<UsingNotInViewColorModes, string>> {
             new(UsingNotInViewColorModes.Off, "NotInView Color Modes Off".ToDialogText()),
             new(UsingNotInViewColorModes.WhenUsingInViewRange, "NotInView Color Modes When".ToDialogText()),
@@ -179,7 +179,7 @@ internal static class TASHelperMenu {
         // TextMenu.Item SpinnerMainItem;
         //menu.Add(SpinnerMainItem = new TextMenu.OnOff("Spinner Main Switch".ToDialogText(), TasHelperSettings.SpinnerEnabled).Change((value) => { TasHelperSettings.SpinnerEnabled = value; }));
         //SpinnerMainItem.AddDescription(menu, "Spinner Main Switch Description".ToDialogText());
-        menu.Add(CreateCycleHitboxColorSubMenu(menu));
+        menu.Add(CreateColorCustomizationSubMenu(menu, inGame));
         menu.Add(CreateCountdownSubMenu(menu));
         menu.Add(CreateLoadRangeSubMenu(menu));
         menu.Add(CreateSimplifiedSpinnerSubMenu(menu));
@@ -193,3 +193,4 @@ internal static class TASHelperMenu {
     }
 
 }
+

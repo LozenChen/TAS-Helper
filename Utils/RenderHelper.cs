@@ -10,10 +10,10 @@ internal static class RenderHelper {
     private static MTexture[] numbers;
 
     private static readonly Vector2 TopLeft2Center = new(160f, 90f);
-    private static Color SpinnerCenterColor = Color.Lime;
-    private static Color InViewRangeColor = Color.Yellow * 0.8f;
-    private static Color NearPlayerRangeColor = Color.Lime * 0.8f;
-    private static Color CameraTargetVectorColor = Color.Goldenrod;
+    internal static Color SpinnerCenterColor => TasHelperSettings.SpinnerCenterColor;
+    internal static Color InViewRangeColor => TasHelperSettings.InViewRangeColor;
+    internal static Color NearPlayerRangeColor => TasHelperSettings.NearPlayerRangeColor;
+    internal static Color CameraTargetVectorColor => TasHelperSettings.CameraTargetVectorColor;
 
 
     public static void Initialize() {
@@ -49,10 +49,10 @@ internal static class RenderHelper {
     }
 
 
-    private static Color DefaultColor => TasSettings.EntityHitboxColor;
-    private static Color NotInViewColor = Color.Lime;
-    private static Color NeverActivateColor = new Color(0.25f, 1f, 1f);
-    private static Color ActivatesEveryFrameColor = new Color(0.8f, 0f, 0f);
+    internal static Color DefaultColor => TasSettings.EntityHitboxColor;
+    internal static Color NotInViewColor => TasHelperSettings.NotInViewColor;
+    internal static Color NeverActivateColor => TasHelperSettings.NeverActivateColor;
+    internal static Color ActivatesEveryFrameColor => TasHelperSettings.ActivatesEveryFrameColor;
     // ActivatesEveryFrame now consists of 2 cases: (a) update collidability every frame (b) keep collidable forever. The latter is mainly used for some custom hazards
 
     public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, ActivatesEveryFrame };
@@ -110,7 +110,7 @@ internal static class RenderHelper {
             return SpinnerColorIndex.ActivatesEveryFrame;
         }
         if (TasHelperSettings.UsingFreezeColor && SpinnerHelper.TimeActive >= 524288f) {
-            // we assume the normal state is TimeRate = 1, so we do not detect time freeze by TimeActive + DeltaTime == TimeActive, instead just check >= 524288f
+            // we assume the normal state is TimeRate = 1, so we do not detect time freeze by TimeActive + DeltaTime == TimeActive, instead just check >= 524288f (actually works for TimeRate <= 1.8)
             // so freeze colors will not appear too early in some extreme case like slow down of collecting heart
             // we make the color reflects its state at TimeRate = 1, so it will not flash during slowdown like collecting heart
             // unfortunately it will flash if TimeRate > 1, hope this will never happen
