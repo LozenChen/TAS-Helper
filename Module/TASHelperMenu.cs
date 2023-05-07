@@ -64,20 +64,6 @@ internal static class TASHelperMenu {
         });
     }
 
-    private static TextMenuExt.SubMenu CreateCameraTargetSubMenu(TextMenu menu) {
-        return new TextMenuExt.SubMenu("Camera Target".ToDialogText(), false).Apply(subMenu => {
-            subMenu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.UsingCameraTarget).Change(value => TasHelperSettings.UsingCameraTarget = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Camera Target Vector Opacity".ToDialogText(), 1, 9, TasHelperSettings.CameraTargetLinkOpacity).Change(value => TasHelperSettings.CameraTargetLinkOpacity = value));
-        });
-    }
-
-    private static TextMenuExt.SubMenu CreatePixelGridSubMenu(TextMenu menu) {
-        return new TextMenuExt.SubMenu("Pixel Grid".ToDialogText(), false).Apply(subMenu => {
-            subMenu.Add(new TextMenu.OnOff("Enable Pixel Grid".ToDialogText(), TasHelperSettings.EnablePixelGrid).Change(value => TasHelperSettings.EnablePixelGrid = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Pixel Grid Width".ToDialogText(), 0, 50, TasHelperSettings.PixelGridWidth).Change(value => TasHelperSettings.PixelGridWidth = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Pixel Grid Opacity".ToDialogText(), 1, 10, TasHelperSettings.PixelGridOpacity).Change(value => TasHelperSettings.PixelGridOpacity = value));
-        });
-    }
     private static TextMenuExt.SubMenu CreateHotkeysSubMenu(EverestModule everestModule, TextMenu menu) {
         return new TextMenuExt.SubMenu("Hotkeys".ToDialogText(), false).Apply(subMenu => {
             subMenu.Add(new TextMenu.Button(Dialog.Clean("options_keyconfig")).Pressed(() => {
@@ -113,6 +99,23 @@ internal static class TASHelperMenu {
             }));
         }).Apply(subMenu => hotkeysSubMenu = subMenu);
     }
+
+    private static TextMenuExt.SubMenu CreateMoreOptionsSubMenu(TextMenu menu) {
+        return new TextMenuExt.SubMenu("More Options".ToDialogText(), false).Apply(subMenu => {
+            subMenu.Add(new TextMenu.OnOff("Spawn Point".ToDialogText(), TasHelperSettings.UsingSpawnPoint).Change((value) => TasHelperSettings.UsingSpawnPoint = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Current Spawn Point Opacity".ToDialogText(), 1, 9,TasHelperSettings.CurrentSpawnPointOpacity).Change((value) => TasHelperSettings.CurrentSpawnPointOpacity = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Other Spawn Point Opacity".ToDialogText(), 0, 9, TasHelperSettings.OtherSpawnPointOpacity).Change((value) => TasHelperSettings.OtherSpawnPointOpacity = value));
+            TextMenu.Item EntityActivatorReminderItem;
+            subMenu.Add(EntityActivatorReminderItem = new TextMenu.OnOff("Entity Activator Reminder".ToDialogText(), TasHelperSettings.EntityActivatorReminder).Change((value) => TasHelperSettings.EntityActivatorReminder = value));
+            subMenu.AddDescription(menu, EntityActivatorReminderItem, "Entity Activator Reminder Description".ToDialogText());
+            subMenu.Add(new TextMenu.OnOff("Enable Pixel Grid".ToDialogText(), TasHelperSettings.EnablePixelGrid).Change(value => TasHelperSettings.EnablePixelGrid = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Pixel Grid Width".ToDialogText(), 0, 50, TasHelperSettings.PixelGridWidth).Change(value => TasHelperSettings.PixelGridWidth = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Pixel Grid Opacity".ToDialogText(), 1, 10, TasHelperSettings.PixelGridOpacity).Change(value => TasHelperSettings.PixelGridOpacity = value));
+            subMenu.Add(new TextMenu.OnOff("Camera Target".ToDialogText(), TasHelperSettings.UsingCameraTarget).Change(value => TasHelperSettings.UsingCameraTarget = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Camera Target Vector Opacity".ToDialogText(), 1, 9, TasHelperSettings.CameraTargetLinkOpacity).Change(value => TasHelperSettings.CameraTargetLinkOpacity = value));
+        });
+    }
+
 
     /*
     private static IEnumerable<KeyValuePair<SpinnerMainSwitchModes, string>> CreateSpinnerMainSwitchOptions() {
@@ -183,13 +186,9 @@ internal static class TASHelperMenu {
         menu.Add(CreateCountdownSubMenu(menu));
         menu.Add(CreateLoadRangeSubMenu(menu));
         menu.Add(CreateSimplifiedSpinnerSubMenu(menu));
-        menu.Add(CreatePixelGridSubMenu(menu));
-        TextMenu.Item EntityActivatorReminderItem;
-        menu.Add(EntityActivatorReminderItem = new TextMenu.OnOff("Entity Activator Reminder".ToDialogText(), TasHelperSettings.EntityActivatorReminder).Change((value) => TasHelperSettings.EntityActivatorReminder = value));
-        EntityActivatorReminderItem.AddDescription(menu, "Entity Activator Reminder Description".ToDialogText());
-        menu.Add(CreateCameraTargetSubMenu(menu));
         menu.Add(CreateHotkeysSubMenu(everestModule, menu));
         hotkeysSubMenu.AddDescription(menu, "Hotkey Description".ToDialogText());
+        menu.Add(CreateMoreOptionsSubMenu(menu));
     }
 
 }

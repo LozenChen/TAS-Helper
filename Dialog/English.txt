@@ -18,9 +18,9 @@ TAS_HELPER_NOTINVIEW_COLOR_MODES_WHEN=                     When Using InView Ran
 TAS_HELPER_NOTINVIEW_COLOR_MODES_ALWAYS=                   On
 TAS_HELPER_USING_NOTINVIEW_COLOR_DESCRIPTION=              Available to entities affected by InView (Spinner and Lightning).
 TAS_HELPER_USING_FREEZE_COLOR=                             Freeze Colors
-TAS_HELPER_USING_FREEZE_COLOR_DESCRIPTION=                 Colors which appear when TimeActive is 524288,
-                                                           include SpinnerColor_NeverActivate and SpinnerColor_ActivateEveryFrame.
-                                                           Some NoCycle hazards in mods are also considered as ActivateEveryFrame,
+TAS_HELPER_USING_FREEZE_COLOR_DESCRIPTION=                 Colors which appear when TimeActive is 524288,{n}
+                                                           include SpinnerColor_NeverActivate and SpinnerColor_ActivateEveryFrame.{n}
+                                                           Some NoCycle hazards in mods are also considered as ActivateEveryFrame,{n}
                                                            e.g. we can set FrostHelper.CustomSpinner to be NoCycle.
 TAS_HELPER_COLOR_CUSTOMIZATION=                            Custom Colors Config
 TAS_HELPER_COLOR_CUSTOMIZATION_FINISHED=                   Finished
@@ -93,21 +93,6 @@ TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=When Simplified G
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              Always
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity
 
-# ============================================= Pixel Grid =====================================================
-TAS_HELPER_PIXEL_GRID=                                     Pixel Grid
-TAS_HELPER_ENABLE_PIXEL_GRID=                              Enable
-TAS_HELPER_PIXEL_GRID_WIDTH=                               Width
-TAS_HELPER_PIXEL_GRID_OPACITY=                             Opacity
-
-# ============================================= Entity Activator Reminder =====================================================
-TAS_HELPER_ENTITY_ACTIVATOR_REMINDER=                      Entity Activator Reminder
-TAS_HELPER_ENTITY_ACTIVATOR_REMINDER_DESCRIPTION=          Activator Reminder may interfere Spinner Stun.{n}
-                                                           This option will remind you when you enter a room with Activator Reminder.
-
-# ============================================= Camera Target =====================================================
-TAS_HELPER_CAMERA_TARGET=                                  Camera Target
-TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity
-
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        Hotkeys
 TAS_HELPER_HOTKEY_DESCRIPTION=                             Binding multiple keys to a control will cause those keys to act as a keycombo
@@ -115,3 +100,18 @@ TAS_HELPER_MAIN_SWITCH_HOTKEY=                             Main Switch for Hazar
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       Switch Countdown
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       Switch Load Range
 TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY=                 Switch Pixel Grid Width
+
+# ============================================= Other =====================================================
+TAS_HELPER_MORE_OPTIONS=                                   More Options
+TAS_HELPER_SPAWN_POINT=                                    Show Spawn Point
+TAS_HELPER_CURRENT_SPAWN_POINT_OPACITY=                    Current Spawn Point Opacity
+TAS_HELPER_OTHER_SPAWN_POINT_OPACITY=                      Other Spawn Point Opacity
+TAS_HELPER_ENTITY_ACTIVATOR_REMINDER=                      Entity Activator Reminder
+TAS_HELPER_ENTITY_ACTIVATOR_REMINDER_DESCRIPTION=          Activator Reminder may interfere Spinner Stun.{n}
+                                                           This option will remind you when you enter a room with Activator Reminder.
+TAS_HELPER_PIXEL_GRID=                                     Pixel Grid
+TAS_HELPER_ENABLE_PIXEL_GRID=                              Pixel Grid
+TAS_HELPER_PIXEL_GRID_WIDTH=                               Pixel Grid Width
+TAS_HELPER_PIXEL_GRID_OPACITY=                             Pixel Grid Opacity
+TAS_HELPER_CAMERA_TARGET=                                  Camera Target
+TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity

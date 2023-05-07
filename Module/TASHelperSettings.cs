@@ -23,8 +23,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Enabled { get => enabled; set => enabled = value; }
 
-    #region Spinner Settings
-
     private bool spinnerEnabled = true;
 
     public bool SpinnerEnabled {
@@ -317,8 +315,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #endregion
 
-    #endregion
-
+    #region Other
 
     private bool usingCameraTarget = false;
 
@@ -339,6 +336,18 @@ public class TASHelperSettings : EverestModuleSettings {
 
     [SettingRange(1, 10)]
     public int PixelGridOpacity { get; set; } = 8;
+
+    private bool usingSpawnPoint = true;
+    public bool UsingSpawnPoint {
+        get => Enabled && usingSpawnPoint;
+        set => usingSpawnPoint = value;
+    }
+
+    public int CurrentSpawnPointOpacity = 5;
+
+    public int OtherSpawnPointOpacity = 2;
+
+    #endregion
 
     #region HotKey
 

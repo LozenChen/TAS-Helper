@@ -20,9 +20,9 @@ TAS_HELPER_NOTINVIEW_COLOR_MODES_WHEN=                     仅当开启 InView �
 TAS_HELPER_NOTINVIEW_COLOR_MODES_ALWAYS=                   开
 TAS_HELPER_USING_NOTINVIEW_COLOR_DESCRIPTION=              对受到 InView 影响的实体 (圆刺, 闪电) 有效.
 TAS_HELPER_USING_FREEZE_COLOR=                             冻结色
-TAS_HELPER_USING_FREEZE_COLOR_DESCRIPTION=                 当 TimeActive 达到 524288 后使用的颜色,
-                                                           包括永不激活的圆刺的颜色, 与每帧都激活的圆刺的颜色.
-                                                           一些 mod 中使用的无周期性的圆刺也被视为每帧都激活,
+TAS_HELPER_USING_FREEZE_COLOR_DESCRIPTION=                 当 TimeActive 达到 524288 后使用的颜色,{n}
+                                                           包括永不激活的圆刺的颜色, 与每帧都激活的圆刺的颜色.{n}
+                                                           一些 mod 中使用的无周期性的圆刺也被视为每帧都激活,{n}
                                                            例如 FrostHelper.CustomSpinner 就可以设定为无周期性.
 TAS_HELPER_COLOR_CUSTOMIZATION=                            色彩配置
 TAS_HELPER_COLOR_CUSTOMIZATION_FINISHED=                   完成
@@ -95,20 +95,6 @@ TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=简化图形时
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              总是
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部不透明度
 
-# ============================================= Pixel Grid =====================================================
-TAS_HELPER_PIXEL_GRID=                                     像素网格
-TAS_HELPER_ENABLE_PIXEL_GRID=                              开关
-TAS_HELPER_PIXEL_GRID_WIDTH=                               宽度
-TAS_HELPER_PIXEL_GRID_OPACITY=                             不透明度
-
-# ============================================= Entity Activator Reminder =====================================================
-TAS_HELPER_ENTITY_ACTIVATOR_REMINDER=                      提示有实体激活器
-TAS_HELPER_ENTITY_ACTIVATOR_REMINDER_DESCRIPTION=          实体激活器有可能影响 Spinner Stun, 此功能会提示您进入了有实体激活器的房间.
-
-# ============================================= Camera Target =====================================================
-TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标
-TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   镜头-目标 连线的不透明度
-
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        快捷键
 TAS_HELPER_HOTKEY_DESCRIPTION=                             绑定多个按键表示组合键，需要同时按下才能触发相应操作
@@ -116,3 +102,17 @@ TAS_HELPER_MAIN_SWITCH_HOTKEY=                             圆刺功能的主开
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       切换倒计时
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       切换加载范围
 TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY=                 切换像素网格宽度
+
+# ============================================= Other =====================================================
+TAS_HELPER_MORE_OPTIONS=                                   更多选项
+TAS_HELPER_SPAWN_POINT=                                    显示出生点
+TAS_HELPER_CURRENT_SPAWN_POINT_OPACITY=                    当前出生点不透明度
+TAS_HELPER_OTHER_SPAWN_POINT_OPACITY=                      其他出生点不透明度
+TAS_HELPER_ENTITY_ACTIVATOR_REMINDER=                      提示有实体激活器
+TAS_HELPER_ENTITY_ACTIVATOR_REMINDER_DESCRIPTION=          实体激活器有可能影响 Spinner Stun, 此功能会提示您进入了有实体激活器的房间.
+TAS_HELPER_PIXEL_GRID=                                     像素网格
+TAS_HELPER_ENABLE_PIXEL_GRID=                              像素网格
+TAS_HELPER_PIXEL_GRID_WIDTH=                               像素网格宽度
+TAS_HELPER_PIXEL_GRID_OPACITY=                             像素网格不透明度
+TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标
+TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   镜头-目标 连线的不透明度

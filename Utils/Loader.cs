@@ -10,6 +10,7 @@ internal static class Loader {
         PixelGridHook.Load();
         SimplifiedSpinner.Load();
         Messenger.Load();
+        SpawnPoint.Load();
     }
 
     public static void EntityUnload() {
@@ -17,6 +18,7 @@ internal static class Loader {
         PixelGridHook.Unload();
         SimplifiedSpinner.Unload();
         Messenger.Unload();
+        SpawnPoint.Unload();
     }
 
     public static void HelperLoad() {
@@ -48,6 +50,7 @@ internal static class Loader {
         SpinnerHelper.Initialize();
         SimplifiedSpinner.Initialize();
         Messenger.Initialize();
+        SpawnPoint.Initialize();
     }
 
     public static void LoadContent() {

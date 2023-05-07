@@ -147,8 +147,8 @@ public static class CustomColors {
         page.Add(formatText);
         AddItemWithDescription(menu, page, inGame, () => InViewRangeColor, value => InViewRangeColor = value, "InView Range Color", "Console command: tashelper_custom_color, InViewRangeColor, CCCCCC00");
         AddItemWithDescription(menu, page, inGame, () => NearPlayerRangeColor, value => NearPlayerRangeColor = value, "NearPlayer Range Color", "Console command: tashelper_custom_color, NearPlayerRangeColor, CC00CC00");
-        AddItemWithDescription(menu, page, inGame, () => CameraTargetColor, value => CameraTargetColor = value, "CameraTarget Color", "Console command: tashelper_custom_color, CameraTargetColor, FFDAA520");
         AddItemWithDescription(menu, page, inGame, () => LoadRangeColliderColor, value => LoadRangeColliderColor = value, "Load Range Collider Color", "Console command: tashelper_custom_color, LoadRangeColliderColor, FF00FF00", "Load Range Collider Description".ToDialogText());
+        AddItemWithDescription(menu, page, inGame, () => CameraTargetColor, value => CameraTargetColor = value, "CameraTarget Color", "Console command: tashelper_custom_color, CameraTargetColor, FFDAA520");
         return page;
     }
 
