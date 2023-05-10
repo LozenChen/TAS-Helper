@@ -47,7 +47,7 @@ public class SpawnPoint : Entity {
                 else if ((int)spawn.X > (float)level.Bounds.Center.X) {
                     Facing = Facings.Left;
                 }
-                // we assume the intro type is neither IntroTypes.None nor WakeUp
+                // we assume the intro type is respawn or transition
                 Maddy.Draw(spawn - new Vector2(16f,32f), Vector2.Zero,  Color.White * (0.1f * (spawn == RespawnPoint ? TasHelperSettings.CurrentSpawnPointOpacity : TasHelperSettings.OtherSpawnPointOpacity)),1f,0f, Facing == Facings.Left ?SpriteEffects.FlipHorizontally : SpriteEffects.None);
             }
         }
