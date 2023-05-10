@@ -5,7 +5,7 @@ TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        开关
 
 # ============================================= Spinner Main Switch =====================================================
-TAS_HELPER_SPINNER_MAIN_SWITCH=                            切换主要圆刺功能
+TAS_HELPER_SPINNER_MAIN_SWITCH=                            主开关
 TAS_HELPER_SPINNER_MAIN_SWITCH_DESCRIPTION=                包含周期性实体颜色, 圆刺倒计时, 加载范围, 简化圆刺.
 TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_OFF=                   关
 TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ONLY_DEFAULT=          默认
@@ -98,7 +98,7 @@ TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部不透明
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        快捷键
 TAS_HELPER_HOTKEY_DESCRIPTION=                             绑定多个按键表示组合键，需要同时按下才能触发相应操作
-TAS_HELPER_MAIN_SWITCH_HOTKEY=                             圆刺功能的主开关
+TAS_HELPER_MAIN_SWITCH_HOTKEY=                             主开关
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       切换倒计时
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       切换加载范围
 TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY=                 切换像素网格宽度

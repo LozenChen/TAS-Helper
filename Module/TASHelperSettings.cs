@@ -23,82 +23,55 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Enabled { get => enabled; set => enabled = value; }
 
-    private bool spinnerEnabled = true;
-
-    public bool SpinnerEnabled {
-        get => Enabled && spinnerEnabled;
-        private set => spinnerEnabled = value;
-    }
-
-    #region SpinnerMainSwitch
+    #region MainSwitch
 
     // it will only affect main options, will not affect suboptions (which will not work if corresponding main option is not on)
 
-    public enum SpinnerMainSwitchModes { Off, OnlyDefault, AllowAll }
+    public enum MainSwitchModes { Off, OnlyDefault, AllowAll }
 
-    private SpinnerMainSwitchModes spinnerMainSwitch = SpinnerMainSwitchModes.OnlyDefault;
+    private MainSwitchModes mainSwitch = MainSwitchModes.OnlyDefault;
 
-    public SpinnerMainSwitchModes SpinnerMainSwitch {
-        get => spinnerMainSwitch;
+    public MainSwitchModes MainSwitch {
+        get => mainSwitch;
         set {
-            if (!Enabled) {
-                return;
-            }
-            spinnerMainSwitch = value;
+            mainSwitch = value;
             switch (value) {
-                case SpinnerMainSwitchModes.Off:
+                case MainSwitchModes.Off:
                     Sleep();
-                    UpdateAuxiliaryVariable();
-                    return;
+                    break;
                 default:
-                    Awake(value == SpinnerMainSwitchModes.AllowAll);
+                    Awake(value == MainSwitchModes.AllowAll);
                     break;
             }
-            FurthurAwake(value == SpinnerMainSwitchModes.AllowAll);
-            RaiseSettings(value == SpinnerMainSwitchModes.AllowAll);
-
-            // some of the setters are not called, so the auxiliary variables don't get update, we have to update them
-            // and we can't call the setters, which will otherwise break the Awake...s
+            // the setters are not called, so the auxiliary variables don't get update, we have to update them
+            // we can't call the setters, which will otherwise break the Awake...s
             UpdateAuxiliaryVariable();
+            return;
         }
     }
     private void Sleep() {
+        Enabled = false;
         Awake_CycleHitboxColors = false;
         Awake_UsingNotInViewColor = false;
         Awake_EnableSimplifiedSpinner = false;
         Awake_CountdownModes = false;
         Awake_LoadRange = false;
+        Awake_CameraTarget= false;
+        Awake_PixelGrid =false;
+        Awake_SpawnPoint=false;
+        Awake_EntityActivatorReminder= false;
     }
-    private void Awake(bool awakeAll) {
+    internal void Awake(bool awakeAll) {
+        Enabled = true;
         Awake_CycleHitboxColors = true;
         Awake_UsingNotInViewColor = true;
         Awake_EnableSimplifiedSpinner = true;
         Awake_CountdownModes = awakeAll;
         Awake_LoadRange = awakeAll;
-    }
-    private void FurthurAwake(bool awakeAll) {
-        ShowCycleHitboxColors = ShowCycleHitboxColors;
-        UsingNotInViewColorMode = UsingNotInViewColorMode;
-        EnableSimplifiedSpinner = EnableSimplifiedSpinner;
-        if (awakeAll) {
-            CountdownMode = CountdownMode;
-            LoadRangeMode = LoadRangeMode;
-        }
-    }
-    private void RaiseSettings(bool raiseAll) {
-        ShowCycleHitboxColors = true;
-        EnableSimplifiedSpinner = true;
-        if (UsingNotInViewColorMode == UsingNotInViewColorModes.Off) {
-            UsingNotInViewColorMode = UsingNotInViewColorModes.WhenUsingInViewRange;
-        }
-        if (raiseAll) {
-            if (CountdownMode == CountdownModes.Off) {
-                CountdownMode = CountdownModes._3fCycle;
-            }
-            if (LoadRangeMode == LoadRangeModes.Neither) {
-                LoadRangeMode = LoadRangeModes.Both;
-            }
-        }
+        Awake_CameraTarget = awakeAll;
+        Awake_PixelGrid = awakeAll;
+        Awake_SpawnPoint = true;
+        Awake_EntityActivatorReminder = true;
     }
 
     #endregion
@@ -109,13 +82,10 @@ public class TASHelperSettings : EverestModuleSettings {
     private bool showCycleHitboxColor = true;
 
     public bool ShowCycleHitboxColors {
-        get => SpinnerEnabled && Awake_CycleHitboxColors && showCycleHitboxColor;
+        get => Enabled && Awake_CycleHitboxColors && showCycleHitboxColor;
         set {
             showCycleHitboxColor = value;
             Awake_CycleHitboxColors = true;
-            if (value) {
-                SpinnerEnabled = true;
-            }
         }
     }
 
@@ -130,9 +100,6 @@ public class TASHelperSettings : EverestModuleSettings {
             usingNotInViewColorMode = value;
             Awake_UsingNotInViewColor = true;
             UsingNotInViewColor = (value == UsingNotInViewColorModes.Always) || (value == UsingNotInViewColorModes.WhenUsingInViewRange && UsingInViewRange);
-            if (UsingNotInViewColor) {
-                SpinnerEnabled = true;
-            }
         }
     }
 
@@ -160,10 +127,6 @@ public class TASHelperSettings : EverestModuleSettings {
             else {
                 SpinnerCountdownLoad = false;
                 SpinnerInterval = 0.25f;
-            }
-
-            if (UsingCountDown) {
-                SpinnerEnabled = true;
             }
         }
     }
@@ -199,10 +162,6 @@ public class TASHelperSettings : EverestModuleSettings {
             UsingInViewRange = LoadRangeMode == LoadRangeModes.InViewRange || LoadRangeMode == LoadRangeModes.Both;
             UsingNearPlayerRange = LoadRangeMode == LoadRangeModes.NearPlayerRange || LoadRangeMode == LoadRangeModes.Both;
             UsingNotInViewColor = (UsingNotInViewColorMode == UsingNotInViewColorModes.Always) || (UsingNotInViewColorMode == UsingNotInViewColorModes.WhenUsingInViewRange && UsingInViewRange);
-
-            if (UsingLoadRange) {
-                SpinnerEnabled = true;
-            }
         }
     }
 
@@ -237,9 +196,6 @@ public class TASHelperSettings : EverestModuleSettings {
         set {
             enableSimplifiedSpinner = value;
             Awake_EnableSimplifiedSpinner = true;
-            if (value) {
-                SpinnerEnabled = true;
-            }
         }
     }
 
@@ -267,9 +223,13 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool entityActivatorReminder = true;
 
+    public bool Awake_EntityActivatorReminder = true;
     public bool EntityActivatorReminder {
-        get => Enabled && entityActivatorReminder;
-        set => entityActivatorReminder = value;
+        get => Enabled && Awake_EntityActivatorReminder && entityActivatorReminder;
+        set {
+            entityActivatorReminder = value;
+            Awake_EntityActivatorReminder = true;
+        }
     }
 
     #region Auxilary Variables
@@ -290,7 +250,6 @@ public class TASHelperSettings : EverestModuleSettings {
         UsingLoadRange = (LoadRangeMode != LoadRangeModes.Neither);
         UsingInViewRange = (LoadRangeMode == LoadRangeModes.InViewRange || LoadRangeMode == LoadRangeModes.Both);
         UsingNearPlayerRange = (LoadRangeMode == LoadRangeModes.NearPlayerRange || LoadRangeMode == LoadRangeModes.Both);
-        SpinnerEnabled = ShowCycleHitboxColors || UsingNotInViewColor || UsingLoadRange || UsingCountDown || EnableSimplifiedSpinner;
     }
     public bool UsingCountDown = false;
     public bool UsingLoadRange = true;
@@ -319,10 +278,13 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private bool usingCameraTarget = false;
 
-    [SettingName("TAS_HELPER_CAMERA_TARGET")]
+    public bool Awake_CameraTarget = true;
     public bool UsingCameraTarget {
-        get => Enabled && usingCameraTarget;
-        set => usingCameraTarget = value;
+        get => Enabled && Awake_CameraTarget && usingCameraTarget;
+        set {
+            usingCameraTarget = value;
+            Awake_CameraTarget = true;
+        }
     }
 
     [SettingRange(1, 9)]
@@ -330,7 +292,9 @@ public class TASHelperSettings : EverestModuleSettings {
     public int CameraTargetLinkOpacity { get; set; } = 6;
 
     private bool enablePixelGrid = false;
-    public bool EnablePixelGrid { get => Enabled && enablePixelGrid; set => enablePixelGrid = value; }
+
+    public bool Awake_PixelGrid = true;
+    public bool EnablePixelGrid { get => Enabled && Awake_PixelGrid && enablePixelGrid; set { enablePixelGrid = value; Awake_PixelGrid = true; } }
 
     public int PixelGridWidth = 2;
 
@@ -338,20 +302,29 @@ public class TASHelperSettings : EverestModuleSettings {
     public int PixelGridOpacity { get; set; } = 8;
 
     private bool usingSpawnPoint = true;
+
+    public bool Awake_SpawnPoint = true;
     public bool UsingSpawnPoint {
-        get => Enabled && usingSpawnPoint;
-        set => usingSpawnPoint = value;
+        get => Enabled && Awake_SpawnPoint && usingSpawnPoint;
+        set {
+            usingSpawnPoint = value;
+            Awake_SpawnPoint = true;
+        }
     }
 
     public int CurrentSpawnPointOpacity = 5;
 
     public int OtherSpawnPointOpacity = 2;
 
+    public bool EnableModWithMainSwitch = true;
+
+    public bool MainSwitchStateVisualize = true;
+
     #endregion
 
     #region HotKey
 
-    private static ButtonBinding keySpinnerMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
+    private static ButtonBinding keyMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
     private static ButtonBinding keyCountDown { get; set; } = new(0, Keys.LeftControl, Keys.R);
     private static ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
     private static ButtonBinding keyPixelGridWidth { get; set; } = new(0, Keys.LeftControl, Keys.F);
@@ -360,10 +333,10 @@ public class TASHelperSettings : EverestModuleSettings {
     [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.E)]
     public ButtonBinding KeySpinnerMainSwitch {
-        get => keySpinnerMainSwitch;
+        get => keyMainSwitch;
         set {
-            keySpinnerMainSwitch = value;
-            SpinnerMainSwitchHotkey = new Hotkey(keySpinnerMainSwitch.Keys, keySpinnerMainSwitch.Buttons, true, false);
+            keyMainSwitch = value;
+            MainSwitchHotkey = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
         }
     }
 
@@ -397,7 +370,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    private Hotkey SpinnerMainSwitchHotkey { get; set; } = new Hotkey(keySpinnerMainSwitch.Keys, keySpinnerMainSwitch.Buttons, true, false);
+    private Hotkey MainSwitchHotkey { get; set; } = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
 
     private Hotkey CountDownHotkey { get; set; } = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
 
@@ -406,25 +379,30 @@ public class TASHelperSettings : EverestModuleSettings {
     private Hotkey PixelGridWidthHotkey { get; set; } = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
 
     public void SettingsHotkeysPressed() {
-        SpinnerMainSwitchHotkey.Update();
+        MainSwitchHotkey.Update();
         CountDownHotkey.Update();
         LoadRangeHotkey.Update();
         PixelGridWidthHotkey.Update();
-        if (SpinnerMainSwitchHotkey.Pressed) {
-            switch (SpinnerMainSwitch) {
-                case SpinnerMainSwitchModes.Off: SpinnerMainSwitch = SpinnerMainSwitchModes.OnlyDefault; break;
-                case SpinnerMainSwitchModes.OnlyDefault: SpinnerMainSwitch = SpinnerMainSwitchModes.AllowAll; break;
-                case SpinnerMainSwitchModes.AllowAll: SpinnerMainSwitch = SpinnerMainSwitchModes.Off; break;
+        if (MainSwitchHotkey.Pressed) {
+            switch (MainSwitch) {
+                case MainSwitchModes.Off: {
+                        if (EnableModWithMainSwitch) {
+                            MainSwitch = MainSwitchModes.OnlyDefault; 
+                        }
+                        break;
+                    }
+                case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
+                case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
             }
         }
-        if (CountDownHotkey.Pressed) {
+        if (Enabled && CountDownHotkey.Pressed) {
             switch (CountdownMode) {
                 case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
                 case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
                 case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
             }
         }
-        if (LoadRangeHotkey.Pressed) {
+        if (Enabled && LoadRangeHotkey.Pressed) {
             switch (LoadRangeMode) {
                 case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
                 case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
@@ -432,7 +410,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
             }
         }
-        if (PixelGridWidthHotkey.Pressed) {
+        if (Enabled && PixelGridWidthHotkey.Pressed) {
             EnablePixelGrid = true;
             PixelGridWidth = PixelGridWidth switch {
                 < 2 => 2,

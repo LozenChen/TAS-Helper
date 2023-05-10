@@ -10,7 +10,6 @@ internal static class TASHelperMenu {
     // basically taken from Celeste TAS
     private static readonly MethodInfo CreateKeyboardConfigUi = typeof(EverestModule).GetMethod("CreateKeyboardConfigUI", BindingFlags.NonPublic);
     private static readonly MethodInfo CreateButtonConfigUI = typeof(EverestModule).GetMethod("CreateButtonConfigUI", BindingFlags.NonPublic);
-    private static TextMenu.Item hotkeysSubMenu;
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
 
     private static OptionSubMenuCountExt CreateColorCustomizationSubMenu(TextMenu menu, bool inGame) {
@@ -97,7 +96,7 @@ internal static class TASHelperMenu {
                 Engine.Scene.Add(buttonConfig);
                 Engine.Scene.OnEndOfFrame += () => Engine.Scene.Entities.UpdateLists();
             }));
-        }).Apply(subMenu => hotkeysSubMenu = subMenu);
+        });
     }
 
     private static TextMenuExt.SubMenu CreateMoreOptionsSubMenu(TextMenu menu) {
@@ -176,19 +175,43 @@ internal static class TASHelperMenu {
         subMenuItem.OnLeave += () => descriptionText.FadeVisible = false;
     }
 
+    private static TextMenu.Item mainItem;
+
+    private static List<TextMenu.Item> disabledItems = new List<TextMenu.Item>();
+
     public static void CreateMenu(EverestModule everestModule, TextMenu menu, bool inGame) {
-        menu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.Enabled).Change((value) => { TasHelperSettings.Enabled = value; }));
-        // SpinnerEnabled is too foolish, i decide to abandon it
-        // TextMenu.Item SpinnerMainItem;
-        //menu.Add(SpinnerMainItem = new TextMenu.OnOff("Spinner Main Switch".ToDialogText(), TasHelperSettings.SpinnerEnabled).Change((value) => { TasHelperSettings.SpinnerEnabled = value; }));
-        //SpinnerMainItem.AddDescription(menu, "Spinner Main Switch Description".ToDialogText());
-        menu.Add(CreateColorCustomizationSubMenu(menu, inGame));
-        menu.Add(CreateCountdownSubMenu(menu));
-        menu.Add(CreateLoadRangeSubMenu(menu));
-        menu.Add(CreateSimplifiedSpinnerSubMenu(menu));
-        menu.Add(CreateHotkeysSubMenu(everestModule, menu));
-        hotkeysSubMenu.AddDescription(menu, "Hotkey Description".ToDialogText());
-        menu.Add(CreateMoreOptionsSubMenu(menu));
+        menu.Add(mainItem = new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.Enabled).Change((value) => { TasHelperSettings.Enabled = value; UpdateEnableItems(value,everestModule,menu,inGame); }));
+        UpdateEnableItems(TasHelperSettings.Enabled, everestModule, menu, inGame);
+    }
+    private static void UpdateEnableItems(bool enable, EverestModule everestModule, TextMenu menu, bool inGame) {
+        if (enable) {
+            // we create all other menus on value change
+            // so the values in these submenus will be correct
+            TasHelperSettings.Awake(true);
+            // prevent fake die by Ctrl+E
+            TextMenu.Item colorItem = CreateColorCustomizationSubMenu(menu, inGame);
+            TextMenu.Item countdownItem = CreateCountdownSubMenu(menu);
+            TextMenu.Item loadrangeItem = CreateLoadRangeSubMenu(menu);
+            TextMenu.Item simpspinnerItem = CreateSimplifiedSpinnerSubMenu(menu);
+            TextMenu.Item hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
+            TextMenu.Item moreoptionItem = CreateMoreOptionsSubMenu(menu);
+            int N = menu.IndexOf(mainItem);
+            menu.Insert(N+1, colorItem);
+            menu.Insert(N+2, countdownItem);
+            menu.Insert(N+3, loadrangeItem);
+            menu.Insert(N+4, simpspinnerItem);
+            menu.Insert(N+5, hotkeysItem);
+            hotkeysItem.AddDescription(menu, "Hotkey Description".ToDialogText());
+            menu.Insert(N+7,moreoptionItem);
+            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, hotkeysItem, moreoptionItem };
+        }
+        else {
+            // we remove items, to prevent unexcepted setting value changes
+            foreach (TextMenu.Item item in disabledItems) {
+                menu.Remove(item);
+            }
+            disabledItems.Clear();
+        }
     }
 
 }

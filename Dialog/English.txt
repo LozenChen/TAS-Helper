@@ -3,7 +3,7 @@ TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        Enabled
 
 # ============================================= Spinner Main Switch =====================================================
-TAS_HELPER_SPINNER_MAIN_SWITCH=                            Main Switch for Hazard-related
+TAS_HELPER_SPINNER_MAIN_SWITCH=                            Main Switch
 TAS_HELPER_SPINNER_MAIN_SWITCH_DESCRIPTION=                Involves Cycle Hitbox Colors, Hazard Countdown, Load Range, Simplified Spinners.
 TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_OFF=                   Off
 TAS_HELPER_SPINNER_MAIN_SWITCH_MODE_ONLY_DEFAULT=          Default
@@ -96,7 +96,7 @@ TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacit
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        Hotkeys
 TAS_HELPER_HOTKEY_DESCRIPTION=                             Binding multiple keys to a control will cause those keys to act as a keycombo
-TAS_HELPER_MAIN_SWITCH_HOTKEY=                             Main Switch for Hazard-related
+TAS_HELPER_MAIN_SWITCH_HOTKEY=                             Main Switch
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       Switch Countdown
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       Switch Load Range
 TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY=                 Switch Pixel Grid Width
