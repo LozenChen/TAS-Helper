@@ -99,7 +99,7 @@ internal static class SimplifiedSpinner {
             typeof(Level).GetMethod("LoadLevel").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(TrackDreamSpinnerRenderer);
-           });
+            });
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Action<Level>>(IsaGrabBagBeforeRender);

@@ -11,6 +11,10 @@ public static class DebugHelper {
     // and set usingDebug = false when release
     public static readonly bool usingDebug = false;
 
+    public static bool usingEntityLog = false;
+
+    public static bool UsingEntityLog => usingDebug && usingEntityLog;
+
     public static bool LogFPS = false;
     public static float PlayerIntPositionX { get => PlayerHelper.player.X; set => PlayerHelper.player.X = value; }
     public static float PlayerIntPositionY { get => PlayerHelper.player.Y; set => PlayerHelper.player.Y = value; }
@@ -48,7 +52,7 @@ public static class DebugHelper {
 
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         orig(self);
-        if (usingDebug && self is Level) {
+        if (UsingEntityLog && self is Level) {
             if (triggerTimer > 0f) {
                 triggerTimer -= Engine.DeltaTime;
             }
@@ -57,7 +61,7 @@ public static class DebugHelper {
 
     private static void PatchUpdate(On.Monocle.Scene.orig_Update orig, Scene self) {
         orig(self);
-        if (usingDebug && !StartToLog && self is Level) {
+        if (UsingEntityLog && !StartToLog && self is Level) {
             if (PlayerHelper.player is Player Player && Player.Speed.Y < -200f && triggerTimer <= 0f) {
                 StartToLog = true;
                 triggerTimer = triggerBuffer;
@@ -80,7 +84,7 @@ public static class DebugHelper {
     }
 
     private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
-        if (usingDebug && StartToLog && self is Level) {
+        if (UsingEntityLog && StartToLog && self is Level) {
             foreach (string str in dict.Keys) {
                 string strN = str + "*" + dict[str].ToString() + ",";
                 Logger.Log(strN);

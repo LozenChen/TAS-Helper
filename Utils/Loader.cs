@@ -26,20 +26,20 @@ internal static class Loader {
         RenderHelper.Load();
         SpinnerHelper.Load();
         HiresLevelRenderer.Load();
-        HookHelper.Load();
         Logger.Load();
         DebugHelper.Load();
         TH_Hotkeys.Load();
+        HookHelper.Load();
     }
     public static void HelperUnload() {
         PlayerHelper.Unload();
         RenderHelper.Unload();
         SpinnerHelper.Unload();
         HiresLevelRenderer.Unload();
-        HookHelper.Unload();
         Logger.Unload();
         DebugHelper.Unload();
         TH_Hotkeys.Unload();
+        HookHelper.Unload();
     }
 
     public static void Initialize() {
@@ -51,6 +51,7 @@ internal static class Loader {
         SimplifiedSpinner.Initialize();
         Messenger.Initialize();
         SpawnPoint.Initialize();
+        RestoreSettingsExt.Initialize();
     }
 
     public static void LoadContent() {

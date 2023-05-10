@@ -1,9 +1,6 @@
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Monocle;
-using TAS.EverestInterop.Hitboxes;
-using static Celeste.Player;
 
 namespace Celeste.Mod.TASHelper.Entities;
 
@@ -48,7 +45,7 @@ public class SpawnPoint : Entity {
                     Facing = Facings.Left;
                 }
                 // we assume the intro type is respawn or transition
-                Maddy.Draw(spawn - new Vector2(16f,32f), Vector2.Zero,  Color.White * (0.1f * (spawn == RespawnPoint ? TasHelperSettings.CurrentSpawnPointOpacity : TasHelperSettings.OtherSpawnPointOpacity)),1f,0f, Facing == Facings.Left ?SpriteEffects.FlipHorizontally : SpriteEffects.None);
+                Maddy.Draw(spawn - new Vector2(16f, 32f), Vector2.Zero, Color.White * (0.1f * (spawn == RespawnPoint ? TasHelperSettings.CurrentSpawnPointOpacity : TasHelperSettings.OtherSpawnPointOpacity)), 1f, 0f, Facing == Facings.Left ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
             }
         }
     }

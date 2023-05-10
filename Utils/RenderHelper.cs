@@ -55,7 +55,7 @@ internal static class RenderHelper {
     internal static Color ActivateEveryFrameColor => TasHelperSettings.ActivateEveryFrameColor;
     // ActivatesEveryFrame now consists of 2 cases: (a) nocycle mod hazards (b) when time freeze
 
-    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, FreezeActivateEveryFrame , NoCycle};
+    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, FreezeActivateEveryFrame, NoCycle };
     public static Color GetSpinnerColor(SpinnerColorIndex index) {
 #pragma warning disable CS8524
         return index switch {
@@ -88,7 +88,7 @@ internal static class RenderHelper {
                 str = infinity;
             }
             else {
-                str = CountdownTimer.ToString(); 
+                str = CountdownTimer.ToString();
             }
             HiresLevelRenderer.Add(new OneFrameTextRenderer(str, (Position + new Vector2(1.5f, -0.5f)) * 6f));
             return;
