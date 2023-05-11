@@ -100,6 +100,13 @@ TAS_HELPER_MAIN_SWITCH_HOTKEY=                             Main Switch
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       Switch Countdown
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       Switch Load Range
 TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY=                 Switch Pixel Grid Width
+TAS_HELPER_MAIN_SWITCH_DESCRIPTION_3=                      Switch among [Off - Default - All]
+TAS_HELPER_MAIN_SWITCH_DESCRIPTION_2=                      Switch between [Off - All]
+TAS_HELPER_MAIN_SWITCH_STATE=                              Mode of Main Switch Hotkey
+TAS_HELPER_MAIN_SWITCH_THREE_STATES=                       Off - Default - All
+TAS_HELPER_MAIN_SWITCH_TWO_STATES=                         Off - All
+TAS_HELPER_MAIN_SWITCH_VISUALIZE=                          Show Main Switch
+TAS_HELPER_MAIN_SWITCH_PREVENT=                            Allow enabling this mod with hotkey
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   More Options

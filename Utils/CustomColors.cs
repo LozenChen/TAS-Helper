@@ -157,7 +157,6 @@ public static class CustomColors {
         page.Add(new TextMenu.OnOff("Show Cycle Hitbox Colors".ToDialogText(), TasHelperSettings.ShowCycleHitboxColors).Change(value => TasHelperSettings.ShowCycleHitboxColors = value));
         TextMenu.Item NotInViewColorItem = new TextMenuExt.EnumerableSlider<UsingNotInViewColorModes>("Using NotInView Color Modes".ToDialogText(), TASHelperMenu.CreateUsingNotInViewColorOptions(),
                     TasHelperSettings.UsingNotInViewColorMode).Change(value => TasHelperSettings.UsingNotInViewColorMode = value);
-        // NotInViewColorItem.IncludeWidthInMeasurement = false;
         page.Add(NotInViewColorItem);
         page.AddDescriptionOnEnter(menu, NotInViewColorItem, "Using NotInView Color Description".ToDialogText());
         TextMenu.Item UsingFreezeColorItem;
@@ -602,7 +601,7 @@ public class OptionSubMenuCountExt : TextMenu.Item {
     public override float RightWidth() {
         float num = 0f;
         foreach (string item in Menus.Select((Tuple<string, List<TextMenu.Item>> tuple) => tuple.Item1)) {
-            num = Math.Max(num, ActiveFont.Measure(item).X);
+            num = Math.Max(num, ActiveFont.Measure(item).X );
         }
 
         return num + 60f;

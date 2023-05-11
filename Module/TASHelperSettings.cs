@@ -1,3 +1,5 @@
+using Celeste.Mod.TASHelper.Entities;
+using Monocle;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -37,9 +39,11 @@ public class TASHelperSettings : EverestModuleSettings {
             mainSwitch = value;
             switch (value) {
                 case MainSwitchModes.Off:
+                    Enabled = false;
                     Sleep();
                     break;
                 default:
+                    Enabled = true;
                     Awake(value == MainSwitchModes.AllowAll);
                     break;
             }
@@ -50,7 +54,6 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
     private void Sleep() {
-        Enabled = false;
         Awake_CycleHitboxColors = false;
         Awake_UsingNotInViewColor = false;
         Awake_EnableSimplifiedSpinner = false;
@@ -62,7 +65,6 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_EntityActivatorReminder= false;
     }
     internal void Awake(bool awakeAll) {
-        Enabled = true;
         Awake_CycleHitboxColors = true;
         Awake_UsingNotInViewColor = true;
         Awake_EnableSimplifiedSpinner = true;
@@ -79,8 +81,11 @@ public class TASHelperSettings : EverestModuleSettings {
     #region CycleHitboxColor
     public bool Awake_CycleHitboxColors = true;
 
-    private bool showCycleHitboxColor = true;
+    // we need to make it public, so this setting is stored
+    // though we don't want anyone to visit it directly...
+    public bool showCycleHitboxColor = true;
 
+    [SettingDoNotSave]
     public bool ShowCycleHitboxColors {
         get => Enabled && Awake_CycleHitboxColors && showCycleHitboxColor;
         set {
@@ -92,8 +97,9 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_UsingNotInViewColor = true;
     public enum UsingNotInViewColorModes { Off, WhenUsingInViewRange, Always };
 
-    private UsingNotInViewColorModes usingNotInViewColorMode = UsingNotInViewColorModes.WhenUsingInViewRange;
+    public UsingNotInViewColorModes usingNotInViewColorMode = UsingNotInViewColorModes.WhenUsingInViewRange;
 
+    [SettingDoNotSave]
     public UsingNotInViewColorModes UsingNotInViewColorMode {
         get => Enabled && Awake_UsingNotInViewColor ? usingNotInViewColorMode : UsingNotInViewColorModes.Off;
         set {
@@ -111,8 +117,9 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_CountdownModes = false;
     public enum CountdownModes { Off, _3fCycle, _15fCycle };
 
-    private CountdownModes countdownMode = CountdownModes._3fCycle;
+    public CountdownModes countdownMode = CountdownModes._3fCycle;
 
+    [SettingDoNotSave]
     public CountdownModes CountdownMode {
         get => Enabled && Awake_CountdownModes ? countdownMode : CountdownModes.Off;
         set {
@@ -150,8 +157,9 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_LoadRange = false;
     public enum LoadRangeModes { Neither, InViewRange, NearPlayerRange, Both };
 
-    private LoadRangeModes loadRangeMode = LoadRangeModes.Both;
+    public LoadRangeModes loadRangeMode = LoadRangeModes.Both;
 
+    [SettingDoNotSave]
     public LoadRangeModes LoadRangeMode {
         get => Enabled && Awake_LoadRange ? loadRangeMode : LoadRangeModes.Neither;
         set {
@@ -165,10 +173,8 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    [SettingRange(0, 32)]
     public int InViewRangeWidth { get; set; } = 16;
 
-    [SettingRange(1, 16)]
     public int NearPlayerRangeWidth { get; set; } = 8;
 
     private int loadRangeOpacity = 4;
@@ -187,10 +193,9 @@ public class TASHelperSettings : EverestModuleSettings {
     #region Simplified Spinner
 
     public bool Awake_EnableSimplifiedSpinner = true;
-    // actually this term is forever true, in current setting
-    [SettingIgnore]
-    private bool enableSimplifiedSpinner { get; set; } = true;
+    public bool enableSimplifiedSpinner { get; set; } = true;
 
+    [SettingDoNotSave]
     public bool EnableSimplifiedSpinner {
         get => Enabled && Awake_EnableSimplifiedSpinner && enableSimplifiedSpinner;
         set {
@@ -221,9 +226,11 @@ public class TASHelperSettings : EverestModuleSettings {
     }
     #endregion
 
-    private bool entityActivatorReminder = true;
+    public bool entityActivatorReminder = true;
 
     public bool Awake_EntityActivatorReminder = true;
+
+    [SettingDoNotSave]
     public bool EntityActivatorReminder {
         get => Enabled && Awake_EntityActivatorReminder && entityActivatorReminder;
         set {
@@ -276,9 +283,11 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region Other
 
-    private bool usingCameraTarget = false;
+    public bool usingCameraTarget = false;
 
-    public bool Awake_CameraTarget = true;
+    public bool Awake_CameraTarget = false;
+
+    [SettingDoNotSave]
     public bool UsingCameraTarget {
         get => Enabled && Awake_CameraTarget && usingCameraTarget;
         set {
@@ -287,23 +296,29 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    [SettingRange(1, 9)]
-    [SettingName("TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY")]
     public int CameraTargetLinkOpacity { get; set; } = 6;
 
-    private bool enablePixelGrid = false;
+    public bool enablePixelGrid = false;
 
-    public bool Awake_PixelGrid = true;
-    public bool EnablePixelGrid { get => Enabled && Awake_PixelGrid && enablePixelGrid; set { enablePixelGrid = value; Awake_PixelGrid = true; } }
+    public bool Awake_PixelGrid = false;
+
+    [SettingDoNotSave]
+    public bool EnablePixelGrid { 
+        get => Enabled && Awake_PixelGrid && enablePixelGrid; 
+        set { 
+            enablePixelGrid = value; 
+            Awake_PixelGrid = true;
+        } 
+    }
 
     public int PixelGridWidth = 2;
-
-    [SettingRange(1, 10)]
     public int PixelGridOpacity { get; set; } = 8;
 
-    private bool usingSpawnPoint = true;
+    public bool usingSpawnPoint = true;
 
     public bool Awake_SpawnPoint = true;
+
+    [SettingDoNotSave]
     public bool UsingSpawnPoint {
         get => Enabled && Awake_SpawnPoint && usingSpawnPoint;
         set {
@@ -316,9 +331,31 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int OtherSpawnPointOpacity = 2;
 
-    public bool EnableModWithMainSwitch = true;
+    public bool AllowEnableModWithMainSwitch = true;
 
-    public bool MainSwitchStateVisualize = true;
+    private bool mainSwitchStateVisualize = true;
+
+    public bool MainSwitchStateVisualize { 
+        get => mainSwitchStateVisualize;
+        set {
+            mainSwitchStateVisualize = value;
+            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
+                watcher.Visible = mainSwitchStateVisualize;
+            }
+        } 
+    }
+
+    private bool mainSwitchThreeStates = true;
+
+    public bool MainSwitchThreeStates {
+        get => mainSwitchThreeStates;
+        set {
+            mainSwitchThreeStates = value;
+            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
+                watcher.Refresh();
+            }
+        }
+    }
 
     #endregion
 
@@ -329,15 +366,21 @@ public class TASHelperSettings : EverestModuleSettings {
     private static ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
     private static ButtonBinding keyPixelGridWidth { get; set; } = new(0, Keys.LeftControl, Keys.F);
 
-    [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
+    
     [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
+    [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
+    [SettingDescriptionHardcoded]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.E)]
-    public ButtonBinding KeySpinnerMainSwitch {
+    public ButtonBinding KeyMainSwitch {
         get => keyMainSwitch;
         set {
             keyMainSwitch = value;
             MainSwitchHotkey = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
         }
+    }
+
+    public static string MainSwitchDescription() {
+        return "";
     }
 
     [SettingName("TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY")]
@@ -384,15 +427,24 @@ public class TASHelperSettings : EverestModuleSettings {
         LoadRangeHotkey.Update();
         PixelGridWidthHotkey.Update();
         if (MainSwitchHotkey.Pressed) {
+            bool changed = true;
             switch (MainSwitch) {
                 case MainSwitchModes.Off: {
-                        if (EnableModWithMainSwitch) {
-                            MainSwitch = MainSwitchModes.OnlyDefault; 
+                        if (!AllowEnableModWithMainSwitch) {
+                            changed = false;
+                            break;
                         }
+                        MainSwitch = MainSwitchThreeStates ? MainSwitchModes.OnlyDefault : MainSwitchModes.AllowAll; 
                         break;
                     }
                 case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
                 case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
+            }
+            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
+                 watcher.Refresh(!changed);
+            }
+            if (!changed) {
+                return;
             }
         }
         if (Enabled && CountDownHotkey.Pressed) {
@@ -428,4 +480,21 @@ public class TASHelperSettings : EverestModuleSettings {
 
 
 }
+
+[AttributeUsage(AttributeTargets.Property)]
+public class SettingDoNotSaveAttribute : Attribute {
+    // i do not plan to do anything actually
+    // those settings that don't need to save
+}
+
+[AttributeUsage(AttributeTargets.Property)]
+public class SettingDescriptionHardcodedAttribute : Attribute {
+    public string description() {
+        if (Dialog.Language == Dialog.Languages["schinese"]) {
+            return TasHelperSettings.MainSwitchThreeStates ? "在 [关 - 默认 - 全部] 三者间切换" : "在 [关 - 全部] 两者间切换";
+        }
+        return TasHelperSettings.MainSwitchThreeStates ? "Switch among [Off - Default - All]": "Switch between [Off - All]";
+    }
+}
+
 

@@ -1,30 +1,29 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Monocle;
+using System.Configuration;
 using System.Reflection;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 
 namespace Celeste.Mod.TASHelper.Module;
 
 internal static class TASHelperMenu {
-    // basically taken from Celeste TAS
-    private static readonly MethodInfo CreateKeyboardConfigUi = typeof(EverestModule).GetMethod("CreateKeyboardConfigUI", BindingFlags.NonPublic);
-    private static readonly MethodInfo CreateButtonConfigUI = typeof(EverestModule).GetMethod("CreateButtonConfigUI", BindingFlags.NonPublic);
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
 
-    private static OptionSubMenuCountExt CreateColorCustomizationSubMenu(TextMenu menu, bool inGame) {
-        OptionSubMenuCountExt ColorCustomizationItem = new OptionSubMenuCountExt("Color Customization".ToDialogText());
+    private static EaseInOptionSubMenuCountExt CreateColorCustomizationSubMenu(TextMenu menu, bool inGame) {
+        EaseInOptionSubMenuCountExt ColorCustomizationItem = new EaseInOptionSubMenuCountExt("Color Customization".ToDialogText());
         ColorCustomizationItem.OnLeave += () => ColorCustomizationItem.MenuIndex = 0;
         ColorCustomizationItem.Add("Color Customization Finished".ToDialogText(), new List<TextMenu.Item>());
         ColorCustomizationItem.Add("Color Customization OnOff".ToDialogText(), CustomColors.CreateColorCustomization_PageOnOff(menu, inGame));
         ColorCustomizationItem.Add("Color Customization Spinner Color".ToDialogText(), CustomColors.CreateColorCustomization_PageSpinnerColor(menu, inGame));
         ColorCustomizationItem.Add("Color Customization Other".ToDialogText(), CustomColors.CreateColorCustomization_PageOther(menu, inGame));
-        return ColorCustomizationItem;
+        return ColorCustomizationItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 
 
-    private static TextMenuExt.SubMenu CreateCountdownSubMenu(TextMenu menu) {
-        return new TextMenuExt.SubMenu("Countdown".ToDialogText(), false).Apply(subMenu => {
+    private static EaseInSubMenu CreateCountdownSubMenu(TextMenu menu) {
+        return new EaseInSubMenu("Countdown".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item CountdownModeItem;
             subMenu.Add(CountdownModeItem = new TextMenuExt.EnumerableSlider<CountdownModes>("Countdown Mode".ToDialogText(), CreateCountdownOptions(),
                     TasHelperSettings.CountdownMode).Change(value => TasHelperSettings.CountdownMode = value));
@@ -38,8 +37,8 @@ internal static class TASHelperMenu {
             subMenu.AddDescription(menu, OptimizationItem, "Performance Optimization Description".ToDialogText());
         });
     }
-    private static TextMenuExt.SubMenu CreateLoadRangeSubMenu(TextMenu menu) {
-        return new TextMenuExt.SubMenu("Load Range".ToDialogText(), false).Apply(subMenu => {
+    private static EaseInSubMenu CreateLoadRangeSubMenu(TextMenu menu) {
+        return new EaseInSubMenu("Load Range".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item LoadRangeModeItem;
             subMenu.Add(LoadRangeModeItem = new TextMenuExt.EnumerableSlider<LoadRangeModes>("Load Range Mode".ToDialogText(), CreateLoadRangeOptions(),
                 TasHelperSettings.LoadRangeMode).Change(value => TasHelperSettings.LoadRangeMode = value));
@@ -55,27 +54,21 @@ internal static class TASHelperMenu {
         });
     }
 
-    private static TextMenuExt.SubMenu CreateSimplifiedSpinnerSubMenu(TextMenu menu) {
-        return new TextMenuExt.SubMenu("Simplified Spinners".ToDialogText(), false).Apply(subMenu => {
+    private static EaseInSubMenu CreateSimplifiedSpinnerSubMenu(TextMenu menu) {
+        return new EaseInSubMenu("Simplified Spinners".ToDialogText(), false).Apply(subMenu => {
             subMenu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.EnableSimplifiedSpinner).Change(value => TasHelperSettings.EnableSimplifiedSpinner = value));
             subMenu.Add(new TextMenuExt.EnumerableSlider<ClearSpritesMode>("Clear Spinner Sprites".ToDialogText(), CreateClearSpritesModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
             subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity).Change(value => TasHelperSettings.SpinnerFillerOpacity = value));
         });
     }
 
-    private static TextMenuExt.SubMenu CreateHotkeysSubMenu(EverestModule everestModule, TextMenu menu) {
-        return new TextMenuExt.SubMenu("Hotkeys".ToDialogText(), false).Apply(subMenu => {
+    private static EaseInSubMenu CreateHotkeysSubMenu(EverestModule everestModule, TextMenu menu) {
+        return new EaseInSubMenu("Hotkeys".ToDialogText(), false).Apply(subMenu => {
             subMenu.Add(new TextMenu.Button(Dialog.Clean("options_keyconfig")).Pressed(() => {
                 subMenu.Focused = false;
-                KeyboardConfigUI keyboardConfig;
-                if (CreateKeyboardConfigUi != null) {
-                    keyboardConfig = (KeyboardConfigUI)CreateKeyboardConfigUi.Invoke(everestModule, new object[] { menu });
-                }
-                else {
-                    keyboardConfig = new ModuleSettingsKeyboardConfigUI(everestModule);
-                }
-
-                keyboardConfig.OnClose = () => { subMenu.Focused = true; };
+                KeyboardConfigUI keyboardConfig = new ModuleSettingsKeyboardConfigUIExt(everestModule) {
+                    OnClose = () => { subMenu.Focused = true; }
+                };
 
                 Engine.Scene.Add(keyboardConfig);
                 Engine.Scene.OnEndOfFrame += () => Engine.Scene.Entities.UpdateLists();
@@ -83,15 +76,9 @@ internal static class TASHelperMenu {
 
             subMenu.Add(new TextMenu.Button(Dialog.Clean("options_btnconfig")).Pressed(() => {
                 subMenu.Focused = false;
-                ButtonConfigUI buttonConfig;
-                if (CreateButtonConfigUI != null) {
-                    buttonConfig = (ButtonConfigUI)CreateButtonConfigUI.Invoke(everestModule, new object[] { menu });
-                }
-                else {
-                    buttonConfig = new ModuleSettingsButtonConfigUI(everestModule);
-                }
-
-                buttonConfig.OnClose = () => { subMenu.Focused = true; };
+                ButtonConfigUI buttonConfig = new ModuleSettingsButtonConfigUI(everestModule) { 
+                    OnClose = () => { subMenu.Focused = true; }
+                };
 
                 Engine.Scene.Add(buttonConfig);
                 Engine.Scene.OnEndOfFrame += () => Engine.Scene.Entities.UpdateLists();
@@ -99,8 +86,8 @@ internal static class TASHelperMenu {
         });
     }
 
-    private static TextMenuExt.SubMenu CreateMoreOptionsSubMenu(TextMenu menu) {
-        return new TextMenuExt.SubMenu("More Options".ToDialogText(), false).Apply(subMenu => {
+    private static EaseInSubMenu CreateMoreOptionsSubMenu(TextMenu menu) {
+        return new EaseInSubMenu("More Options".ToDialogText(), false).Apply(subMenu => {
             subMenu.Add(new TextMenu.OnOff("Spawn Point".ToDialogText(), TasHelperSettings.UsingSpawnPoint).Change((value) => TasHelperSettings.UsingSpawnPoint = value));
             subMenu.Add(new TextMenuExt.IntSlider("Current Spawn Point Opacity".ToDialogText(), 1, 9, TasHelperSettings.CurrentSpawnPointOpacity).Change((value) => TasHelperSettings.CurrentSpawnPointOpacity = value));
             subMenu.Add(new TextMenuExt.IntSlider("Other Spawn Point Opacity".ToDialogText(), 0, 9, TasHelperSettings.OtherSpawnPointOpacity).Change((value) => TasHelperSettings.OtherSpawnPointOpacity = value));
@@ -112,6 +99,9 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenuExt.IntSlider("Pixel Grid Opacity".ToDialogText(), 1, 10, TasHelperSettings.PixelGridOpacity).Change(value => TasHelperSettings.PixelGridOpacity = value));
             subMenu.Add(new TextMenu.OnOff("Camera Target".ToDialogText(), TasHelperSettings.UsingCameraTarget).Change(value => TasHelperSettings.UsingCameraTarget = value));
             subMenu.Add(new TextMenuExt.IntSlider("Camera Target Vector Opacity".ToDialogText(), 1, 9, TasHelperSettings.CameraTargetLinkOpacity).Change(value => TasHelperSettings.CameraTargetLinkOpacity = value));
+            subMenu.Add(new TextMenuExt.EnumerableSlider<bool>("Main Switch State".ToDialogText(), CreateMainSwitchStatesOptions(),TasHelperSettings.MainSwitchThreeStates).Change(value => TasHelperSettings.MainSwitchThreeStates = value));
+            subMenu.Add(new TextMenu.OnOff("Main Switch Visualize".ToDialogText(), TasHelperSettings.MainSwitchStateVisualize).Change(value => TasHelperSettings.MainSwitchStateVisualize = value));
+            subMenu.Add(new TextMenu.OnOff("Main Switch Prevent".ToDialogText(), TasHelperSettings.AllowEnableModWithMainSwitch).Change(value => TasHelperSettings.AllowEnableModWithMainSwitch = value));
         });
     }
 
@@ -127,6 +117,13 @@ internal static class TASHelperMenu {
         };
     }
     */
+    private static IEnumerable<KeyValuePair<bool, string>> CreateMainSwitchStatesOptions() {
+        return new List<KeyValuePair<bool, string>> {
+           new(true, "Main Switch Three States".ToDialogText()),
+           new(false,"Main Switch Two States".ToDialogText()),
+        };
+    }
+
     internal static IEnumerable<KeyValuePair<UsingNotInViewColorModes, string>> CreateUsingNotInViewColorOptions() {
         return new List<KeyValuePair<UsingNotInViewColorModes, string>> {
             new(UsingNotInViewColorModes.Off, "NotInView Color Modes Off".ToDialogText()),
@@ -180,39 +177,199 @@ internal static class TASHelperMenu {
     private static List<TextMenu.Item> disabledItems = new List<TextMenu.Item>();
 
     public static void CreateMenu(EverestModule everestModule, TextMenu menu, bool inGame) {
-        menu.Add(mainItem = new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.Enabled).Change((value) => { TasHelperSettings.Enabled = value; UpdateEnableItems(value,everestModule,menu,inGame); }));
-        UpdateEnableItems(TasHelperSettings.Enabled, everestModule, menu, inGame);
+        menu.Add(mainItem = new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.Enabled).Change((value) => { TasHelperSettings.Enabled = value; UpdateEnableItems(value, true, everestModule,menu,inGame); }));
+        UpdateEnableItems(TasHelperSettings.Enabled, false ,everestModule, menu, inGame);
     }
-    private static void UpdateEnableItems(bool enable, EverestModule everestModule, TextMenu menu, bool inGame) {
+    private static void UpdateEnableItems(bool enable, bool fromChange, EverestModule everestModule, TextMenu menu, bool inGame) {
         if (enable) {
             // we create all other menus on value change
             // so the values in these submenus will be correct
-            TasHelperSettings.Awake(true);
-            // prevent fake die by Ctrl+E
-            TextMenu.Item colorItem = CreateColorCustomizationSubMenu(menu, inGame);
-            TextMenu.Item countdownItem = CreateCountdownSubMenu(menu);
-            TextMenu.Item loadrangeItem = CreateLoadRangeSubMenu(menu);
-            TextMenu.Item simpspinnerItem = CreateSimplifiedSpinnerSubMenu(menu);
-            TextMenu.Item hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
-            TextMenu.Item moreoptionItem = CreateMoreOptionsSubMenu(menu);
+            if (fromChange) {
+                TasHelperSettings.Awake(true);
+                // prevent fake die by Ctrl+E
+            }
+            foreach (TextMenu.Item item in disabledItems) {
+                menu.Remove(item);
+            }
+            disabledItems.Clear();
+            EaseInOptionSubMenuCountExt colorItem = CreateColorCustomizationSubMenu(menu, inGame);
+            EaseInSubMenu countdownItem = CreateCountdownSubMenu(menu);
+            EaseInSubMenu loadrangeItem = CreateLoadRangeSubMenu(menu);
+            EaseInSubMenu simpspinnerItem = CreateSimplifiedSpinnerSubMenu(menu);
+            EaseInSubMenu moreoptionItem = CreateMoreOptionsSubMenu(menu);
+            EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
             int N = menu.IndexOf(mainItem);
             menu.Insert(N+1, colorItem);
             menu.Insert(N+2, countdownItem);
             menu.Insert(N+3, loadrangeItem);
             menu.Insert(N+4, simpspinnerItem);
-            menu.Insert(N+5, hotkeysItem);
+            menu.Insert(N+5, moreoptionItem);
+            menu.Insert(N+6, hotkeysItem);
             hotkeysItem.AddDescription(menu, "Hotkey Description".ToDialogText());
-            menu.Insert(N+7,moreoptionItem);
-            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, hotkeysItem, moreoptionItem };
+            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, moreoptionItem, hotkeysItem};
+            foreach (IEaseInItem item in disabledItems) {
+                item.Initialize();
+            }
         }
         else {
             // we remove items, to prevent unexcepted setting value changes
-            foreach (TextMenu.Item item in disabledItems) {
-                menu.Remove(item);
+            foreach (IEaseInItem item in disabledItems) {
+                item.FadeVisible = false;
             }
-            disabledItems.Clear();
         }
     }
 
 }
 
+public interface IEaseInItem {
+    public void Initialize();
+    public bool FadeVisible { get; set; }
+}
+public class EaseInSubMenu : TextMenuExt.SubMenu, IEaseInItem{
+    private float alpha;
+    private float unEasedAlpha;
+
+    public void Initialize() {
+        alpha = unEasedAlpha = 0f;
+        Visible = FadeVisible = true;
+    }
+    public bool FadeVisible { get; set; }
+    public EaseInSubMenu(string label, bool enterOnSelect) : base(label, enterOnSelect) {
+        alpha = unEasedAlpha = 1f;
+        FadeVisible = Visible = true;
+    }
+
+    public override float Height() => MathHelper.Lerp(-Container.ItemSpacing, base.Height(), alpha);
+
+    public override void Update() {
+        base.Update();
+
+        float targetAlpha = FadeVisible ? 1 : 0;
+        if (Math.Abs(unEasedAlpha - targetAlpha) > 0.001f) {
+            unEasedAlpha = Calc.Approach(unEasedAlpha, targetAlpha, Engine.RawDeltaTime * 3f);
+            alpha = FadeVisible ? Ease.SineOut(unEasedAlpha) : Ease.SineIn(unEasedAlpha);
+        }
+
+        Visible = alpha != 0;
+    }
+
+    public override void Render(Vector2 position, bool highlighted) {
+        float c = Container.Alpha;
+        Container.Alpha = alpha;
+        base.Render(position, highlighted);
+        Container.Alpha = c;
+    }
+}
+
+public class EaseInOptionSubMenuCountExt : OptionSubMenuCountExt, IEaseInItem {
+    private float alpha;
+    private float unEasedAlpha;
+
+    public void Initialize() {
+        alpha = unEasedAlpha = 0f;
+        Visible = FadeVisible = true;
+    }
+    public bool FadeVisible { get; set; }
+    public EaseInOptionSubMenuCountExt(string label) : base(label){
+        alpha = unEasedAlpha = 1f;
+        FadeVisible = Visible = true;
+    }
+    public override float Height() => MathHelper.Lerp(-Container.ItemSpacing, base.Height(), alpha);
+
+    public override void Update() {
+        base.Update();
+
+        float targetAlpha = FadeVisible ? 1 : 0;
+        if (Math.Abs(unEasedAlpha - targetAlpha) > 0.001f) {
+            unEasedAlpha = Calc.Approach(unEasedAlpha, targetAlpha, Engine.RawDeltaTime * 3f);
+            alpha = FadeVisible ? Ease.SineOut(unEasedAlpha) : Ease.SineIn(unEasedAlpha);
+        }
+
+        Visible = alpha != 0;
+    }
+    public override void Render(Vector2 position, bool highlighted) {
+        float c = Container.Alpha;
+        Container.Alpha = alpha;
+        base.Render(position, highlighted);
+        Container.Alpha = c;
+    }
+}
+
+
+
+public class ModuleSettingsKeyboardConfigUIExt : ModuleSettingsKeyboardConfigUI {
+
+    public ModuleSettingsKeyboardConfigUIExt(EverestModule module) : base(module) {
+    }
+
+    public override void Reload(int index = -1) {
+        if (Module == null)
+            return;
+
+        Clear();
+        Add(new Header(Dialog.Clean("KEY_CONFIG_TITLE")));
+        Add(new InputMappingInfo(false));
+
+        object settings = Module._Settings;
+
+        // The default name prefix.
+        string typeName = Module.SettingsType.Name.ToLowerInvariant();
+        if (typeName.EndsWith("settings"))
+            typeName = typeName.Substring(0, typeName.Length - 8);
+        string nameDefaultPrefix = $"modoptions_{typeName}_";
+
+        SettingInGameAttribute attribInGame;
+
+        foreach (PropertyInfo prop in Module.SettingsType.GetProperties()) {
+            if ((attribInGame = prop.GetCustomAttribute<SettingInGameAttribute>()) != null &&
+                attribInGame.InGame != (Engine.Scene is Level))
+                continue;
+
+            if (prop.GetCustomAttribute<SettingIgnoreAttribute>() != null)
+                continue;
+
+            if (!prop.CanRead || !prop.CanWrite)
+                continue;
+
+            if (typeof(ButtonBinding).IsAssignableFrom(prop.PropertyType)) {
+                if (!(prop.GetValue(settings) is ButtonBinding binding))
+                    continue;
+
+                string name = prop.GetCustomAttribute<SettingNameAttribute>()?.Name ?? $"{nameDefaultPrefix}{prop.Name.ToLowerInvariant()}";
+                name = name.DialogCleanOrNull() ?? (prop.Name.ToLowerInvariant().StartsWith("button") ? prop.Name.Substring(6) : prop.Name).SpacedPascalCase();
+
+                DefaultButtonBindingAttribute defaults = prop.GetCustomAttribute<DefaultButtonBindingAttribute>();
+
+                Bindings.Add(new ButtonBindingEntry(binding, defaults));
+
+                string subheader = prop.GetCustomAttribute<SettingSubHeaderAttribute>()?.SubHeader;
+                if (subheader != null)
+                    Add(new TextMenuExt.SubHeaderExt(subheader.DialogCleanOrNull() ?? subheader) {
+                        TextColor = Color.Gray,
+                        Offset = new Vector2(0f, -60f),
+                        HeightExtra = 60f
+                    });
+
+                AddMapForceLabel(name, binding.Binding);
+
+                string description = prop.GetCustomAttribute<SettingDescriptionHardcodedAttribute>()?.description();
+                if (description != null)
+                    Add(new TextMenuExt.SubHeaderExt(description) {
+                        TextColor = Color.Gray,
+                        Offset = new Vector2(0f, -90f),
+                        HeightExtra = 60f
+                    });
+            }
+        }
+
+        Add(new TextMenu.SubHeader(""));
+        Add(new Button(Dialog.Clean("KEY_CONFIG_RESET")) {
+            IncludeWidthInMeasurement = false,
+            AlwaysCenter = true,
+            OnPressed = () => ResetPressed()
+        });
+
+        if (index >= 0)
+            Selection = index;
+    }
+}

@@ -102,6 +102,13 @@ TAS_HELPER_MAIN_SWITCH_HOTKEY=                             主开关
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       切换倒计时
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       切换加载范围
 TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY=                 切换像素网格宽度
+TAS_HELPER_MAIN_SWITCH_DESCRIPTION_3=                      在 [关 - 默认 - 全部] 三者间切换
+TAS_HELPER_MAIN_SWITCH_DESCRIPTION_2=                      在 [关 - 全部] 两者间切换
+TAS_HELPER_MAIN_SWITCH_STATE=                              主开关快捷键切换模式
+TAS_HELPER_MAIN_SWITCH_THREE_STATES=                       关 - 默认 - 全部
+TAS_HELPER_MAIN_SWITCH_TWO_STATES=                         关 - 全部
+TAS_HELPER_MAIN_SWITCH_VISUALIZE=                          主开关可视化
+TAS_HELPER_MAIN_SWITCH_PREVENT=                            通过快捷键启用本模组
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   更多选项
