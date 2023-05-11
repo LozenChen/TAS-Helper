@@ -26,7 +26,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Settings -> Some settings are inherited from CelesteTAS.
 
-- Main Switch hotkey -> Settings are memorized in a way that, ActualSettings = MainSwitch state && MemorizedSettings (if both sides are boolean. Similar for other types). The Main Switch hotkey just modifies MainSwitch state, and will not modify MemorizedSettings. Edit settings in menu or using other hotkeys will modify MemorizedSettings.
+- Main Switch hotkey -> Settings are memorized in a way that, ActualSettings = MainSwitch state && MemorizedSettings (if both sides are boolean. Similar for other types). The Main Switch hotkey just modifies MainSwitch state, and will not modify MemorizedSettings. Editting settings in menu or using other hotkeys will modify MemorizedSettings.
 
 # Some details:
 
