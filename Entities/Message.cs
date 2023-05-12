@@ -152,7 +152,7 @@ public class MainSwitchWatcher : Message {
     }
 
     public override void Render() {
-        Font.Draw(BaseSize, text, Position, new Vector2(0f, 0.5f), Vector2.One * 0.5f, Color.White * alpha, 0f, Color.Transparent, 0f, Color.Transparent);
+        Font.Draw(BaseSize, text, Position, new Vector2(0f, 0.5f), Vector2.One * 0.5f, Color.White * alpha, 0f, Color.Transparent, 1f, Color.Black);
     }
 
 }
@@ -185,7 +185,7 @@ public class Message : Entity {
     }
 
     public void RenderAt(Vector2 Position) {
-        Font.Draw(BaseSize, text, Position, new Vector2(0.5f, 0.5f), Vector2.One * 0.5f, Color.White * alpha, 0f, Color.Transparent, 0f, Color.Transparent);
+        Font.Draw(BaseSize, text, Position, new Vector2(0.5f, 0.5f), Vector2.One * 0.5f, Color.White * alpha, 0f, Color.Transparent, 1f, Color.Black);
     }
 
     public static void RenderMessage(string str, Vector2 Position, Vector2 scale) {
