@@ -18,6 +18,7 @@ internal static class PixelGridHook {
             self.Collider.Height = player.Collider.Height;
             self.Collider.Left = player.Collider.Left;
             self.Collider.Top = player.Collider.Top;
+            self.width = TasHelperSettings.PixelGridWidth;
             // when use self.Collider = player.Collider, and turn off Celeste TAS's ShowHitboxes,
             // if you demodash into wall, then player will stuck in wall
             // don't know why
@@ -25,7 +26,7 @@ internal static class PixelGridHook {
     }
     private static void CreatePixelGridAroundPlayer(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
         orig(self, playerIntro, isFromLoader);
-        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid, () => TasHelperSettings.PixelGridWidth, PixelGridAroundPlayerUpdate, false));
+        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid && PlayerHelper.player is not null, PixelGridAroundPlayerUpdate, false));
     }
 
 }
@@ -36,17 +37,16 @@ public class PixelGrid : Entity {
     public static Color color2 = Color.Gray;
 
     public Func<bool> visibleGetter;
-    public Func<int> widthGetter;
+    public int width = 0;
     public Action<PixelGrid> UpdateBeforeRender;
     public bool fadeOut = false;
 
-    public PixelGrid(Func<bool> visibleGetter, Func<int> widthGetter, Action<PixelGrid> UpdateBeforeRender, bool fadeOut = false) {
+    public PixelGrid(Func<bool> visibleGetter, Action<PixelGrid> UpdateBeforeRender, bool fadeOut = false) {
         Depth = 8900;
         // lower than BackgroudTiles
         Collidable = false;
         Collider = new Hitbox(0f, 0f);
         this.visibleGetter = visibleGetter;
-        this.widthGetter = widthGetter;
         this.UpdateBeforeRender = UpdateBeforeRender;
         this.fadeOut = fadeOut;
     }
@@ -101,10 +101,9 @@ public class PixelGrid : Entity {
     }
 
     public void RenderWithoutCondition() {
-        int outerwidth = widthGetter();
-        for (int x = (int)(Collider.Left - outerwidth); x < Collider.Right + outerwidth; x++) {
-            for (int y = (int)(Collider.Top - outerwidth); y < Collider.Bottom + outerwidth; y++) {
-                Draw.Point(new Vector2(Position.X + x, Position.Y + y), FadeOutColor(x, y, outerwidth));
+        for (int x = (int)(Collider.Left - width); x < Collider.Right + width; x++) {
+            for (int y = (int)(Collider.Top - width); y < Collider.Bottom + width; y++) {
+                Draw.Point(new Vector2(Position.X + x, Position.Y + y), FadeOutColor(x, y, width));
             }
         }
     }

@@ -374,3 +374,56 @@ internal static class TypeExtensions {
         return fieldInfo.IsLiteral && !fieldInfo.IsInitOnly;
     }
 }
+
+
+internal static class EnumerableExtensions {
+    public static bool IsEmpty<T>(this IEnumerable<T> enumerable) {
+        return !enumerable.Any();
+    }
+
+    public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable) {
+        return enumerable == null || !enumerable.Any();
+    }
+
+    public static bool IsNotEmpty<T>(this IEnumerable<T> enumerable) {
+        return !enumerable.IsEmpty();
+    }
+
+    public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> enumerable) {
+        return !enumerable.IsNullOrEmpty();
+    }
+
+    public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> source, int n = 1) {
+        var it = source.GetEnumerator();
+        bool hasRemainingItems = false;
+        var cache = new Queue<T>(n + 1);
+
+        do {
+            if (hasRemainingItems = it.MoveNext()) {
+                cache.Enqueue(it.Current);
+                if (cache.Count > n)
+                    yield return cache.Dequeue();
+            }
+        } while (hasRemainingItems);
+    }
+}
+
+internal static class ListExtensions {
+    public static T GetValueOrDefault<T>(this IList<T> list, int index, T defaultValue = default) {
+        return index >= 0 && index < list.Count ? list[index] : defaultValue;
+    }
+}
+
+internal static class DictionaryExtensions {
+    public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue defaultValue = default) {
+        return dict.TryGetValue(key, out TValue value) ? value : defaultValue;
+    }
+
+    public static TKey LastKeyOrDefault<TKey, TValue>(this SortedDictionary<TKey, TValue> dict) {
+        return dict.Count > 0 ? dict.Last().Key : default;
+    }
+
+    public static TValue LastValueOrDefault<TKey, TValue>(this SortedDictionary<TKey, TValue> dict) {
+        return dict.Count > 0 ? dict.Last().Value : default;
+    }
+}

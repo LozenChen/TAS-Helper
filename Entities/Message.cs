@@ -1,6 +1,5 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -42,7 +41,7 @@ public static class Messenger {
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         EntityActivatorWarner.MessageCount = 0;
         orig(level, playerIntro, isFromLoader);
-        if (!(level.Tracker.Entities.TryGetValue(typeof(MainSwitchWatcher) , out List<Entity> list) && list.Count > 0)) {
+        if (!level.Tracker.Entities.TryGetValue(typeof(MainSwitchWatcher), out var entities) || entities.Count == 0) {
             level.Add(new MainSwitchWatcher());
         }
     }
@@ -134,7 +133,7 @@ public class MainSwitchWatcher : Message {
     public void Refresh(bool disabledMainSwitch = false) {
         text = disabledMainSwitch ? "Enabling TAS Helper with Hotkey is disabled!" : ("TAS Helper Main Switch Mode " + (TasHelperSettings.MainSwitchThreeStates ? "[Off - Default - All]" : "[Off - All]") + " = " + (TasHelperSettings.MainSwitch switch { MainSwitchModes.Off => "Off", MainSwitchModes.OnlyDefault => "Default", MainSwitchModes.AllowAll => "All" }));
         lifetimer = lifetime;
-        Active =  true;
+        Active = true;
         Visible = TasHelperSettings.MainSwitchStateVisualize;
         alpha = 1f;
     }

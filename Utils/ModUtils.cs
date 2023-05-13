@@ -57,6 +57,8 @@ internal static class ModUtils {
         ChronoHelperInstalled = IsInstalled("ChronoHelper");
         BrokemiaHelperInstalled = IsInstalled("BrokemiaHelper");
         IsaGrabBagInstalled = IsInstalled("IsaGrabBag");
+        // we actually also assume they are in enough late version
+        // so all entities mentioned in corresponding hooks do exist
     }
 
 }

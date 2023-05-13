@@ -601,7 +601,7 @@ public class OptionSubMenuCountExt : TextMenu.Item {
     public override float RightWidth() {
         float num = 0f;
         foreach (string item in Menus.Select((Tuple<string, List<TextMenu.Item>> tuple) => tuple.Item1)) {
-            num = Math.Max(num, ActiveFont.Measure(item).X );
+            num = Math.Max(num, ActiveFont.Measure(item).X);
         }
 
         return num + 60f;

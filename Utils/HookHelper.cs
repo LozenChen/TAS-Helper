@@ -19,8 +19,10 @@ internal static class HookHelper {
         Hooks.Clear();
     }
 
-    // e.g.
-    // typeof(Player).GetMethod("orig_Update").IlHook(PlayerPositionBeforeCameraUpdateIL);
+    public static void OnHook(this MethodBase from, Delegate to) {
+        Hooks.Add(new Hook(from, to));
+    }
+
     public static void IlHook(this MethodBase from, ILContext.Manipulator manipulator) {
         Hooks.Add(new ILHook(from, manipulator));
     }
@@ -29,6 +31,38 @@ internal static class HookHelper {
         from.IlHook(il => {
             ILCursor ilCursor = new(il);
             manipulator(ilCursor, il);
+        });
+    }
+
+    public static void HookBefore<T>(this MethodBase methodInfo, Action<T> action) {
+        methodInfo.IlHook((cursor, _) => {
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate(action);
+        });
+    }
+
+    public static void HookBefore(this MethodBase methodInfo, Action action) {
+        methodInfo.IlHook((cursor, _) => {
+            cursor.EmitDelegate(action);
+        });
+    }
+
+    public static void HookAfter<T>(this MethodBase methodInfo, Action<T> action) {
+        methodInfo.IlHook((cursor, _) => {
+            while (cursor.TryGotoNext(MoveType.AfterLabel, i => i.OpCode == OpCodes.Ret)) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate(action);
+                cursor.Index++;
+            }
+        });
+    }
+
+    public static void HookAfter(this MethodBase methodInfo, Action action) {
+        methodInfo.IlHook((cursor, _) => {
+            while (cursor.TryGotoNext(MoveType.AfterLabel, i => i.OpCode == OpCodes.Ret)) {
+                cursor.EmitDelegate(action);
+                cursor.Index++;
+            }
         });
     }
 

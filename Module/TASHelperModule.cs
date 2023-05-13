@@ -12,13 +12,13 @@ public class TASHelperModule : EverestModule {
 
     public override Type SettingsType => typeof(TASHelperSettings);
     public override void Load() {
-        On.Celeste.Level.Render += HotkeysPressed;
+        On.Monocle.MInput.Update += HotkeysPressed;
         Loader.HelperLoad();
         Loader.EntityLoad();
     }
 
     public override void Unload() {
-        On.Celeste.Level.Render -= HotkeysPressed;
+        On.Monocle.MInput.Update -= HotkeysPressed;
         Loader.HelperUnload();
         Loader.EntityUnload();
     }
@@ -33,17 +33,22 @@ public class TASHelperModule : EverestModule {
         }
     }
 
+    public override void LoadSettings() {
+        base.LoadSettings();
+        TasHelperSettings.OnLoadSettings();
+    }
+
     public override void CreateModMenuSection(TextMenu menu, bool inGame, EventInstance snapshot) {
         CreateModMenuSectionHeader(menu, inGame, snapshot);
         TASHelperMenu.CreateMenu(this, menu, inGame);
     }
 
 
-    private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
-        orig(self);
-        TasHelperSettings.SettingsHotkeysPressed();
-        // if you call Instance.SaveSettings() here, then the game will crash if you open Menu-Mod Options in a Level and close the menu.
-        // i don't know why, but just never do this.
+    private static void HotkeysPressed(On.Monocle.MInput.orig_Update orig) {
+        orig();
+        if (TasHelperSettings.SettingsHotkeysPressed()) {
+            Instance.SaveSettings();
+        }
     }
 }
 
