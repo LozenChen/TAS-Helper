@@ -3,8 +3,6 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
-using System.Collections.Generic;
-using System.Linq;
 using TAS.EverestInterop;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 using static TAS.EverestInterop.Hotkeys;
@@ -442,7 +440,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private List<Hotkey> Hotkeys = new();
 
-    internal static bool hotkeysPressed = false;
     public bool SettingsHotkeysPressed() {
         if (Engine.Scene is not Level level) {
             return false;
@@ -474,7 +471,7 @@ public class TASHelperSettings : EverestModuleSettings {
                         MainSwitch = MainSwitchThreeStates ? MainSwitchModes.OnlyDefault : MainSwitchModes.AllowAll;
                         break;
                     }
-                    // it may happen that MainSwitchThreeStates = false but MainSwitch = OnlyDefault... it's ok
+                // it may happen that MainSwitchThreeStates = false but MainSwitch = OnlyDefault... it's ok
                 case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
                 case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
             }

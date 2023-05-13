@@ -12,14 +12,12 @@ public class TASHelperModule : EverestModule {
 
     public override Type SettingsType => typeof(TASHelperSettings);
     public override void Load() {
-        On.Monocle.MInput.Update += HotkeysSaveSettings;
         On.Celeste.Level.Render += HotkeysPressed;
         Loader.HelperLoad();
         Loader.EntityLoad();
     }
 
     public override void Unload() {
-        On.Monocle.MInput.Update -= HotkeysSaveSettings;
         On.Celeste.Level.Render -= HotkeysPressed;
         Loader.HelperUnload();
         Loader.EntityUnload();
@@ -45,21 +43,11 @@ public class TASHelperModule : EverestModule {
         TASHelperMenu.CreateMenu(this, menu, inGame);
     }
 
-
-    private static void HotkeysSaveSettings(On.Monocle.MInput.orig_Update orig) {
-        orig();
-        if (TASHelperSettings.hotkeysPressed) {
-            Instance.SaveSettings();
-            TASHelperSettings.hotkeysPressed = false;
-        }
-        // some part of MInput_Update is taken over by CelesteTAS, in that case orig() will not be called
-        // so we can't press hotkeys here
-    }
-
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
         orig(self);
-        TASHelperSettings.hotkeysPressed = TasHelperSettings.SettingsHotkeysPressed();
-        // if you call Instance.SaveSettings() here, then the game will crash if you open Menu-Mod Options in a Level and close the menu.
+        if (TasHelperSettings.SettingsHotkeysPressed()) {
+            Instance.SaveSettings();
+        }
     }
 }
 

@@ -115,7 +115,7 @@ internal static class SimplifiedSpinner {
 
     private static void OnLevelAddEntity(On.Monocle.EntityList.orig_UpdateLists orig, EntityList self) {
         if (self.Scene is Level) {
-            AddingEntities |= self.ToAdd.Count > 0;
+            AddingEntities |= self.ToAdd is { } var && var.Count > 0;
         }
         orig(self);
     }
