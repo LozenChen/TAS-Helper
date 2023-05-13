@@ -438,7 +438,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private Hotkey PixelGridWidthHotkey { get; set; } = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
 
-    private List<Hotkey> Hotkeys = new();
+    private static List<Hotkey> Hotkeys;
 
     public bool SettingsHotkeysPressed() {
         if (Engine.Scene is not Level level) {
@@ -446,11 +446,12 @@ public class TASHelperSettings : EverestModuleSettings {
         }
         bool updateKey = true;
         bool updateButton = true;
-        bool InOuiOptionsMenu = TASHelperMenu.mainItem?.Container?.Focused is bool b && b;
-        if (InOuiOptionsMenu || level.Tracker.GetEntity<KeyboardConfigUI>() is not null || (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list) && list.Count > 0)) {
+        bool InOuiModOption = TASHelperMenu.mainItem?.Container?.Focused is bool b && b;
+        if (InOuiModOption || level.Tracker.GetEntity<KeyboardConfigUI>() is not null ||
+            (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list) && list.Count > 0)) {
             updateKey = false;
         }
-        if (InOuiOptionsMenu || level.Tracker.GetEntity<ButtonConfigUI>() is not null) {
+        if (InOuiModOption || level.Tracker.GetEntity<ButtonConfigUI>() is not null) {
             updateButton = false;
         }
         foreach (Hotkey hotkey in Hotkeys) {
