@@ -130,6 +130,14 @@ public class MainSwitchWatcher : Message {
         instance = this;
     }
 
+    public void RefreshOther() {
+        text = "TAS Helper Disabled!";
+        lifetimer = lifetime;
+        Active = true;
+        Visible = TasHelperSettings.MainSwitchStateVisualize;
+        alpha = 1f;
+    }
+
     public void Refresh(bool disabledMainSwitch = false) {
         text = disabledMainSwitch ? "Enabling TAS Helper with Hotkey is disabled!" : ("TAS Helper Main Switch Mode " + (TasHelperSettings.MainSwitchThreeStates ? "[Off - Default - All]" : "[Off - All]") + " = " + (TasHelperSettings.MainSwitch switch { MainSwitchModes.Off => "Off", MainSwitchModes.OnlyDefault => "Default", MainSwitchModes.AllowAll => "All" }));
         lifetimer = lifetime;

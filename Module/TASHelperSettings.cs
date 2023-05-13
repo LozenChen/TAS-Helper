@@ -44,12 +44,18 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum MainSwitchModes { Off, OnlyDefault, AllowAll }
 
-    private MainSwitchModes mainSwitch = MainSwitchModes.OnlyDefault;
+    private MainSwitchModes mainSwitch = MainSwitchModes.AllowAll;
 
     public MainSwitchModes MainSwitch {
         get => mainSwitch;
         set {
+            if (mainSwitch == value) {
+                return;
+            }
             mainSwitch = value;
+            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
+                watcher.Refresh();
+            }
             switch (value) {
                 case MainSwitchModes.Off:
                     Enabled = false;
@@ -66,7 +72,8 @@ public class TASHelperSettings : EverestModuleSettings {
             return;
         }
     }
-    private void Sleep() {
+    internal void Sleep() {
+        MainSwitch = MainSwitchModes.Off;
         Awake_CycleHitboxColors = false;
         Awake_UsingNotInViewColor = false;
         Awake_EnableSimplifiedSpinner = false;
@@ -78,6 +85,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_EntityActivatorReminder = false;
     }
     internal void Awake(bool awakeAll) {
+        MainSwitch = awakeAll ? MainSwitchModes.AllowAll : MainSwitchModes.OnlyDefault;
         Awake_CycleHitboxColors = true;
         Awake_UsingNotInViewColor = true;
         Awake_EnableSimplifiedSpinner = true;
@@ -127,10 +135,10 @@ public class TASHelperSettings : EverestModuleSettings {
     #endregion
 
     #region Countdown
-    public bool Awake_CountdownModes = false;
+    public bool Awake_CountdownModes = true;
     public enum CountdownModes { Off, _3fCycle, _15fCycle };
 
-    public CountdownModes countdownMode = CountdownModes._3fCycle;
+    public CountdownModes countdownMode = CountdownModes.Off;
 
     [SettingDoNotSave]
     internal CountdownModes CountdownMode {
@@ -167,10 +175,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region LoadRange
 
-    public bool Awake_LoadRange = false;
+    public bool Awake_LoadRange = true;
     public enum LoadRangeModes { Neither, InViewRange, NearPlayerRange, Both };
 
-    public LoadRangeModes loadRangeMode = LoadRangeModes.Both;
+    public LoadRangeModes loadRangeMode = LoadRangeModes.Neither;
 
     [SettingDoNotSave]
     internal LoadRangeModes LoadRangeMode {
@@ -296,7 +304,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region Other
 
-    public bool Awake_CameraTarget = false;
+    public bool Awake_CameraTarget = true;
 
     public bool usingCameraTarget = false;
 
@@ -311,7 +319,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int CameraTargetLinkOpacity { get; set; } = 6;
 
-    public bool Awake_PixelGrid = false;
+    public bool Awake_PixelGrid = true;
 
     public bool enablePixelGrid = false;
 
@@ -358,7 +366,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    private bool mainSwitchThreeStates = true;
+    private bool mainSwitchThreeStates = false;
 
     public bool MainSwitchThreeStates {
         get => mainSwitchThreeStates;
@@ -454,49 +462,68 @@ public class TASHelperSettings : EverestModuleSettings {
                 case MainSwitchModes.Off: {
                         if (!AllowEnableModWithMainSwitch) {
                             changed = false;
+                            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
+                                watcher.Refresh(true);
+                            }
                             break;
                         }
                         MainSwitch = MainSwitchThreeStates ? MainSwitchModes.OnlyDefault : MainSwitchModes.AllowAll;
                         break;
                     }
+                    // it may happen that MainSwitchThreeStates = false but MainSwitch = OnlyDefault... it's ok
                 case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
                 case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
             }
-            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
-                watcher.Refresh(!changed);
+        }
+        if (CountDownHotkey.Pressed) {
+            if (Enabled) {
+                changed = true;
+                switch (CountdownMode) {
+                    case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
+                    case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
+                    case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
+                }
             }
-            if (!changed) {
-                return false;
+            else {
+                if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
+                    watcher.RefreshOther();
+                }
             }
         }
-        if (Enabled && CountDownHotkey.Pressed) {
-            changed = true;
-            switch (CountdownMode) {
-                case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
-                case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
-                case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
+        if (LoadRangeHotkey.Pressed) {
+            if (Enabled) {
+                changed = true;
+                switch (LoadRangeMode) {
+                    case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
+                    case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
+                    case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; break;
+                    case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
+                }
+            }
+            else {
+                if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
+                    watcher.RefreshOther();
+                }
             }
         }
-        if (Enabled && LoadRangeHotkey.Pressed) {
-            changed = true;
-            switch (LoadRangeMode) {
-                case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
-                case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
-                case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; break;
-                case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
+        if (PixelGridWidthHotkey.Pressed) {
+            if (Enabled) {
+                changed = true;
+                EnablePixelGrid = true;
+                PixelGridWidth = PixelGridWidth switch {
+                    < 2 => 2,
+                    < 4 => 4,
+                    < 8 => 8,
+                    _ => 0,
+                };
+                if (PixelGridWidth == 0) {
+                    EnablePixelGrid = false;
+                }
             }
-        }
-        if (Enabled && PixelGridWidthHotkey.Pressed) {
-            changed = true;
-            EnablePixelGrid = true;
-            PixelGridWidth = PixelGridWidth switch {
-                < 2 => 2,
-                < 4 => 4,
-                < 8 => 8,
-                _ => 0,
-            };
-            if (PixelGridWidth == 0) {
-                EnablePixelGrid = false;
+            else {
+                if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
+                    watcher.RefreshOther();
+                }
             }
         }
         return changed;
@@ -516,9 +543,9 @@ public class SettingDoNotSaveAttribute : Attribute {
 public class SettingDescriptionHardcodedAttribute : Attribute {
     public string description() {
         if (Dialog.Language == Dialog.Languages["schinese"]) {
-            return TasHelperSettings.MainSwitchThreeStates ? "在 [关 - 默认 - 全部] 三者间切换" : "在 [关 - 全部] 两者间切换";
+            return TasHelperSettings.MainSwitchThreeStates ? "在 [关 - 默认 - 全部] 三者间切换\n配置其他设置时请在 全部 状态下进行." : "在 [关 - 全部] 两者间切换";
         }
-        return TasHelperSettings.MainSwitchThreeStates ? "Switch among [Off - Default - All]" : "Switch between [Off - All]";
+        return TasHelperSettings.MainSwitchThreeStates ? "Switch among [Off - Default - All]\nPlease configure other settings in State All." : "Switch between [Off - All]";
     }
 }
 

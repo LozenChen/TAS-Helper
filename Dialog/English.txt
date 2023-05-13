@@ -107,6 +107,7 @@ TAS_HELPER_MAIN_SWITCH_THREE_STATES=                       Off - Default - All
 TAS_HELPER_MAIN_SWITCH_TWO_STATES=                         Off - All
 TAS_HELPER_MAIN_SWITCH_VISUALIZE=                          Show Main Switch
 TAS_HELPER_MAIN_SWITCH_PREVENT=                            Allow enabling this mod with hotkey
+TAS_HELPER_CONFIGURE_AT_STATE_ALL=                         Please configure other settings in State All.
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   More Options

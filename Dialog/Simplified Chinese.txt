@@ -109,6 +109,7 @@ TAS_HELPER_MAIN_SWITCH_THREE_STATES=                       关 - 默认 - 全部
 TAS_HELPER_MAIN_SWITCH_TWO_STATES=                         关 - 全部
 TAS_HELPER_MAIN_SWITCH_VISUALIZE=                          主开关可视化
 TAS_HELPER_MAIN_SWITCH_PREVENT=                            通过快捷键启用本模组
+TAS_HELPER_CONFIGURE_AT_STATE_ALL=                         配置其他设置时请在 全部 状态下进行.
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   更多选项

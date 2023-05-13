@@ -97,7 +97,15 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenuExt.IntSlider("Pixel Grid Opacity".ToDialogText(), 1, 10, TasHelperSettings.PixelGridOpacity).Change(value => TasHelperSettings.PixelGridOpacity = value));
             subMenu.Add(new TextMenu.OnOff("Camera Target".ToDialogText(), TasHelperSettings.UsingCameraTarget).Change(value => TasHelperSettings.UsingCameraTarget = value));
             subMenu.Add(new TextMenuExt.IntSlider("Camera Target Vector Opacity".ToDialogText(), 1, 9, TasHelperSettings.CameraTargetLinkOpacity).Change(value => TasHelperSettings.CameraTargetLinkOpacity = value));
-            subMenu.Add(new TextMenuExt.EnumerableSlider<bool>("Main Switch State".ToDialogText(), CreateMainSwitchStatesOptions(), TasHelperSettings.MainSwitchThreeStates).Change(value => TasHelperSettings.MainSwitchThreeStates = value));
+            TextMenu.Item MainSwitchStateItem;
+            EaseInSubHeaderExtPub StateDescription = new EaseInSubHeaderExtPub("Configure At State All".ToDialogText(), false, menu) {
+                TextColor = Color.Gray,
+                HeightExtra = 0f
+            };
+            subMenu.Add(MainSwitchStateItem = new TextMenuExt.EnumerableSlider<bool>("Main Switch State".ToDialogText(), CreateMainSwitchStatesOptions(), TasHelperSettings.MainSwitchThreeStates).Change(value => { TasHelperSettings.MainSwitchThreeStates = value; StateDescription.FadeVisible = value; StateDescription.uneasedAlpha = StateDescription.Alpha; }));
+            subMenu.Add(StateDescription);
+            MainSwitchStateItem.OnEnter += () => StateDescription.FadeVisible = TasHelperSettings.MainSwitchThreeStates && true;
+            MainSwitchStateItem.OnLeave += () => StateDescription.FadeVisible = false;
             subMenu.Add(new TextMenu.OnOff("Main Switch Visualize".ToDialogText(), TasHelperSettings.MainSwitchStateVisualize).Change(value => TasHelperSettings.MainSwitchStateVisualize = value));
             subMenu.Add(new TextMenu.OnOff("Main Switch Prevent".ToDialogText(), TasHelperSettings.AllowEnableModWithMainSwitch).Change(value => TasHelperSettings.AllowEnableModWithMainSwitch = value));
         });
@@ -210,6 +218,10 @@ internal static class TASHelperMenu {
             }
         }
         else {
+            if (fromChange) {
+                TasHelperSettings.Sleep();
+                // prevent fake die by Ctrl+E
+            }
             // we remove items, to prevent unexcepted setting value changes
             foreach (IEaseInItem item in disabledItems) {
                 item.FadeVisible = false;
@@ -369,5 +381,42 @@ public class ModuleSettingsKeyboardConfigUIExt : ModuleSettingsKeyboardConfigUI 
 
         if (index >= 0)
             Selection = index;
+    }
+}
+
+public class EaseInSubHeaderExtPub : TextMenuExt.SubHeaderExt {
+    public float uneasedAlpha;
+
+    private TextMenu containingMenu;
+
+    public bool FadeVisible { get; set; } = true;
+
+
+    public EaseInSubHeaderExtPub(string title, bool initiallyVisible, TextMenu containingMenu, string icon = null)
+        : base(title, icon) {
+        this.containingMenu = containingMenu;
+        FadeVisible = initiallyVisible;
+        base.Alpha = (FadeVisible ? 1 : 0);
+        uneasedAlpha = base.Alpha;
+    }
+
+    public override float Height() {
+        return MathHelper.Lerp(0f - containingMenu.ItemSpacing, base.Height(), base.Alpha);
+    }
+
+    public override void Update() {
+        base.Update();
+        float num = (FadeVisible ? 1 : 0);
+        if (uneasedAlpha != num) {
+            uneasedAlpha = Calc.Approach(uneasedAlpha, num, Engine.RawDeltaTime * 3f);
+            if (FadeVisible) {
+                base.Alpha = Ease.SineOut(uneasedAlpha);
+            }
+            else {
+                base.Alpha = Ease.SineIn(uneasedAlpha);
+            }
+        }
+
+        Visible = base.Alpha != 0f;
     }
 }
