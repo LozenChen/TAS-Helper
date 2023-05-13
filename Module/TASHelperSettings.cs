@@ -3,6 +3,8 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
+using System.Collections.Generic;
+using System.Linq;
 using TAS.EverestInterop;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 using static TAS.EverestInterop.Hotkeys;
@@ -439,6 +441,8 @@ public class TASHelperSettings : EverestModuleSettings {
     private Hotkey PixelGridWidthHotkey { get; set; } = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
 
     private List<Hotkey> Hotkeys = new();
+
+    internal static bool hotkeysPressed = false;
     public bool SettingsHotkeysPressed() {
         if (Engine.Scene is not Level level) {
             return false;
@@ -446,10 +450,10 @@ public class TASHelperSettings : EverestModuleSettings {
         bool updateKey = true;
         bool updateButton = true;
         bool InOuiOptionsMenu = TASHelperMenu.mainItem?.Container?.Focused is bool b && b;
-        if (InOuiOptionsMenu || level.Tracker.GetEntity<KeyboardConfigUI>() != null || (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list) && list.Count > 0)) {
+        if (InOuiOptionsMenu || level.Tracker.GetEntity<KeyboardConfigUI>() is not null || (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list) && list.Count > 0)) {
             updateKey = false;
         }
-        if (InOuiOptionsMenu || level.Tracker.GetEntity<ButtonConfigUI>() != null) {
+        if (InOuiOptionsMenu || level.Tracker.GetEntity<ButtonConfigUI>() is not null) {
             updateButton = false;
         }
         foreach (Hotkey hotkey in Hotkeys) {
