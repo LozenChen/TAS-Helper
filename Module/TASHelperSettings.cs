@@ -31,7 +31,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public void InitializeSettings() {
         UpdateAuxiliaryVariable();
-        Hotkeys = new() { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey };
     }
 
     private bool enabled = true;
@@ -438,8 +437,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     private Hotkey PixelGridWidthHotkey { get; set; } = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
 
-    private static List<Hotkey> Hotkeys;
-
+    // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
     public bool SettingsHotkeysPressed() {
         if (Engine.Scene is not Level level) {
             return false;
@@ -454,9 +452,10 @@ public class TASHelperSettings : EverestModuleSettings {
         if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(ButtonConfigUI), out var list3) && list3.Count > 0)) {
             updateButton = false;
         }
-        foreach (Hotkey hotkey in Hotkeys) {
-            hotkey.Update(updateKey, updateButton);
-        }
+        MainSwitchHotkey.Update(updateKey, updateButton);
+        CountDownHotkey.Update(updateKey, updateButton);
+        LoadRangeHotkey.Update(updateKey, updateButton);
+        PixelGridWidthHotkey.Update(updateKey, updateButton);
         bool changed = false;
         if (MainSwitchHotkey.Pressed) {
             changed = true;
