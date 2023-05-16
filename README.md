@@ -47,3 +47,5 @@ A Celeste Mod designed to be a tool in TAS making.
 - VivHelper spinner isn't fully supported if its hitbox is not prestored -> maybe will add support for them.
 
 - Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7
+
+- Hotkeys can't work after several savestates -> Where does this bug come from???

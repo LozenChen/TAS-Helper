@@ -447,11 +447,11 @@ public class TASHelperSettings : EverestModuleSettings {
         bool updateKey = true;
         bool updateButton = true;
         bool InOuiModOption = TASHelperMenu.mainItem?.Container?.Focused is bool b && b;
-        if (InOuiModOption || level.Tracker.GetEntity<KeyboardConfigUI>() is not null ||
-            (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list) && list.Count > 0)) {
+        if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(KeyboardConfigUI), out var list) && list.Count > 0) ||
+            (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list2) && list2.Count > 0)) {
             updateKey = false;
         }
-        if (InOuiModOption || level.Tracker.GetEntity<ButtonConfigUI>() is not null) {
+        if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(ButtonConfigUI), out var list3) && list3.Count > 0)) {
             updateButton = false;
         }
         foreach (Hotkey hotkey in Hotkeys) {

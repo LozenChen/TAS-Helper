@@ -114,9 +114,9 @@ internal static class SimplifiedSpinner {
     }
 
     private static void OnLevelAddEntity(On.Monocle.EntityList.orig_UpdateLists orig, EntityList self) {
-      /*  if (self.Scene is Level) {
+        if (self.Scene is Level) {
             AddingEntities |= self.ToAdd.Count > 0;
-        }*/
+        }
         orig(self);
     }
 
@@ -276,7 +276,7 @@ internal static class SimplifiedSpinner {
      * So DustGraphic.Render will be called even if DustGraphic itself is invisible
      * 
      * So we need to make DustGraphic and DustEdge invisible, instead of just DustGraphic
-     * We should not make Dust itself invivible, otherwise Dust.Render and thus our compensation will not be called 
+     * We should not make Dust itself invivible
      */
 
     private static void PatchDebugRender(On.Monocle.Entity.orig_DebugRender orig, Entity self, Camera camera) {
