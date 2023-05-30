@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
+using Monocle;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -426,4 +427,22 @@ internal static class DictionaryExtensions {
     public static TValue LastValueOrDefault<TKey, TValue>(this SortedDictionary<TKey, TValue> dict) {
         return dict.Count > 0 ? dict.Last().Value : default;
     }
+}
+
+internal static class LevelExtensions {
+    public static void AddToTracker(Type t) {
+        typeof(Level).GetMethod("LoadLevel").IlHook((cursor, _) => {
+            cursor.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
+            cursor.EmitDelegate((Level level) => {
+                if (!Tracker.TrackedEntityTypes.ContainsKey(t)) {
+                    Tracker.TrackedEntityTypes.Add(t, new List<Type>());
+                    Tracker.TrackedEntityTypes[t].Add(t);
+                }
+                if (!level.Tracker.Entities.ContainsKey(t)) {
+                    level.Tracker.Entities.Add(t, new List<Entity>());
+                }
+            });
+        });
+    }
+
 }

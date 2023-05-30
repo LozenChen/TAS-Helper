@@ -121,5 +121,6 @@ TAS_HELPER_PIXEL_GRID=                                     Pixel Grid
 TAS_HELPER_ENABLE_PIXEL_GRID=                              Pixel Grid
 TAS_HELPER_PIXEL_GRID_WIDTH=                               Pixel Grid Width
 TAS_HELPER_PIXEL_GRID_OPACITY=                             Pixel Grid Opacity
+TAS_HELPER_FIREBALL_TRACK=                                 Ice/FireBall Track
 TAS_HELPER_CAMERA_TARGET=                                  Camera Target
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity

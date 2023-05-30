@@ -22,7 +22,7 @@ public class TASHelperSettings : EverestModuleSettings {
         // do nothing currently
 
         // Everest will save & load settings of public fields/properties when open the game
-        // i don't want the setters of those properties which has a do not save attribute, which will break the awakes
+        // i don't want to call setters of those properties which has a do not save attribute, which will break the awakes
         // so i have to make them internal
         // but i also want to expose them to users, so i add TasHelperSettingsAlias class
         // i need to save those loadRangeMode fields, so they should be public
@@ -82,6 +82,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_PixelGrid = false;
         Awake_SpawnPoint = false;
         Awake_EntityActivatorReminder = false;
+        Awake_FireBallTrack = false;
     }
     internal void Awake(bool awakeAll) {
         MainSwitch = awakeAll ? MainSwitchModes.AllowAll : MainSwitchModes.OnlyDefault;
@@ -94,6 +95,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_PixelGrid = awakeAll;
         Awake_SpawnPoint = true;
         Awake_EntityActivatorReminder = true;
+        Awake_FireBallTrack = true;
     }
 
     #endregion
@@ -351,6 +353,19 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int OtherSpawnPointOpacity = 2;
 
+    public bool Awake_FireBallTrack = true;
+
+    public bool usingFireBallTrack = false;
+
+    [SettingDoNotSave]
+    internal bool UsingFireBallTrack {
+        get => Enabled && Awake_FireBallTrack && usingFireBallTrack;
+        set {
+            usingFireBallTrack = value;
+            Awake_FireBallTrack = true;
+        }
+    }
+
     public bool AllowEnableModWithMainSwitch = true;
 
     private bool mainSwitchStateVisualize = true;
@@ -595,6 +610,11 @@ public static class TasHelperSettingsAlias {
     public static bool UsingSpawnPoint {
         get => TasHelperSettings.UsingSpawnPoint;
         set => TasHelperSettings.UsingSpawnPoint = value;
+    }
+
+    public static bool UsingFireBallTrack {
+        get => TasHelperSettings.UsingFireBallTrack;
+        set => TasHelperSettings.UsingFireBallTrack = value;
     }
 }
 

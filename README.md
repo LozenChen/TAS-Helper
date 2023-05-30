@@ -38,7 +38,11 @@ A Celeste Mod designed to be a tool in TAS making.
 
 # WIP:
 
+- Slowdown indicator (note there's 1 frame delay between DeltaTime and TimeRate)
+
 - Better custom info.
+
+- Scrollable console.
 
 # Known issues:
 
@@ -48,4 +52,4 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7
 
-- Hotkeys can't work after several savestates -> Where does this bug come from???
+- Hotkeys can't work after several savestates -> Seems fixed in v1.5.7

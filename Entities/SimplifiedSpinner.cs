@@ -85,10 +85,7 @@ internal static class SimplifiedSpinner {
         }
 
         if (ModUtils.BrokemiaHelperInstalled) {
-            typeof(Level).GetMethod("LoadLevel").IlHook((cursor, _) => {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(TrackCassetteSpinner);
-            });
+            TrackCassetteSpinner();
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Action<Level>>(BrokemiaBeforeRender);
@@ -96,10 +93,7 @@ internal static class SimplifiedSpinner {
         }
 
         if (ModUtils.IsaGrabBagInstalled) {
-            typeof(Level).GetMethod("LoadLevel").IlHook((cursor, _) => {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(TrackDreamSpinnerRenderer);
-            });
+            TrackDreamSpinnerRenderer();
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Action<Level>>(IsaGrabBagBeforeRender);
@@ -212,15 +206,8 @@ internal static class SimplifiedSpinner {
         }
     }
 
-    private static void TrackCassetteSpinner(Level self) {
-        Type t = typeof(BrokemiaHelper.CassetteSpinner);
-        if (!Tracker.TrackedEntityTypes.ContainsKey(t)) {
-            Tracker.TrackedEntityTypes.Add(t, new List<Type>());
-            Tracker.TrackedEntityTypes[t].Add(t);
-        }
-        if (!self.Tracker.Entities.ContainsKey(t)) {
-            self.Tracker.Entities.Add(t, new List<Entity>());
-        }
+    private static void TrackCassetteSpinner() {
+        LevelExtensions.AddToTracker(typeof(BrokemiaHelper.CassetteSpinner));
     }
     private static void BrokemiaBeforeRender(Level self) {
         if (Updated) {
@@ -237,15 +224,8 @@ internal static class SimplifiedSpinner {
         }
     }
 
-    private static void TrackDreamSpinnerRenderer(Level self) {
-        Type t = typeof(IsaGrabBag.DreamSpinnerRenderer);
-        if (!Tracker.TrackedEntityTypes.ContainsKey(t)) {
-            Tracker.TrackedEntityTypes.Add(t, new List<Type>());
-            Tracker.TrackedEntityTypes[t].Add(t);
-        }
-        if (!self.Tracker.Entities.ContainsKey(t)) {
-            self.Tracker.Entities.Add(t, new List<Entity>());
-        }
+    private static void TrackDreamSpinnerRenderer() {
+        LevelExtensions.AddToTracker(typeof(IsaGrabBag.DreamSpinnerRenderer));
     }
 
     private static void IsaGrabBagBeforeRender(Level self) {

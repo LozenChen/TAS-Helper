@@ -122,5 +122,6 @@ TAS_HELPER_PIXEL_GRID=                                     像素网格
 TAS_HELPER_ENABLE_PIXEL_GRID=                              像素网格
 TAS_HELPER_PIXEL_GRID_WIDTH=                               像素网格宽度
 TAS_HELPER_PIXEL_GRID_OPACITY=                             像素网格不透明度
+TAS_HELPER_FIREBALL_TRACK=                                 冰/火球轨迹
 TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   镜头-目标 连线的不透明度
