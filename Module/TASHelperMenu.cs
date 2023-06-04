@@ -62,6 +62,18 @@ internal static class TASHelperMenu {
 
     private static EaseInSubMenu CreateHotkeysSubMenu(EverestModule everestModule, TextMenu menu) {
         return new EaseInSubMenu("Hotkeys".ToDialogText(), false).Apply(subMenu => {
+            TextMenu.Item MainSwitchStateItem;
+            EaseInSubHeaderExtPub StateDescription = new EaseInSubHeaderExtPub("Configure At State All".ToDialogText(), false, menu) {
+                TextColor = Color.Gray,
+                HeightExtra = 0f
+            };
+            subMenu.Add(MainSwitchStateItem = new TextMenuExt.EnumerableSlider<bool>("Main Switch State".ToDialogText(), CreateMainSwitchStatesOptions(), TasHelperSettings.MainSwitchThreeStates).Change(value => { TasHelperSettings.MainSwitchThreeStates = value; StateDescription.FadeVisible = value; StateDescription.uneasedAlpha = StateDescription.Alpha; }));
+            subMenu.Add(StateDescription);
+            MainSwitchStateItem.OnEnter += () => StateDescription.FadeVisible = TasHelperSettings.MainSwitchThreeStates && true;
+            MainSwitchStateItem.OnLeave += () => StateDescription.FadeVisible = false;
+            subMenu.Add(new TextMenu.OnOff("Main Switch Visualize".ToDialogText(), TasHelperSettings.MainSwitchStateVisualize).Change(value => TasHelperSettings.MainSwitchStateVisualize = value));
+            subMenu.Add(new TextMenu.OnOff("Main Switch Prevent".ToDialogText(), TasHelperSettings.AllowEnableModWithMainSwitch).Change(value => TasHelperSettings.AllowEnableModWithMainSwitch = value));
+
             subMenu.Add(new TextMenu.Button(Dialog.Clean("options_keyconfig")).Pressed(() => {
                 subMenu.Focused = false;
                 KeyboardConfigUI keyboardConfig = new ModuleSettingsKeyboardConfigUIExt(everestModule) {
@@ -98,17 +110,6 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.OnOff("Camera Target".ToDialogText(), TasHelperSettings.UsingCameraTarget).Change(value => TasHelperSettings.UsingCameraTarget = value));
             subMenu.Add(new TextMenuExt.IntSlider("Camera Target Vector Opacity".ToDialogText(), 1, 9, TasHelperSettings.CameraTargetLinkOpacity).Change(value => TasHelperSettings.CameraTargetLinkOpacity = value));
             subMenu.Add(new TextMenu.OnOff("FireBall Track".ToDialogText(), TasHelperSettings.UsingFireBallTrack).Change(value => TasHelperSettings.UsingFireBallTrack = value));
-            TextMenu.Item MainSwitchStateItem;
-            EaseInSubHeaderExtPub StateDescription = new EaseInSubHeaderExtPub("Configure At State All".ToDialogText(), false, menu) {
-                TextColor = Color.Gray,
-                HeightExtra = 0f
-            };
-            subMenu.Add(MainSwitchStateItem = new TextMenuExt.EnumerableSlider<bool>("Main Switch State".ToDialogText(), CreateMainSwitchStatesOptions(), TasHelperSettings.MainSwitchThreeStates).Change(value => { TasHelperSettings.MainSwitchThreeStates = value; StateDescription.FadeVisible = value; StateDescription.uneasedAlpha = StateDescription.Alpha; }));
-            subMenu.Add(StateDescription);
-            MainSwitchStateItem.OnEnter += () => StateDescription.FadeVisible = TasHelperSettings.MainSwitchThreeStates && true;
-            MainSwitchStateItem.OnLeave += () => StateDescription.FadeVisible = false;
-            subMenu.Add(new TextMenu.OnOff("Main Switch Visualize".ToDialogText(), TasHelperSettings.MainSwitchStateVisualize).Change(value => TasHelperSettings.MainSwitchStateVisualize = value));
-            subMenu.Add(new TextMenu.OnOff("Main Switch Prevent".ToDialogText(), TasHelperSettings.AllowEnableModWithMainSwitch).Change(value => TasHelperSettings.AllowEnableModWithMainSwitch = value));
         });
     }
 
@@ -386,6 +387,7 @@ public class ModuleSettingsKeyboardConfigUIExt : ModuleSettingsKeyboardConfigUI 
 }
 
 public class EaseInSubHeaderExtPub : TextMenuExt.SubHeaderExt {
+    // same as EaseInSubHeaderExt, except make uneasedAlpha public to me
     public float uneasedAlpha;
 
     private TextMenu containingMenu;

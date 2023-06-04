@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Entities;
 
-public static class FireBallExt {
+public static class FireBallTrack {
 
     public static void Load() {
         On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
@@ -18,14 +18,19 @@ public static class FireBallExt {
     }
 
     public static void Initialize() {
-        LevelExtensions.AddToTracker(typeof(FireBall));
-        FireBallNodesGetter = typeof(FireBall).GetField("nodes",BindingFlags.Instance| BindingFlags.NonPublic);
+        typeof(FireBall).GetMethod("Added").HookAfter<FireBall>((fireball) => {
+            Vector2[] nodes = (Vector2[])FireBallNodesGetter.GetValue(fireball);
+            if (!CachedNodes.Contains(nodes)) {
+                CachedNodes.Add(nodes);
+            }
+        });
     }
 
-    public static FieldInfo FireBallNodesGetter;
+    public static FieldInfo FireBallNodesGetter = typeof(FireBall).GetField("nodes", BindingFlags.Instance | BindingFlags.NonPublic);
 
     internal static readonly List<Vector2[]> CachedNodes = new List<Vector2[]>();
 
+    public static Color FireBallTrackColor = Color.Yellow * 0.5f;
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
         CachedNodes.Clear();
         orig(self, playerIntro, isFromLoader);
@@ -35,15 +40,9 @@ public static class FireBallExt {
         if (!TasHelperSettings.UsingFireBallTrack || self.Scene is not Level level) {
             return;
         }
-        foreach (Entity entity in level.Tracker.GetEntities<FireBall>()) {
-            Vector2[] nodes = (Vector2[])FireBallNodesGetter.GetValue(entity);
-            if (!CachedNodes.Contains(nodes)) {
-                CachedNodes.Add(nodes);
-            }
-        }
         foreach (Vector2[] nodes in CachedNodes) {
             for (int i = 0; i < nodes.Length - 1; i++) {
-                Monocle.Draw.Line(nodes[i], nodes[i + 1], Color.Yellow * 0.5f);
+                Monocle.Draw.Line(nodes[i], nodes[i + 1], FireBallTrackColor);
             }
         }
     }

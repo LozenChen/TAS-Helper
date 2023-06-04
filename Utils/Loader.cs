@@ -11,7 +11,7 @@ internal static class Loader {
         SimplifiedSpinner.Load();
         Messenger.Load();
         SpawnPoint.Load();
-        FireBallExt.Load();
+        FireBallTrack.Load();
     }
 
     public static void EntityUnload() {
@@ -20,7 +20,7 @@ internal static class Loader {
         SimplifiedSpinner.Unload();
         Messenger.Unload();
         SpawnPoint.Unload();
-        FireBallExt.Unload();
+        FireBallTrack.Unload();
     }
 
     public static void HelperLoad() {
@@ -54,7 +54,7 @@ internal static class Loader {
         Messenger.Initialize();
         SpawnPoint.Initialize();
         RestoreSettingsExt.Initialize();
-        FireBallExt.Initialize();
+        FireBallTrack.Initialize();
     }
 
     public static void LoadContent() {
