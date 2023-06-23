@@ -10,7 +10,19 @@ internal static class GlobalVariables {
 
     public static CelesteTasSettings TasSettings => CelesteTasSettings.Instance;
 
-    public static bool DebugRendered => HitboxToggle.DrawHitboxes || Engine.Commands.Open || GameplayRenderer.RenderDebug;
+    public static bool DebugRendered {
+        get {
+            try { 
+                return HitboxToggle.DrawHitboxes || Engine.Commands.Open || GameplayRenderer.RenderDebug; 
+            }
+            catch {
+                // don't know why but several bugs about this have been reported
+                return HitboxToggle.DrawHitboxes;
+            }
+        }
+
+        private set { }
+    }
 }
 
 
