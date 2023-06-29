@@ -478,9 +478,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 case MainSwitchModes.Off: {
                         if (!AllowEnableModWithMainSwitch) {
                             changed = false;
-                            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
-                                watcher.Refresh(true);
-                            }
+                            MainSwitchWatcher.instance?.Refresh(true);
                             break;
                         }
                         MainSwitch = MainSwitchThreeStates ? MainSwitchModes.OnlyDefault : MainSwitchModes.AllowAll;
@@ -501,9 +499,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 }
             }
             else {
-                if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
-                    watcher.RefreshOther();
-                }
+                MainSwitchWatcher.instance?.RefreshOther();
             }
         }
         if (LoadRangeHotkey.Pressed) {
@@ -517,9 +513,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 }
             }
             else {
-                if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
-                    watcher.RefreshOther();
-                }
+                MainSwitchWatcher.instance?.RefreshOther();
             }
         }
         if (PixelGridWidthHotkey.Pressed) {
@@ -537,9 +531,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 }
             }
             else {
-                if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
-                    watcher.RefreshOther();
-                }
+                MainSwitchWatcher.instance?.RefreshOther();
             }
         }
         return changed;

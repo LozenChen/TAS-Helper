@@ -53,3 +53,5 @@ A Celeste Mod designed to be a tool in TAS making.
 - Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7
 
 - Hotkeys can't work after several savestates -> Seems fixed in v1.5.7
+
+- TAS Helper does not save settings when closing game with the X instead of the exit button in game -> Can't reproduce.
