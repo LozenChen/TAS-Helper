@@ -3,8 +3,8 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
+using YamlDotNet.Serialization;
 using TAS.EverestInterop;
-using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 using static TAS.EverestInterop.Hotkeys;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -19,23 +19,19 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     internal void OnLoadSettings() {
-        // do nothing currently
-
         // Everest will save & load settings of public fields/properties when open the game
-        // i don't want to call setters of those properties which has a do not save attribute, which will break the awakes
-        // so i have to make them internal
-        // but i also want to expose them to users, so i add TasHelperSettingsAlias class
-        // i need to save those loadRangeMode fields, so they should be public
-        // although they should not be exposed to users...
-    }
+        // but in the Awake system, only those private field like showCycleHitboxColor matters
+        // so i hack SaveSettings, upgrade to YamlDotNet13 to support Serializing private fields
+        // also i mark those public fields as YamlIgnore, as there's no need to save them
 
-    public void InitializeSettings() {
         UpdateAuxiliaryVariable();
+        MainSwitchHotkey = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
+        CountDownHotkey = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
+        LoadRangeHotkey = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
+        PixelGridWidthHotkey = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
     }
 
-    private bool enabled = true;
-
-    public bool Enabled { get => enabled; set => enabled = value; }
+    public bool Enabled = true;
 
     #region MainSwitch
 
@@ -43,18 +39,18 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum MainSwitchModes { Off, OnlyDefault, AllowAll }
 
-    private MainSwitchModes mainSwitch = MainSwitchModes.AllowAll;
+    private MainSwitchModes mainSwitch { get; set; } = MainSwitchModes.AllowAll;
 
+    [YamlIgnore]
     public MainSwitchModes MainSwitch {
         get => mainSwitch;
         set {
             if (mainSwitch == value) {
+                // prevent infinite recursion
                 return;
             }
             mainSwitch = value;
-            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
-                watcher.Refresh();
-            }
+            MainSwitchWatcher.instance?.Refresh();
             switch (value) {
                 case MainSwitchModes.Off:
                     Enabled = false;
@@ -105,10 +101,11 @@ public class TASHelperSettings : EverestModuleSettings {
 
     // we need to make it public, so this setting is stored
     // though we don't want anyone to visit it directly...
-    public bool showCycleHitboxColor = true;
 
-    [SettingDoNotSave]
-    internal bool ShowCycleHitboxColors {
+    private bool showCycleHitboxColor  {get; set; }= true;
+
+    [YamlIgnore]
+    public bool ShowCycleHitboxColors {
         get => Enabled && Awake_CycleHitboxColors && showCycleHitboxColor;
         set {
             showCycleHitboxColor = value;
@@ -119,10 +116,10 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_UsingNotInViewColor = true;
     public enum UsingNotInViewColorModes { Off, WhenUsingInViewRange, Always };
 
-    public UsingNotInViewColorModes usingNotInViewColorMode = UsingNotInViewColorModes.WhenUsingInViewRange;
+    private UsingNotInViewColorModes usingNotInViewColorMode { get; set; } = UsingNotInViewColorModes.WhenUsingInViewRange;
 
-    [SettingDoNotSave]
-    internal UsingNotInViewColorModes UsingNotInViewColorMode {
+    [YamlIgnore]
+    public UsingNotInViewColorModes UsingNotInViewColorMode {
         get => Enabled && Awake_UsingNotInViewColor ? usingNotInViewColorMode : UsingNotInViewColorModes.Off;
         set {
             usingNotInViewColorMode = value;
@@ -139,10 +136,10 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_CountdownModes = true;
     public enum CountdownModes { Off, _3fCycle, _15fCycle };
 
-    public CountdownModes countdownMode = CountdownModes.Off;
+    private CountdownModes countdownMode { get; set; } = CountdownModes.Off;
 
-    [SettingDoNotSave]
-    internal CountdownModes CountdownMode {
+    [YamlIgnore]
+    public CountdownModes CountdownMode {
         get => Enabled && Awake_CountdownModes ? countdownMode : CountdownModes.Off;
         set {
             countdownMode = value;
@@ -179,10 +176,10 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_LoadRange = true;
     public enum LoadRangeModes { Neither, InViewRange, NearPlayerRange, Both };
 
-    public LoadRangeModes loadRangeMode = LoadRangeModes.Neither;
+    private LoadRangeModes loadRangeMode { get; set; } = LoadRangeModes.Neither;
 
-    [SettingDoNotSave]
-    internal LoadRangeModes LoadRangeMode {
+    [YamlIgnore]
+    public LoadRangeModes LoadRangeMode {
         get => Enabled && Awake_LoadRange ? loadRangeMode : LoadRangeModes.Neither;
         set {
             loadRangeMode = value;
@@ -199,7 +196,9 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int NearPlayerRangeWidth { get; set; } = 8;
 
-    private int loadRangeOpacity = 4;
+    private int loadRangeOpacity { get; set; } = 4;
+
+    [YamlIgnore]
     public int LoadRangeOpacity {
         get => loadRangeOpacity;
         set {
@@ -215,10 +214,11 @@ public class TASHelperSettings : EverestModuleSettings {
     #region Simplified Spinner
 
     public bool Awake_EnableSimplifiedSpinner = true;
-    public bool enableSimplifiedSpinner = true;
 
-    [SettingDoNotSave]
-    internal bool EnableSimplifiedSpinner {
+    private bool enableSimplifiedSpinner { get; set; } = true;
+
+    [YamlIgnore]
+    public bool EnableSimplifiedSpinner {
         get => Enabled && Awake_EnableSimplifiedSpinner && enableSimplifiedSpinner;
         set {
             enableSimplifiedSpinner = value;
@@ -228,8 +228,9 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum ClearSpritesMode { Off, WhenSimplifyGraphics, Always };
 
-    private ClearSpritesMode enforceClearSprites = ClearSpritesMode.WhenSimplifyGraphics;
+    private ClearSpritesMode enforceClearSprites { get; set; } = ClearSpritesMode.WhenSimplifyGraphics;
 
+    [YamlIgnore]
     public ClearSpritesMode EnforceClearSprites {
         get => enforceClearSprites;
         set => enforceClearSprites = value;
@@ -237,8 +238,9 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
 
+    private int spinnerFillerOpacity { get; set; } = 3;
 
-    private int spinnerFillerOpacity = 3;
+    [YamlIgnore]
     public int SpinnerFillerOpacity {
         get => spinnerFillerOpacity;
         set {
@@ -250,10 +252,11 @@ public class TASHelperSettings : EverestModuleSettings {
 
 
     public bool Awake_EntityActivatorReminder = true;
-    public bool entityActivatorReminder = true;
 
-    [SettingDoNotSave]
-    internal bool EntityActivatorReminder {
+    private bool entityActivatorReminder { get; set; } = true;
+
+    [YamlIgnore]
+    public bool EntityActivatorReminder {
         get => Enabled && Awake_EntityActivatorReminder && entityActivatorReminder;
         set {
             entityActivatorReminder = value;
@@ -307,10 +310,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_CameraTarget = true;
 
-    public bool usingCameraTarget = false;
+    private bool usingCameraTarget { get; set; } = false;
 
-    [SettingDoNotSave]
-    internal bool UsingCameraTarget {
+    [YamlIgnore]
+    public bool UsingCameraTarget {
         get => Enabled && Awake_CameraTarget && usingCameraTarget;
         set {
             usingCameraTarget = value;
@@ -322,10 +325,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_PixelGrid = true;
 
-    public bool enablePixelGrid = false;
+    private bool enablePixelGrid { get; set; } = false;
 
-    [SettingDoNotSave]
-    internal bool EnablePixelGrid {
+    [YamlIgnore]
+    public bool EnablePixelGrid {
         get => Enabled && Awake_PixelGrid && enablePixelGrid;
         set {
             enablePixelGrid = value;
@@ -338,10 +341,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_SpawnPoint = true;
 
-    public bool usingSpawnPoint = true;
+    private bool usingSpawnPoint { get; set; } = true;
 
-    [SettingDoNotSave]
-    internal bool UsingSpawnPoint {
+    [YamlIgnore]
+    public bool UsingSpawnPoint {
         get => Enabled && Awake_SpawnPoint && usingSpawnPoint;
         set {
             usingSpawnPoint = value;
@@ -355,10 +358,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_FireBallTrack = true;
 
-    public bool usingFireBallTrack = false;
+    private bool usingFireBallTrack { get; set; } = false;
 
-    [SettingDoNotSave]
-    internal bool UsingFireBallTrack {
+    [YamlIgnore]
+    public bool UsingFireBallTrack {
         get => Enabled && Awake_FireBallTrack && usingFireBallTrack;
         set {
             usingFireBallTrack = value;
@@ -368,8 +371,9 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool AllowEnableModWithMainSwitch = true;
 
-    private bool mainSwitchStateVisualize = true;
+    private bool mainSwitchStateVisualize { get; set; } = true;
 
+    [YamlIgnore]
     public bool MainSwitchStateVisualize {
         get => mainSwitchStateVisualize;
         set {
@@ -380,8 +384,9 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    private bool mainSwitchThreeStates = false;
+    private bool mainSwitchThreeStates { get; set; } = false;
 
+    [YamlIgnore]
     public bool MainSwitchThreeStates {
         get => mainSwitchThreeStates;
         set {
@@ -396,12 +401,12 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region HotKey
 
-    private static ButtonBinding keyMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
-    private static ButtonBinding keyCountDown { get; set; } = new(0, Keys.LeftControl, Keys.R);
-    private static ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
-    private static ButtonBinding keyPixelGridWidth { get; set; } = new(0, Keys.LeftControl, Keys.F);
+    private ButtonBinding keyMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
+    private ButtonBinding keyCountDown { get; set; } = new(0, Keys.LeftControl, Keys.R);
+    private ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
+    private ButtonBinding keyPixelGridWidth { get; set; } = new(0, Keys.LeftControl, Keys.F);
 
-
+    [YamlIgnore]
     [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
     [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
     [SettingDescriptionHardcoded]
@@ -414,6 +419,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    [YamlIgnore]
     [SettingName("TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.R)]
     public ButtonBinding KeyCountDown {
@@ -424,6 +430,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    [YamlIgnore]
     [SettingName("TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.T)]
     public ButtonBinding KeyLoadRange {
@@ -434,6 +441,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    [YamlIgnore]
     [SettingName("TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.F)]
     public ButtonBinding KeyPixelGridWidth {
@@ -444,13 +452,17 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    private Hotkey MainSwitchHotkey { get; set; } = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
+    [YamlIgnore]
+    private Hotkey MainSwitchHotkey;
 
-    private Hotkey CountDownHotkey { get; set; } = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
+    [YamlIgnore]
+    private Hotkey CountDownHotkey;
 
-    private Hotkey LoadRangeHotkey { get; set; } = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
+    [YamlIgnore]
+    private Hotkey LoadRangeHotkey;
 
-    private Hotkey PixelGridWidthHotkey { get; set; } = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
+    [YamlIgnore]
+    private Hotkey PixelGridWidthHotkey;
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
     public bool SettingsHotkeysPressed() {
@@ -543,11 +555,6 @@ public class TASHelperSettings : EverestModuleSettings {
 }
 
 [AttributeUsage(AttributeTargets.Property)]
-public class SettingDoNotSaveAttribute : Attribute {
-    // if possible i wanna solve this issue using only such an attribute
-}
-
-[AttributeUsage(AttributeTargets.Property)]
 public class SettingDescriptionHardcodedAttribute : Attribute {
     public string description() {
         if (Dialog.Language == Dialog.Languages["schinese"]) {
@@ -557,56 +564,4 @@ public class SettingDescriptionHardcodedAttribute : Attribute {
     }
 }
 
-
-public static class TasHelperSettingsAlias {
-    public static bool ShowCycleHitboxColors {
-        get => TasHelperSettings.ShowCycleHitboxColors;
-        set => TasHelperSettings.ShowCycleHitboxColors = value;
-    }
-
-    public static UsingNotInViewColorModes UsingNotInViewColorMode {
-        get => TasHelperSettings.UsingNotInViewColorMode;
-        set => TasHelperSettings.UsingNotInViewColorMode = value;
-    }
-
-    public static CountdownModes CountdownMode {
-        get => TasHelperSettings.CountdownMode;
-        set => TasHelperSettings.CountdownMode = value;
-    }
-
-    public static LoadRangeModes LoadRangeMode {
-        get => TasHelperSettings.LoadRangeMode;
-        set => TasHelperSettings.LoadRangeMode = value;
-    }
-
-    public static bool EnableSimplifiedSpinner {
-        get => TasHelperSettings.EnableSimplifiedSpinner;
-        set => TasHelperSettings.EnableSimplifiedSpinner = value;
-    }
-
-    public static bool EntityActivatorReminder {
-        get => TasHelperSettings.EntityActivatorReminder;
-        set => TasHelperSettings.EntityActivatorReminder = value;
-    }
-
-    public static bool UsingCameraTarget {
-        get => TasHelperSettings.UsingCameraTarget;
-        set => TasHelperSettings.UsingCameraTarget = value;
-    }
-
-    public static bool EnablePixelGrid {
-        get => TasHelperSettings.EnablePixelGrid;
-        set => TasHelperSettings.EnablePixelGrid = value;
-    }
-
-    public static bool UsingSpawnPoint {
-        get => TasHelperSettings.UsingSpawnPoint;
-        set => TasHelperSettings.UsingSpawnPoint = value;
-    }
-
-    public static bool UsingFireBallTrack {
-        get => TasHelperSettings.UsingFireBallTrack;
-        set => TasHelperSettings.UsingFireBallTrack = value;
-    }
-}
 

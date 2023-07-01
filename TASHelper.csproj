@@ -36,14 +36,14 @@
     <Reference Include="ChronoHelper">
       <HintPath>Libs\ChronoHelper.dll</HintPath>
     </Reference>
+    <Reference Include="FNA">
+      <HintPath>Libs\FNA.dll</HintPath>
+    </Reference>
     <Reference Include="vitmod">
       <HintPath>Libs\CrystallineHelper.dll</HintPath>
     </Reference>
     <Reference Include="ExtendedVariantMode">
       <HintPath>Libs\ExtendedVariantMode.dll</HintPath>
-    </Reference>
-    <Reference Include="FNA">
-      <HintPath>Libs\FNA.dll</HintPath>
     </Reference>
     <Reference Include="FrostTempleHelper">
       <HintPath>Libs\FrostTempleHelper.dll</HintPath>
@@ -62,6 +62,9 @@
     <Reference Include="VivHelper">
       <HintPath>Libs\VivHelper.dll</HintPath>
     </Reference>
+    <Reference Include="YamlDotNet">
+      <HintPath>bin\Release\net4.5.2\YamlDotNet_v9.1.4.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -75,4 +78,9 @@
   <ItemGroup>
     <None Remove="Libs\**" />
   </ItemGroup>
+
+	<Target Name="ILRepacker" AfterTargets="AfterBuild">
+		<Exec Command="ILRepack /lib:Libs\ /out:bin\Release\net4.5.2\TASHelper.dll bin\Release\net4.5.2\TASHelper.dll bin\Release\net4.5.2\YamlDotNet_v9.1.4.dll" />
+	</Target>
+			
 </Project>
