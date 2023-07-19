@@ -21,10 +21,25 @@ public class TASHelperSettings : EverestModuleSettings {
     internal void OnLoadSettings() {
         // Everest will save & load settings of public fields/properties when open the game
         // but in the Awake system, only those private field like showCycleHitboxColor matters
-        // so i hack SaveSettings, upgrade to YamlDotNet13 to support Serializing private fields
+        // so i hack SaveSettings, upgrade to YamlDotNet9 to support Serializing private properties
         // also i mark those public fields as YamlIgnore, as there's no need to save them
 
         UpdateAuxiliaryVariable();
+
+        if (keyMainSwitch is null) {
+            keyMainSwitch = new(0, Keys.LeftControl, Keys.E);
+        }
+        if (keyCountDown is null) {
+            keyCountDown = new(0, Keys.LeftControl, Keys.R);
+        }
+        if (keyLoadRange is null) {
+            keyLoadRange = new(0, Keys.LeftControl, Keys.T);
+        }
+        if (keyPixelGridWidth is null) {
+            keyPixelGridWidth = new(0, Keys.LeftControl, Keys.F);
+        }
+        // it seems some bug can happen with deserialization (though not for me, so i add these codes in case of accident)
+
         MainSwitchHotkey = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
         CountDownHotkey = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
         LoadRangeHotkey = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
@@ -469,82 +484,101 @@ public class TASHelperSettings : EverestModuleSettings {
         if (Engine.Scene is not Level level) {
             return false;
         }
+
         bool updateKey = true;
         bool updateButton = true;
-        bool InOuiModOption = TASHelperMenu.mainItem?.Container?.Focused is bool b && b;
-        if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(KeyboardConfigUI), out var list) && list.Count > 0) ||
-            (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list2) && list2.Count > 0)) {
-            updateKey = false;
+        try {
+            bool InOuiModOption = TASHelperMenu.mainItem?.Container?.Focused is bool b && b;
+            if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(KeyboardConfigUI), out var list) && list.Count > 0) ||
+                (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list2) && list2.Count > 0)) {
+                updateKey = false;
+            }
+            if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(ButtonConfigUI), out var list3) && list3.Count > 0)) {
+                updateButton = false;
+            }
         }
-        if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(ButtonConfigUI), out var list3) && list3.Count > 0)) {
-            updateButton = false;
+        catch (Exception ex1) {
+            Logger.Log(LogLevel.Error, "TASHelper","PossibleBugPlace1");
+            Logger.LogDetailed(ex1);
         }
-        MainSwitchHotkey.Update(updateKey, updateButton);
-        CountDownHotkey.Update(updateKey, updateButton);
-        LoadRangeHotkey.Update(updateKey, updateButton);
-        PixelGridWidthHotkey.Update(updateKey, updateButton);
+        try { 
+            MainSwitchHotkey.Update(updateKey, updateButton);
+            CountDownHotkey.Update(updateKey, updateButton);
+            LoadRangeHotkey.Update(updateKey, updateButton);
+            PixelGridWidthHotkey.Update(updateKey, updateButton);
+        }
+        catch (Exception ex2){
+            Logger.Log(LogLevel.Error, "TASHelper", "PossibleBugPlace2");
+            Logger.LogDetailed(ex2);
+        }
         bool changed = false;
-        if (MainSwitchHotkey.Pressed) {
-            changed = true;
-            switch (MainSwitch) {
-                case MainSwitchModes.Off: {
-                        if (!AllowEnableModWithMainSwitch) {
-                            changed = false;
-                            MainSwitchWatcher.instance?.Refresh(true);
+        try {
+            if (MainSwitchHotkey.Pressed) {
+                changed = true;
+                switch (MainSwitch) {
+                    case MainSwitchModes.Off: {
+                            if (!AllowEnableModWithMainSwitch) {
+                                changed = false;
+                                MainSwitchWatcher.instance?.Refresh(true);
+                                break;
+                            }
+                            MainSwitch = MainSwitchThreeStates ? MainSwitchModes.OnlyDefault : MainSwitchModes.AllowAll;
                             break;
                         }
-                        MainSwitch = MainSwitchThreeStates ? MainSwitchModes.OnlyDefault : MainSwitchModes.AllowAll;
-                        break;
+                    // it may happen that MainSwitchThreeStates = false but MainSwitch = OnlyDefault... it's ok
+                    case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
+                    case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
+                }
+            }
+            if (CountDownHotkey.Pressed) {
+                if (Enabled) {
+                    changed = true;
+                    switch (CountdownMode) {
+                        case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
+                        case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
+                        case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
                     }
-                // it may happen that MainSwitchThreeStates = false but MainSwitch = OnlyDefault... it's ok
-                case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
-                case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
-            }
-        }
-        if (CountDownHotkey.Pressed) {
-            if (Enabled) {
-                changed = true;
-                switch (CountdownMode) {
-                    case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
-                    case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
-                    case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
+                }
+                else {
+                    MainSwitchWatcher.instance?.RefreshOther();
                 }
             }
-            else {
-                MainSwitchWatcher.instance?.RefreshOther();
-            }
-        }
-        if (LoadRangeHotkey.Pressed) {
-            if (Enabled) {
-                changed = true;
-                switch (LoadRangeMode) {
-                    case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
-                    case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
-                    case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; break;
-                    case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
+            if (LoadRangeHotkey.Pressed) {
+                if (Enabled) {
+                    changed = true;
+                    switch (LoadRangeMode) {
+                        case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
+                        case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
+                        case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; break;
+                        case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
+                    }
+                }
+                else {
+                    MainSwitchWatcher.instance?.RefreshOther();
                 }
             }
-            else {
-                MainSwitchWatcher.instance?.RefreshOther();
-            }
-        }
-        if (PixelGridWidthHotkey.Pressed) {
-            if (Enabled) {
-                changed = true;
-                EnablePixelGrid = true;
-                PixelGridWidth = PixelGridWidth switch {
-                    < 2 => 2,
-                    < 4 => 4,
-                    < 8 => 8,
-                    _ => 0,
-                };
-                if (PixelGridWidth == 0) {
-                    EnablePixelGrid = false;
+            if (PixelGridWidthHotkey.Pressed) {
+                if (Enabled) {
+                    changed = true;
+                    EnablePixelGrid = true;
+                    PixelGridWidth = PixelGridWidth switch {
+                        < 2 => 2,
+                        < 4 => 4,
+                        < 8 => 8,
+                        _ => 0,
+                    };
+                    if (PixelGridWidth == 0) {
+                        EnablePixelGrid = false;
+                    }
+                }
+                else {
+                    MainSwitchWatcher.instance?.RefreshOther();
                 }
             }
-            else {
-                MainSwitchWatcher.instance?.RefreshOther();
-            }
+        }
+        catch (Exception ex3) {
+            Logger.Log(LogLevel.Error, "TASHelper", "PossibleBugPlace3");
+            Logger.LogDetailed(ex3);
         }
         return changed;
     }
