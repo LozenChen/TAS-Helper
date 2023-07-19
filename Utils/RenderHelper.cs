@@ -72,25 +72,25 @@ internal static class RenderHelper {
 #pragma warning restore CS8524
     }
 
-    private const string nocycle = "0";
-    private const string infinity = "oo";
+    internal const int ID_nocycle = -2;
+    internal const int ID_infinity = -1;
     public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index) {
         if (TasHelperSettings.usingHiresFont) {
             // when TimeRate > 1, NeverActivate can activate; when TimeRate < 1, FreezeActivatesEveryFrame can take more than 0 frame.
             // so in these cases i just use CountdownTimer
             // here by TimeRate i actually mean DeltaTime / RawDeltaTime
             // note in 2023 Jan, Everest introduced TimeRateModifier in the calculation of Engine.DeltaTime, so it's no longer DeltaTime = RawDeltaTime * TimeRate * TimeRateB
-            string str;
+            int ID;
             if (index == SpinnerColorIndex.NoCycle) {
-                str = nocycle;
+                ID = ID_nocycle;
             }
             else if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
-                str = infinity;
+                ID = ID_infinity;
             }
             else {
-                str = CountdownTimer.ToString();
+                ID = CountdownTimer;
             }
-            HiresLevelRenderer.Add(new OneFrameTextRenderer(str, (Position + new Vector2(1.5f, -0.5f)) * 6f));
+            CountdownRenderer.Add(ID, (Position + new Vector2(1.5f, -0.5f)) * 6f);
             return;
         }
         else {

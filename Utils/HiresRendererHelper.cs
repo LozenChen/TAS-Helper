@@ -14,12 +14,14 @@ public static class HiresLevelRenderer {
         On.Celeste.Level.Begin += OnLevelBegin;
         On.Celeste.Level.End += OnLevelEnd;
         IL.Celeste.Level.Render += ILLevelRender;
+        CountdownRenderer.Load();
     }
 
     public static void Unload() {
         On.Celeste.Level.Begin -= OnLevelBegin;
         On.Celeste.Level.End -= OnLevelEnd;
         IL.Celeste.Level.Render -= ILLevelRender;
+        CountdownRenderer.Unload();
     }
 
     private static void OnLevelBegin(On.Celeste.Level.orig_Begin orig, Level self) {
@@ -53,6 +55,10 @@ public static class HiresLevelRenderer {
 
     public static void Remove(THRenderer renderer) {
         toRemove.Add(renderer);
+    }
+
+    public static bool Contains(THRenderer renderer) {
+        return list.Contains(renderer);
     }
 
     public static void UpdateLists() {
@@ -97,6 +103,10 @@ public static class HiresLevelRenderer {
             renderer.Update();
         }
         UpdateLists();
+        foreach (THRenderer renderer in list) {
+            renderer.BeforeRender();
+        }
+
         Engine.Instance.GraphicsDevice.SetRenderTarget(HiresLevelTarget);
         Engine.Instance.GraphicsDevice.Clear(Color.Transparent);
         camera.Position = level.Camera.Position * 6f;
@@ -112,6 +122,10 @@ public static class HiresLevelRenderer {
             renderer.Render();
         }
         Draw.SpriteBatch.End();
+
+        foreach (THRenderer renderer in list) {
+            renderer.AfterRender();
+        }
     }
     public static void MapToScreen(Level self) {
         float scale = self.Zoom * ((320f - self.ScreenPadding * 2f) / 320f);
@@ -157,5 +171,65 @@ public class OneFrameTextRenderer : THRenderer {
     public override void Render() {
         Message.RenderMessage(text, position, new Vector2(0.5f, 0.2f), new Vector2(TasHelperSettings.HiresFontSize / 10f), TasHelperSettings.HiresFontStroke * 0.4f);
         HiresLevelRenderer.Remove(this);
+    }
+}
+
+public class CountdownRenderer: THRenderer {
+    public static CountdownRenderer Instance;
+
+    public static Dictionary<int, List<Vector2>> ID2Positions = new Dictionary<int, List<Vector2>>();
+
+    public CountdownRenderer() {
+        Instance = this;
+        ID2Positions = new Dictionary<int, List<Vector2>>();
+    }
+    public static void Load() {
+        On.Celeste.Level.LoadLevel += OnLoadLevel;
+    }
+
+    public static void Unload() {
+        On.Celeste.Level.LoadLevel -= OnLoadLevel;
+    }
+
+    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
+        orig(level, playerIntro, isFromLoader);
+        if (Instance is null || !HiresLevelRenderer.Contains(Instance)) {
+            HiresLevelRenderer.Add(new CountdownRenderer());
+        }
+    }
+
+    public static void Add(int ID, Vector2 Position) {
+        if (!ID2Positions.ContainsKey(ID)) {
+            ID2Positions.Add(ID, new List<Vector2>());
+        }
+        ID2Positions[ID].Add(Position);
+    }
+    public override void Render() {
+        Vector2 scale = new Vector2(TasHelperSettings.HiresFontSize / 10f);
+        float stroke = TasHelperSettings.HiresFontStroke * 0.4f;
+        foreach (int ID in ID2Positions.Keys) {
+            string str;
+            if (ID >= 0 && ID < 100) {
+                str = ID.ToString();
+            }
+            else if (ID == RenderHelper.ID_infinity) {
+                str = "oo";
+            }
+            else if (ID == RenderHelper.ID_nocycle) {
+                str = "0";
+            }
+            else {
+                throw new Exception($"[Error] TASHelper: Unexpected ID ({ID}) in CountdownRenderer!");
+            }
+            foreach (Vector2 Position in ID2Positions[ID]) {
+                Message.RenderMessage(str, Position, new Vector2(0.5f, 0.2f), scale, stroke);
+            }
+        }
+    }
+
+    public override void AfterRender() {
+        foreach (int ID in ID2Positions.Keys) {
+            ID2Positions[ID].Clear();
+        }
     }
 }

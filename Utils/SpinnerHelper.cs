@@ -15,15 +15,15 @@ public static class SpinnerHelper {
     public static float[] PredictLoadTimeActive = new float[10];
     public static float[] PredictUnloadTimeActive = new float[100];
     public static void Load() {
-        On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
+        On.Monocle.Scene.BeforeRender += PatchBeforeRender;
     }
     public static void Unload() {
-        On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
+        On.Monocle.Scene.BeforeRender -= PatchBeforeRender;
     }
 
     // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
     [MethodImpl(MethodImplOptions.NoOptimization)]
-    private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
+    private static void PatchBeforeRender(On.Monocle.Scene.orig_BeforeRender orig, Scene self) {
         orig(self);
         float time = TimeActive = self.TimeActive;
         for (int i = 0; i <= 9; i++) {

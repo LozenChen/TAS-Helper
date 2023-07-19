@@ -27,16 +27,16 @@ public class TASHelperSettings : EverestModuleSettings {
         UpdateAuxiliaryVariable();
 
         if (keyMainSwitch is null) {
-            keyMainSwitch = new(0, Keys.LeftControl, Keys.E);
+            keyMainSwitch = new((Buttons)0, Keys.LeftControl, Keys.E);
         }
         if (keyCountDown is null) {
-            keyCountDown = new(0, Keys.LeftControl, Keys.R);
+            keyCountDown = new((Buttons)0, Keys.LeftControl, Keys.R);
         }
         if (keyLoadRange is null) {
-            keyLoadRange = new(0, Keys.LeftControl, Keys.T);
+            keyLoadRange = new((Buttons)0, Keys.LeftControl, Keys.T);
         }
         if (keyPixelGridWidth is null) {
-            keyPixelGridWidth = new(0, Keys.LeftControl, Keys.F);
+            keyPixelGridWidth = new((Buttons)0, Keys.LeftControl, Keys.F);
         }
         // it seems some bug can happen with deserialization (though not for me, so i add these codes in case of accident)
 
@@ -416,10 +416,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region HotKey
 
-    private ButtonBinding keyMainSwitch { get; set; } = new(0, Keys.LeftControl, Keys.E);
-    private ButtonBinding keyCountDown { get; set; } = new(0, Keys.LeftControl, Keys.R);
-    private ButtonBinding keyLoadRange { get; set; } = new(0, Keys.LeftControl, Keys.T);
-    private ButtonBinding keyPixelGridWidth { get; set; } = new(0, Keys.LeftControl, Keys.F);
+    private ButtonBinding keyMainSwitch { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.E);
+    private ButtonBinding keyCountDown { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.R);
+    private ButtonBinding keyLoadRange { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.T);
+    private ButtonBinding keyPixelGridWidth { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.F);
 
     [YamlIgnore]
     [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
