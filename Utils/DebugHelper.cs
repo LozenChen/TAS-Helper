@@ -16,8 +16,6 @@ public static class DebugHelper {
     public static bool UsingEntityLog => usingDebug && usingEntityLog;
 
     public static bool LogFPS = false;
-    public static float PlayerIntPositionX { get => PlayerHelper.player.X; set => PlayerHelper.player.X = value; }
-    public static float PlayerIntPositionY { get => PlayerHelper.player.Y; set => PlayerHelper.player.Y = value; }
 
     public static Dictionary<string, int> dict = new();
     internal static void Load() {

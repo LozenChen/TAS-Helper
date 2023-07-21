@@ -253,7 +253,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
 
-    private int spinnerFillerOpacity { get; set; } = 3;
+    private int spinnerFillerOpacity { get; set; } = 2;
 
     [YamlIgnore]
     public int SpinnerFillerOpacity {
