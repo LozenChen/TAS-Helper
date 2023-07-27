@@ -1,7 +1,7 @@
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Gameplay;
+using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
-using Celeste.Mod.TASHelper.Utils.Menu;
 
 namespace Celeste.Mod.TASHelper.Module;
 

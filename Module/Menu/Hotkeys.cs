@@ -1,11 +1,11 @@
-using Celeste.Mod.TASHelper.Module;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework.Input;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System.Reflection;
 using TAS.EverestInterop;
 
-namespace Celeste.Mod.TASHelper.Utils.Menu;
+namespace Celeste.Mod.TASHelper.Module.Menu;
 
 internal static class TH_Hotkeys {
 

@@ -1,5 +1,5 @@
 using Celeste.Mod.TASHelper.Entities;
-using Celeste.Mod.TASHelper.Utils.Menu;
+using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;

@@ -1,7 +1,7 @@
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.ObjectFactories;
 
-namespace Celeste.Mod.TASHelper.Utils.Menu {
+namespace Celeste.Mod.TASHelper.Module.Menu {
 
     // need YamlDotNet ver >= 9 to support this
     // note this only works for non public properties, but not non public fields
@@ -14,7 +14,7 @@ namespace Celeste.Mod.TASHelper.Utils.Menu {
         public static IDeserializer DeserializerUsing(object objectToBind) {
             IObjectFactory defaultObjectFactory = new DefaultObjectFactory();
             Type objectType = objectToBind.GetType();
-            return new DeserializerBuilder().IncludeNonPublicProperties().IgnoreUnmatchedProperties().WithObjectFactory((Type type) => (!(type == objectType)) ? defaultObjectFactory.Create(type) : objectToBind).Build();
+            return new DeserializerBuilder().IncludeNonPublicProperties().IgnoreUnmatchedProperties().WithObjectFactory((type) => !(type == objectType) ? defaultObjectFactory.Create(type) : objectToBind).Build();
         }
     }
 }

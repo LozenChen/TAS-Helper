@@ -1,5 +1,5 @@
-﻿using Celeste.Mod.TASHelper.Utils;
-using Celeste.Mod.TASHelper.Utils.Menu;
+﻿using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
 using FMOD.Studio;
 using CMCore = Celeste.Mod.Core;
 
@@ -53,7 +53,7 @@ public class TASHelperModule : EverestModule {
         try {
             using Stream stream = File.OpenRead(path);
             using StreamReader input = new StreamReader(stream);
-            Utils.Menu.TH_YamlHelper.DeserializerUsing(_Settings).Deserialize(input, SettingsType);
+            TH_YamlHelper.DeserializerUsing(_Settings).Deserialize(input, SettingsType);
         }
         catch (Exception e) {
             Logger.Log(LogLevel.Warn, "EverestModule", "Failed to load the settings of " + Metadata.Name + "!");
@@ -85,7 +85,7 @@ public class TASHelperModule : EverestModule {
         try {
             using FileStream fileStream = File.OpenWrite(saveFilePath);
             using StreamWriter writer = new StreamWriter(fileStream);
-            Utils.Menu.TH_YamlHelper.Serializer.Serialize(writer, _Settings, SettingsType);
+            TH_YamlHelper.Serializer.Serialize(writer, _Settings, SettingsType);
             if (flag || ((CMCore.CoreModule.Settings.SaveDataFlush ?? true) && !MainThreadHelper.IsMainThread)) {
                 fileStream.Flush(flushToDisk: true);
             }

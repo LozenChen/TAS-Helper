@@ -1,10 +1,9 @@
-using Celeste.Mod.TASHelper.Module;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Reflection;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 
-namespace Celeste.Mod.TASHelper.Utils.Menu;
+namespace Celeste.Mod.TASHelper.Module.Menu;
 
 internal static class TASHelperMenu {
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));

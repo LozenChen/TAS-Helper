@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Module;
 using Celeste.Mod.UI;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -10,7 +9,7 @@ using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 using static Celeste.TextMenuExt;
 using static TAS.EverestInterop.Hitboxes.HitboxColor;
 
-namespace Celeste.Mod.TASHelper.Utils.Menu;
+namespace Celeste.Mod.TASHelper.Module.Menu;
 
 public static class CustomColors {
 
