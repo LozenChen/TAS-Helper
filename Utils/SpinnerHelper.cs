@@ -15,15 +15,15 @@ public static class SpinnerHelper {
     public static float[] PredictLoadTimeActive = new float[10];
     public static float[] PredictUnloadTimeActive = new float[100];
     public static void Load() {
-        On.Monocle.Scene.BeforeRender += PatchBeforeRender;
+        On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
     }
     public static void Unload() {
-        On.Monocle.Scene.BeforeRender -= PatchBeforeRender;
+        On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
     }
 
     // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
     [MethodImpl(MethodImplOptions.NoOptimization)]
-    private static void PatchBeforeRender(On.Monocle.Scene.orig_BeforeRender orig, Scene self) {
+    private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
         orig(self);
         float time = TimeActive = self.TimeActive;
         for (int i = 0; i <= 9; i++) {
@@ -34,6 +34,7 @@ public static class SpinnerHelper {
             PredictUnloadTimeActive[i] = time;
             time += Engine.DeltaTime;
         }
+        // this must be before tas mod's FreeCameraHitbox.SubHudRendererOnBeforeRender, otherwise spinners will flash if you zoom out in center camera mode
     }
 
     private static void DictionaryAdderNormal(Type type, string offsetName, int HazardType) {
