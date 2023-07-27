@@ -12,8 +12,8 @@ internal static class GlobalVariables {
 
     public static bool DebugRendered {
         get {
-            try { 
-                return HitboxToggle.DrawHitboxes || Engine.Commands.Open || GameplayRenderer.RenderDebug; 
+            try {
+                return HitboxToggle.DrawHitboxes || Engine.Commands.Open || GameplayRenderer.RenderDebug;
             }
             catch {
                 // don't know why but several bugs about this have been reported
@@ -23,6 +23,8 @@ internal static class GlobalVariables {
 
         private set { }
     }
+
+    public static bool UltraFastForwarding => TAS.Manager.UltraFastForwarding;
 }
 
 

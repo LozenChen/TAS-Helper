@@ -1,26 +1,29 @@
 using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Gameplay;
+using Celeste.Mod.TASHelper.Utils;
+using Celeste.Mod.TASHelper.Utils.Menu;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Module;
 
 internal static class Loader {
 
     // order: all mods load -> all mods initialize ~= all mods load content
     public static void EntityLoad() {
-        LoadRangeCountDownCameraTarget.Load();
+
         PixelGridHook.Load();
-        SimplifiedSpinner.Load();
+
         Messenger.Load();
         SpawnPoint.Load();
-        FireBallTrack.Load();
+
     }
 
     public static void EntityUnload() {
-        LoadRangeCountDownCameraTarget.Unload();
+
         PixelGridHook.Unload();
-        SimplifiedSpinner.Unload();
+
         Messenger.Unload();
         SpawnPoint.Unload();
-        FireBallTrack.Unload();
+
     }
 
     public static void HelperLoad() {
@@ -28,9 +31,15 @@ internal static class Loader {
         RenderHelper.Load();
         SpinnerHelper.Load();
         HiresLevelRenderer.Load();
-        Logger.Load();
+        Utils.Logger.Load();
         DebugHelper.Load();
         TH_Hotkeys.Load();
+
+
+        LoadRangeCountDownCameraTarget.Load();
+        SimplifiedSpinner.Load();
+        FireBallTrack.Load();
+
         HookHelper.Load();
     }
     public static void HelperUnload() {
@@ -38,9 +47,12 @@ internal static class Loader {
         RenderHelper.Unload();
         SpinnerHelper.Unload();
         HiresLevelRenderer.Unload();
-        Logger.Unload();
+        Utils.Logger.Unload();
         DebugHelper.Unload();
         TH_Hotkeys.Unload();
+        LoadRangeCountDownCameraTarget.Unload();
+        SimplifiedSpinner.Unload();
+        FireBallTrack.Unload();
         HookHelper.Unload();
     }
 

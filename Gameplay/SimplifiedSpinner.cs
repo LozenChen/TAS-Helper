@@ -7,7 +7,7 @@ using TAS.EverestInterop.Hitboxes;
 using ChronoEntities = Celeste.Mod.ChronoHelper.Entities;
 using VivEntities = VivHelper.Entities;
 
-namespace Celeste.Mod.TASHelper.Entities;
+namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class SimplifiedSpinner {
 
     public static bool SpritesCleared => DebugRendered && TasHelperSettings.ClearSpinnerSprites;
@@ -59,20 +59,20 @@ internal static class SimplifiedSpinner {
         // this one must be at first
         typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Action<Level>>(IlLevelBeforeRender);
+            cursor.EmitDelegate(IlLevelBeforeRender);
         });
 
         if (ModUtils.FrostHelperInstalled) {
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Level>>(FrostBeforeRender);
+                cursor.EmitDelegate(FrostBeforeRender);
             });
         }
         if (ModUtils.VivHelperInstalled) {
             CreateVivGetter();
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Level>>(VivBeforeRender);
+                cursor.EmitDelegate(VivBeforeRender);
             });
         }
 
@@ -80,7 +80,7 @@ internal static class SimplifiedSpinner {
             CreateChronoGetter();
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Level>>(ChronoBeforeRender);
+                cursor.EmitDelegate(ChronoBeforeRender);
             });
         }
 
@@ -88,7 +88,7 @@ internal static class SimplifiedSpinner {
             TrackCassetteSpinner();
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Level>>(BrokemiaBeforeRender);
+                cursor.EmitDelegate(BrokemiaBeforeRender);
             });
         }
 
@@ -96,7 +96,7 @@ internal static class SimplifiedSpinner {
             TrackDreamSpinnerRenderer();
             typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Level>>(IsaGrabBagBeforeRender);
+                cursor.EmitDelegate(IsaGrabBagBeforeRender);
             });
         }
 
@@ -270,7 +270,7 @@ internal static class SimplifiedSpinner {
 #pragma warning restore CS8629
         Color color = RenderHelper.GetSpinnerColor(index);
         // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
-        if (!SpinnerHelper.isLightning(self) && TasHelperSettings.EnableSimplifiedSpinner) {
+        if (!self.isLightning() && TasHelperSettings.EnableSimplifiedSpinner) {
             RenderHelper.DrawSpinnerCollider(self, color);
         }
         else {

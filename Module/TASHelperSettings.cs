@@ -1,10 +1,10 @@
 using Celeste.Mod.TASHelper.Entities;
-using Celeste.Mod.TASHelper.Utils;
+using Celeste.Mod.TASHelper.Utils.Menu;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
-using YamlDotNet.Serialization;
 using TAS.EverestInterop;
+using YamlDotNet.Serialization;
 using static TAS.EverestInterop.Hotkeys;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -117,7 +117,7 @@ public class TASHelperSettings : EverestModuleSettings {
     // we need to make it public, so this setting is stored
     // though we don't want anyone to visit it directly...
 
-    private bool showCycleHitboxColor  {get; set; }= true;
+    private bool showCycleHitboxColor { get; set; } = true;
 
     [YamlIgnore]
     public bool ShowCycleHitboxColors {
@@ -498,16 +498,16 @@ public class TASHelperSettings : EverestModuleSettings {
             }
         }
         catch (Exception ex1) {
-            Logger.Log(LogLevel.Error, "TASHelper","PossibleBugPlace1");
+            Logger.Log(LogLevel.Error, "TASHelper", "PossibleBugPlace1");
             Logger.LogDetailed(ex1);
         }
-        try { 
+        try {
             MainSwitchHotkey.Update(updateKey, updateButton);
             CountDownHotkey.Update(updateKey, updateButton);
             LoadRangeHotkey.Update(updateKey, updateButton);
             PixelGridWidthHotkey.Update(updateKey, updateButton);
         }
-        catch (Exception ex2){
+        catch (Exception ex2) {
             Logger.Log(LogLevel.Error, "TASHelper", "PossibleBugPlace2");
             Logger.LogDetailed(ex2);
         }

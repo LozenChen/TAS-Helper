@@ -1,5 +1,5 @@
 using Monocle;
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Gameplay;
 
 public static class ConsoleCommands {
     [Command("spinner_freeze", "Quick command to set Level.TimeActive 524288 (TAS Helper)")]

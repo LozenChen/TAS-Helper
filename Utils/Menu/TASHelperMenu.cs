@@ -1,10 +1,10 @@
-using Celeste.Mod.TASHelper.Utils;
+using Celeste.Mod.TASHelper.Module;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Reflection;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 
-namespace Celeste.Mod.TASHelper.Module;
+namespace Celeste.Mod.TASHelper.Utils.Menu;
 
 internal static class TASHelperMenu {
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
@@ -334,7 +334,7 @@ public class ModuleSettingsKeyboardConfigUIExt : ModuleSettingsKeyboardConfigUI 
 
         foreach (PropertyInfo prop in Module.SettingsType.GetProperties()) {
             if ((attribInGame = prop.GetCustomAttribute<SettingInGameAttribute>()) != null &&
-                attribInGame.InGame != (Engine.Scene is Level))
+                attribInGame.InGame != Engine.Scene is Level)
                 continue;
 
             if (prop.GetCustomAttribute<SettingIgnoreAttribute>() != null)
@@ -374,7 +374,7 @@ public class ModuleSettingsKeyboardConfigUIExt : ModuleSettingsKeyboardConfigUI 
             }
         }
 
-        Add(new TextMenu.SubHeader(""));
+        Add(new SubHeader(""));
         Add(new Button(Dialog.Clean("KEY_CONFIG_RESET")) {
             IncludeWidthInMeasurement = false,
             AlwaysCenter = true,
@@ -399,27 +399,27 @@ public class EaseInSubHeaderExtPub : TextMenuExt.SubHeaderExt {
         : base(title, icon) {
         this.containingMenu = containingMenu;
         FadeVisible = initiallyVisible;
-        base.Alpha = (FadeVisible ? 1 : 0);
-        uneasedAlpha = base.Alpha;
+        Alpha = FadeVisible ? 1 : 0;
+        uneasedAlpha = Alpha;
     }
 
     public override float Height() {
-        return MathHelper.Lerp(0f - containingMenu.ItemSpacing, base.Height(), base.Alpha);
+        return MathHelper.Lerp(0f - containingMenu.ItemSpacing, base.Height(), Alpha);
     }
 
     public override void Update() {
         base.Update();
-        float num = (FadeVisible ? 1 : 0);
+        float num = FadeVisible ? 1 : 0;
         if (uneasedAlpha != num) {
             uneasedAlpha = Calc.Approach(uneasedAlpha, num, Engine.RawDeltaTime * 3f);
             if (FadeVisible) {
-                base.Alpha = Ease.SineOut(uneasedAlpha);
+                Alpha = Ease.SineOut(uneasedAlpha);
             }
             else {
-                base.Alpha = Ease.SineIn(uneasedAlpha);
+                Alpha = Ease.SineIn(uneasedAlpha);
             }
         }
 
-        Visible = base.Alpha != 0f;
+        Visible = Alpha != 0f;
     }
 }

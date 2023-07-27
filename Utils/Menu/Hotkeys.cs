@@ -5,7 +5,7 @@ using MonoMod.Cil;
 using System.Reflection;
 using TAS.EverestInterop;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Utils.Menu;
 
 internal static class TH_Hotkeys {
 
@@ -32,7 +32,7 @@ internal static class TH_Hotkeys {
                 MoveType.After,
                 ins => ins.OpCode == OpCodes.Callvirt && ins.Operand.ToString().Contains("<Microsoft.Xna.Framework.Input.Keys>::Add(T)")
             )) {
-            ilCursor.Emit(OpCodes.Ldloc_1).EmitDelegate<Action<object>>(AddExtraDefaultKey);
+            ilCursor.Emit(OpCodes.Ldloc_1).EmitDelegate(AddExtraDefaultKey);
         }
     }
 

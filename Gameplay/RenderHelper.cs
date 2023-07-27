@@ -1,10 +1,11 @@
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using TAS.EverestInterop.Hitboxes;
 using VivEntities = VivHelper.Entities;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Gameplay;
 
 internal static class RenderHelper {
     private static MTexture[] numbers;
@@ -186,12 +187,12 @@ internal static class RenderHelper {
         Collider[] list = clist.colliders;
         foreach (Collider collider in list) {
             if (collider is Hitbox hitbox) {
-                Monocle.Draw.HollowRect(hitbox, color);
+                Draw.HollowRect(hitbox, color);
             }
         }
         foreach (Collider collider in list) {
             if (collider is Circle circle) {
-                Monocle.Draw.Circle(circle.AbsolutePosition, circle.Radius, color, 4);
+                Draw.Circle(circle.AbsolutePosition, circle.Radius, color, 4);
             }
         }
     }
@@ -206,50 +207,50 @@ internal static class RenderHelper {
         if (isLightning) {
             // only check in view for lightning
             if (TasHelperSettings.UsingInViewRange && !SpinnerHelper.InView(Position, Width, Height, CameraPos, true)) {
-                Monocle.Draw.HollowRect(Position, Width + 1, Height + 1, SpinnerCenterColor);
+                Draw.HollowRect(Position, Width + 1, Height + 1, SpinnerCenterColor);
             }
         }
         else {
             // spinner use in view for visible, and near player for collidable
             // dust use in view for graphics establish, and near player for collidable
             // so we render the center when using load range
-            Monocle.Draw.Point(Position, SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(-1f, -1f), SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(-1f, 1f), SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(1f, -1f), SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(1f, 1f), SpinnerCenterColor);
+            Draw.Point(Position, SpinnerCenterColor);
+            Draw.Point(Position + new Vector2(-1f, -1f), SpinnerCenterColor);
+            Draw.Point(Position + new Vector2(-1f, 1f), SpinnerCenterColor);
+            Draw.Point(Position + new Vector2(1f, -1f), SpinnerCenterColor);
+            Draw.Point(Position + new Vector2(1f, 1f), SpinnerCenterColor);
         }
     }
 
     public static void DrawInViewRange(Vector2 CameraPosition) {
-        float width = (float)TasHelperSettings.InViewRangeWidth;
+        float width = TasHelperSettings.InViewRangeWidth;
         float left = (float)Math.Floor(CameraPosition.X - 16f) + 1f;
         float top = (float)Math.Floor(CameraPosition.Y - 16f) + 1f;
         float right = (float)Math.Ceiling(CameraPosition.X + 320f + 16f) - 1f;
         float bottom = (float)Math.Ceiling(CameraPosition.Y + 180f + 16f) - 1f;
-        Monocle.Draw.HollowRect(left, top, right - left + 1, bottom - top + 1, Color.LightBlue * (1f * 0.75f));
-        Monocle.Draw.Rect(left, top, right - left + 1, width, InViewRangeColor * TasHelperSettings.RangeAlpha);
-        Monocle.Draw.Rect(left, bottom - width, right - left + 1, width + 1, InViewRangeColor * TasHelperSettings.RangeAlpha);
-        Monocle.Draw.Rect(left, top + width, width, bottom - top - 2 * width, InViewRangeColor * TasHelperSettings.RangeAlpha);
-        Monocle.Draw.Rect(right - width, top + width, width + 1, bottom - top - 2 * width, InViewRangeColor * TasHelperSettings.RangeAlpha);
+        Draw.HollowRect(left, top, right - left + 1, bottom - top + 1, Color.LightBlue * (1f * 0.75f));
+        Draw.Rect(left, top, right - left + 1, width, InViewRangeColor * TasHelperSettings.RangeAlpha);
+        Draw.Rect(left, bottom - width, right - left + 1, width + 1, InViewRangeColor * TasHelperSettings.RangeAlpha);
+        Draw.Rect(left, top + width, width, bottom - top - 2 * width, InViewRangeColor * TasHelperSettings.RangeAlpha);
+        Draw.Rect(right - width, top + width, width + 1, bottom - top - 2 * width, InViewRangeColor * TasHelperSettings.RangeAlpha);
     }
 
     public static void DrawNearPlayerRange(Vector2 PlayerPosition, Vector2 PreviousPlayerPosition, int PlayerPositionChangedCount) {
-        float width = (float)TasHelperSettings.NearPlayerRangeWidth;
+        float width = TasHelperSettings.NearPlayerRangeWidth;
         Color color = NearPlayerRangeColor;
         float alpha = TasHelperSettings.RangeAlpha;
-        Monocle.Draw.HollowRect(PlayerPosition + new Vector2(-127f, -127f), 255f, 255f, color);
-        Monocle.Draw.Rect(PlayerPosition + new Vector2(-127f, -127f), 255f, width, color * alpha);
-        Monocle.Draw.Rect(PlayerPosition + new Vector2(-127f, 128f - width), 255f, width, color * alpha);
-        Monocle.Draw.Rect(PlayerPosition + new Vector2(-127f, -127f + width), width, 255f - 2 * width, color * alpha);
-        Monocle.Draw.Rect(PlayerPosition + new Vector2(128f - width, -127f + width), width, 255f - 2 * width, color * alpha);
+        Draw.HollowRect(PlayerPosition + new Vector2(-127f, -127f), 255f, 255f, color);
+        Draw.Rect(PlayerPosition + new Vector2(-127f, -127f), 255f, width, color * alpha);
+        Draw.Rect(PlayerPosition + new Vector2(-127f, 128f - width), 255f, width, color * alpha);
+        Draw.Rect(PlayerPosition + new Vector2(-127f, -127f + width), width, 255f - 2 * width, color * alpha);
+        Draw.Rect(PlayerPosition + new Vector2(128f - width, -127f + width), width, 255f - 2 * width, color * alpha);
         if (PlayerPositionChangedCount > 1) {
-            Color colorInverted = Monocle.Calc.Invert(color);
-            Monocle.Draw.HollowRect(PreviousPlayerPosition + new Vector2(-127f, -127f), 255f, 255f, colorInverted);
-            Monocle.Draw.Rect(PreviousPlayerPosition + new Vector2(-127f, -127f), 255f, width, colorInverted * alpha);
-            Monocle.Draw.Rect(PreviousPlayerPosition + new Vector2(-127f, 128f - width), 255f, width, colorInverted * alpha);
-            Monocle.Draw.Rect(PreviousPlayerPosition + new Vector2(-127f, -127f + width), width, 255f - 2 * width, colorInverted * alpha);
-            Monocle.Draw.Rect(PreviousPlayerPosition + new Vector2(128f - width, -127f + width), width, 255f - 2 * width, colorInverted * alpha);
+            Color colorInverted = color.Invert();
+            Draw.HollowRect(PreviousPlayerPosition + new Vector2(-127f, -127f), 255f, 255f, colorInverted);
+            Draw.Rect(PreviousPlayerPosition + new Vector2(-127f, -127f), 255f, width, colorInverted * alpha);
+            Draw.Rect(PreviousPlayerPosition + new Vector2(-127f, 128f - width), 255f, width, colorInverted * alpha);
+            Draw.Rect(PreviousPlayerPosition + new Vector2(-127f, -127f + width), width, 255f - 2 * width, colorInverted * alpha);
+            Draw.Rect(PreviousPlayerPosition + new Vector2(128f - width, -127f + width), width, 255f - 2 * width, colorInverted * alpha);
         }
     }
 
@@ -265,22 +266,22 @@ internal static class RenderHelper {
         float Yup = Math.Min(Y1, Y2);
         float Ydown = Math.Max(Y1, Y2);
         Color color = CameraTargetVectorColor * (0.1f * TasHelperSettings.CameraTargetLinkOpacity);
-        Monocle.Draw.Rect(Xleft + 1, Y1, Xright - Xleft - 1f, 1f, color);
-        Monocle.Draw.Rect(X2, Yup + 1f, 1f, Ydown - Yup - 1f, color);
-        Monocle.Draw.Point(new Vector2(X2, Y1), color);
-        Monocle.Draw.Point(new Vector2(Xc, Yc), Color.Lime * 1f);
-        Monocle.Draw.Point(new Vector2(X1, Y1), Color.Lime * 0.6f);
-        Monocle.Draw.Point(CameraTowards, Color.Red * 1f);
+        Draw.Rect(Xleft + 1, Y1, Xright - Xleft - 1f, 1f, color);
+        Draw.Rect(X2, Yup + 1f, 1f, Ydown - Yup - 1f, color);
+        Draw.Point(new Vector2(X2, Y1), color);
+        Draw.Point(new Vector2(Xc, Yc), Color.Lime * 1f);
+        Draw.Point(new Vector2(X1, Y1), Color.Lime * 0.6f);
+        Draw.Point(CameraTowards, Color.Red * 1f);
         if (Ydown - Yup > 6f) {
             int sign = Math.Sign(Y1 - Y2);
-            Monocle.Draw.Point(new Vector2(X2 - 1f, Y2 + sign * 2f), color);
-            Monocle.Draw.Point(new Vector2(X2 - 1f, Y2 + sign * 3f), color);
-            Monocle.Draw.Point(new Vector2(X2 - 2f, Y2 + sign * 4f), color);
-            Monocle.Draw.Point(new Vector2(X2 - 2f, Y2 + sign * 5f), color);
-            Monocle.Draw.Point(new Vector2(X2 + 1f, Y2 + sign * 2f), color);
-            Monocle.Draw.Point(new Vector2(X2 + 1f, Y2 + sign * 3f), color);
-            Monocle.Draw.Point(new Vector2(X2 + 2f, Y2 + sign * 4f), color);
-            Monocle.Draw.Point(new Vector2(X2 + 2f, Y2 + sign * 5f), color);
+            Draw.Point(new Vector2(X2 - 1f, Y2 + sign * 2f), color);
+            Draw.Point(new Vector2(X2 - 1f, Y2 + sign * 3f), color);
+            Draw.Point(new Vector2(X2 - 2f, Y2 + sign * 4f), color);
+            Draw.Point(new Vector2(X2 - 2f, Y2 + sign * 5f), color);
+            Draw.Point(new Vector2(X2 + 1f, Y2 + sign * 2f), color);
+            Draw.Point(new Vector2(X2 + 1f, Y2 + sign * 3f), color);
+            Draw.Point(new Vector2(X2 + 2f, Y2 + sign * 4f), color);
+            Draw.Point(new Vector2(X2 + 2f, Y2 + sign * 5f), color);
         }
     }
 
@@ -302,7 +303,7 @@ public static class SpinnerColliderHelper {
     }
 
     public static string SpinnerColliderKey(string[] hitboxString, float scale) {
-        return String.Join("|", hitboxString) + "//" + scale.ToString();
+        return string.Join("|", hitboxString) + "//" + scale.ToString();
     }
 
     public static Dictionary<string, SpinnerColliderValue> SpinnerColliderTextures = new();

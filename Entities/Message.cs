@@ -47,7 +47,8 @@ public static class Messenger {
     }
 
     private static void WatchEntityActivator(EntityData data) {
-        if (PlayerHelper.scene is Level level) {
+        if (Engine.Scene is Level level) {
+            // ctor of EntityActivator can only be called in Level.LoadLevel, so the scene must be a level
             EntityActivatorWarner watcher = new EntityActivatorWarner();
             level.Add(watcher);
             watcher.Watch(data);

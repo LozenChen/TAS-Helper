@@ -1,4 +1,4 @@
-using Celeste.Mod.TASHelper.Utils;
+using Celeste.Mod.TASHelper.Gameplay;
 using Microsoft.Xna.Framework;
 using Monocle;
 

@@ -10,7 +10,7 @@ using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 using static Celeste.TextMenuExt;
 using static TAS.EverestInterop.Hitboxes.HitboxColor;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Utils.Menu;
 
 public static class CustomColors {
 
@@ -33,7 +33,7 @@ public static class CustomColors {
         SpinnerColor_NotInView = defaultNotInViewColor;
         SpinnerColor_NeverActivate = defaultNeverActivateColor;
         SpinnerColor_ActivateEveryFrame = defaultActivateEveryFrameColor;
-        SpinnerColor_TasModEntityHitboxColor = HitboxColor.DefaultEntityColor;
+        SpinnerColor_TasModEntityHitboxColor = DefaultEntityColor;
         SpinnerColor_TasModCycleHitboxColor1 = CycleHitboxColor.DefaultColor1;
         SpinnerColor_TasModCycleHitboxColor2 = CycleHitboxColor.DefaultColor2;
         SpinnerColor_TasModCycleHitboxColor3 = CycleHitboxColor.DefaultColor3;
@@ -76,7 +76,7 @@ public static class CustomColors {
     }
 
     public static void AddDescriptionOnEnter(this List<TextMenu.Item> page, TextMenu menu, TextMenu.Item item, string description) {
-        TextMenuExt.EaseInSubHeaderExt descriptionText = new(description, false, menu) {
+        EaseInSubHeaderExt descriptionText = new(description, false, menu) {
             TextColor = Color.Gray,
             HeightExtra = 0f
         };
@@ -92,7 +92,7 @@ public static class CustomColors {
             page.AddDescriptionOnEnter(menu, item, description);
         }
         if (!string.IsNullOrEmpty(cmd) && inGame) {
-            TextMenuExt.SubHeaderExt cmdText = new(cmd) {
+            SubHeaderExt cmdText = new(cmd) {
                 TextColor = Color.Gray,
                 HeightExtra = 0f
             };
@@ -103,13 +103,13 @@ public static class CustomColors {
     internal static List<TextMenu.Item> CreateColorCustomization_PageSpinnerColor(TextMenu menu, bool inGame) {
         List<TextMenu.Item> page = new();
         if (inGame) {
-            TextMenuExt.SubHeaderExt remindText = new("Color Customization Remind".ToDialogText()) {
+            SubHeaderExt remindText = new("Color Customization Remind".ToDialogText()) {
                 TextColor = Color.Gray,
                 HeightExtra = 0f
             };
             page.Add(remindText);
         }
-        TextMenuExt.SubHeaderExt formatText = new("Color Customization Color Format".ToDialogText()) {
+        SubHeaderExt formatText = new("Color Customization Color Format".ToDialogText()) {
             TextColor = Color.Gray,
             HeightExtra = 0f
         };
@@ -122,7 +122,7 @@ public static class CustomColors {
         AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModCycleHitboxColor2, value => SpinnerColor_TasModCycleHitboxColor2 = value, "SpinnerColor_TasModCycleHitboxColor2", "Console command: tashelper_custom_color, SpinnerColor_TasModCycleHitboxColor2, FFFFFF00");
         AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModCycleHitboxColor3, value => SpinnerColor_TasModCycleHitboxColor3 = value, "SpinnerColor_TasModCycleHitboxColor3", "Console command: tashelper_custom_color, SpinnerColor_TasModCycleHitboxColor3, FF1933FF");
         AddItemWithDescription(menu, page, inGame, () => SpinnerColor_TasModOtherCyclesHitboxColor, value => SpinnerColor_TasModOtherCyclesHitboxColor = value, "SpinnerColor_TasModOtherCyclesHitboxColor", "Console command: tashelper_custom_color, SpinnerColor_TasModOtherCyclesHitboxColor, FF3FFF7F");
-        TextMenuExt.SubHeaderExt descriptionText = new("Color Customization SpinnerColor Footnote".ToDialogText()) {
+        SubHeaderExt descriptionText = new("Color Customization SpinnerColor Footnote".ToDialogText()) {
             TextColor = Color.Gray,
             HeightExtra = 0f
         };
@@ -134,13 +134,13 @@ public static class CustomColors {
     internal static List<TextMenu.Item> CreateColorCustomization_PageOther(TextMenu menu, bool inGame) {
         List<TextMenu.Item> page = new();
         if (inGame) {
-            TextMenuExt.SubHeaderExt remindText = new("Color Customization Remind".ToDialogText()) {
+            SubHeaderExt remindText = new("Color Customization Remind".ToDialogText()) {
                 TextColor = Color.Gray,
                 HeightExtra = 0f
             };
             page.Add(remindText);
         }
-        TextMenuExt.SubHeaderExt formatText = new("Color Customization Color Format".ToDialogText()) {
+        SubHeaderExt formatText = new("Color Customization Color Format".ToDialogText()) {
             TextColor = Color.Gray,
             HeightExtra = 0f
         };
@@ -155,7 +155,7 @@ public static class CustomColors {
     internal static List<TextMenu.Item> CreateColorCustomization_PageOnOff(TextMenu menu, bool inGame) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
         page.Add(new TextMenu.OnOff("Show Cycle Hitbox Colors".ToDialogText(), TasHelperSettings.ShowCycleHitboxColors).Change(value => TasHelperSettings.ShowCycleHitboxColors = value));
-        TextMenu.Item NotInViewColorItem = new TextMenuExt.EnumerableSlider<UsingNotInViewColorModes>("Using NotInView Color Modes".ToDialogText(), TASHelperMenu.CreateUsingNotInViewColorOptions(),
+        TextMenu.Item NotInViewColorItem = new EnumerableSlider<UsingNotInViewColorModes>("Using NotInView Color Modes".ToDialogText(), TASHelperMenu.CreateUsingNotInViewColorOptions(),
                     TasHelperSettings.UsingNotInViewColorMode).Change(value => TasHelperSettings.UsingNotInViewColorMode = value);
         page.Add(NotInViewColorItem);
         page.AddDescriptionOnEnter(menu, NotInViewColorItem, "Using NotInView Color Description".ToDialogText());
@@ -196,7 +196,7 @@ public static class CustomColors {
                 }
 
             case "SpinnerColor_TasModEntityHitboxColor": {
-                    SpinnerColor_TasModEntityHitboxColor = HexToColorWithLog(color, HitboxColor.DefaultEntityColor);
+                    SpinnerColor_TasModEntityHitboxColor = HexToColorWithLog(color, DefaultEntityColor);
                     CelesteTasModule.Instance.SaveSettings();
                     return;
                 }
@@ -250,7 +250,7 @@ public static class CustomColors {
                 }
 
             default: {
-                    Celeste.Commands.Log("Invalid field name");
+                    Engine.Commands.Log("Invalid field name");
                     return;
                 }
         }
@@ -264,7 +264,7 @@ public static class CustomColors {
 
         hex = hex.Replace("#", "");
         if (!HexChar.IsMatch(hex)) {
-            Celeste.Commands.Log("Invaild Color");
+            Engine.Commands.Log("Invaild Color");
             return defaultColor;
         }
 
@@ -274,13 +274,13 @@ public static class CustomColors {
 
         if (hex.Length == 3 || hex.Length == 4) {
             hex = (from c in hex.ToCharArray()
-                   select $"{c}{c}").Aggregate((string s, string s1) => s + s1);
+                   select $"{c}{c}").Aggregate((s, s1) => s + s1);
         }
 
         hex = hex.PadLeft(8, 'F');
         try {
             long num = Convert.ToInt64(hex, 16);
-            Color result = default(Color);
+            Color result = default;
             result.A = (byte)(num >> 24);
             result.R = (byte)(num >> 16);
             result.G = (byte)(num >> 8);
@@ -288,7 +288,7 @@ public static class CustomColors {
             return result;
         }
         catch (FormatException) {
-            Celeste.Commands.Log("Invaild Color");
+            Engine.Commands.Log("Invaild Color");
             return defaultColor;
         }
     }
@@ -395,9 +395,9 @@ public class OptionSubMenuCountExt : TextMenu.Item {
 
     public float ScrollTargetY {
         get {
-            float min = (float)(Engine.Height - 150) - Container.Height * Container.Justify.Y;
+            float min = Engine.Height - 150 - Container.Height * Container.Justify.Y;
             float max = 150f + Container.Height * Container.Justify.Y;
-            return Calc.Clamp((float)(Engine.Height / 2) + Container.Height * Container.Justify.Y - GetYOffsetOf(Current), min, max);
+            return Calc.Clamp(Engine.Height / 2 + Container.Height * Container.Justify.Y - GetYOffsetOf(Current), min, max);
         }
     }
 
@@ -428,7 +428,7 @@ public class OptionSubMenuCountExt : TextMenu.Item {
                     item.Container = Container;
                     Container.Add(item.ValueWiggler = Wiggler.Create(0.25f, 3f));
                     Container.Add(item.SelectWiggler = Wiggler.Create(0.25f, 3f));
-                    item.ValueWiggler.UseRawDeltaTime = (item.SelectWiggler.UseRawDeltaTime = true);
+                    item.ValueWiggler.UseRawDeltaTime = item.SelectWiggler.UseRawDeltaTime = true;
                     item.Added();
                 }
 
@@ -503,7 +503,7 @@ public class OptionSubMenuCountExt : TextMenu.Item {
 
             Current.OnEnter?.Invoke();
             if (wiggle) {
-                Audio.Play((direction > 0) ? "event:/ui/main/rollover_down" : "event:/ui/main/rollover_up");
+                Audio.Play(direction > 0 ? "event:/ui/main/rollover_down" : "event:/ui/main/rollover_up");
                 Current.SelectWiggler.Start();
             }
         }
@@ -511,7 +511,7 @@ public class OptionSubMenuCountExt : TextMenu.Item {
 
     public void RecalculateSize() {
         TitleHeight = ActiveFont.LineHeight;
-        LeftColumnWidth = (RightColumnWidth = (_MenuHeight = 0f));
+        LeftColumnWidth = RightColumnWidth = _MenuHeight = 0f;
         if (Menus.Count < 1 || CurrentMenu == null) {
             return;
         }
@@ -600,7 +600,7 @@ public class OptionSubMenuCountExt : TextMenu.Item {
 
     public override float RightWidth() {
         float num = 0f;
-        foreach (string item in Menus.Select((Tuple<string, List<TextMenu.Item>> tuple) => tuple.Item1)) {
+        foreach (string item in Menus.Select((tuple) => tuple.Item1)) {
             num = Math.Max(num, ActiveFont.Measure(item).X);
         }
 
@@ -704,18 +704,18 @@ public class OptionSubMenuCountExt : TextMenu.Item {
     public override void Render(Vector2 position, bool highlighted) {
         Vector2 vector = new Vector2(position.X, position.Y - Height() / 2f);
         float alpha = Container.Alpha;
-        Color color = (Disabled ? Color.DarkSlateGray : ((highlighted ? Container.HighlightColor : Color.White) * alpha));
+        Color color = Disabled ? Color.DarkSlateGray : (highlighted ? Container.HighlightColor : Color.White) * alpha;
         Color strokeColor = Color.Black * (alpha * alpha * alpha);
         bool flag = Container.InnerContent == TextMenu.InnerContentMode.TwoColumn && !AlwaysCenter;
         Vector2 vector2 = vector + Vector2.UnitY * TitleHeight / 2f + (flag ? Vector2.Zero : new Vector2(Container.Width * 0.5f, 0f));
-        Vector2 justify = (flag ? new Vector2(0f, 0.5f) : new Vector2(0.5f, 0.5f));
-        Vector2 justify2 = (flag ? new Vector2(ActiveFont.Measure(Label).X + (float)Icon.Width, 5f) : new Vector2(ActiveFont.Measure(Label).X / 2f + (float)Icon.Width, 5f));
+        Vector2 justify = flag ? new Vector2(0f, 0.5f) : new Vector2(0.5f, 0.5f);
+        Vector2 justify2 = flag ? new Vector2(ActiveFont.Measure(Label).X + Icon.Width, 5f) : new Vector2(ActiveFont.Measure(Label).X / 2f + Icon.Width, 5f);
         MTexture icon = Icon;
         Color obj;
         if (!Disabled) {
             List<TextMenu.Item> currentMenu = CurrentMenu;
             if (currentMenu == null || currentMenu.Count >= 1) {
-                obj = (Focused ? Container.HighlightColor : Color.White);
+                obj = Focused ? Container.HighlightColor : Color.White;
                 goto IL_019d;
             }
         }
@@ -727,13 +727,13 @@ public class OptionSubMenuCountExt : TextMenu.Item {
         ActiveFont.DrawOutline(Label, vector2, justify, Vector2.One, color, 2f, strokeColor);
         if (Menus.Count > 0) {
             float num = RightWidth();
-            ActiveFont.DrawOutline(Menus[MenuIndex].Item1, vector2 + new Vector2(Container.Width - num * 0.5f + (float)lastDir * ValueWiggler.Value * 8f, 0f), new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
-            Vector2 vector3 = Vector2.UnitX * (highlighted ? ((float)Math.Sin(sine * 4f) * 4f) : 0f);
-            Color color2 = ((MenuIndex > 0) ? color : (Color.DarkSlateGray * alpha));
-            Vector2 position2 = vector2 + new Vector2(Container.Width - num + 40f + ((lastDir < 0) ? ((0f - ValueWiggler.Value) * 8f) : 0f), 0f) - ((MenuIndex > 0) ? vector3 : Vector2.Zero);
+            ActiveFont.DrawOutline(Menus[MenuIndex].Item1, vector2 + new Vector2(Container.Width - num * 0.5f + lastDir * ValueWiggler.Value * 8f, 0f), new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
+            Vector2 vector3 = Vector2.UnitX * (highlighted ? (float)Math.Sin(sine * 4f) * 4f : 0f);
+            Color color2 = MenuIndex > 0 ? color : Color.DarkSlateGray * alpha;
+            Vector2 position2 = vector2 + new Vector2(Container.Width - num + 40f + (lastDir < 0 ? (0f - ValueWiggler.Value) * 8f : 0f), 0f) - (MenuIndex > 0 ? vector3 : Vector2.Zero);
             ActiveFont.DrawOutline("<", position2, new Vector2(0.5f, 0.5f), Vector2.One, color2, 2f, strokeColor);
-            color2 = ((MenuIndex < Menus.Count - 1) ? color : (Color.DarkSlateGray * alpha));
-            position2 = vector2 + new Vector2(Container.Width - 40f + ((lastDir > 0) ? (ValueWiggler.Value * 8f) : 0f), 0f) + ((MenuIndex < Menus.Count - 1) ? vector3 : Vector2.Zero);
+            color2 = MenuIndex < Menus.Count - 1 ? color : Color.DarkSlateGray * alpha;
+            position2 = vector2 + new Vector2(Container.Width - 40f + (lastDir > 0 ? ValueWiggler.Value * 8f : 0f), 0f) + (MenuIndex < Menus.Count - 1 ? vector3 : Vector2.Zero);
             ActiveFont.DrawOutline(">", position2, new Vector2(0.5f, 0.5f), Vector2.One, color2, 2f, strokeColor);
         }
 
@@ -748,7 +748,7 @@ public class OptionSubMenuCountExt : TextMenu.Item {
             if (item.Visible) {
                 float num2 = item.Height();
                 Vector2 position3 = vector4 + new Vector2(0f, num2 * 0.5f + item.SelectWiggler.Value * 8f);
-                if (position3.Y - y < MenuHeight && position3.Y + num2 * 0.5f > 0f && position3.Y - num2 * 0.5f < (float)Engine.Height) {
+                if (position3.Y - y < MenuHeight && position3.Y + num2 * 0.5f > 0f && position3.Y - num2 * 0.5f < Engine.Height) {
                     item.Render(position3, Focused && Current == item);
                 }
 
@@ -808,16 +808,16 @@ public class ButtonColorExt : TextMenu.Button, IItemExt {
         Label = name + $": {ColorToHex(CubeColorGetter())}";
         position += Offset;
         float num = Container.Alpha * Alpha;
-        Color color = (Disabled ? TextColorDisabled : (highlighted ? Container.HighlightColor : TextColor)) * num;
+        Color color = (Disabled ? TextColorDisabled : highlighted ? Container.HighlightColor : TextColor) * num;
         Color strokeColor = Color.Black * (num * num * num);
         bool flag = Container.InnerContent == TextMenu.InnerContentMode.TwoColumn && !AlwaysCenter;
         Vector2 textPosition = position + (flag ? Vector2.Zero : new Vector2(Container.Width * 0.5f, 0f));
-        Vector2 justify = (flag ? new Vector2(0f, 0.5f) : new Vector2(0.5f, 0.5f));
+        Vector2 justify = flag ? new Vector2(0f, 0.5f) : new Vector2(0.5f, 0.5f);
         float height = ActiveFont.Measure("I").Y / 2f;
         Vector2 cubePosition = textPosition + new Vector2(ActiveFont.Measure(Label).X + 30f, -height / 2f);
         Draw.Rect(cubePosition - new Vector2(4f, 4f), height + 8f, height + 8f, Color.Black);
         Draw.Rect(cubePosition, height, height, CubeColorGetter());
-        DrawIcon(position, Icon, IconWidth, Height(), IconOutline, (Disabled ? Color.DarkSlateGray : (highlighted ? Color.White : Color.LightSlateGray)) * num, ref textPosition);
+        DrawIcon(position, Icon, IconWidth, Height(), IconOutline, (Disabled ? Color.DarkSlateGray : highlighted ? Color.White : Color.LightSlateGray) * num, ref textPosition);
         ActiveFont.DrawOutline(Label, textPosition, justify, Scale, color, 2f, strokeColor);
     }
 }
@@ -999,7 +999,7 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
         Overworld.ShowInputUI = true;
         Focused = false;
 
-        Engine.Commands.Enabled = (Celeste.PlayMode == Celeste.PlayModes.Debug);
+        Engine.Commands.Enabled = Celeste.PlayMode == Celeste.PlayModes.Debug;
 
         Vector2 posFrom = Position;
         Vector2 posTo = new Vector2(0f, 1080f);
@@ -1071,7 +1071,7 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
 
     public override void SceneEnd(Scene scene) {
         Overworld.ShowInputUI = true;
-        Engine.Commands.Enabled = (Celeste.PlayMode == Celeste.PlayModes.Debug);
+        Engine.Commands.Enabled = Celeste.PlayMode == Celeste.PlayModes.Debug;
     }
 
     public override void Update() {
@@ -1155,7 +1155,7 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
             Audio.Play(SFX.ui_main_rename_entry_roll);
 
         }
-        else if ((Input.MenuUp.Pressed || (selectingOptions && Value.Length <= 0 && optionsIndex > 0)) && (line > 0 || selectingOptions)) {
+        else if ((Input.MenuUp.Pressed || selectingOptions && Value.Length <= 0 && optionsIndex > 0) && (line > 0 || selectingOptions)) {
             if (selectingOptions) {
                 line = letters.Length;
                 selectingOptions = false;
@@ -1316,16 +1316,16 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
         pos.X = boxtopleft.X + boxPadding;
         Draw.Rect(pos.X, pos.Y - boxPadding * 0.5f, boxWidth - boxPadding * 2f, 4f, Color.White);
         lineHeight /= fscale;
-        DrawOptionText(cancel, pos + new Vector2(0f, lineHeight + ((selectingOptions && optionsIndex == 0) ? wiggle : 0f)), new Vector2(0f, 1f), Vector2.One * optionsScale, selectingOptions && optionsIndex == 0);
+        DrawOptionText(cancel, pos + new Vector2(0f, lineHeight + (selectingOptions && optionsIndex == 0 ? wiggle : 0f)), new Vector2(0f, 1f), Vector2.One * optionsScale, selectingOptions && optionsIndex == 0);
         pos.X = boxtopleft.X + boxWidth - backspaceWidth - widestLetter - spaceWidth - widestLetter - beginWidth - boxPadding;
 
-        DrawOptionText(space, pos + new Vector2(0f, lineHeight + ((selectingOptions && optionsIndex == 1) ? wiggle : 0f)), new Vector2(0f, 1f), Vector2.One * optionsScale, selectingOptions && optionsIndex == 1, Value.Length == 0 || !Focused);
+        DrawOptionText(space, pos + new Vector2(0f, lineHeight + (selectingOptions && optionsIndex == 1 ? wiggle : 0f)), new Vector2(0f, 1f), Vector2.One * optionsScale, selectingOptions && optionsIndex == 1, Value.Length == 0 || !Focused);
         pos.X += spaceWidth + widestLetter;
 
-        DrawOptionText(backspace, pos + new Vector2(0f, lineHeight + ((selectingOptions && optionsIndex == 2) ? wiggle : 0f)), new Vector2(0f, 1f), Vector2.One * optionsScale, selectingOptions && optionsIndex == 2, Value.Length <= 0 || !Focused);
+        DrawOptionText(backspace, pos + new Vector2(0f, lineHeight + (selectingOptions && optionsIndex == 2 ? wiggle : 0f)), new Vector2(0f, 1f), Vector2.One * optionsScale, selectingOptions && optionsIndex == 2, Value.Length <= 0 || !Focused);
         pos.X += backspaceWidth + widestLetter;
 
-        DrawOptionText(accept, pos + new Vector2(0f, lineHeight + ((selectingOptions && optionsIndex == 3) ? wiggle : 0f)), new Vector2(0f, 1f), Vector2.One * optionsScale, selectingOptions && optionsIndex == 3, Value.Length < 1 || !Focused);
+        DrawOptionText(accept, pos + new Vector2(0f, lineHeight + (selectingOptions && optionsIndex == 3 ? wiggle : 0f)), new Vector2(0f, 1f), Vector2.One * optionsScale, selectingOptions && optionsIndex == 3, Value.Length < 1 || !Focused);
 
         ActiveFont.DrawEdgeOutline(Value, Position + new Vector2(960f, 256f), new Vector2(0.5f, 0.5f), Vector2.One * 2f, Color.Gray, 4f, Color.DarkSlateBlue, 2f, Color.Black);
         lineHeight *= fscale;
@@ -1351,7 +1351,7 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
 
     private Color GetTextColor(bool selected) {
         if (selected)
-            return (Calc.BetweenInterval(timer, 0.1f) ? selectColorA : selectColorB);
+            return Calc.BetweenInterval(timer, 0.1f) ? selectColorA : selectColorB;
         return unselectColor;
     }
 

@@ -1,11 +1,11 @@
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.ObjectFactories;
 
-namespace Celeste.Mod.TASHelper.Utils {
+namespace Celeste.Mod.TASHelper.Utils.Menu {
 
     // need YamlDotNet ver >= 9 to support this
     // note this only works for non public properties, but not non public fields
-    public static class THYamlHelper {
+    public static class TH_YamlHelper {
         public static ISerializer Serializer = new SerializerBuilder().IncludeNonPublicProperties().ConfigureDefaultValuesHandling(DefaultValuesHandling.Preserve).Build();
 
 

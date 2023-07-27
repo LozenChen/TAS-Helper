@@ -1,3 +1,4 @@
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -6,7 +7,7 @@ using System.Runtime.CompilerServices;
 using VivEntites = VivHelper.Entities;
 // VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Gameplay;
 
 public static class SpinnerHelper {
 
@@ -215,14 +216,14 @@ public static class SpinnerHelper {
         return null;
     }
 
-    private static int? FrostSpinnerHazardType(Object self) {
+    private static int? FrostSpinnerHazardType(object self) {
         if (self is FrostHelper.CustomSpinner customSpinner) {
             return customSpinner.HasCollider ? spinner : null;
         }
         return null;
     }
 
-    private static int? VivSpinnerHazardType(Object self) {
+    private static int? VivSpinnerHazardType(object self) {
         if (self is VivEntites.CustomSpinner customSpinner) {
             return customSpinner.Collider is null ? null : spinner;
         }
@@ -247,7 +248,7 @@ public static class SpinnerHelper {
 
     public static bool InView(Entity self, Vector2 CameraPos) {
         float zoom = PlayerHelper.CameraZoom;
-        if (isLightning(self)) {
+        if (self.isLightning()) {
             // i guess this order of comparison is more efficient
             return self.X + self.Width > CameraPos.X - 16f && self.Y + self.Height > CameraPos.Y - 16f && self.X < CameraPos.X + 320f * zoom + 16f && self.Y < CameraPos.Y + 180f * zoom + 16f;
         }
@@ -266,14 +267,14 @@ public static class SpinnerHelper {
     }
 
     public static bool FarFromRange(Entity self, Vector2 PlayerPosition, Vector2 CameraPos, float scale) {
-        if (isLightning(self)) {
+        if (self.isLightning()) {
             if (self.X > CameraPos.X + 320f * scale + 320f + 16f || self.Y > CameraPos.Y + 180f * scale + 180f + 16f || self.Y + self.Height < CameraPos.Y - 180f * scale - 16f || self.X + self.Width < CameraPos.X - 320f * scale - 16f) {
                 return true;
             }
         }
         else {
             if (self.X > CameraPos.X + 320f * scale + 336f || self.Y > CameraPos.Y + 180f * scale + 196f || self.Y < CameraPos.Y - 180f * scale - 16f || self.X < CameraPos.X - 320f * scale - 16f) {
-                return (Math.Abs(self.X - PlayerPosition.X) > 128f + 256f * scale || Math.Abs(self.Y - PlayerPosition.Y) > 128f + 256f * scale);
+                return Math.Abs(self.X - PlayerPosition.X) > 128f + 256f * scale || Math.Abs(self.Y - PlayerPosition.Y) > 128f + 256f * scale;
             }
         }
         return false;

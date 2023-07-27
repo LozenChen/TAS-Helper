@@ -1,3 +1,4 @@
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -6,10 +7,9 @@ using System.Reflection;
 using ChronoEnitites = Celeste.Mod.ChronoHelper.Entities;
 using VivEntites = VivHelper.Entities;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class PlayerHelper {
 
-    internal static Scene scene;
     internal static Player? player;
     internal static Vector2 PreviousCameraPos = Vector2.Zero;
     internal static Vector2 CameraPosition = Vector2.Zero;
@@ -50,7 +50,6 @@ internal static class PlayerHelper {
     }
 
     public static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
@@ -59,19 +58,13 @@ internal static class PlayerHelper {
     }
 
     public static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
         On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
         On.Celeste.Lightning.Update -= PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update -= PatchDustUpdate;
         On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
     }
 
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        scene = level;
-        orig(level, playerIntro, isFromLoader);
-    }
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
-        scene = self;
         orig(self);
         if (self is Level level) {
             PlayerPositionChangedCount = 0;
@@ -135,7 +128,7 @@ internal static class PlayerHelper {
         typeof(FrostHelper.CustomSpinner).GetMethod("Update").IlHook((cursor, _) => {
             if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+                cursor.EmitDelegate(PatchHazardUpdate);
             }
         });
     }
@@ -144,9 +137,9 @@ internal static class PlayerHelper {
         typeof(VivEntites.CustomSpinner).GetMethod("Update").IlHook((cursor, _) => {
             if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Entity>>(GetCameraZoom);
+                cursor.EmitDelegate(GetCameraZoom);
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+                cursor.EmitDelegate(PatchHazardUpdate);
             }
         });
         // also applies to VivHelper.Entities.AnimatedSpinner, MovingSpinner
@@ -156,13 +149,13 @@ internal static class PlayerHelper {
         typeof(ChronoEnitites.ShatterSpinner).GetMethod("Update").IlHook((cursor, _) => {
             if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+                cursor.EmitDelegate(PatchHazardUpdate);
             }
         });
         typeof(ChronoEnitites.DarkLightning).GetMethod("Update").IlHook((cursor, _) => {
             if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Entity>>(PatchHazardUpdate);
+                cursor.EmitDelegate(PatchHazardUpdate);
             }
         });
     }
@@ -177,7 +170,7 @@ internal static class PlayerHelper {
 
 
     private static void PatchHazardUpdate(Entity self) {
-        if (SpinnerHelper.HazardType(self) != null && player != null) {
+        if (!UltraFastForwarding && SpinnerHelper.HazardType(self) != null && player != null) {
             if (PlayerPositionChangedCount == 0) {
                 PlayerPositionChangedCount++;
                 PlayerPosition = player.Position;

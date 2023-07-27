@@ -1,11 +1,12 @@
 using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Gameplay;
 public static class HiresLevelRenderer {
     // Hires but works similar with GameplayRenderer
     // Coordinate = 6 * that of Gameplay coordinate
@@ -131,7 +132,7 @@ public static class HiresLevelRenderer {
         float scale = self.Zoom * ((320f - self.ScreenPadding * 2f) / 320f);
         Vector2 vector = new Vector2(320f, 180f);
         Vector2 vector2 = vector / self.ZoomTarget;
-        Vector2 vector3 = ((self.ZoomTarget != 1f) ? ((self.ZoomFocusPoint - vector2 / 2f) / (vector - vector2) * 6f * vector) : Vector2.Zero);
+        Vector2 vector3 = self.ZoomTarget != 1f ? (self.ZoomFocusPoint - vector2 / 2f) / (vector - vector2) * 6f * vector : Vector2.Zero;
         Vector2 vector4 = new Vector2(self.ScreenPadding, self.ScreenPadding * 9f / 16f) * 6f;
         SpriteEffects spriteEffects = SpriteEffects.None;
         if (SaveData.Instance?.Assists.MirrorMode ?? false) {
@@ -174,7 +175,7 @@ public class OneFrameTextRenderer : THRenderer {
     }
 }
 
-public class CountdownRenderer: THRenderer {
+public class CountdownRenderer : THRenderer {
     public static CountdownRenderer Instance;
 
     public static Dictionary<int, List<Vector2>> ID2Positions = new Dictionary<int, List<Vector2>>();

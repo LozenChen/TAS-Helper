@@ -1,8 +1,9 @@
-using Monocle;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
+using Monocle;
 using TAS.EverestInterop;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Gameplay;
 
 public static class CustomInfoHelper {
     // provide some property for Custom Info
@@ -10,14 +11,14 @@ public static class CustomInfoHelper {
     public static Vector2 MouseState => MouseButtons.Position;
     public static Vector2 MouseCursorPos => Vector2.Transform(new Vector2(MouseState.X, MouseState.Y), Matrix.Invert(Engine.ScreenMatrix));
 
-    public static Vector2 TASMouseCursorPosNaive => MouseCursorPos /6f;
+    public static Vector2 TASMouseCursorPosNaive => MouseCursorPos / 6f;
     public static Vector2 TASMouseCursorPos {
         get {
             // even works when you use CenterCamera
             if (Engine.Scene is not Level level || !TasSettings.CenterCamera || typeof(CenterCamera).GetFieldInfo("savedCameraPosition").GetValue(null) is null) return TASMouseCursorPosNaive;
             Vector2 mouseWorldPosition = level.MouseToWorld(MouseState);
             object[] Parameterless = { };
-            typeof(CenterCamera).GetMethodInfo("RestoreTheCamera").Invoke(null,Parameterless);
+            typeof(CenterCamera).GetMethodInfo("RestoreTheCamera").Invoke(null, Parameterless);
             Vector2 mouseScreenPosition = level.WorldToScreen(mouseWorldPosition);
             typeof(CenterCamera).GetMethodInfo("CenterTheCamera").Invoke(null, Parameterless);
             return mouseScreenPosition / 6f;
@@ -31,13 +32,13 @@ public static class CustomInfoHelper {
      */
 
 
-    public static float PlayerIntPositionX { 
-        get => PlayerHelper.player?.X ?? 0; 
-        set { 
+    public static float PlayerIntPositionX {
+        get => PlayerHelper.player?.X ?? 0;
+        set {
             if (PlayerHelper.player is not null) { PlayerHelper.player.X = value; }
-        } 
+        }
     }
-    public static float PlayerIntPositionY { 
+    public static float PlayerIntPositionY {
         get => PlayerHelper.player?.Y ?? 0;
         set {
             if (PlayerHelper.player is not null) {

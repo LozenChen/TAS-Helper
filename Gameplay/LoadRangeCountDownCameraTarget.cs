@@ -1,8 +1,7 @@
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 
-namespace Celeste.Mod.TASHelper.Entities;
+namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class LoadRangeCountDownCameraTarget {
 
     public static void Load() {
@@ -19,20 +18,20 @@ internal static class LoadRangeCountDownCameraTarget {
             return;
         }
         if (TasHelperSettings.UsingLoadRange) {
-            RenderHelper.DrawLoadRangeCollider(self.Position, self.Width, self.Height, PlayerHelper.CameraPosition, SpinnerHelper.isLightning(self));
+            RenderHelper.DrawLoadRangeCollider(self.Position, self.Width, self.Height, PlayerHelper.CameraPosition, self.isLightning());
         }
         if (TasHelperSettings.UsingCountDown) {
 #pragma warning disable CS8629
             float offset = SpinnerHelper.GetOffset(self).Value;
 #pragma warning restore CS8629
             Vector2 CountdownPos;
-            if (SpinnerHelper.isLightning(self)) {
+            if (self.isLightning()) {
                 CountdownPos = self.Center + new Vector2(-1f, -2f);
             }
             else {
                 CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
-            RenderHelper.DrawCountdown(CountdownPos, SpinnerHelper.PredictCountdown(offset, SpinnerHelper.isDust(self)), index);
+            RenderHelper.DrawCountdown(CountdownPos, SpinnerHelper.PredictCountdown(offset, self.isDust()), index);
         }
     }
     private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {

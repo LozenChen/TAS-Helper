@@ -1,6 +1,8 @@
+using Celeste.Mod.TASHelper.Gameplay;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Collections;
+using System.Text;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -99,7 +101,7 @@ public static class DebugHelper {
 public static class Logger {
     public static int stringLength = 0;
     public static int lineLength = 140;
-    public static string stringToLog = "";
+    public static StringBuilder StringBuilder = new StringBuilder();
     public const string sep = ", ";
 
     public static void Log(this object? obj, string? after = null, string? before = null, bool onlyDebug = true) {
@@ -181,22 +183,19 @@ public static class Logger {
 
     private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
         orig(self);
-        if (string.IsNullOrWhiteSpace(stringToLog)) {
-            stringToLog = "";
-        }
-        else {
-            Celeste.Commands.Log(stringToLog);
-            stringToLog = "";
+        if (StringBuilder.Length > 0) {
+            Celeste.Commands.Log(StringBuilder.ToString());
+            StringBuilder.Clear();
         }
     }
     public static void LogString(string message) {
         stringLength += message.Length;
         if (stringLength > lineLength) {
-            stringToLog += "\n" + message;
+            StringBuilder.Append("\n" + message);
             stringLength = message.Length;
         }
         else {
-            stringToLog += message;
+            StringBuilder.Append(message);
         }
         if (message.Contains("\n")) {
             stringLength = 0;

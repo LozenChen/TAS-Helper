@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System.Reflection;
 
-namespace Celeste.Mod.TASHelper.Entities;
+namespace Celeste.Mod.TASHelper.Gameplay;
 
 public static class FireBallTrack {
 
@@ -42,7 +42,7 @@ public static class FireBallTrack {
         }
         foreach (Vector2[] nodes in CachedNodes) {
             for (int i = 0; i < nodes.Length - 1; i++) {
-                Monocle.Draw.Line(nodes[i], nodes[i + 1], FireBallTrackColor);
+                Draw.Line(nodes[i], nodes[i + 1], FireBallTrackColor);
             }
         }
     }
