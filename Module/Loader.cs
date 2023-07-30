@@ -9,21 +9,15 @@ internal static class Loader {
 
     // order: all mods load -> all mods initialize ~= all mods load content
     public static void EntityLoad() {
-
         PixelGridHook.Load();
-
         Messenger.Load();
         SpawnPoint.Load();
-
     }
 
     public static void EntityUnload() {
-
         PixelGridHook.Unload();
-
         Messenger.Unload();
         SpawnPoint.Unload();
-
     }
 
     public static void HelperLoad() {
@@ -34,12 +28,9 @@ internal static class Loader {
         Utils.Logger.Load();
         DebugHelper.Load();
         TH_Hotkeys.Load();
-
-
         LoadRangeCountDownCameraTarget.Load();
         SimplifiedSpinner.Load();
         FireBallTrack.Load();
-
         HookHelper.Load();
     }
     public static void HelperUnload() {

@@ -2,6 +2,7 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.RuntimeDetour;
 using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
 using ChronoEntities = Celeste.Mod.ChronoHelper.Entities;
@@ -26,7 +27,10 @@ internal static class SimplifiedSpinner {
 
     private static bool Updated => !AddingEntities && wasSpritesCleared == SpritesCleared;
     public static void Load() {
-        On.Monocle.Entity.DebugRender += PatchDebugRender;
+        // hook after CelesteTAS.CycleHitboxColor's hook
+        using (new DetourContext { After = new List<string> { "*" } }) {
+            On.Monocle.Entity.DebugRender += PatchDebugRender;
+        }
         On.Monocle.EntityList.UpdateLists += OnLevelAddEntity;
         On.Celeste.Level.LoadLevel += OnLoadLevel;
     }

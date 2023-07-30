@@ -55,3 +55,5 @@ A Celeste Mod designed to be a tool in TAS making.
 - Hotkeys can't work after several savestates -> Seems fixed in v1.5.7
 
 - TAS Helper does not save settings (change settings in the menu) when closing game with the X instead of the exit button in game -> Can't reproduce. It's said that turning off and on tashelper after changing settings will work.
+
+- YamlException in Log.txt.
