@@ -1,7 +1,6 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using MonoMod.RuntimeDetour;
 using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
