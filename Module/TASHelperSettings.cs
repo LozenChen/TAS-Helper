@@ -54,7 +54,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum MainSwitchModes { Off, OnlyDefault, AllowAll }
 
-    private MainSwitchModes mainSwitch { get; set; } = MainSwitchModes.AllowAll;
+    private MainSwitchModes mainSwitch { get; set; } = MainSwitchModes.OnlyDefault;
 
     [YamlIgnore]
     public MainSwitchModes MainSwitch {
@@ -373,7 +373,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_FireBallTrack = true;
 
-    private bool usingFireBallTrack { get; set; } = false;
+    private bool usingFireBallTrack { get; set; } = true;
 
     [YamlIgnore]
     public bool UsingFireBallTrack {
@@ -399,7 +399,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    private bool mainSwitchThreeStates { get; set; } = false;
+    private bool mainSwitchThreeStates { get; set; } = true;
 
     [YamlIgnore]
     public bool MainSwitchThreeStates {
