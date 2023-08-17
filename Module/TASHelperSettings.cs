@@ -15,6 +15,14 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public TASHelperSettings() {
         Instance = this;
+
+        // LoadSettings will call ctor to set default values, which seem to go wrong for enum if we write these codes outside
+        mainSwitch = MainSwitchModes.OnlyDefault;
+        usingNotInViewColorMode = UsingNotInViewColorModes.WhenUsingInViewRange;
+        countdownMode = CountdownModes.Off;
+        CountdownFont = CountdownFonts.HiresFont;
+        loadRangeMode = LoadRangeModes.Neither;
+        enforceClearSprites = ClearSpritesMode.WhenSimplifyGraphics;
     }
 
     internal void OnLoadSettings() {
@@ -43,7 +51,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum MainSwitchModes { Off, OnlyDefault, AllowAll }
 
-    public MainSwitchModes mainSwitch { get; set; } = MainSwitchModes.OnlyDefault;
+    public MainSwitchModes mainSwitch;
 
     [YamlIgnore]
     public MainSwitchModes MainSwitch {
@@ -106,7 +114,7 @@ public class TASHelperSettings : EverestModuleSettings {
     // we need to make it public, so this setting is stored
     // though we don't want anyone to visit it directly...
 
-    public bool showCycleHitboxColor { get; set; } = true;
+    public bool showCycleHitboxColor = true;
 
     [YamlIgnore]
     public bool ShowCycleHitboxColors {
@@ -120,7 +128,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_UsingNotInViewColor = true;
     public enum UsingNotInViewColorModes { Off, WhenUsingInViewRange, Always };
 
-    public UsingNotInViewColorModes usingNotInViewColorMode { get; set; } = UsingNotInViewColorModes.WhenUsingInViewRange;
+    public UsingNotInViewColorModes usingNotInViewColorMode;
 
     [YamlIgnore]
     public UsingNotInViewColorModes UsingNotInViewColorMode {
@@ -140,7 +148,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_CountdownModes = true;
     public enum CountdownModes { Off, _3fCycle, _15fCycle };
 
-    public CountdownModes countdownMode { get; set; } = CountdownModes.Off;
+    public CountdownModes countdownMode;
 
     [YamlIgnore]
     public CountdownModes CountdownMode {
@@ -163,7 +171,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum CountdownFonts { PixelFont, HiresFont };
 
-    public CountdownFonts CountdownFont = CountdownFonts.HiresFont;
+    public CountdownFonts CountdownFont;
 
     public int HiresFontSize = 8;
 
@@ -180,7 +188,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_LoadRange = true;
     public enum LoadRangeModes { Neither, InViewRange, NearPlayerRange, Both };
 
-    public LoadRangeModes loadRangeMode { get; set; } = LoadRangeModes.Neither;
+    public LoadRangeModes loadRangeMode;
 
     [YamlIgnore]
     public LoadRangeModes LoadRangeMode {
@@ -196,11 +204,11 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public int InViewRangeWidth { get; set; } = 16;
+    public int InViewRangeWidth = 16;
 
-    public int NearPlayerRangeWidth { get; set; } = 8;
+    public int NearPlayerRangeWidth = 8;
 
-    private int loadRangeOpacity { get; set; } = 4;
+    public int loadRangeOpacity = 4;
 
     [YamlIgnore]
     public int LoadRangeOpacity {
@@ -211,7 +219,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public bool ApplyCameraZoom { get; set; } = false;
+    public bool ApplyCameraZoom  = false;
 
     #endregion
 
@@ -219,7 +227,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_EnableSimplifiedSpinner = true;
 
-    public bool enableSimplifiedSpinner { get; set; } = true;
+    public bool enableSimplifiedSpinner = true;
 
     [YamlIgnore]
     public bool EnableSimplifiedSpinner {
@@ -232,7 +240,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum ClearSpritesMode { Off, WhenSimplifyGraphics, Always };
 
-    public ClearSpritesMode enforceClearSprites { get; set; } = ClearSpritesMode.WhenSimplifyGraphics;
+    public ClearSpritesMode enforceClearSprites;
 
     [YamlIgnore]
     public ClearSpritesMode EnforceClearSprites {
@@ -242,7 +250,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
 
-    public int spinnerFillerOpacity { get; set; } = 2;
+    public int spinnerFillerOpacity = 2;
 
     [YamlIgnore]
     public int SpinnerFillerOpacity {
@@ -257,7 +265,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_EntityActivatorReminder = true;
 
-    public bool entityActivatorReminder { get; set; } = true;
+    public bool entityActivatorReminder = true;
 
     [YamlIgnore]
     public bool EntityActivatorReminder {
@@ -314,7 +322,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_CameraTarget = true;
 
-    public bool usingCameraTarget { get; set; } = false;
+    public bool usingCameraTarget = false;
 
     [YamlIgnore]
     public bool UsingCameraTarget {
@@ -325,11 +333,11 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public int CameraTargetLinkOpacity { get; set; } = 6;
+    public int CameraTargetLinkOpacity = 6;
 
     public bool Awake_PixelGrid = true;
 
-    public bool enablePixelGrid { get; set; } = false;
+    public bool enablePixelGrid = false;
 
     [YamlIgnore]
     public bool EnablePixelGrid {
@@ -341,11 +349,11 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     public int PixelGridWidth = 2;
-    public int PixelGridOpacity { get; set; } = 8;
+    public int PixelGridOpacity = 8;
 
     public bool Awake_SpawnPoint = true;
 
-    public bool usingSpawnPoint { get; set; } = true;
+    public bool usingSpawnPoint = true;
 
     [YamlIgnore]
     public bool UsingSpawnPoint {
@@ -362,7 +370,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_FireBallTrack = true;
 
-    public bool usingFireBallTrack { get; set; } = true;
+    public bool usingFireBallTrack = true;
 
     [YamlIgnore]
     public bool UsingFireBallTrack {
@@ -375,7 +383,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool AllowEnableModWithMainSwitch = true;
 
-    public bool mainSwitchStateVisualize { get; set; } = true;
+    public bool mainSwitchStateVisualize = true;
 
     [YamlIgnore]
     public bool MainSwitchStateVisualize {
@@ -388,7 +396,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public bool mainSwitchThreeStates { get; set; } = true;
+    public bool mainSwitchThreeStates = true;
 
     [YamlIgnore]
     public bool MainSwitchThreeStates {
