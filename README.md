@@ -36,13 +36,25 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - BrokemiaHelper's CassetteSpinner, is considered as "no cycle", since its collidablity is completely determined by cassette music. However, its visibility do have a 15f cycle (useless, it can't interact with collidablity).
 
-# WIP:
+# Plans:
+
+  Here lists some ideas, which I may not work on recently. Feel free if you like that idea and want to implement that in your mod (tell me when you've implemented it so i needn't work on them').
+
+- Solve YamlException in Log.txt
 
 - Slowdown indicator (note there's 1 frame delay between DeltaTime and TimeRate)
 
-- Better custom info.
+- Key cycle indicator.
+
+- FlingBird indicator.
+
+- Simple predictor.
 
 - Scrollable console.
+
+- Better custom info. (not necessary due to the latest EvalLua command)
+
+- Auto completion in Celeste Studio (when using something like "set invincible true"), and some other gadgets for Studio.
 
 # Known issues:
 

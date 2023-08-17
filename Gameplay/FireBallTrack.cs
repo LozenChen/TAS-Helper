@@ -26,31 +26,11 @@ public static class FireBallTrack {
         });
     }
 
-    public static FieldInfo FireBallNodesGetter = typeof(FireBall).GetField("nodes", BindingFlags.Instance | BindingFlags.NonPublic);
-
-    internal static readonly List<Vector2[]> CachedNodes = new List<Vector2[]>();
-
-    public static Color FireBallTrackColor = Color.Yellow * 0.5f;
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
-        CachedNodes.Clear();
-        orig(self, playerIntro, isFromLoader);
-    }
-    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
-        orig(self, camera);
-        if (!TasHelperSettings.UsingFireBallTrack || self.Scene is not Level level) {
-            return;
-        }
-        foreach (Vector2[] nodes in CachedNodes) {
-            for (int i = 0; i < nodes.Length - 1; i++) {
-                Draw.Line(nodes[i], nodes[i + 1], FireBallTrackColor);
-            }
-        }
-    }
 
     /*
+     * btw when it's in ice mode
      * The KillBox is just those part under the bounce hitbox, unless FireBall happens to have Position.Y an integer
      * btw there is some OoO issue, so i decide not to render it
-     * CelesteTAS
     private static void PatchFireBallDebugRender(Entity entity) {
         if (entity is not FireBall self || !(bool)IceModeGetter.GetValue(self)) {
             return;
@@ -64,4 +44,30 @@ public static class FireBallTrack {
         Draw.Rect(self.X - 4f, top, 9f, 1f, self.Collidable ? Color.WhiteSmoke : Color.WhiteSmoke * HitboxColor.UnCollidableAlpha);
     }
     */
+
+    public static FieldInfo FireBallNodesGetter = typeof(FireBall).GetField("nodes", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    internal static readonly List<Vector2[]> CachedNodes = new List<Vector2[]>();
+
+    public static Color FireBallTrackColor = Color.Yellow * 0.5f;
+    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
+        CachedNodes.Clear();
+        orig(self, playerIntro, isFromLoader);
+    }
+    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
+        orig(self, camera);
+        if (!TasHelperSettings.UsingFireBallTrack || self.Scene is not Level || CachedNodes.Count == 0) {
+            return;
+        }
+
+        foreach (Vector2[] nodes in CachedNodes) {
+            for (int i = 0; i < nodes.Length - 1; i++) {
+                Draw.Line(nodes[i], nodes[i + 1], FireBallTrackColor, 1f);
+                // use Draw.Line(start, end, color, thickness) will add an extra offset, making diagnoal lines really thickness = 1, comparing with Draw.Line(start, end, color, thickness)
+                // however, there is a bit offset away from Draw.Point(...)
+            }
+        }
+    }
 }
+
+
