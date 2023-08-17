@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Input;
 using Monocle;
 using TAS.EverestInterop;
 using YamlDotNet.Serialization;
-using static TAS.EverestInterop.Hotkeys;
 
 namespace Celeste.Mod.TASHelper.Module;
 
@@ -19,11 +18,6 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     internal void OnLoadSettings() {
-        // Everest will save & load settings of public fields/properties when open the game
-        // but in the Awake system, only those private field like showCycleHitboxColor matters
-        // so i hack SaveSettings, upgrade to YamlDotNet9 to support Serializing private properties
-        // also i mark those public fields as YamlIgnore, as there's no need to save them
-
         UpdateAuxiliaryVariable();
 
         if (keyMainSwitch is null) {
@@ -38,12 +32,7 @@ public class TASHelperSettings : EverestModuleSettings {
         if (keyPixelGridWidth is null) {
             keyPixelGridWidth = new((Buttons)0, Keys.LeftControl, Keys.F);
         }
-        // it seems some bug can happen with deserialization (though not for me, so i add these codes in case of accident)
-
-        MainSwitchHotkey = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
-        CountDownHotkey = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
-        LoadRangeHotkey = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
-        PixelGridWidthHotkey = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
+        // it seems some bug can happen with deserialization
     }
 
     public bool Enabled = true;
@@ -54,7 +43,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum MainSwitchModes { Off, OnlyDefault, AllowAll }
 
-    private MainSwitchModes mainSwitch { get; set; } = MainSwitchModes.OnlyDefault;
+    public MainSwitchModes mainSwitch { get; set; } = MainSwitchModes.OnlyDefault;
 
     [YamlIgnore]
     public MainSwitchModes MainSwitch {
@@ -117,7 +106,7 @@ public class TASHelperSettings : EverestModuleSettings {
     // we need to make it public, so this setting is stored
     // though we don't want anyone to visit it directly...
 
-    private bool showCycleHitboxColor { get; set; } = true;
+    public bool showCycleHitboxColor { get; set; } = true;
 
     [YamlIgnore]
     public bool ShowCycleHitboxColors {
@@ -131,7 +120,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_UsingNotInViewColor = true;
     public enum UsingNotInViewColorModes { Off, WhenUsingInViewRange, Always };
 
-    private UsingNotInViewColorModes usingNotInViewColorMode { get; set; } = UsingNotInViewColorModes.WhenUsingInViewRange;
+    public UsingNotInViewColorModes usingNotInViewColorMode { get; set; } = UsingNotInViewColorModes.WhenUsingInViewRange;
 
     [YamlIgnore]
     public UsingNotInViewColorModes UsingNotInViewColorMode {
@@ -151,7 +140,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_CountdownModes = true;
     public enum CountdownModes { Off, _3fCycle, _15fCycle };
 
-    private CountdownModes countdownMode { get; set; } = CountdownModes.Off;
+    public CountdownModes countdownMode { get; set; } = CountdownModes.Off;
 
     [YamlIgnore]
     public CountdownModes CountdownMode {
@@ -191,7 +180,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool Awake_LoadRange = true;
     public enum LoadRangeModes { Neither, InViewRange, NearPlayerRange, Both };
 
-    private LoadRangeModes loadRangeMode { get; set; } = LoadRangeModes.Neither;
+    public LoadRangeModes loadRangeMode { get; set; } = LoadRangeModes.Neither;
 
     [YamlIgnore]
     public LoadRangeModes LoadRangeMode {
@@ -230,7 +219,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_EnableSimplifiedSpinner = true;
 
-    private bool enableSimplifiedSpinner { get; set; } = true;
+    public bool enableSimplifiedSpinner { get; set; } = true;
 
     [YamlIgnore]
     public bool EnableSimplifiedSpinner {
@@ -243,7 +232,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public enum ClearSpritesMode { Off, WhenSimplifyGraphics, Always };
 
-    private ClearSpritesMode enforceClearSprites { get; set; } = ClearSpritesMode.WhenSimplifyGraphics;
+    public ClearSpritesMode enforceClearSprites { get; set; } = ClearSpritesMode.WhenSimplifyGraphics;
 
     [YamlIgnore]
     public ClearSpritesMode EnforceClearSprites {
@@ -253,7 +242,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
 
-    private int spinnerFillerOpacity { get; set; } = 2;
+    public int spinnerFillerOpacity { get; set; } = 2;
 
     [YamlIgnore]
     public int SpinnerFillerOpacity {
@@ -268,7 +257,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_EntityActivatorReminder = true;
 
-    private bool entityActivatorReminder { get; set; } = true;
+    public bool entityActivatorReminder { get; set; } = true;
 
     [YamlIgnore]
     public bool EntityActivatorReminder {
@@ -325,7 +314,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_CameraTarget = true;
 
-    private bool usingCameraTarget { get; set; } = false;
+    public bool usingCameraTarget { get; set; } = false;
 
     [YamlIgnore]
     public bool UsingCameraTarget {
@@ -340,7 +329,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_PixelGrid = true;
 
-    private bool enablePixelGrid { get; set; } = false;
+    public bool enablePixelGrid { get; set; } = false;
 
     [YamlIgnore]
     public bool EnablePixelGrid {
@@ -356,7 +345,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_SpawnPoint = true;
 
-    private bool usingSpawnPoint { get; set; } = true;
+    public bool usingSpawnPoint { get; set; } = true;
 
     [YamlIgnore]
     public bool UsingSpawnPoint {
@@ -373,7 +362,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_FireBallTrack = true;
 
-    private bool usingFireBallTrack { get; set; } = true;
+    public bool usingFireBallTrack { get; set; } = true;
 
     [YamlIgnore]
     public bool UsingFireBallTrack {
@@ -386,7 +375,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool AllowEnableModWithMainSwitch = true;
 
-    private bool mainSwitchStateVisualize { get; set; } = true;
+    public bool mainSwitchStateVisualize { get; set; } = true;
 
     [YamlIgnore]
     public bool MainSwitchStateVisualize {
@@ -399,7 +388,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    private bool mainSwitchThreeStates { get; set; } = true;
+    public bool mainSwitchThreeStates { get; set; } = true;
 
     [YamlIgnore]
     public bool MainSwitchThreeStates {
@@ -416,68 +405,27 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region HotKey
 
-    private ButtonBinding keyMainSwitch { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.E);
-    private ButtonBinding keyCountDown { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.R);
-    private ButtonBinding keyLoadRange { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.T);
-    private ButtonBinding keyPixelGridWidth { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.F);
-
-    [YamlIgnore]
     [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
     [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
     [SettingDescriptionHardcoded]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.E)]
-    public ButtonBinding KeyMainSwitch {
-        get => keyMainSwitch;
-        set {
-            keyMainSwitch = value;
-            MainSwitchHotkey = new Hotkey(keyMainSwitch.Keys, keyMainSwitch.Buttons, true, false);
-        }
-    }
+    public ButtonBinding keyMainSwitch { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.E);
 
-    [YamlIgnore]
+
     [SettingName("TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.R)]
-    public ButtonBinding KeyCountDown {
-        get => keyCountDown;
-        set {
-            keyCountDown = value;
-            CountDownHotkey = new Hotkey(keyCountDown.Keys, keyCountDown.Buttons, true, false);
-        }
-    }
+    public ButtonBinding keyCountDown { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.R);
 
-    [YamlIgnore]
+
     [SettingName("TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.T)]
-    public ButtonBinding KeyLoadRange {
-        get => keyLoadRange;
-        set {
-            keyLoadRange = value;
-            LoadRangeHotkey = new Hotkey(keyLoadRange.Keys, keyLoadRange.Buttons, true, false);
-        }
-    }
+    public ButtonBinding keyLoadRange { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.T);
 
-    [YamlIgnore]
+
     [SettingName("TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.F)]
-    public ButtonBinding KeyPixelGridWidth {
-        get => keyPixelGridWidth;
-        set {
-            keyPixelGridWidth = value;
-            PixelGridWidthHotkey = new Hotkey(keyPixelGridWidth.Keys, keyPixelGridWidth.Buttons, true, false);
-        }
-    }
+    public ButtonBinding keyPixelGridWidth { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.F);
 
-    [YamlIgnore]
-    private Hotkey MainSwitchHotkey;
-
-    [YamlIgnore]
-    private Hotkey CountDownHotkey;
-
-    [YamlIgnore]
-    private Hotkey LoadRangeHotkey;
-
-    [YamlIgnore]
-    private Hotkey PixelGridWidthHotkey;
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
     public bool SettingsHotkeysPressed() {
@@ -487,98 +435,83 @@ public class TASHelperSettings : EverestModuleSettings {
 
         bool updateKey = true;
         bool updateButton = true;
-        try {
-            bool InOuiModOption = TASHelperMenu.mainItem?.Container?.Focused is bool b && b;
-            if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(KeyboardConfigUI), out var list) && list.Count > 0) ||
-                (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list2) && list2.Count > 0)) {
-                updateKey = false;
-            }
-            if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(ButtonConfigUI), out var list3) && list3.Count > 0)) {
-                updateButton = false;
-            }
+        bool InOuiModOption = TASHelperMenu.mainItem?.Container?.Focused is bool b && b;
+        if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(KeyboardConfigUI), out var list) && list.Count > 0) ||
+            (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list2) && list2.Count > 0)) {
+            updateKey = false;
         }
-        catch (Exception ex1) {
-            Logger.Log(LogLevel.Error, "TASHelper", "PossibleBugPlace1");
-            Logger.LogDetailed(ex1);
+        if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(ButtonConfigUI), out var list3) && list3.Count > 0)) {
+            updateButton = false;
         }
-        try {
-            MainSwitchHotkey.Update(updateKey, updateButton);
-            CountDownHotkey.Update(updateKey, updateButton);
-            LoadRangeHotkey.Update(updateKey, updateButton);
-            PixelGridWidthHotkey.Update(updateKey, updateButton);
-        }
-        catch (Exception ex2) {
-            Logger.Log(LogLevel.Error, "TASHelper", "PossibleBugPlace2");
-            Logger.LogDetailed(ex2);
-        }
+
+        TH_Hotkeys.MainSwitchHotkey.Update(updateKey, updateButton);
+        TH_Hotkeys.CountDownHotkey.Update(updateKey, updateButton);
+        TH_Hotkeys.LoadRangeHotkey.Update(updateKey, updateButton);
+        TH_Hotkeys.PixelGridWidthHotkey.Update(updateKey, updateButton);
+
         bool changed = false;
-        try {
-            if (MainSwitchHotkey.Pressed) {
-                changed = true;
-                switch (MainSwitch) {
-                    case MainSwitchModes.Off: {
-                            if (!AllowEnableModWithMainSwitch) {
-                                changed = false;
-                                MainSwitchWatcher.instance?.Refresh(true);
-                                break;
-                            }
-                            MainSwitch = MainSwitchThreeStates ? MainSwitchModes.OnlyDefault : MainSwitchModes.AllowAll;
+
+        if (TH_Hotkeys.MainSwitchHotkey.Pressed) {
+            changed = true;
+            switch (MainSwitch) {
+                case MainSwitchModes.Off: {
+                        if (!AllowEnableModWithMainSwitch) {
+                            changed = false;
+                            MainSwitchWatcher.instance?.Refresh(true);
                             break;
                         }
-                    // it may happen that MainSwitchThreeStates = false but MainSwitch = OnlyDefault... it's ok
-                    case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
-                    case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
-                }
-            }
-            if (CountDownHotkey.Pressed) {
-                if (Enabled) {
-                    changed = true;
-                    switch (CountdownMode) {
-                        case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
-                        case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
-                        case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
+                        MainSwitch = MainSwitchThreeStates ? MainSwitchModes.OnlyDefault : MainSwitchModes.AllowAll;
+                        break;
                     }
-                }
-                else {
-                    MainSwitchWatcher.instance?.RefreshOther();
-                }
-            }
-            if (LoadRangeHotkey.Pressed) {
-                if (Enabled) {
-                    changed = true;
-                    switch (LoadRangeMode) {
-                        case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
-                        case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
-                        case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; break;
-                        case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
-                    }
-                }
-                else {
-                    MainSwitchWatcher.instance?.RefreshOther();
-                }
-            }
-            if (PixelGridWidthHotkey.Pressed) {
-                if (Enabled) {
-                    changed = true;
-                    EnablePixelGrid = true;
-                    PixelGridWidth = PixelGridWidth switch {
-                        < 2 => 2,
-                        < 4 => 4,
-                        < 8 => 8,
-                        _ => 0,
-                    };
-                    if (PixelGridWidth == 0) {
-                        EnablePixelGrid = false;
-                    }
-                }
-                else {
-                    MainSwitchWatcher.instance?.RefreshOther();
-                }
+                // it may happen that MainSwitchThreeStates = false but MainSwitch = OnlyDefault... it's ok
+                case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
+                case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
             }
         }
-        catch (Exception ex3) {
-            Logger.Log(LogLevel.Error, "TASHelper", "PossibleBugPlace3");
-            Logger.LogDetailed(ex3);
+        if (TH_Hotkeys.CountDownHotkey.Pressed) {
+            if (Enabled) {
+                changed = true;
+                switch (CountdownMode) {
+                    case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
+                    case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
+                    case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
+                }
+            }
+            else {
+                MainSwitchWatcher.instance?.RefreshOther();
+            }
+        }
+        if (TH_Hotkeys.LoadRangeHotkey.Pressed) {
+            if (Enabled) {
+                changed = true;
+                switch (LoadRangeMode) {
+                    case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
+                    case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
+                    case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; break;
+                    case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
+                }
+            }
+            else {
+                MainSwitchWatcher.instance?.RefreshOther();
+            }
+        }
+        if (TH_Hotkeys.PixelGridWidthHotkey.Pressed) {
+            if (Enabled) {
+                changed = true;
+                EnablePixelGrid = true;
+                PixelGridWidth = PixelGridWidth switch {
+                    < 2 => 2,
+                    < 4 => 4,
+                    < 8 => 8,
+                    _ => 0,
+                };
+                if (PixelGridWidth == 0) {
+                    EnablePixelGrid = false;
+                }
+            }
+            else {
+                MainSwitchWatcher.instance?.RefreshOther();
+            }
         }
         return changed;
     }
@@ -597,5 +530,4 @@ public class SettingDescriptionHardcodedAttribute : Attribute {
         return TasHelperSettings.MainSwitchThreeStates ? "Switch among [Off - Default - All]\nPlease configure other settings in State All." : "Switch between [Off - All]";
     }
 }
-
 

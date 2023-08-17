@@ -76,7 +76,7 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.Button(Dialog.Clean("options_keyconfig")).Pressed(() => {
                 subMenu.Focused = false;
                 KeyboardConfigUI keyboardConfig = new ModuleSettingsKeyboardConfigUIExt(everestModule) {
-                    OnClose = () => { subMenu.Focused = true; }
+                    OnClose = () => { subMenu.Focused = true; TH_Hotkeys.HotkeyInitialize(); }
                 };
 
                 Engine.Scene.Add(keyboardConfig);
@@ -86,7 +86,7 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.Button(Dialog.Clean("options_btnconfig")).Pressed(() => {
                 subMenu.Focused = false;
                 ButtonConfigUI buttonConfig = new ModuleSettingsButtonConfigUI(everestModule) {
-                    OnClose = () => { subMenu.Focused = true; }
+                    OnClose = () => { subMenu.Focused = true; TH_Hotkeys.HotkeyInitialize(); }
                 };
 
                 Engine.Scene.Add(buttonConfig);

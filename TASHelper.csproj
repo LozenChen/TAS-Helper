@@ -63,8 +63,9 @@
       <HintPath>Libs\VivHelper.dll</HintPath>
     </Reference>
     <Reference Include="YamlDotNet">
-      <HintPath>bin\Release\net4.5.2\YamlDotNet_v9.1.4.dll</HintPath>
+      <HintPath>Libs\YamlDotNet.dll</HintPath>
     </Reference>
+
   </ItemGroup>
 
   <ItemGroup>
@@ -79,8 +80,6 @@
     <None Remove="Libs\**" />
   </ItemGroup>
 
-	<Target Name="ILRepacker" AfterTargets="AfterBuild">
-		<Exec Command="ILRepack /lib:Libs\ /out:bin\Release\net4.5.2\TASHelper.dll bin\Release\net4.5.2\TASHelper.dll bin\Release\net4.5.2\YamlDotNet_v9.1.4.dll" />
-	</Target>
+
 			
 </Project>

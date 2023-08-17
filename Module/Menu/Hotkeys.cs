@@ -4,10 +4,35 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System.Reflection;
 using TAS.EverestInterop;
+using Hotkey = TAS.EverestInterop.Hotkeys.Hotkey;
 
 namespace Celeste.Mod.TASHelper.Module.Menu;
 
-internal static class TH_Hotkeys {
+public static class TH_Hotkeys {
+
+    public static Hotkey MainSwitchHotkey { get; set; }
+
+    public static Hotkey CountDownHotkey { get; set; }
+
+    public static Hotkey LoadRangeHotkey { get; set; }
+
+    public static Hotkey PixelGridWidthHotkey { get; set; }
+
+    static TH_Hotkeys() {
+        HotkeyInitialize();
+    }
+
+    public static void HotkeyInitialize() {
+        MainSwitchHotkey = BindingToHotkey(TasHelperSettings.keyMainSwitch);
+        CountDownHotkey = BindingToHotkey(TasHelperSettings.keyCountDown);
+        LoadRangeHotkey = BindingToHotkey(TasHelperSettings.keyLoadRange);
+        PixelGridWidthHotkey = BindingToHotkey(TasHelperSettings.keyPixelGridWidth);
+    }
+
+    private static Hotkey BindingToHotkey(ButtonBinding binding, bool held = false) {
+        return new(binding.Keys, binding.Buttons, true, held);
+    }
+
 
     private static IEnumerable<PropertyInfo> bindingProperties;
 
