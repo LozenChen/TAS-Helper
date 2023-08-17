@@ -40,8 +40,6 @@ A Celeste Mod designed to be a tool in TAS making.
 
   Here lists some ideas, which I may not work on recently. Feel free if you like that idea and want to implement that in your mod (tell me when you've implemented it so i needn't work on them').
 
-- Solve YamlException in Log.txt
-
 - Slowdown indicator (note there's 1 frame delay between DeltaTime and TimeRate)
 
 - Key cycle indicator.
@@ -68,4 +66,4 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - TAS Helper does not save settings (change settings in the menu) when closing game with the X instead of the exit button in game -> Can't reproduce. It's said that turning off and on tashelper after changing settings will work.
 
-- YamlException in Log.txt.
+- YamlException in Log.txt. -> fixed in v1.6.5
