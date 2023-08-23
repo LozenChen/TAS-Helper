@@ -69,6 +69,8 @@ TAS_HELPER_HIRES_FONT_SIZE=                                高清字体大小
 TAS_HELPER_HIRES_FONT_STROKE=                              高清字体描边
 TAS_HELPER_PERFORMANCE_OPTIMIZATION=                       性能优化
 TAS_HELPER_PERFORMANCE_OPTIMIZATION_DESCRIPTION=           在较远处时将不再显示倒计时和实体的加载范围碰撞箱.
+TAS_HELPER_COUNTDOWN_BOOST=                                自动显示/隐藏倒计时
+TAS_HELPER_COUNTDOWN_BOOST_DESCRIPTION=                    只在帧步进或暂停时显示倒计时.
 
 # ============================================= Load Range =====================================================
 TAS_HELPER_LOAD_RANGE=                                     加载范围
@@ -93,7 +95,9 @@ TAS_HELPER_CLEAR_SPINNER_SPRITES=                          清除圆刺贴图
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_OFF=                 关
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=简化图形时
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              总是
-TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部不透明度
+TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部不透明度 (可碰撞时)
+TAS_HELPER_SPINNER_FILLER_OPACITY_EXTRA=                   圆刺内部不透明度 (不可碰撞时)
+TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           不使用 TAS mod 的不可碰撞透明度                      
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        快捷键

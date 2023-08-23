@@ -33,16 +33,16 @@ public static class CustomInfoHelper {
 
 
     public static float PlayerIntPositionX {
-        get => PlayerHelper.player?.X ?? 0;
+        get => player?.X ?? 0;
         set {
-            if (PlayerHelper.player is not null) { PlayerHelper.player.X = value; }
+            if (player is not null) { player.X = value; }
         }
     }
     public static float PlayerIntPositionY {
-        get => PlayerHelper.player?.Y ?? 0;
+        get => player?.Y ?? 0;
         set {
-            if (PlayerHelper.player is not null) {
-                PlayerHelper.player.Y = value;
+            if (player is not null) {
+                player.Y = value;
             }
         }
     }

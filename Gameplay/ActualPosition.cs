@@ -1,3 +1,4 @@
+using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
@@ -8,9 +9,8 @@ using ChronoEnitites = Celeste.Mod.ChronoHelper.Entities;
 using VivEntites = VivHelper.Entities;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
-internal static class PlayerHelper {
+internal static class ActualPosition {
 
-    internal static Player? player;
     internal static Vector2 PreviousCameraPos = Vector2.Zero;
     internal static Vector2 CameraPosition = Vector2.Zero;
     internal static float CameraZoom = 1f;
@@ -69,7 +69,6 @@ internal static class PlayerHelper {
         if (self is Level level) {
             PlayerPositionChangedCount = 0;
             PreviousCameraPos = level.Camera.Position;
-            player = self.Tracker.GetEntity<Player>();
             CameraZoom = 1f;
         }
     }
@@ -96,7 +95,7 @@ internal static class PlayerHelper {
             )) {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.Emit(OpCodes.Ldfld, typeof(Entity).GetField("Position"));
-            cursor.Emit(OpCodes.Stsfld, typeof(PlayerHelper).GetField("PlayerPositionBeforeCameraUpdate", BindingFlags.NonPublic | BindingFlags.Static));
+            cursor.Emit(OpCodes.Stsfld, typeof(ActualPosition).GetField("PlayerPositionBeforeCameraUpdate", BindingFlags.NonPublic | BindingFlags.Static));
         }
     }
 
@@ -170,7 +169,7 @@ internal static class PlayerHelper {
 
 
     private static void PatchHazardUpdate(Entity self) {
-        if (!UltraFastForwarding && SpinnerHelper.HazardType(self) != null && player != null) {
+        if (!UltraFastForwarding && SpinnerCalculateHelper.HazardType(self) != null && player != null) {
             if (PlayerPositionChangedCount == 0) {
                 PlayerPositionChangedCount++;
                 PlayerPosition = player.Position;

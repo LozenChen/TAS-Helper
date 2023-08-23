@@ -1,5 +1,6 @@
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Gameplay;
+using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 
@@ -21,27 +22,27 @@ internal static class Loader {
     }
 
     public static void HelperLoad() {
-        PlayerHelper.Load();
-        RenderHelper.Load();
-        SpinnerHelper.Load();
+        ActualPosition.Load();
+        SpinnerRenderHelper.Load();
+        SpinnerCalculateHelper.Load();
         HiresLevelRenderer.Load();
         Utils.Logger.Load();
         DebugHelper.Load();
         TH_Hotkeys.Load();
-        LoadRangeCountDownCameraTarget.Load();
+        LoadRange_and_CameraTarget.Load();
         SimplifiedSpinner.Load();
         FireBallTrack.Load();
         HookHelper.Load();
     }
     public static void HelperUnload() {
-        PlayerHelper.Unload();
-        RenderHelper.Unload();
-        SpinnerHelper.Unload();
+        ActualPosition.Unload();
+        SpinnerRenderHelper.Unload();
+        SpinnerCalculateHelper.Unload();
         HiresLevelRenderer.Unload();
         Utils.Logger.Unload();
         DebugHelper.Unload();
         TH_Hotkeys.Unload();
-        LoadRangeCountDownCameraTarget.Unload();
+        LoadRange_and_CameraTarget.Unload();
         SimplifiedSpinner.Unload();
         FireBallTrack.Unload();
         HookHelper.Unload();
@@ -49,14 +50,16 @@ internal static class Loader {
 
     public static void Initialize() {
         ModUtils.InitializeAtFirst();
-        PlayerHelper.Initialize();
-        RenderHelper.Initialize();
-        SpinnerHelper.Initialize();
+        ActualPosition.Initialize();
+        SpinnerRenderHelper.Initialize();
+        SpinnerCalculateHelper.Initialize();
         SimplifiedSpinner.Initialize();
         Messenger.Initialize();
         SpawnPoint.Initialize();
         RestoreSettingsExt.Initialize();
         FireBallTrack.Initialize();
+        SpinnerColliderHelper.Initialize();
+        Countdown_and_LoadRange_Collider.Initialize();
     }
 
     public static void LoadContent() {

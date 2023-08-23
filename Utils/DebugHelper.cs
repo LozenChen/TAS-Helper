@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Gameplay;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Collections;
@@ -44,7 +43,7 @@ public static class DebugHelper {
     private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
         orig(self, camera);
         if (usingDebug) {
-            if (PlayerHelper.player is Player player) {
+            if (player is not null) {
                 Monocle.Draw.Point(player.Position, Color.MediumPurple);
             }
         }
@@ -62,7 +61,7 @@ public static class DebugHelper {
     private static void PatchUpdate(On.Monocle.Scene.orig_Update orig, Scene self) {
         orig(self);
         if (UsingEntityLog && !StartToLog && self is Level) {
-            if (PlayerHelper.player is Player Player && Player.Speed.Y < -200f && triggerTimer <= 0f) {
+            if (player is not null && player.Speed.Y < -200f && triggerTimer <= 0f) {
                 StartToLog = true;
                 triggerTimer = triggerBuffer;
                 foreach (Entity entity in self.Entities) {

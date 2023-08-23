@@ -1,3 +1,4 @@
+using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
@@ -264,24 +265,24 @@ internal static class SimplifiedSpinner {
      */
 
     private static void PatchDebugRender(On.Monocle.Entity.orig_DebugRender orig, Entity self, Camera camera) {
-        if (!TasHelperSettings.Enabled || SpinnerHelper.HazardType(self) == null) {
+        if (!TasHelperSettings.Enabled || SpinnerCalculateHelper.HazardType(self) == null) {
             orig(self, camera);
             return;
         }
 
 #pragma warning disable CS8629
-        RenderHelper.SpinnerColorIndex index = RenderHelper.CycleHitboxColorIndex(self, SpinnerHelper.GetOffset(self).Value, PlayerHelper.CameraPosition);
+        SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.CycleHitboxColorIndex(self, SpinnerCalculateHelper.GetOffset(self).Value, ActualPosition.CameraPosition);
 #pragma warning restore CS8629
-        Color color = RenderHelper.GetSpinnerColor(index);
+        Color color = SpinnerRenderHelper.GetSpinnerColor(index);
         // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
         if (!self.isLightning() && TasHelperSettings.EnableSimplifiedSpinner) {
-            RenderHelper.DrawSpinnerCollider(self, color);
+            SpinnerRenderHelper.DrawSpinnerCollider(self, color);
         }
         else {
             self.Collider.Render(camera, color * (self.Collidable ? 1f : HitboxColor.UnCollidableAlpha));
         }
 
-        LoadRangeCountDownCameraTarget.DrawLoadRangeColliderCountdown(self, index);
+        Countdown_and_LoadRange_Collider.Draw(self, index);
     }
 
 }

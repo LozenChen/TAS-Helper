@@ -1,4 +1,5 @@
 using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -213,10 +214,10 @@ public class CountdownRenderer : THRenderer {
             if (ID >= 0 && ID < 100) {
                 str = ID.ToString();
             }
-            else if (ID == RenderHelper.ID_infinity) {
+            else if (ID == SpinnerRenderHelper.ID_infinity) {
                 str = "oo";
             }
-            else if (ID == RenderHelper.ID_nocycle) {
+            else if (ID == SpinnerRenderHelper.ID_nocycle) {
                 str = "0";
             }
             else {

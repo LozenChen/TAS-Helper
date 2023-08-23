@@ -25,6 +25,9 @@ internal static class TASHelperMenu {
             subMenu.Add(CountdownModeItem = new TextMenuExt.EnumerableSlider<CountdownModes>("Countdown Mode".ToDialogText(), CreateCountdownOptions(),
                     TasHelperSettings.CountdownMode).Change(value => TasHelperSettings.CountdownMode = value));
             subMenu.AddDescription(menu, CountdownModeItem, "Countdown Mode Description".ToDialogText());
+            TextMenu.Item CountdownBoostItem;
+            subMenu.Add(CountdownBoostItem = new TextMenu.OnOff("Countdown Boost".ToDialogText(), TasHelperSettings.CountdownBoost).Change(value => TasHelperSettings.CountdownBoost = value));
+            subMenu.AddDescription(menu, CountdownBoostItem, "Countdown Boost Description".ToDialogText());
             subMenu.Add(new TextMenuExt.EnumerableSlider<CountdownFonts>("Font".ToDialogText(), CreateCountdownFontOptions(),
                 TasHelperSettings.CountdownFont).Change(value => TasHelperSettings.CountdownFont = value));
             subMenu.Add(new TextMenuExt.IntSlider("Hires Font Size".ToDialogText(), 1, 20, TasHelperSettings.HiresFontSize).Change(value => TasHelperSettings.HiresFontSize = value));
@@ -55,7 +58,11 @@ internal static class TASHelperMenu {
         return new EaseInSubMenu("Simplified Spinners".ToDialogText(), false).Apply(subMenu => {
             subMenu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.EnableSimplifiedSpinner).Change(value => TasHelperSettings.EnableSimplifiedSpinner = value));
             subMenu.Add(new TextMenuExt.EnumerableSlider<ClearSpritesMode>("Clear Spinner Sprites".ToDialogText(), CreateClearSpritesModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity).Change(value => TasHelperSettings.SpinnerFillerOpacity = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Collidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Collidable = value));
+            subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity Extra".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Uncollidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Uncollidable = value));
+            subMenu.Add(new TextMenu.OnOff("Spinner_Ignore_TAS_UncollidableAlpha".ToDialogText(), TasHelperSettings.Ignore_TAS_UnCollidableAlpha).Change(value => TasHelperSettings.Ignore_TAS_UnCollidableAlpha = value));
+
+
         });
     }
 

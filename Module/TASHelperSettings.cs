@@ -181,6 +181,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool DoNotRenderWhenFarFromView = true;
 
+    public bool CountdownBoost = false;
+
     #endregion
 
     #region LoadRange
@@ -219,7 +221,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public bool ApplyCameraZoom  = false;
+    public bool ApplyCameraZoom = false;
 
     #endregion
 
@@ -250,16 +252,30 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
 
-    public int spinnerFillerOpacity = 2;
+    public int spinnerFillerOpacity_Collidable = 2;
 
     [YamlIgnore]
-    public int SpinnerFillerOpacity {
-        get => spinnerFillerOpacity;
+    public int SpinnerFillerOpacity_Collidable {
+        get => spinnerFillerOpacity_Collidable;
         set {
-            spinnerFillerOpacity = value;
-            SpinnerFillerAlpha = value * 0.1f;
+            spinnerFillerOpacity_Collidable = value;
+            SpinnerFillerAlpha_Collidable = value * 0.1f;
         }
     }
+
+    public int spinnerFillerOpacity_Uncollidable = 0;
+
+    [YamlIgnore]
+    public int SpinnerFillerOpacity_Uncollidable {
+        get => spinnerFillerOpacity_Uncollidable;
+        set {
+            spinnerFillerOpacity_Uncollidable = value;
+            SpinnerFillerAlpha_Uncollidable = value * 0.1f;
+        }
+    }
+
+    public bool Ignore_TAS_UnCollidableAlpha = true;
+
     #endregion
 
 
@@ -305,7 +321,8 @@ public class TASHelperSettings : EverestModuleSettings {
     public int SpinnerCountdownUpperBound => SpinnerCountdownLoad ? 9 : 99;
     public float SpinnerInterval = 0.05f;
     public float RangeAlpha = 0.4f;
-    public float SpinnerFillerAlpha = 0.4f;
+    public float SpinnerFillerAlpha_Collidable = 0.4f;
+    public float SpinnerFillerAlpha_Uncollidable = 0f;
     public bool UsingFreezeColor = true;
 
     public Color LoadRangeColliderColor = CustomColors.defaultLoadRangeColliderColor;

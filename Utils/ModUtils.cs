@@ -1,6 +1,7 @@
 using Celeste.Mod.Helpers;
 using ExtendedVariants.Module;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -47,7 +48,13 @@ internal static class ModUtils {
     public static bool BrokemiaHelperInstalled = false;
 
     public static bool IsaGrabBagInstalled = false;
-    private static bool upsideDown => (bool)ExtendedVariantsModule.Instance.TriggerManager.GetCurrentVariantValue(ExtendedVariantsModule.Variant.UpsideDown);
+
+    private static readonly Lazy<object> upsideDownVariant =
+        new(() => Enum.Parse(typeof(ExtendedVariantsModule.Variant), "UpsideDown"));
+    private static bool upsideDown {
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        get => (bool)ExtendedVariantsModule.Instance.TriggerManager.GetCurrentVariantValue((ExtendedVariantsModule.Variant)upsideDownVariant.Value);
+    }
     public static bool UpsideDown => ExtendedVariantInstalled && upsideDown;
     public static void InitializeAtFirst() {
         FrostHelperInstalled = IsInstalled("FrostHelper");

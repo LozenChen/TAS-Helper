@@ -1,11 +1,14 @@
-global using static Celeste.Mod.TASHelper.Module.GlobalVariables;
+global using static Celeste.Mod.TASHelper.GlobalVariables;
+using Celeste.Mod.TASHelper.Module;
 using Monocle;
+using TAS;
 using TAS.EverestInterop.Hitboxes;
 using TAS.Module;
 
-namespace Celeste.Mod.TASHelper.Module;
+namespace Celeste.Mod.TASHelper;
 
 internal static class GlobalVariables {
+
     public static TASHelperSettings TasHelperSettings => TASHelperSettings.Instance;
 
     public static CelesteTasSettings TasSettings => CelesteTasSettings.Instance;
@@ -25,6 +28,9 @@ internal static class GlobalVariables {
     }
 
     public static bool UltraFastForwarding => TAS.Manager.UltraFastForwarding;
+
+    public static bool FrameStep => Manager.Running && (Manager.States.HasFlag(StudioCommunication.States.FrameStep) || Manager.NextStates.HasFlag(StudioCommunication.States.FrameStep));
+    public static Player? player => Engine.Scene.Tracker.GetEntity<Player>();
 }
 
 

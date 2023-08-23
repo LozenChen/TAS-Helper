@@ -7,9 +7,9 @@ using System.Runtime.CompilerServices;
 using VivEntites = VivHelper.Entities;
 // VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
-namespace Celeste.Mod.TASHelper.Gameplay;
+namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
-public static class SpinnerHelper {
+public static class SpinnerCalculateHelper {
 
     public static float TimeActive = 0f;
 
@@ -122,7 +122,7 @@ public static class SpinnerHelper {
         // [Irrelavent] LunaticHelper.CustomDust: it's a backdrop, not a dust spinner.
 
         if (ModUtils.IsaGrabBagInstalled) {
-            typeof(SpinnerHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
+            typeof(SpinnerCalculateHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
                 Instruction skipIsaGrabBag = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(IsaGrabBagPatch);
@@ -133,7 +133,7 @@ public static class SpinnerHelper {
         }
 
         if (ModUtils.BrokemiaHelperInstalled) {
-            typeof(SpinnerHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
+            typeof(SpinnerCalculateHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
                 Instruction skipBrokemia = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(BrokemiaPatch);
@@ -144,7 +144,7 @@ public static class SpinnerHelper {
         }
 
         if (ModUtils.FrostHelperInstalled) {
-            typeof(SpinnerHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
+            typeof(SpinnerCalculateHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
                 Instruction skipFrost = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(FrostPatch);
@@ -247,7 +247,7 @@ public static class SpinnerHelper {
     }
 
     public static bool InView(Entity self, Vector2 CameraPos) {
-        float zoom = PlayerHelper.CameraZoom;
+        float zoom = ActualPosition.CameraZoom;
         if (self.isLightning()) {
             // i guess this order of comparison is more efficient
             return self.X + self.Width > CameraPos.X - 16f && self.Y + self.Height > CameraPos.Y - 16f && self.X < CameraPos.X + 320f * zoom + 16f && self.Y < CameraPos.Y + 180f * zoom + 16f;
@@ -257,7 +257,7 @@ public static class SpinnerHelper {
         }
     }
     public static bool InView(Vector2 pos, float Width, float Height, Vector2 CameraPos, bool isLightning) {
-        float zoom = PlayerHelper.CameraZoom;
+        float zoom = ActualPosition.CameraZoom;
         if (isLightning) {
             return pos.X < CameraPos.X + 320f * zoom + 16f && pos.Y < CameraPos.Y + 180f * zoom + 16f && pos.Y + Height > CameraPos.Y - 16f && pos.X + Width > CameraPos.X - 16f;
         }

@@ -67,6 +67,8 @@ TAS_HELPER_HIRES_FONT_SIZE=                                Hires Font Size
 TAS_HELPER_HIRES_FONT_STROKE=                              Hires Font Stroke
 TAS_HELPER_PERFORMANCE_OPTIMIZATION=                       Performance Optimization
 TAS_HELPER_PERFORMANCE_OPTIMIZATION_DESCRIPTION=           Countdown and LoadRangeCollider will not render when far from view.
+TAS_HELPER_COUNTDOWN_BOOST=                                Auto Hide/Show Countdown
+TAS_HELPER_COUNTDOWN_BOOST_DESCRIPTION=                    Countdown will only render when FrameStep or Paused.
 
 # ============================================= Load Range =====================================================
 TAS_HELPER_LOAD_RANGE=                                     Load Range
@@ -91,7 +93,9 @@ TAS_HELPER_CLEAR_SPINNER_SPRITES=                          Clear Spinner Sprites
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_OFF=                 Off
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=When Simplified Graphics
 TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              Always
-TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity
+TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity (Collidable)
+TAS_HELPER_SPINNER_FILLER_OPACITY_EXTRA=                   Spinner Filler Opacity (Uncollidable)
+TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           Ignore TAS mod's Uncollidable Hitboxes Opacity 
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        Hotkeys

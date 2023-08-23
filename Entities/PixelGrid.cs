@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Gameplay;
 using Microsoft.Xna.Framework;
 using Monocle;
 
@@ -12,7 +11,7 @@ internal static class PixelGridHook {
         On.Celeste.Level.LoadLevel -= CreatePixelGridAroundPlayer;
     }
     private static void PixelGridAroundPlayerUpdate(PixelGrid self) {
-        if (PlayerHelper.player is Player player) {
+        if (player is not null) {
             self.Position = player.Position;
             self.Collider.Width = player.Collider.Width;
             self.Collider.Height = player.Collider.Height;
@@ -26,7 +25,7 @@ internal static class PixelGridHook {
     }
     private static void CreatePixelGridAroundPlayer(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
         orig(self, playerIntro, isFromLoader);
-        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid && PlayerHelper.player is not null, PixelGridAroundPlayerUpdate, false));
+        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid && player is not null, PixelGridAroundPlayerUpdate, false));
     }
 
 }
