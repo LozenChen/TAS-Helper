@@ -64,6 +64,7 @@
     </Reference>
     <Reference Include="YamlDotNet">
       <HintPath>Libs\YamlDotNet.dll</HintPath>
+      <Private>False</Private>
     </Reference>
 
   </ItemGroup>

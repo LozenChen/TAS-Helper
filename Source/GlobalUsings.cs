@@ -31,6 +31,8 @@ internal static class GlobalVariables {
 
     public static bool FrameStep => Manager.Running && (Manager.States.HasFlag(StudioCommunication.States.FrameStep) || Manager.NextStates.HasFlag(StudioCommunication.States.FrameStep));
     public static Player? player => Engine.Scene.Tracker.GetEntity<Player>();
+
+    public static object[] parameterless = new object[] { };
 }
 
 

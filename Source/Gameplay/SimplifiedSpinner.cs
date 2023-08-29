@@ -31,8 +31,8 @@ internal static class SimplifiedSpinner {
         // hook after CelesteTAS.CycleHitboxColor's hook
         using (new DetourContext { After = new List<string> { "*" } }) {
             On.Monocle.Entity.DebugRender += PatchDebugRender;
+            On.Monocle.EntityList.UpdateLists += OnLevelAddEntity;
         }
-        On.Monocle.EntityList.UpdateLists += OnLevelAddEntity;
         On.Celeste.Level.LoadLevel += OnLoadLevel;
     }
 

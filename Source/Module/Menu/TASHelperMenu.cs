@@ -104,6 +104,8 @@ internal static class TASHelperMenu {
 
     private static EaseInSubMenu CreateMoreOptionsSubMenu(TextMenu menu) {
         return new EaseInSubMenu("More Options".ToDialogText(), false).Apply(subMenu => {
+            subMenu.Add(new TextMenuExt.IntSlider("Future Length".ToDialogText(), 1, 500, TasHelperSettings.FutureLength).Change((value) => TasHelperSettings.FutureLength = value));
+
             subMenu.Add(new TextMenu.OnOff("Spawn Point".ToDialogText(), TasHelperSettings.UsingSpawnPoint).Change((value) => TasHelperSettings.UsingSpawnPoint = value));
             subMenu.Add(new TextMenuExt.IntSlider("Current Spawn Point Opacity".ToDialogText(), 1, 9, TasHelperSettings.CurrentSpawnPointOpacity).Change((value) => TasHelperSettings.CurrentSpawnPointOpacity = value));
             subMenu.Add(new TextMenuExt.IntSlider("Other Spawn Point Opacity".ToDialogText(), 0, 9, TasHelperSettings.OtherSpawnPointOpacity).Change((value) => TasHelperSettings.OtherSpawnPointOpacity = value));

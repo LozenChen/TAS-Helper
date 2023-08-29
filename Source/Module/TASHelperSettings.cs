@@ -337,6 +337,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region Other
 
+    public int FutureLength = 20;
+
     public bool Awake_CameraTarget = true;
 
     public bool usingCameraTarget = false;

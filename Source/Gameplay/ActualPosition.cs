@@ -21,6 +21,7 @@ internal static class ActualPosition {
     internal static Vector2 PreviousPlayerPosition = Vector2.Zero;
     internal static Vector2 PlayerPositionBeforeCameraUpdate = Vector2.Zero;
     internal static int PlayerPositionChangedCount = 0;
+    internal static int LastPlayerState = 0;
 
     public static void Initialize() {
         if (ModUtils.FrostHelperInstalled) {
@@ -70,6 +71,9 @@ internal static class ActualPosition {
             PlayerPositionChangedCount = 0;
             PreviousCameraPos = level.Camera.Position;
             CameraZoom = 1f;
+            if (level.Tracker.GetEntity<Player>() is { } player) {
+                LastPlayerState = player.StateMachine.State;
+            }
         }
     }
 

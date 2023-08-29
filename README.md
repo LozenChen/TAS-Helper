@@ -54,7 +54,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Push on XMinty's AutoWatch PR on CelesteTAS, to support more entities (e.g. for an entity with a re-awake timer, watch the timer if it's not zero).
 
-- Auto completion in Celeste Studio (when using something like "set invincible true"), and some other gadgets for Studio.
+- Auto completion in Celeste Studio (when using something like "set invincible true"), and some other gadgets for Studio. (Update: relating codes already exist in Studio, but it seems they have not been used)
 
 - Order of operations visualizer (probably as an individual mod), allows you to insert breakpoints in gameloops, so to observe sub-frame phenomenon.
 

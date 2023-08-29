@@ -2,6 +2,7 @@ using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Predictor;
 using Celeste.Mod.TASHelper.Utils;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -60,6 +61,9 @@ internal static class Loader {
         FireBallTrack.Initialize();
         SpinnerColliderHelper.Initialize();
         Countdown_and_LoadRange_Collider.Initialize();
+
+        InputManager.Initialize();
+        Predictor.Core.Initialize();
     }
 
     public static void LoadContent() {
