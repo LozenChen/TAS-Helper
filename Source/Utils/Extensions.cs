@@ -496,3 +496,10 @@ internal static class LevelExtensions {
     }
 
 }
+
+internal static class ColorExtensions {
+    public static Color SetAlpha(this Color color, float alpha) {
+        float beta = (float)Math.Sqrt(alpha);
+        return new Color((int)((float)color.R * beta), (int)((float)color.G * beta), (int)((float)color.B * beta), (int)((float)color.A * alpha));
+    }
+}

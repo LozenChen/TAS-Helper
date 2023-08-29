@@ -1788,14 +1788,12 @@ public class DummyPlayer : Actor {
     }
 
     public IEnumerator DashCoroutine() {
-        Celeste.Commands.Log("1");
+        Celeste.Commands.Log("Before yield return null");
         yield return null;
-        Celeste.Commands.Log("2");
         Vector2 value = lastAim;
         if (OverrideDashDirection.HasValue) {
             value = OverrideDashDirection.Value;
         }
-        Celeste.Commands.Log("3");
         value = CorrectDashPrecision(value);
         Vector2 speed = value * 240f;
         if (Math.Sign(beforeDashSpeed.X) == Math.Sign(speed.X) && Math.Abs(beforeDashSpeed.X) > Math.Abs(speed.X)) {
@@ -1805,10 +1803,10 @@ public class DummyPlayer : Actor {
         if (CollideCheck<Water>()) {
             Speed *= 0.75f;
         }
-        Celeste.Commands.Log(DashDir);
+        Celeste.Commands.Log($"DashDir = {DashDir}");
         gliderBoostDir = (DashDir = value);
-        Celeste.Commands.Log("4");
-        Celeste.Commands.Log(DashDir);
+        Celeste.Commands.Log("After valuation");
+        Celeste.Commands.Log($"DashDir = {DashDir}");
         if (DashDir.X != 0f) {
             Facing = (Facings)Math.Sign(DashDir.X);
         }

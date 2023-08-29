@@ -252,7 +252,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
 
-    public int spinnerFillerOpacity_Collidable = 2;
+    public int spinnerFillerOpacity_Collidable = 8;
 
     [YamlIgnore]
     public int SpinnerFillerOpacity_Collidable {
@@ -321,7 +321,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public int SpinnerCountdownUpperBound => SpinnerCountdownLoad ? 9 : 99;
     public float SpinnerInterval = 0.05f;
     public float RangeAlpha = 0.4f;
-    public float SpinnerFillerAlpha_Collidable = 0.4f;
+    public float SpinnerFillerAlpha_Collidable = 0.8f;
     public float SpinnerFillerAlpha_Uncollidable = 0f;
     public bool UsingFreezeColor = true;
 

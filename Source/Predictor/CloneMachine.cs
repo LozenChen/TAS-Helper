@@ -20,48 +20,38 @@ public static class CloneMachine {
 
     private static void CloneCoroutine(DummyPlayer dm, Player player) {
         dm.StateMachine.ForceState(player.StateMachine.State);
-        if (typeof(StateMachine).GetFieldInfo("coroutines") is not { } functionCallsFieldInfo || typeof(StateMachine).GetFieldInfo("currentCoroutine") is not { } fieldInfo) {
+        if (typeof(StateMachine).GetFieldInfo("currentCoroutine") is not { } fieldInfo ||
+            fieldInfo.GetValue(player.StateMachine) is not Coroutine source || 
+            fieldInfo.GetValue(dm.StateMachine) is not Coroutine target) {
             return;
         }
-        if (functionCallsFieldInfo.GetValue(player.StateMachine) is not Func<IEnumerator>[] functionCallArraySource ||
-        functionCallsFieldInfo.GetValue(dm.StateMachine) is not Func<IEnumerator>[] functionCallArrayTarget ||
-        fieldInfo.GetValue(player.StateMachine) is not Coroutine source || fieldInfo.GetValue(dm.StateMachine) is not Coroutine target) {
-            return;
+        
+        if (player.StateMachine.State == Player.StDash) {
+            // all StDash are entered via XUpdate. By order of operation in StateMachine.Update(), Coroutine.Update() is also called in this frame 
+            target.Update();
+            if (Core.PlayerStateBeforeUpdate == Player.StDash && Core.PlayerStateBeforeUpdate == Player.StDash){
+                if (player.GetFieldValue<float>("dashCooldownTimer") < 0.2f) {
+                    target.Update();
+                }
+                if (!source.Active) {
+                    target.Jump();
+                    target.Update();
+                }
+            }
         }
+        //todo: support more coroutines
 
-        if (!(source.Active && source.GetFieldValue<Stack<IEnumerator>>("enumerators") is { } enums && target.GetFieldValue<Stack<IEnumerator>>("enumerators") is { } enums2 && enums.Count > 0)) {
-            return;
-        }
-        while (enums.Count > enums2.Count) {
-            enums2.Pop();
-        }
-        Func<IEnumerator> functionCallSource = functionCallArraySource[player.StateMachine.State];
-        Func<IEnumerator> functionCallTarget = functionCallArrayTarget[dm.StateMachine.State];
-        MoveNextSync(source.Current, out IEnumerator targetCurrent, functionCallSource, functionCallTarget);
-        enums2.Pop();
-        enums2.Push(targetCurrent);
+
         target.RemoveOnComplete = source.RemoveOnComplete;
         target.UseRawDeltaTime = source.UseRawDeltaTime;
         target.SetFieldValue("waitTimer", source.GetFieldValue<float>("waitTimer"));
+        // Celeste.Commands.Log("waitTimer:" + target.GetFieldValue<float>("waitTimer"));
         target.SetFieldValue("ended", source.GetFieldValue<bool>("ended"));
         target.SetFieldValue("Finished", source.Finished);
+        target.Active = source.Active;
+        target.Visible = source.Visible;
 
-        void MoveNextSync(IEnumerator source, out IEnumerator targetCurrent, Func<IEnumerator> functionCallSource, Func<IEnumerator> functionCallTarget) {
-            // this assumes source and target are "actually same"
-            int count = 0;
-            IEnumerator headOfSource = functionCallSource();
-            while (headOfSource != source) {
-                headOfSource.MoveNext();
-                count++;
-                if (count > 1000) {
-                    throw new Exception("Unexpected infinite loop?");
-                }
-            }
-            targetCurrent = functionCallTarget();
-            for (int i = 0; i < count - 1; i++) {
-                targetCurrent.MoveNext();
-            }
-        }
+
     }
 
     private static void CloneActorFields(DummyPlayer dm, Player player) {
@@ -157,6 +147,7 @@ public static class CloneMachine {
         dm.AutoJumpTimer = player.AutoJumpTimer;
         dm.varJumpSpeed = player.GetFieldValue<float>("varJumpSpeed");
         dm.varJumpTimer = player.GetFieldValue<float>("varJumpTimer");
+        dm.moveX = player.GetFieldValue<int>("moveX");
         dm.forceMoveX = player.GetFieldValue<int>("forceMoveX");
         dm.forceMoveXTimer = player.GetFieldValue<float>("forceMoveXTimer");
         dm.hopWaitX = player.GetFieldValue<int>("hopWaitX");

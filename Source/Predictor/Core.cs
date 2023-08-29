@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using System.Reflection;
 using Monocle;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 public static class Core {
@@ -62,20 +64,33 @@ public static class Core {
     public static List<FutureData> futures = new List<FutureData>();
 
     public static float FreezeTimerBeforeUpdate = 0f;
+
+    public static int PlayerStateBeforeUpdate = 0;
     public static void Initialize() {
         typeof(Level).GetMethod("LoadLevel").HookAfter<Level>(level => {
             new DummyPlayer().Added(level);
             level.Add(new PredictorRenderer());
         });
 
-        typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => {
-            if (Engine.Scene is Level && FrameStep) {
-                if (FreezeTimerBeforeUpdate > 0f) {
-                    futures.Clear();
+        typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).IlHook((cursor, _) => {
+            cursor.EmitDelegate(() => {
+                if (Engine.Scene is Level level && level.Tracker.GetEntity<Player>() is Player player) {
+                    PlayerStateBeforeUpdate = player.StateMachine.State;
                 }
-                FreezeTimerBeforeUpdate = Engine.FreezeTimer;
-                Predict(TasHelperSettings.FutureLength);
+            });
+            while (cursor.TryGotoNext(MoveType.AfterLabel, i => i.OpCode == OpCodes.Ret)) {
+                cursor.EmitDelegate(() => {
+                    if (Engine.Scene is Level level && !level.Transitioning && FrameStep) {
+                        if (FreezeTimerBeforeUpdate > 0f) {
+                            futures.Clear();
+                        }
+                        FreezeTimerBeforeUpdate = Engine.FreezeTimer;
+                        Predict(TasHelperSettings.FutureLength);
+                    }
+                });
+                cursor.Index++;
             }
+            
         });
 
         // todo: refresh predict on tas file change

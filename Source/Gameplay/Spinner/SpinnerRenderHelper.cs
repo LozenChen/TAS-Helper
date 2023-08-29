@@ -191,12 +191,10 @@ internal static class SpinnerRenderHelper {
     }
 
     public static void DrawOutlineAndInside(this SpinnerColliderHelper.SpinnerColliderValue value, Vector2 Position, Color color, bool Collidable) {
-        if (!TasHelperSettings.Ignore_TAS_UnCollidableAlpha && !Collidable) {
-            color *= HitboxColor.UnCollidableAlpha;
-        }
+        float alpha = TasHelperSettings.Ignore_TAS_UnCollidableAlpha || Collidable ? 1f : HitboxColor.UnCollidableAlpha;
         float inner_mult = Collidable ? TasHelperSettings.SpinnerFillerAlpha_Collidable : TasHelperSettings.SpinnerFillerAlpha_Uncollidable;
-        value.Outline.DrawCentered(Position, color);
-        value.Inside.DrawCentered(Position, color * inner_mult);
+        value.Outline.DrawCentered(Position, color.SetAlpha(alpha));
+        value.Inside.DrawCentered(Position, Color.Lerp(color, Color.Black, 0.6f).SetAlpha(alpha * inner_mult));
     }
 
 }
