@@ -4,123 +4,138 @@ using System.Reflection;
 using Monocle;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
+using Celeste.Mod.SpeedrunTool.SaveLoad;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 public static class Core {
-    public static DummyPlayer dm => DummyPlayer.Instance;
+
+    public static readonly List<RenderData> futures = new ();
+
+    public static bool HasPredict = false;
     public static void Predict(int frames) {
-        if (Engine.Scene.Tracker.GetEntity<Player>() is not { } player || player.Dead) {
+        if (!TasHelperSettings.PredictFuture) {
             return;
         }
-        InputManager.StoreInputState();
-        InputManager.ReadInputs(frames);
 
-        if (dm is null || dm.Scene != Engine.Scene) {
-            new DummyPlayer().Added(Engine.Scene);
+        if (!StartPredictCheck()) {
+            return;
         }
 
-        CloneMachine.Clone(dm, player);
+        if (!ModifiedSaveLoad.SaveState()) {
+            return;
+        }
+
+        if (HasPredict) {
+            futures.Clear();
+            HasPredict = false;
+        }
+
+        ModifiedAutoMute.StartMute();
+        InputManager.ReadInputs(frames);
+
+        //todo: this overrides TAS's savestate
+        
+
+        PlayerState PreviousState;
+        PlayerState CurrentState = PlayerState.GetState();
 
         for (int i = 0; i < frames; i++) {
             TAS.InputHelper.FeedInputs(InputManager.P_Inputs[i]);
-            bool b = false;
-            if (InputManager.FreezeTimer > 0f) {
-                b = true;
-                InputManager.FreezeTimer = Math.Max(InputManager.FreezeTimer - Engine.RawDeltaTime, 0f);
+            if (Engine.FreezeTimer > 0f) {
+                Engine.FreezeTimer = Math.Max(Engine.FreezeTimer - Engine.RawDeltaTime, 0f);
             }
             else {
-                dm.D_Update();
+                Engine.Scene.Update();
             }
-            // todo: highlight keyframe
-            futures.Add(new FutureData(i + 1, dm));
-            if (dm.TransitionOrDead) {
+            PreviousState = CurrentState;
+            CurrentState = PlayerState.GetState();
+            futures.Add(new RenderData(i + 1, PreviousState, CurrentState));
+            if (EarlyStopCheck(CurrentState)) {
                 break;
             }
-
-            if (i < 10) {
-                Celeste.Commands.Log($"{i}, {dm.Position}, {dm.StateMachine.State}, {dm.DashDir}, {dm.moveX}, {Input.MoveX.Value}, Freeze({b})");
-            }
         }
-        Celeste.Commands.Log("================");
-        InputManager.RestoreInputState();
+        ModifiedSaveLoad.LoadState();
+        ModifiedAutoMute.EndMute();
+
+        HasPredict = true;
     }
 
-    public class FutureData {
-        public int index;
-        public float x;
-        public float y;
-        public float width;
-        public float height;
-
-        public FutureData(int index, DummyPlayer dm) {
-            this.index = index;
-            x = dm.Collider.Left + dm.X;
-            y = dm.Collider.Top + dm.Y;
-            width = dm.Collider.Width;
-            height = dm.Collider.Height;
-        }
-    }
-
-    public static List<FutureData> futures = new List<FutureData>();
-
-    public static float FreezeTimerBeforeUpdate = 0f;
-
-    public static int PlayerStateBeforeUpdate = 0;
     public static void Initialize() {
-        typeof(Level).GetMethod("LoadLevel").HookAfter<Level>(level => {
-            new DummyPlayer().Added(level);
-            level.Add(new PredictorRenderer());
-        });
-
-        typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).IlHook((cursor, _) => {
-            cursor.EmitDelegate(() => {
-                if (Engine.Scene is Level level && level.Tracker.GetEntity<Player>() is Player player) {
-                    PlayerStateBeforeUpdate = player.StateMachine.State;
-                }
-            });
-            while (cursor.TryGotoNext(MoveType.AfterLabel, i => i.OpCode == OpCodes.Ret)) {
-                cursor.EmitDelegate(() => {
-                    if (Engine.Scene is Level level && !level.Transitioning && FrameStep) {
-                        if (FreezeTimerBeforeUpdate > 0f) {
-                            futures.Clear();
-                        }
-                        FreezeTimerBeforeUpdate = Engine.FreezeTimer;
-                        Predict(TasHelperSettings.FutureLength);
-                    }
-                });
-                cursor.Index++;
+        typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => {
+            if (Engine.Scene is Level level && FrameStep) {
+                Predict(TasHelperSettings.FutureLength);
             }
-            
         });
 
         // todo: refresh predict on tas file change
 
-        typeof(Scene).GetMethod("BeforeUpdate").HookAfter(() => futures.Clear());
+        typeof(Scene).GetMethod("BeforeUpdate").HookAfter(() => {
+            futures.Clear();
+            HasPredict = false;
+        });
     }
 
-    public class PredictorRenderer : Entity {
-
-        public static Color ColorFinal = Color.Green * 0.8f;
-
-        public static Color ColorSegment = Color.Gold * 0.5f;
-
-        public static Color ColorNormal = Color.Red * 0.2f;
-        public override void DebugRender(Camera camera) {
-            foreach (FutureData data in futures) {
-                Draw.HollowRect(data.x, data.y, data.width, data.height, ColorSelector(data.index, futures.Count));
-            }
+    public static bool StartPredictCheck() {
+        if (Engine.Scene is Level level && level.Transitioning) {
+            return false;
         }
-
-        public static Color ColorSelector(int index, int count) {
-            if (index == count) {
-                return ColorFinal;
-            }
-            if (index % 5 == 0) {
-                return ColorSegment;
-            }
-            return ColorNormal * (1 - 0.5f * (float)index / (float)count);
-        }
+        return true;
     }
 
+    public static bool EarlyStopCheck(PlayerState state) {
+        if (Engine.Scene is Level level && level.Transitioning) {
+            return true;
+        }
+        return false;
+    }
+}
 
+public class PlayerState {
+
+    public bool HasPlayer;
+    public float x;
+    public float y;
+    public float width;
+    public float height;
+
+    public PlayerState() { 
+    
+    }
+
+    public static PlayerState GetState() {
+        PlayerState state = new();
+        state.HasPlayer = player is not null;
+        if (state.HasPlayer) {
+            state.x = player.Collider.Left + player.X;
+            state.y = player.Collider.Top + player.Y;
+            state.width = player.Collider.Width;
+            state.height = player.Collider.Height;
+        }
+        return state;
+    }
+}
+
+public struct RenderData {
+    public int index;
+    public bool visible;
+    public float x;
+    public float y;
+    public float width;
+    public float height;
+    public Color? KeyframeColor;
+
+    public RenderData(int index, PlayerState PreviousState, PlayerState CurrentState) {
+        this.index = index;
+        if (CurrentState.HasPlayer) {
+            x = CurrentState.x;
+            y = CurrentState.y;
+            width = CurrentState.width;
+            height = CurrentState.height;
+            visible = true;
+        }
+        else {
+            x = 0f; y = 0f; width = 0f; height = 0f; visible = false;
+        }
+        KeyframeColor = null;
+    }
 }

@@ -33,6 +33,8 @@ internal static class Loader {
         LoadRange_and_CameraTarget.Load();
         SimplifiedSpinner.Load();
         FireBallTrack.Load();
+        ModifiedAutoMute.Load();
+        PredictorRenderer.Load();
         HookHelper.Load();
     }
     public static void HelperUnload() {
@@ -46,6 +48,8 @@ internal static class Loader {
         LoadRange_and_CameraTarget.Unload();
         SimplifiedSpinner.Unload();
         FireBallTrack.Unload();
+        ModifiedAutoMute.Unload();
+        PredictorRenderer.Unload(); 
         HookHelper.Unload();
     }
 

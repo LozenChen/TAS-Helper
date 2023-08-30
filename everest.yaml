@@ -6,3 +6,6 @@
       Version: 1.3471.0
     - Name: CelesteTAS
       Version: 3.22.0
+  OptionalDependencies:
+    - Name: SpeedrunTool
+      Version: 3.16.4

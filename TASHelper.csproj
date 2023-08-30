@@ -26,18 +26,21 @@
     <Reference Include="BrokemiaHelper">
       <HintPath>Libs\BrokemiaHelper.dll</HintPath>
     </Reference>
-    <Reference Include="Celeste">
-      <HintPath>Libs\Celeste.exe</HintPath>
-    </Reference>
     <Reference Include="CelesteTAS-EverestInterop">
       <HintPath>Libs\CelesteTAS-EverestInterop.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="Celeste">
+      <HintPath>Libs\Celeste_NStrip_20230830.exe</HintPath>
     </Reference>
     <Reference Include="ChronoHelper">
       <HintPath>Libs\ChronoHelper.dll</HintPath>
     </Reference>
     <Reference Include="FNA">
       <HintPath>Libs\FNA.dll</HintPath>
+    </Reference>
+    <Reference Include="SpeedrunTool">
+      <HintPath>Libs\SpeedrunTool.dll</HintPath>
     </Reference>
     <Reference Include="vitmod">
       <HintPath>Libs\CrystallineHelper.dll</HintPath>
@@ -54,6 +57,7 @@
     <Reference Include="MMHOOK_Celeste">
       <HintPath>Libs\MMHOOK_Celeste.dll</HintPath>
     </Reference>
+    <PackageReference Include="DeepCloner" Version="0.10.4" />
     <PackageReference Include="MonoMod.RuntimeDetour" Version="22.01.04.03" />
     <Reference Include="PandorasBox">
       <HintPath>Libs\PandorasBox.dll</HintPath>

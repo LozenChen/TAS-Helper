@@ -49,6 +49,8 @@ internal static class ModUtils {
 
     public static bool IsaGrabBagInstalled = false;
 
+    public static bool SpeedrunToolInstalled = false;
+
     private static readonly Lazy<object> upsideDownVariant =
         new(() => Enum.Parse(typeof(ExtendedVariantsModule.Variant), "UpsideDown"));
     private static bool upsideDown {
@@ -64,6 +66,7 @@ internal static class ModUtils {
         ChronoHelperInstalled = IsInstalled("ChronoHelper");
         BrokemiaHelperInstalled = IsInstalled("BrokemiaHelper");
         IsaGrabBagInstalled = IsInstalled("IsaGrabBag");
+        SpeedrunToolInstalled = IsInstalled("SpeedrunTool");
         // we actually also assume they are in enough late version
         // so all entities mentioned in corresponding hooks do exist
     }

@@ -1,5 +1,6 @@
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
@@ -336,6 +337,16 @@ public class TASHelperSettings : EverestModuleSettings {
     #endregion
 
     #region Other
+
+    public bool predictFuture = false;
+
+    [YamlIgnore]
+    public bool PredictFuture {
+        get => Enabled && ModUtils.SpeedrunToolInstalled && predictFuture;
+        set {
+            predictFuture = value;
+        }
+    }
 
     public int FutureLength = 20;
 

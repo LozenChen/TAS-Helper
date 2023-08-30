@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Collections.Concurrent;
+using System.Collections;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -249,6 +250,10 @@ internal static class ReflectionExtensions {
         return hashSet;
     }
 
+
+    public static object? GetFieldValueSpeedrunTool(this object obj, string name) {
+        return obj.GetType().GetFieldInfo(name)?.GetValue(obj);
+    }
     public static T GetFieldValue<T>(this object obj, string name) {
         object result = obj.GetType().GetFieldInfo(name)?.GetValue(obj);
         if (result == null) {
@@ -499,7 +504,60 @@ internal static class LevelExtensions {
 
 internal static class ColorExtensions {
     public static Color SetAlpha(this Color color, float alpha) {
-        float beta = (float)Math.Sqrt(alpha);
+        float beta = (3 - alpha) * alpha * 0.5f;
         return new Color((int)((float)color.R * beta), (int)((float)color.G * beta), (int)((float)color.B * beta), (int)((float)color.A * alpha));
+    }
+}
+
+internal static class CelesteExtensions {
+    public static Level GetLevel(this Scene scene) {
+        if (scene is Level level) {
+            return level;
+        }
+
+        if (scene is LevelLoader levelLoader) {
+            return levelLoader.Level;
+        }
+
+        return null;
+    }
+
+    public static Session GetSession(this Scene scene) {
+        return scene.GetLevel()?.Session;
+    }
+
+    public static Player GetPlayer(this Scene scene) {
+        if (scene.GetLevel()?.Tracker.GetEntity<Player>() is { } player) {
+            return player;
+        }
+
+        return null;
+    }
+
+    public static bool IsPlayerDead(this Scene scene) {
+        return scene.GetPlayer()?.Dead != false;
+    }
+
+    public static bool IsMainThread(this Thread thread) {
+        return thread == MainThreadHelper.MainThread;
+    }
+
+    public static bool IsCheck(this VirtualInput virtualInput) {
+        return virtualInput switch {
+            VirtualButton virtualButton => virtualButton.Check,
+            VirtualIntegerAxis virtualIntegerAxis => virtualIntegerAxis.Value != 0,
+            VirtualJoystick virtualJoystick => virtualJoystick.Value != Vector2.Zero,
+            VirtualAxis virtualAxis => virtualAxis.Value != 0,
+            _ => false
+        };
+    }
+
+    public static bool IsPressed(this VirtualInput virtualInput) {
+        return virtualInput switch {
+            VirtualButton virtualButton => virtualButton.Pressed,
+            VirtualIntegerAxis virtualIntegerAxis => virtualIntegerAxis.turned,
+            VirtualJoystick virtualJoystick => virtualJoystick.hTurned || virtualJoystick.vTurned,
+            _ => false
+        };
     }
 }
