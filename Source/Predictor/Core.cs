@@ -4,7 +4,6 @@ using System.Reflection;
 using Monocle;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
-using Celeste.Mod.SpeedrunTool.SaveLoad;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 public static class Core {
@@ -17,6 +16,11 @@ public static class Core {
             return;
         }
 
+        SafePredict(frames);
+        // we make it nested in case SpeedrunTool is not installed
+    }
+
+    private static void SafePredict(int frames) {
         if (!StartPredictCheck()) {
             return;
         }
@@ -34,13 +38,15 @@ public static class Core {
         InputManager.ReadInputs(frames);
 
         //todo: this overrides TAS's savestate
-        
+
 
         PlayerState PreviousState;
         PlayerState CurrentState = PlayerState.GetState();
 
         for (int i = 0; i < frames; i++) {
             TAS.InputHelper.FeedInputs(InputManager.P_Inputs[i]);
+            // commands are not supported
+
             if (Engine.FreezeTimer > 0f) {
                 Engine.FreezeTimer = Math.Max(Engine.FreezeTimer - Engine.RawDeltaTime, 0f);
             }

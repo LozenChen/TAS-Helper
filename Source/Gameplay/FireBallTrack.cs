@@ -17,15 +17,17 @@ public static class FireBallTrack {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
     }
 
+
     public static void Initialize() {
         typeof(FireBall).GetMethod("Added").HookAfter<FireBall>((fireball) => {
-            Vector2[] nodes = (Vector2[])FireBallNodesGetter.GetValue(fireball);
+            // Vector2[] nodes = (Vector2[])FireBallNodesGetter.GetValue(fireball);
+            // thanks to Krafs.Publicizer, we can directly access vanilla stuff now
+            Vector2[] nodes = fireball.nodes;
             if (!CachedNodes.Contains(nodes)) {
                 CachedNodes.Add(nodes);
             }
         });
     }
-
 
     /*
      * btw when it's in ice mode
