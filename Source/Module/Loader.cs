@@ -66,7 +66,7 @@ internal static class Loader {
         SpinnerColliderHelper.Initialize();
         Countdown_and_LoadRange_Collider.Initialize();
 
-        ModifiedSaveLoad.Initialize();
+
         InputManager.Initialize();
         Predictor.Core.Initialize();
     }

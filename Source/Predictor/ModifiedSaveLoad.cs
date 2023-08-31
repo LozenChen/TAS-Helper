@@ -14,6 +14,7 @@ using EventInstance = FMOD.Studio.EventInstance;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 
+/*
 public static class ModifiedSaveLoad {
 
     // thanks to Krafs.Publicizer, we can try to manip it now
@@ -27,7 +28,7 @@ public static class ModifiedSaveLoad {
         }
 
         // 不允许在春游图打开章节面板时存档
-        if (StateManager.InGameOverworldHelperIsOpen.Value?.GetValue(null) as bool? == true) {
+        if (P_StateManager.InGameOverworldHelperIsOpen.Value?.GetValue(null) as bool? == true) {
             return false;
         }
 
@@ -48,7 +49,7 @@ public static class ModifiedSaveLoad {
         SaveLoadAction.OnBeforeSaveState(level);
         level.DeepCloneToShared(Instance.savedLevel = (Level)FormatterServices.GetUninitializedObject(typeof(Level)));
         Instance.savedSaveData = SaveData.Instance.DeepCloneShared();
-        Instance.savedTasCycleGroupCounter = StateManager.CycleGroupCounter.Value?.GetValue(null);
+        Instance.savedTasCycleGroupCounter = P_StateManager.CycleGroupCounter.Value?.GetValue(null);
         SaveLoadAction.OnSaveState(level);
         DeepClonerUtils.ClearSharedDeepCloneState();
         Instance.PreCloneSavedEntities();
@@ -127,6 +128,8 @@ public static class ModifiedSaveLoad {
             P_savedSaveData.DeepClone(deepCloneState);
             return deepCloneState;
         });
+
+
         hasCache = true;
 
     }
@@ -181,6 +184,7 @@ public static class ModifiedSaveLoad {
     }
 
     public static void Initialize() {
-        typeof(StateManager).GetMethod("SaveState", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => hasCache = false);
+        typeof(P_StateManager).GetMethod("SaveState", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => hasCache = false);
     }
 }
+*/
