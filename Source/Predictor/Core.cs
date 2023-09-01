@@ -13,7 +13,7 @@ public static class Core {
 
     public static bool InPredict = false;
     public static void Predict(int frames) {
-        if (!TasHelperSettings.PredictFuture || InPredict) {
+        if (!TasHelperSettings.PredictFutureEnabled || InPredict) {
             return;
         }
 

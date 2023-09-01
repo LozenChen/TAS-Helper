@@ -11,7 +11,7 @@ public class PredictorRenderer : Entity {
 
     public static Color ColorNormal = Color.Red * 0.2f;
     public override void DebugRender(Camera camera) {
-        if (!TasHelperSettings.PredictFuture) {
+        if (!TasHelperSettings.PredictFutureEnabled) {
             return;
         }
 

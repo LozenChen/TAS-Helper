@@ -1,5 +1,6 @@
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
+using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -207,6 +208,11 @@ public class CountdownRenderer : THRenderer {
         ID2Positions[ID].Add(Position);
     }
     public override void Render() {
+        if (TASHelperMenu.mainItem?.Container is { } container && container.Visible) {
+            // it's a bit too laggy
+            return;
+        }
+
         Vector2 scale = new Vector2(TasHelperSettings.HiresFontSize / 10f);
         float stroke = TasHelperSettings.HiresFontStroke * 0.4f;
         foreach (int ID in ID2Positions.Keys) {

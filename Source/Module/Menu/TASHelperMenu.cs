@@ -21,7 +21,7 @@ internal static class TASHelperMenu {
     private static EaseInSubMenu CreatePredictFutureSubMenu(TextMenu menu) {
         return new EaseInSubMenu("Predictor".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item PredictItem;
-            subMenu.Add(PredictItem = new TextMenu.OnOff("Predict Future Main Button".ToDialogText(), TasHelperSettings.PredictFuture).Change((value) => TasHelperSettings.PredictFuture = value));
+            subMenu.Add(PredictItem = new TextMenu.OnOff("Predict Future Main Button".ToDialogText(), TasHelperSettings.PredictFutureEnabled).Change((value) => TasHelperSettings.PredictFutureEnabled = value));
             subMenu.AddDescription(menu, PredictItem, "Predict Future Description".ToDialogText());
             subMenu.Add(new TextMenuExt.IntSlider("Future Length".ToDialogText(), 1, 999, TasHelperSettings.FutureLength).Change((value) => TasHelperSettings.FutureLength = value));
 

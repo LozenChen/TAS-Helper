@@ -33,7 +33,8 @@ public class TASHelperSettings : EverestModuleSettings {
         keyCountDown ??= new((Buttons)0, Keys.LeftControl, Keys.R);
         keyLoadRange ??= new((Buttons)0, Keys.LeftControl, Keys.T);
         keyPixelGridWidth ??= new((Buttons)0, Keys.LeftControl, Keys.F);
-        keyPredictFuture ??= new((Buttons)0, Keys.LeftControl, Keys.W);
+        keyPredictEnable ??= new((Buttons)0, Keys.LeftControl, Keys.W);
+        keyPredictFuture ??= new((Buttons)0, Keys.LeftControl, Keys.P);
         // it seems some bug can happen with deserialization
     }
 
@@ -85,6 +86,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_SpawnPoint = false;
         Awake_EntityActivatorReminder = false;
         Awake_FireBallTrack = false;
+        Awake_PredictFuture = false;
     }
     internal void Awake(bool awakeAll) {
         MainSwitch = awakeAll ? MainSwitchModes.AllowAll : MainSwitchModes.OnlyDefault;
@@ -98,6 +100,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_SpawnPoint = true;
         Awake_EntityActivatorReminder = true;
         Awake_FireBallTrack = true;
+        Awake_PredictFuture = true;
     }
 
     #endregion
@@ -331,13 +334,16 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region Other
 
-    public bool predictFuture = false;
+    public bool predictFutureEnabled = false;
+
+    public bool Awake_PredictFuture = true;
 
     [YamlIgnore]
-    public bool PredictFuture {
-        get => Enabled && ModUtils.SpeedrunToolInstalled && predictFuture;
+    public bool PredictFutureEnabled {
+        get => Enabled && Awake_PredictFuture && ModUtils.SpeedrunToolInstalled && predictFutureEnabled;
         set {
-            predictFuture = value;
+            predictFutureEnabled = value;
+            Awake_PredictFuture = true;
         }
     }
 
@@ -463,9 +469,13 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.F)]
     public ButtonBinding keyPixelGridWidth { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.F);
 
-    [SettingName("TAS_HELPER_PREDICT_FUTURE_HOTKEY")]
+    [SettingName("TAS_HELPER_PREDICT_ENABLE_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.W)]
-    public ButtonBinding keyPredictFuture { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.W);
+    public ButtonBinding keyPredictEnable { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.W);
+
+    [SettingName("TAS_HELPER_PREDICT_FUTURE_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.P)]
+    public ButtonBinding keyPredictFuture { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.P);
 
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
@@ -476,7 +486,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
         bool updateKey = true;
         bool updateButton = true;
-        bool InOuiModOption = TASHelperMenu.mainItem?.Container?.Focused is bool b && b;
+        bool InOuiModOption = TASHelperMenu.mainItem?.Container is { } container && container.Visible;
         if (InOuiModOption || (level.Tracker.Entities.TryGetValue(typeof(KeyboardConfigUI), out var list) && list.Count > 0) ||
             (level.Tracker.Entities.TryGetValue(typeof(ModuleSettingsKeyboardConfigUIExt), out var list2) && list2.Count > 0)) {
             updateKey = false;
@@ -489,6 +499,7 @@ public class TASHelperSettings : EverestModuleSettings {
         TH_Hotkeys.CountDownHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.LoadRangeHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.PixelGridWidthHotkey.Update(updateKey, updateButton);
+        TH_Hotkeys.PredictEnableHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.PredictFutureHotkey.Update(updateKey, updateButton);
 
         bool changed = false;
@@ -555,8 +566,17 @@ public class TASHelperSettings : EverestModuleSettings {
                 MainSwitchWatcher.instance?.RefreshOther();
             }
         }
+        if (TH_Hotkeys.PredictEnableHotkey.Pressed) {
+            if (Enabled) {
+                changed = true;
+                predictFutureEnabled = !predictFutureEnabled;
+            }
+            else {
+                MainSwitchWatcher.instance?.RefreshOther();
+            }
+        }
         if (TH_Hotkeys.PredictFutureHotkey.Pressed) {
-            if (TasHelperSettings.PredictFuture && TasHelperSettings.PredictOnHotkeyPressed && FrameStep) {
+            if (TasHelperSettings.PredictFutureEnabled && TasHelperSettings.PredictOnHotkeyPressed && FrameStep) {
                 Predictor.Core.hasDelayedPredict = true;
             }
         }

@@ -18,6 +18,8 @@ public static class TH_Hotkeys {
 
     public static Hotkey PixelGridWidthHotkey { get; set; }
 
+    public static Hotkey PredictEnableHotkey { get; set; }
+
     public static Hotkey PredictFutureHotkey { get; set; }
 
     static TH_Hotkeys() {
@@ -29,6 +31,7 @@ public static class TH_Hotkeys {
         CountDownHotkey = BindingToHotkey(TasHelperSettings.keyCountDown);
         LoadRangeHotkey = BindingToHotkey(TasHelperSettings.keyLoadRange);
         PixelGridWidthHotkey = BindingToHotkey(TasHelperSettings.keyPixelGridWidth);
+        PredictEnableHotkey = BindingToHotkey(TasHelperSettings.keyPredictEnable);
         PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
     }
 
