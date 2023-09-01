@@ -18,16 +18,18 @@ internal static class TASHelperMenu {
         return ColorCustomizationItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 
-    private static EaseInSubMenu CreatePredictFutureSubMenu(TextMenu menu) {
+    private static EaseInSubMenu CreatePredictorSubMenu(TextMenu menu) {
         return new EaseInSubMenu("Predictor".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item PredictItem;
-            subMenu.Add(PredictItem = new TextMenu.OnOff("Predict Future Main Button".ToDialogText(), TasHelperSettings.PredictFutureEnabled).Change((value) => TasHelperSettings.PredictFutureEnabled = value));
-            subMenu.AddDescription(menu, PredictItem, "Predict Future Description".ToDialogText());
+            subMenu.Add(PredictItem = new TextMenu.OnOff("Predictor Main Switch".ToDialogText(), TasHelperSettings.PredictFutureEnabled).Change((value) => TasHelperSettings.PredictFutureEnabled = value));
+            subMenu.AddDescription(menu, PredictItem, "Predictor Description".ToDialogText());
             subMenu.Add(new TextMenuExt.IntSlider("Future Length".ToDialogText(), 1, 999, TasHelperSettings.FutureLength).Change((value) => TasHelperSettings.FutureLength = value));
 
-            subMenu.Add(new TextMenu.OnOff("Predict On File Change".ToDialogText(), TasHelperSettings.PredictOnFileChange).Change(value => TasHelperSettings.PredictOnFileChange = value));
-            subMenu.Add(new TextMenu.OnOff("Predict On Hotkey Pressed".ToDialogText(), TasHelperSettings.PredictOnHotkeyPressed).Change(value => TasHelperSettings.PredictOnHotkeyPressed = value));
             subMenu.Add(new TextMenu.OnOff("Predict On Frame Step".ToDialogText(), TasHelperSettings.PredictOnFrameStep).Change(value => TasHelperSettings.PredictOnFrameStep = value));
+            subMenu.Add(new TextMenu.OnOff("Predict On Hotkey Pressed".ToDialogText(), TasHelperSettings.PredictOnHotkeyPressed).Change(value => TasHelperSettings.PredictOnHotkeyPressed = value));
+            subMenu.Add(new TextMenu.OnOff("Predict On File Change".ToDialogText(), TasHelperSettings.PredictOnFileChange).Change(value => TasHelperSettings.PredictOnFileChange = value));
+            
+            
         });
     }
 
@@ -88,7 +90,7 @@ internal static class TASHelperMenu {
             subMenu.Add(StateDescription);
             MainSwitchStateItem.OnEnter += () => StateDescription.FadeVisible = TasHelperSettings.MainSwitchThreeStates && true;
             MainSwitchStateItem.OnLeave += () => StateDescription.FadeVisible = false;
-            subMenu.Add(new TextMenu.OnOff("Main Switch Visualize".ToDialogText(), TasHelperSettings.MainSwitchStateVisualize).Change(value => TasHelperSettings.MainSwitchStateVisualize = value));
+            subMenu.Add(new TextMenu.OnOff("Main Switch Visualize".ToDialogText(), TasHelperSettings.HotkeyStateVisualize).Change(value => TasHelperSettings.HotkeyStateVisualize = value));
             subMenu.Add(new TextMenu.OnOff("Main Switch Prevent".ToDialogText(), TasHelperSettings.AllowEnableModWithMainSwitch).Change(value => TasHelperSettings.AllowEnableModWithMainSwitch = value));
 
             subMenu.Add(new TextMenu.Button(Dialog.Clean("options_keyconfig")).Pressed(() => {
@@ -221,7 +223,7 @@ internal static class TASHelperMenu {
             EaseInSubMenu countdownItem = CreateCountdownSubMenu(menu);
             EaseInSubMenu loadrangeItem = CreateLoadRangeSubMenu(menu);
             EaseInSubMenu simpspinnerItem = CreateSimplifiedSpinnerSubMenu(menu);
-            EaseInSubMenu predictItem = CreatePredictFutureSubMenu(menu);
+            EaseInSubMenu predictItem = CreatePredictorSubMenu(menu);
             EaseInSubMenu moreoptionItem = CreateMoreOptionsSubMenu(menu);
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
             int N = menu.IndexOf(mainItem);

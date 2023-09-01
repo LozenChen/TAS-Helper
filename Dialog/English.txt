@@ -109,9 +109,22 @@ TAS_HELPER_MAIN_SWITCH_DESCRIPTION_2=                      Switch between [Off -
 TAS_HELPER_MAIN_SWITCH_STATE=                              Mode of Main Switch Hotkey
 TAS_HELPER_MAIN_SWITCH_THREE_STATES=                       Off - Default - All
 TAS_HELPER_MAIN_SWITCH_TWO_STATES=                         Off - All
-TAS_HELPER_MAIN_SWITCH_VISUALIZE=                          Show Main Switch
+TAS_HELPER_MAIN_SWITCH_VISUALIZE=                          Visualize Hotkey
 TAS_HELPER_MAIN_SWITCH_PREVENT=                            Allow enabling this mod with hotkey
 TAS_HELPER_CONFIGURE_AT_STATE_ALL=                         Please configure other settings in State All.
+TAS_HELPER_PREDICT_ENABLE_HOTKEY=                          Enable/Disable Predictor
+TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          Make a Prediction
+
+# ============================================= Predictor =====================================================
+TAS_HELPER_PREDICTOR=                                      Predictor
+TAS_HELPER_PREDICTOR_MAIN_SWITCH=                          Main Switch
+TAS_HELPER_PREDICTOR_DESCRIPTION=                          Predict your future track, when tas is paused or frame-stepping,{n}
+                                                           AND any selected conditions of the following is satisfied.{n}
+                                                           (Known issue: Save State provided by SpeedrunTool will be lost)
+TAS_HELPER_FUTURE_LENGTH=                                  Prediction Length
+TAS_HELPER_PREDICT_ON_FILE_CHANGE=                         Predict on tas file changed
+TAS_HELPER_PREDICT_ON_HOTKEY_PRESSED=                      Predict on hotkey pressed
+TAS_HELPER_PREDICT_ON_FRAME_STEP=                          Predict on frame stepping
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   More Options

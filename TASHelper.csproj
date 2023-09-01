@@ -84,7 +84,7 @@
 	<ItemGroup>
 		<Publicize Include="Celeste" />
 		<Publicize Include="SpeedrunTool" />
-		<Publicize Include="TAS.Utils"/>
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.UsedFiles"/>
 		<DoNotPublicize Include="Celeste:Monocle.Scene.OnEndOfFrame" />
 		<DoNotPublicize Include="Celeste:Celeste.Mod.TextInput.OnInput" />
 	</ItemGroup>

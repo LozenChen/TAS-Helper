@@ -111,9 +111,22 @@ TAS_HELPER_MAIN_SWITCH_DESCRIPTION_2=                      在 [关 - 全部] �
 TAS_HELPER_MAIN_SWITCH_STATE=                              主开关快捷键切换模式
 TAS_HELPER_MAIN_SWITCH_THREE_STATES=                       关 - 默认 - 全部
 TAS_HELPER_MAIN_SWITCH_TWO_STATES=                         关 - 全部
-TAS_HELPER_MAIN_SWITCH_VISUALIZE=                          主开关可视化
+TAS_HELPER_MAIN_SWITCH_VISUALIZE=                          快捷键可视化
 TAS_HELPER_MAIN_SWITCH_PREVENT=                            通过快捷键启用本模组
 TAS_HELPER_CONFIGURE_AT_STATE_ALL=                         配置其他设置时请在 全部 状态下进行.
+TAS_HELPER_PREDICT_ENABLE_HOTKEY=                          开关未来视
+TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          预测一次
+
+# ============================================= Predictor =====================================================
+TAS_HELPER_PREDICTOR=                                      未来视
+TAS_HELPER_PREDICTOR_MAIN_SWITCH=                          主开关
+TAS_HELPER_PREDICTOR_DESCRIPTION=                          当 TAS 暂停或步进时, 且 满足以下选出的条件时,{n}
+                                                           预测你未来的轨迹.
+                                                           (已知问题: 速通辅助工具的保存状态会被清除)
+TAS_HELPER_FUTURE_LENGTH=                                  预测的长度
+TAS_HELPER_PREDICT_ON_FILE_CHANGE=                         条件: 当 TAS 文件内容变动
+TAS_HELPER_PREDICT_ON_HOTKEY_PRESSED=                      条件: 当按下快捷键
+TAS_HELPER_PREDICT_ON_FRAME_STEP=                          条件: 当 TAS 步进
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   更多选项

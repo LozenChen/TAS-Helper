@@ -41,8 +41,8 @@ public static class Messenger {
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         EntityActivatorWarner.MessageCount = 0;
         orig(level, playerIntro, isFromLoader);
-        if (!level.Tracker.Entities.TryGetValue(typeof(MainSwitchWatcher), out var entities) || entities.Count == 0) {
-            level.Add(new MainSwitchWatcher());
+        if (!level.Tracker.Entities.TryGetValue(typeof(HotkeyWatcher), out var entities) || entities.Count == 0) {
+            level.Add(new HotkeyWatcher());
         }
     }
 
@@ -117,43 +117,71 @@ public class EntityActivatorWarner : Message {
 }
 
 [Tracked(false)]
-public class MainSwitchWatcher : Message {
+public class HotkeyWatcher : Message {
 
-    public static MainSwitchWatcher instance;
+    public static HotkeyWatcher instance;
 
     public static float lifetime = 3f;
 
     public float lifetimer = 0f;
-    public MainSwitchWatcher() : base("", new Vector2(10f, 1060f)) {
+    public HotkeyWatcher() : base("", new Vector2(10f, 1060f)) {
         this.Depth = -20000;
-        this.Visible = TasHelperSettings.MainSwitchStateVisualize;
+        this.Visible = TasHelperSettings.HotkeyStateVisualize;
         base.Tag |= Tags.Global;
         instance = this;
     }
 
-    public void RefreshOther() {
+    public void RefreshHotkeyDisabled() {
+        RestoreAlpha(this.text.Equals(text));
         text = "TAS Helper Disabled!";
         lifetimer = lifetime;
         Active = true;
-        Visible = TasHelperSettings.MainSwitchStateVisualize;
-        alpha = 1f;
+        Visible = TasHelperSettings.HotkeyStateVisualize;
     }
 
-    public void Refresh(bool disabledMainSwitch = false) {
-        text = disabledMainSwitch ? "Enabling TAS Helper with Hotkey is disabled!" : ("TAS Helper Main Switch Mode " + (TasHelperSettings.MainSwitchThreeStates ? "[Off - Default - All]" : "[Off - All]") + " = " + (TasHelperSettings.MainSwitch switch { MainSwitchModes.Off => "Off", MainSwitchModes.OnlyDefault => "Default", MainSwitchModes.AllowAll => "All" }));
+    public void RefreshMainSwitch() {
+        RestoreAlpha(false);
+        text = "TAS Helper Main Switch Mode " + (TasHelperSettings.MainSwitchThreeStates ? "[Off - Default - All]" : "[Off - All]") + " = " + (TasHelperSettings.MainSwitch switch { MainSwitchModes.Off => "Off", MainSwitchModes.OnlyDefault => "Default", MainSwitchModes.AllowAll => "All" });
         lifetimer = lifetime;
         Active = true;
-        Visible = TasHelperSettings.MainSwitchStateVisualize;
-        alpha = 1f;
+        Visible = TasHelperSettings.HotkeyStateVisualize;
     }
-    public override void Update() {
-        if (lifetimer / lifetime < 0.1f) {
-            alpha = 10 * lifetimer / lifetime;
+
+    public void Refresh (string text) {
+        RestoreAlpha(this.text.Equals(text));
+        this.text = text;
+        lifetimer = lifetime;
+        Active = true;
+        Visible = TasHelperSettings.HotkeyStateVisualize;
+    }
+
+    private void RestoreAlpha(bool sameText) {
+        if (sameText) {
+            FallAndRise = true;
         }
-        lifetimer -= Engine.RawDeltaTime;
-        if (lifetimer < 0f) {
-            lifetimer = 0f;
-            Active = Visible = false;
+        else {
+            alpha = 1f;
+        }
+    }
+
+    private bool FallAndRise = false;
+    public override void Update() {
+        if (FallAndRise) {
+            alpha = alpha - 0.1f;
+            if (alpha < 0f) {
+                alpha = 1f;
+                FallAndRise = false;
+            }
+        }
+        else {
+            if (lifetimer / lifetime < 0.1f) {
+                alpha = 10 * lifetimer / lifetime;
+            }
+            lifetimer -= Engine.RawDeltaTime;
+            if (lifetimer < 0f) {
+                lifetimer = 0f;
+                Active = Visible = false;
+            }
         }
 
         base.Update();

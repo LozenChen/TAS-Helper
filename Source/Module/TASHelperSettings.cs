@@ -57,7 +57,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 return;
             }
             mainSwitch = value;
-            MainSwitchWatcher.instance?.Refresh();
+            HotkeyWatcher.instance?.RefreshMainSwitch();
             switch (value) {
                 case MainSwitchModes.Off:
                     Enabled = false;
@@ -418,15 +418,15 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool AllowEnableModWithMainSwitch = true;
 
-    public bool mainSwitchStateVisualize = true;
+    public bool hotKeyStateVisualize = true;
 
     [YamlIgnore]
-    public bool MainSwitchStateVisualize {
-        get => mainSwitchStateVisualize;
+    public bool HotkeyStateVisualize {
+        get => hotKeyStateVisualize;
         set {
-            mainSwitchStateVisualize = value;
-            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
-                watcher.Visible = mainSwitchStateVisualize;
+            hotKeyStateVisualize = value;
+            if (HotkeyWatcher.instance is HotkeyWatcher watcher) {
+                watcher.Visible = hotKeyStateVisualize;
             }
         }
     }
@@ -438,8 +438,8 @@ public class TASHelperSettings : EverestModuleSettings {
         get => mainSwitchThreeStates;
         set {
             mainSwitchThreeStates = value;
-            if (MainSwitchWatcher.instance is MainSwitchWatcher watcher) {
-                watcher.Refresh();
+            if (HotkeyWatcher.instance is HotkeyWatcher watcher) {
+                watcher.RefreshMainSwitch();
             }
         }
     }
@@ -510,7 +510,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 case MainSwitchModes.Off: {
                         if (!AllowEnableModWithMainSwitch) {
                             changed = false;
-                            MainSwitchWatcher.instance?.Refresh(true);
+                            Refresh("Enabling TAS Helper with Hotkey is disabled!");
                             break;
                         }
                         MainSwitch = MainSwitchThreeStates ? MainSwitchModes.OnlyDefault : MainSwitchModes.AllowAll;
@@ -519,33 +519,35 @@ public class TASHelperSettings : EverestModuleSettings {
                 // it may happen that MainSwitchThreeStates = false but MainSwitch = OnlyDefault... it's ok
                 case MainSwitchModes.OnlyDefault: MainSwitch = MainSwitchModes.AllowAll; break;
                 case MainSwitchModes.AllowAll: MainSwitch = MainSwitchModes.Off; break;
+                    // other HotkeyWatcher refresh are left to the setter of mainSwitch
             }
         }
         if (TH_Hotkeys.CountDownHotkey.Pressed) {
             if (Enabled) {
                 changed = true;
                 switch (CountdownMode) {
-                    case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; break;
-                    case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; break;
-                    case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; break;
+                    case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; Refresh("Hazard Countdown Mode = 3f Cycle"); break;
+                    case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; Refresh("Hazard Countdown Mode = 15f Cycle"); break;
+                    case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; Refresh("Hazard Countdown Mode = Off"); break;
                 }
+                
             }
             else {
-                MainSwitchWatcher.instance?.RefreshOther();
+                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
             }
         }
         if (TH_Hotkeys.LoadRangeHotkey.Pressed) {
             if (Enabled) {
                 changed = true;
                 switch (LoadRangeMode) {
-                    case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; break;
-                    case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; break;
-                    case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; break;
-                    case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; break;
+                    case LoadRangeModes.Neither: LoadRangeMode = LoadRangeModes.InViewRange; Refresh("Load Range Mode = InView"); break;
+                    case LoadRangeModes.InViewRange: LoadRangeMode = LoadRangeModes.NearPlayerRange; Refresh("Load Range Mode = NearPlayer"); break;
+                    case LoadRangeModes.NearPlayerRange: LoadRangeMode = LoadRangeModes.Both; Refresh("Load Range Mode = Both"); break;
+                    case LoadRangeModes.Both: LoadRangeMode = LoadRangeModes.Neither; Refresh("Load Range Mode = Neither"); break;
                 }
             }
             else {
-                MainSwitchWatcher.instance?.RefreshOther();
+                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
             }
         }
         if (TH_Hotkeys.PixelGridWidthHotkey.Pressed) {
@@ -558,29 +560,50 @@ public class TASHelperSettings : EverestModuleSettings {
                     < 8 => 8,
                     _ => 0,
                 };
+                Refresh($"Pixel Grid Width = {PixelGridWidth}");
                 if (PixelGridWidth == 0) {
                     EnablePixelGrid = false;
                 }
             }
             else {
-                MainSwitchWatcher.instance?.RefreshOther();
+                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
             }
         }
         if (TH_Hotkeys.PredictEnableHotkey.Pressed) {
             if (Enabled) {
                 changed = true;
                 predictFutureEnabled = !predictFutureEnabled;
+                Refresh("Predictor " + (predictFutureEnabled ? "Enabled" : "Disabled"));
             }
             else {
-                MainSwitchWatcher.instance?.RefreshOther();
+                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
             }
         }
         if (TH_Hotkeys.PredictFutureHotkey.Pressed) {
-            if (TasHelperSettings.PredictFutureEnabled && TasHelperSettings.PredictOnHotkeyPressed && FrameStep) {
-                Predictor.Core.hasDelayedPredict = true;
+            if (!Enabled) {
+                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
             }
+            else if (!TasHelperSettings.PredictFutureEnabled) {
+                Refresh("Predictor NOT enabled");
+            }
+            else if (!TasHelperSettings.PredictOnHotkeyPressed) {
+                Refresh("Make-a-Prediction hotkey NOT enabled");
+            }
+            else if (!FrameStep) {
+                Refresh("Not frame-stepping, refuse to predict");
+            }
+            else { 
+                Predictor.Core.hasDelayedPredict = true;
+                Refresh("Predictor Start");
+                
+            }
+            
         }
         return changed;
+
+        void Refresh(string text) {
+            HotkeyWatcher.instance?.Refresh(text);
+        }
     }
 
     #endregion

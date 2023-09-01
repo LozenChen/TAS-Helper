@@ -12,24 +12,28 @@ public static class Core {
     public static bool HasPredict = false;
 
     public static bool InPredict = false;
+
+    public static readonly List<Func<bool>> SkipPredictChecks = new ();
+
+    public static readonly List<Func<PlayerState, bool>> EarlyStopChecks = new ();
+
     public static void Predict(int frames) {
         if (!TasHelperSettings.PredictFutureEnabled || InPredict) {
             return;
         }
 
         TasHelperSettings.Enabled = false;
-        // stop most hooks from working (in particular, SpinnerCalculateHelper.PreSpinnerCalculate)
+        // this stops most hooks from working (in particular, SpinnerCalculateHelper.PreSpinnerCalculate)
         SafePredict(frames);
         TasHelperSettings.Enabled = true;
-
     }
 
     private static void SafePredict(int frames) {
-        if (!StartPredictCheck()) {
+        if (SkipPredictCheck()) {
             return;
         }
 
-        //todo: this overrides TAS's savestate
+        // warn: this overrides SpeedrunTool's (and thus TAS's) savestate
         if (!ModifiedSaveLoad.SaveState()) {
             return;
         }
@@ -130,15 +134,11 @@ public static class Core {
             }
         });
 
-
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookBefore(() => {
             if (!InPredict) {
                 ModifiedSaveLoad.ClearState();
             }
         });
-
-
-        // todo: refresh predict on tas file change
 
         typeof(Scene).GetMethod("BeforeUpdate").HookAfter(() => {
             if (!InPredict) {
@@ -150,6 +150,14 @@ public static class Core {
         typeof(Level).GetMethod("BeforeRender").HookBefore(DelayedPredict);
 
         HookHelper.SkipMethod(typeof(Core), nameof(InPredictMethod), typeof(GameInfo).GetMethod("Update", BindingFlags.Public | BindingFlags.Static));
+
+        InitializeChecks();
+    }
+
+    public static void InitializeChecks() {
+        SkipPredictChecks.Add(() => Engine.Scene is Level level && level.Transitioning);
+        EarlyStopChecks.Add(_ => Engine.Scene is Level level && level.Transitioning);
+        EarlyStopChecks.Add(_ => _.Dead);
     }
 
     private static void DelayedPredict() {
@@ -183,11 +191,13 @@ public static class Core {
         GameInfo.TransitionFrames = TransitionFrames;
     }
 
-    public static bool StartPredictCheck() {
-        if (Engine.Scene is Level level && level.Transitioning) {
-            return false;
+    public static bool SkipPredictCheck() {
+        foreach (Func<bool> check in SkipPredictChecks) {
+            if (check()) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     public static bool PreventSwitchScene() {
@@ -199,59 +209,11 @@ public static class Core {
         return false;
     }
     public static bool EarlyStopCheck(PlayerState state) {
-        if (Engine.Scene is Level level && level.Transitioning) {
-            return true;
+        foreach (Func<PlayerState, bool> check in EarlyStopChecks) {
+            if (check(state)) {
+                return true;
+            }
         }
         return false;
-    }
-}
-
-public class PlayerState {
-
-    public bool HasPlayer;
-    public float x;
-    public float y;
-    public float width;
-    public float height;
-
-    public PlayerState() {
-
-    }
-
-    public static PlayerState GetState() {
-        PlayerState state = new();
-        state.HasPlayer = player is not null;
-        if (state.HasPlayer) {
-            state.x = player.Collider.Left + player.X;
-            state.y = player.Collider.Top + player.Y;
-            state.width = player.Collider.Width;
-            state.height = player.Collider.Height;
-        }
-        return state;
-    }
-}
-
-public struct RenderData {
-    public int index;
-    public bool visible;
-    public float x;
-    public float y;
-    public float width;
-    public float height;
-    public Color? KeyframeColor;
-
-    public RenderData(int index, PlayerState PreviousState, PlayerState CurrentState) {
-        this.index = index;
-        if (CurrentState.HasPlayer) {
-            x = CurrentState.x;
-            y = CurrentState.y;
-            width = CurrentState.width;
-            height = CurrentState.height;
-            visible = true;
-        }
-        else {
-            x = 0f; y = 0f; width = 0f; height = 0f; visible = false;
-        }
-        KeyframeColor = null;
     }
 }

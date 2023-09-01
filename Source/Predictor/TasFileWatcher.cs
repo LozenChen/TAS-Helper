@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.TASHelper.Utils;
+﻿using Celeste.Mod.SpeedrunTool.Extensions;
+using Celeste.Mod.TASHelper.Utils;
 using Monocle;
 using TAS;
 using TAS.Input;
@@ -27,22 +28,13 @@ public static class TasFileWatcher {
         TasFileWatcher.watcher?.Dispose();
 
         FileSystemWatcher watcher;
-        if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory)) {
-            if (Directory.GetParent(filePath) is { } parentDir) {
-                watcher = new FileSystemWatcher();
-                watcher.Path = parentDir.FullName;
-                watcher.Filter = new DirectoryInfo(filePath).Name;
-                watcher.NotifyFilter = NotifyFilters.DirectoryName;
-            }
-            else {
-                return;
-            }
+        if (filePath.IsNullOrEmpty() || !Manager.Controller.UsedFiles.ContainsKey(filePath)) {
+            return;
         }
-        else {
-            watcher = new FileSystemWatcher();
-            watcher.Path = Path.GetDirectoryName(filePath);
-            watcher.Filter = Path.GetFileName(filePath);
-        }
+
+        watcher = new FileSystemWatcher();
+        watcher.Path = Path.GetDirectoryName(filePath);
+        watcher.Filter = Path.GetFileName(filePath);
 
         watcher.Changed += OnTasFileChanged;
 
