@@ -22,10 +22,17 @@ public static class SpinnerCalculateHelper {
         On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
     }
 
-    // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
-    [MethodImpl(MethodImplOptions.NoOptimization)]
     private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
         orig(self);
+        PreSpinnerCalculate(self);
+    }
+
+    // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
+    [MethodImpl(MethodImplOptions.NoOptimization)]
+    internal static void PreSpinnerCalculate(Scene self) {
+        if (!TasHelperSettings.Enabled) {
+            return;
+        }
         float time = TimeActive = self.TimeActive;
         for (int i = 0; i <= 9; i++) {
             PredictLoadTimeActive[i] = PredictUnloadTimeActive[i] = time;

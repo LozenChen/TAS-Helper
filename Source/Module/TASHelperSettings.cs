@@ -29,18 +29,11 @@ public class TASHelperSettings : EverestModuleSettings {
     internal void OnLoadSettings() {
         UpdateAuxiliaryVariable();
 
-        if (keyMainSwitch is null) {
-            keyMainSwitch = new((Buttons)0, Keys.LeftControl, Keys.E);
-        }
-        if (keyCountDown is null) {
-            keyCountDown = new((Buttons)0, Keys.LeftControl, Keys.R);
-        }
-        if (keyLoadRange is null) {
-            keyLoadRange = new((Buttons)0, Keys.LeftControl, Keys.T);
-        }
-        if (keyPixelGridWidth is null) {
-            keyPixelGridWidth = new((Buttons)0, Keys.LeftControl, Keys.F);
-        }
+        keyMainSwitch ??= new((Buttons)0, Keys.LeftControl, Keys.E);
+        keyCountDown ??= new((Buttons)0, Keys.LeftControl, Keys.R);
+        keyLoadRange ??= new((Buttons)0, Keys.LeftControl, Keys.T);
+        keyPixelGridWidth ??= new((Buttons)0, Keys.LeftControl, Keys.F);
+        keyPredictFuture ??= new((Buttons)0, Keys.LeftControl, Keys.W);
         // it seems some bug can happen with deserialization
     }
 
@@ -348,6 +341,12 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    public bool PredictOnFrameStep = true;
+
+    public bool PredictOnFileChange = false;
+
+    public bool PredictOnHotkeyPressed = true;
+
     public int FutureLength = 20;
 
     public bool Awake_CameraTarget = true;
@@ -464,6 +463,10 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.F)]
     public ButtonBinding keyPixelGridWidth { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.F);
 
+    [SettingName("TAS_HELPER_PREDICT_FUTURE_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.W)]
+    public ButtonBinding keyPredictFuture { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.W);
+
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
     public bool SettingsHotkeysPressed() {
@@ -486,6 +489,7 @@ public class TASHelperSettings : EverestModuleSettings {
         TH_Hotkeys.CountDownHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.LoadRangeHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.PixelGridWidthHotkey.Update(updateKey, updateButton);
+        TH_Hotkeys.PredictFutureHotkey.Update(updateKey, updateButton);
 
         bool changed = false;
 
@@ -549,6 +553,11 @@ public class TASHelperSettings : EverestModuleSettings {
             }
             else {
                 MainSwitchWatcher.instance?.RefreshOther();
+            }
+        }
+        if (TH_Hotkeys.PredictFutureHotkey.Pressed) {
+            if (TasHelperSettings.PredictFuture && TasHelperSettings.PredictOnHotkeyPressed && FrameStep) {
+                Predictor.Core.hasDelayedPredict = true;
             }
         }
         return changed;

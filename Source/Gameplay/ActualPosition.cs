@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
-using System.Reflection;
 using ChronoEnitites = Celeste.Mod.ChronoHelper.Entities;
 using VivEntites = VivHelper.Entities;
 
@@ -66,7 +65,7 @@ internal static class ActualPosition {
 
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         orig(self);
-        if (self is Level level) {
+        if (TasHelperSettings.Enabled && self is Level level) {
             PlayerPositionChangedCount = 0;
             PreviousCameraPos = level.Camera.Position;
             CameraZoom = 1f;
@@ -74,7 +73,7 @@ internal static class ActualPosition {
     }
 
     private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
-        if (self is Level level) {
+        if (TasHelperSettings.Enabled && self is Level level) {
             CameraPosition = level.Camera.Position;
             if (player != null) {
                 if (PlayerPositionChangedCount == 0) {
@@ -94,8 +93,13 @@ internal static class ActualPosition {
             // stfld bool Celeste.Player::StrawberriesBlocked
             )) {
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.Emit(OpCodes.Ldfld, typeof(Entity).GetField("Position"));
-            cursor.Emit(OpCodes.Stsfld, typeof(ActualPosition).GetField("PlayerPositionBeforeCameraUpdate", BindingFlags.NonPublic | BindingFlags.Static));
+            cursor.EmitDelegate(GetCameraPosition);
+        }
+    }
+
+    private static void GetCameraPosition(Player player) {
+        if (TasHelperSettings.Enabled) {
+            PlayerPositionBeforeCameraUpdate = player.Position;
         }
     }
 
@@ -161,7 +165,7 @@ internal static class ActualPosition {
 
     private static void GetCameraZoom(Entity self) {
 #pragma warning disable CS8602
-        if (TasHelperSettings.ApplyCameraZoom) {
+        if (TasHelperSettings.Enabled && TasHelperSettings.ApplyCameraZoom) {
             CameraZoom = (self.Scene as Level).Camera.Zoom;
         }
 #pragma warning restore CS8602
@@ -169,7 +173,7 @@ internal static class ActualPosition {
 
 
     private static void PatchHazardUpdate(Entity self) {
-        if (!UltraFastForwarding && SpinnerCalculateHelper.HazardType(self) != null && player != null) {
+        if (TasHelperSettings.Enabled && !UltraFastForwarding && SpinnerCalculateHelper.HazardType(self) != null && player != null) {
             if (PlayerPositionChangedCount == 0) {
                 PlayerPositionChangedCount++;
                 PlayerPosition = player.Position;

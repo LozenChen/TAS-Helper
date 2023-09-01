@@ -18,6 +18,8 @@ public static class TH_Hotkeys {
 
     public static Hotkey PixelGridWidthHotkey { get; set; }
 
+    public static Hotkey PredictFutureHotkey { get; set; }
+
     static TH_Hotkeys() {
         HotkeyInitialize();
     }
@@ -27,12 +29,12 @@ public static class TH_Hotkeys {
         CountDownHotkey = BindingToHotkey(TasHelperSettings.keyCountDown);
         LoadRangeHotkey = BindingToHotkey(TasHelperSettings.keyLoadRange);
         PixelGridWidthHotkey = BindingToHotkey(TasHelperSettings.keyPixelGridWidth);
+        PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
     }
 
     private static Hotkey BindingToHotkey(ButtonBinding binding, bool held = false) {
         return new(binding.Keys, binding.Buttons, true, held);
     }
-
 
     private static IEnumerable<PropertyInfo> bindingProperties;
 

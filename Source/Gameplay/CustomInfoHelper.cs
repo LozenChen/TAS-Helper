@@ -41,7 +41,7 @@ public static class CustomInfoHelper {
     public static float PlayerIntPositionY {
         get => player?.Y ?? 0;
         set {
-            if (player is not null) {player.Y = value;}
+            if (player is not null) { player.Y = value; }
         }
     }
     // TAS mod somehow hides Player.Position, so we provide this

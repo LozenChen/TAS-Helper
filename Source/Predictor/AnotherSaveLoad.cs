@@ -1,19 +1,5 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using Celeste.Mod.SpeedrunTool.Extensions;
-using Celeste.Mod.SpeedrunTool.Message;
-using Celeste.Mod.SpeedrunTool.Other;
-using Celeste.Mod.SpeedrunTool.Utils;
-using Force.DeepCloner;
-using Force.DeepCloner.Helpers;
-using EventInstance = FMOD.Studio.EventInstance;
-using Celeste.Mod.SpeedrunTool.SaveLoad;
-using Monocle;
-
-namespace Celeste.Mod.TASHelper.Predictor;
-
+﻿namespace Celeste.Mod.TASHelper.Predictor;
+/*
 public sealed class P_StateManager {
     private static SpeedrunTool.SpeedrunToolSettings ModSettings => SpeedrunTool.SpeedrunToolSettings.Instance;
 
@@ -267,4 +253,4 @@ public enum State {
     Saving,
     Loading,
     Waiting,
-}
+}*/

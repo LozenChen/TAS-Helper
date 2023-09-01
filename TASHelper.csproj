@@ -82,8 +82,9 @@
 		<PublicizerRuntimeStrategies>Unsafe;IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
 	</PropertyGroup>
 	<ItemGroup>
-		<Publicize Include="Celeste"/>
-		<Publicize Include="SpeedrunTool"/>
+		<Publicize Include="Celeste" />
+		<Publicize Include="SpeedrunTool" />
+		<Publicize Include="TAS.Utils"/>
 		<DoNotPublicize Include="Celeste:Monocle.Scene.OnEndOfFrame" />
 		<DoNotPublicize Include="Celeste:Celeste.Mod.TextInput.OnInput" />
 	</ItemGroup>

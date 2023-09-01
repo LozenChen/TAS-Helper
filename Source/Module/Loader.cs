@@ -49,7 +49,7 @@ internal static class Loader {
         SimplifiedSpinner.Unload();
         FireBallTrack.Unload();
         ModifiedAutoMute.Unload();
-        PredictorRenderer.Unload(); 
+        PredictorRenderer.Unload();
         HookHelper.Unload();
     }
 
@@ -66,8 +66,8 @@ internal static class Loader {
         SpinnerColliderHelper.Initialize();
         Countdown_and_LoadRange_Collider.Initialize();
 
-
         InputManager.Initialize();
+        TasFileWatcher.Initialize();
         Predictor.Core.Initialize();
     }
 

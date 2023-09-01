@@ -1,17 +1,13 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
-using System.Reflection;
 using Monocle;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
-using Celeste.Mod.SpeedrunTool.RoomTimer;
-using Microsoft.Xna.Framework.Input;
-using System;
+using System.Reflection;
+using TAS;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 public static class Core {
 
-    public static readonly List<RenderData> futures = new ();
+    public static readonly List<RenderData> futures = new();
 
     public static bool HasPredict = false;
 
@@ -21,8 +17,11 @@ public static class Core {
             return;
         }
 
+        TasHelperSettings.Enabled = false;
+        // stop most hooks from working (in particular, SpinnerCalculateHelper.PreSpinnerCalculate)
         SafePredict(frames);
-        // we make it nested in case SpeedrunTool is not installed
+        TasHelperSettings.Enabled = true;
+
     }
 
     private static void SafePredict(int frames) {
@@ -30,11 +29,12 @@ public static class Core {
             return;
         }
 
-        
-        if (!P_StateManager.Instance.SaveState()) {
+        //todo: this overrides TAS's savestate
+        if (!ModifiedSaveLoad.SaveState()) {
             return;
         }
-        //SpeedrunTool.SaveLoad.StateManager.Instance.SaveState();
+
+        SaveForTAS();
 
         InPredict = true;
 
@@ -46,22 +46,18 @@ public static class Core {
         ModifiedAutoMute.StartMute();
         InputManager.ReadInputs(frames);
 
-        //todo: this overrides TAS's savestate
-
-
         PlayerState PreviousState;
         PlayerState CurrentState = PlayerState.GetState();
 
-        StoreEngineState();
         for (int i = 0; i < frames; i++) {
-            TAS.InputHelper.FeedInputs(InputManager.P_Inputs[i]);
+            TAS.InputHelper.FeedInputs(InputManager.Inputs[i]);
             // commands are not supported
 
-            AlmostEngineUpdate(Engine.Instance, (GameTime) typeof(Game).GetFieldInfo("gameTime").GetValue(Engine.Instance));
+            AlmostEngineUpdate(Engine.Instance, (GameTime)typeof(Game).GetFieldInfo("gameTime").GetValue(Engine.Instance));
 
             PreviousState = CurrentState;
             CurrentState = PlayerState.GetState();
-            if (TooEarlyStopCheck(CurrentState)) {
+            if (PreventSwitchScene()) {
                 break;
             }
             futures.Add(new RenderData(i + 1, PreviousState, CurrentState));
@@ -70,35 +66,12 @@ public static class Core {
             }
         }
 
-        //SpeedrunTool.SaveLoad.StateManager.Instance.LoadState();
-        P_StateManager.Instance.LoadState();
-
-        RestoreEngineState();
+        ModifiedSaveLoad.LoadState();
+        LoadForTAS();
         ModifiedAutoMute.EndMute();
 
         HasPredict = true;
         InPredict = false;
-    }
-
-    private static float rawDeltaTime;
-    private static float deltaTime;
-    private static ulong frameCounter;
-    private static bool dashAssistFreezePress;
-    private static float freezeTimer;
-    private static void StoreEngineState() {
-        rawDeltaTime = Engine.RawDeltaTime;
-        deltaTime = Engine.DeltaTime;
-        frameCounter = Engine.FrameCounter;
-        dashAssistFreezePress = Engine.DashAssistFreezePress;
-        freezeTimer = Engine.FreezeTimer;
-    }
-
-    private static void RestoreEngineState() {
-        Engine.RawDeltaTime = rawDeltaTime;
-        Engine.DeltaTime = deltaTime;
-        Engine.FrameCounter = frameCounter;
-        Engine.DashAssistFreezePress = dashAssistFreezePress;
-        Engine.FreezeTimer = freezeTimer;
     }
 
     private static void AlmostEngineUpdate(Engine engine, GameTime gameTime) {
@@ -133,8 +106,8 @@ public static class Core {
                 engine.scene.AfterUpdate();
             }
         }
-        
-        /* dont do this, leave it to EarlyStopCheck
+
+        /* dont do this, leave it to PreventSwitchScene
         if (engine.scene != engine.nextScene) {
             Scene from = engine.scene;
             if (engine.scene != null) {
@@ -152,15 +125,18 @@ public static class Core {
 
     public static void Initialize() {
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => {
-            if (Engine.Scene is Level level && FrameStep) {
+            if (StrictFrameStep && TasHelperSettings.PredictOnFrameStep && Engine.Scene is Level) {
                 Predict(TasHelperSettings.FutureLength);
             }
         });
 
+
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookBefore(() => {
-            P_StateManager.Instance.HasCached = false;
-            P_StateManager.Instance.ClearState();
+            if (!InPredict) {
+                ModifiedSaveLoad.ClearState();
+            }
         });
+
 
         // todo: refresh predict on tas file change
 
@@ -170,6 +146,41 @@ public static class Core {
                 HasPredict = false;
             }
         });
+
+        typeof(Level).GetMethod("BeforeRender").HookBefore(DelayedPredict);
+
+        HookHelper.SkipMethod(typeof(Core), nameof(InPredictMethod), typeof(GameInfo).GetMethod("Update", BindingFlags.Public | BindingFlags.Static));
+    }
+
+    private static void DelayedPredict() {
+        if (hasDelayedPredict && !InPredict) {
+            Manager.Controller.RefreshInputs(false);
+            GameInfo.Update();
+            Predict(TasHelperSettings.FutureLength);
+            hasDelayedPredict = false;
+        }
+        // we shouldn't do this in half of the render process
+    }
+
+    public static bool hasDelayedPredict = false;
+
+    private static bool InPredictMethod() {
+        return InPredict;
+    }
+
+    private static void SaveForTAS() {
+        DashTime = GameInfo.DashTime;
+        Frozen = GameInfo.Frozen;
+        TransitionFrames = GameInfo.TransitionFrames;
+    }
+
+    private static float DashTime;
+    private static bool Frozen;
+    private static int TransitionFrames;
+    private static void LoadForTAS() {
+        GameInfo.DashTime = DashTime;
+        GameInfo.Frozen = Frozen;
+        GameInfo.TransitionFrames = TransitionFrames;
     }
 
     public static bool StartPredictCheck() {
@@ -179,7 +190,7 @@ public static class Core {
         return true;
     }
 
-    public static bool TooEarlyStopCheck(PlayerState state) {
+    public static bool PreventSwitchScene() {
         if (Engine.Instance.scene != Engine.Instance.nextScene) {
             Engine.Instance.nextScene = Engine.Instance.scene;
             return true;
@@ -203,8 +214,8 @@ public class PlayerState {
     public float width;
     public float height;
 
-    public PlayerState() { 
-    
+    public PlayerState() {
+
     }
 
     public static PlayerState GetState() {

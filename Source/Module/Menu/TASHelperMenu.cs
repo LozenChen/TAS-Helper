@@ -18,6 +18,19 @@ internal static class TASHelperMenu {
         return ColorCustomizationItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 
+    private static EaseInSubMenu CreatePredictFutureSubMenu(TextMenu menu) {
+        return new EaseInSubMenu("Predictor".ToDialogText(), false).Apply(subMenu => {
+            TextMenu.Item PredictItem;
+            subMenu.Add(PredictItem = new TextMenu.OnOff("Predict Future Main Button".ToDialogText(), TasHelperSettings.PredictFuture).Change((value) => TasHelperSettings.PredictFuture = value));
+            subMenu.AddDescription(menu, PredictItem, "Predict Future Description".ToDialogText());
+            subMenu.Add(new TextMenuExt.IntSlider("Future Length".ToDialogText(), 1, 999, TasHelperSettings.FutureLength).Change((value) => TasHelperSettings.FutureLength = value));
+
+            subMenu.Add(new TextMenu.OnOff("Predict On File Change".ToDialogText(), TasHelperSettings.PredictOnFileChange).Change(value => TasHelperSettings.PredictOnFileChange = value));
+            subMenu.Add(new TextMenu.OnOff("Predict On Hotkey Pressed".ToDialogText(), TasHelperSettings.PredictOnHotkeyPressed).Change(value => TasHelperSettings.PredictOnHotkeyPressed = value));
+            subMenu.Add(new TextMenu.OnOff("Predict On Frame Step".ToDialogText(), TasHelperSettings.PredictOnFrameStep).Change(value => TasHelperSettings.PredictOnFrameStep = value));
+        });
+    }
+
 
     private static EaseInSubMenu CreateCountdownSubMenu(TextMenu menu) {
         return new EaseInSubMenu("Countdown".ToDialogText(), false).Apply(subMenu => {
@@ -61,8 +74,6 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Collidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Collidable = value));
             subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity Extra".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Uncollidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Uncollidable = value));
             subMenu.Add(new TextMenu.OnOff("Spinner_Ignore_TAS_UncollidableAlpha".ToDialogText(), TasHelperSettings.Ignore_TAS_UnCollidableAlpha).Change(value => TasHelperSettings.Ignore_TAS_UnCollidableAlpha = value));
-
-
         });
     }
 
@@ -104,11 +115,6 @@ internal static class TASHelperMenu {
 
     private static EaseInSubMenu CreateMoreOptionsSubMenu(TextMenu menu) {
         return new EaseInSubMenu("More Options".ToDialogText(), false).Apply(subMenu => {
-            TextMenu.Item PredictItem;
-            subMenu.Add(PredictItem = new TextMenu.OnOff("Predict Future".ToDialogText(), TasHelperSettings.PredictFuture).Change((value) => TasHelperSettings.PredictFuture = value));
-            subMenu.AddDescription(menu, PredictItem, "Predict Future No SpeedrunTool".ToDialogText());
-            subMenu.Add(new TextMenuExt.IntSlider("Future Length".ToDialogText(), 1, 500, TasHelperSettings.FutureLength).Change((value) => TasHelperSettings.FutureLength = value));
-
             subMenu.Add(new TextMenu.OnOff("Spawn Point".ToDialogText(), TasHelperSettings.UsingSpawnPoint).Change((value) => TasHelperSettings.UsingSpawnPoint = value));
             subMenu.Add(new TextMenuExt.IntSlider("Current Spawn Point Opacity".ToDialogText(), 1, 9, TasHelperSettings.CurrentSpawnPointOpacity).Change((value) => TasHelperSettings.CurrentSpawnPointOpacity = value));
             subMenu.Add(new TextMenuExt.IntSlider("Other Spawn Point Opacity".ToDialogText(), 0, 9, TasHelperSettings.OtherSpawnPointOpacity).Change((value) => TasHelperSettings.OtherSpawnPointOpacity = value));
@@ -215,6 +221,7 @@ internal static class TASHelperMenu {
             EaseInSubMenu countdownItem = CreateCountdownSubMenu(menu);
             EaseInSubMenu loadrangeItem = CreateLoadRangeSubMenu(menu);
             EaseInSubMenu simpspinnerItem = CreateSimplifiedSpinnerSubMenu(menu);
+            EaseInSubMenu predictItem = CreatePredictFutureSubMenu(menu);
             EaseInSubMenu moreoptionItem = CreateMoreOptionsSubMenu(menu);
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
             int N = menu.IndexOf(mainItem);
@@ -222,10 +229,11 @@ internal static class TASHelperMenu {
             menu.Insert(N + 2, countdownItem);
             menu.Insert(N + 3, loadrangeItem);
             menu.Insert(N + 4, simpspinnerItem);
-            menu.Insert(N + 5, moreoptionItem);
-            menu.Insert(N + 6, hotkeysItem);
+            menu.Insert(N + 5, predictItem);
+            menu.Insert(N + 6, moreoptionItem);
+            menu.Insert(N + 7, hotkeysItem);
             hotkeysItem.AddDescription(menu, "Hotkey Description".ToDialogText());
-            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, moreoptionItem, hotkeysItem };
+            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, moreoptionItem, hotkeysItem };
             foreach (IEaseInItem item in disabledItems) {
                 item.Initialize();
             }

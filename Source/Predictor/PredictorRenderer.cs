@@ -1,6 +1,4 @@
-﻿using Celeste.Mod.TASHelper.Utils;
-using Microsoft.Xna.Framework;
-using System.Reflection;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 using static Celeste.Mod.TASHelper.Predictor.Core;
 
@@ -13,6 +11,10 @@ public class PredictorRenderer : Entity {
 
     public static Color ColorNormal = Color.Red * 0.2f;
     public override void DebugRender(Camera camera) {
+        if (!TasHelperSettings.PredictFuture) {
+            return;
+        }
+
         foreach (RenderData data in futures) {
             if (data.visible) {
                 Draw.HollowRect(data.x, data.y, data.width, data.height, data.KeyframeColor.GetValueOrDefault(ColorSelector(data.index, futures.Count)));

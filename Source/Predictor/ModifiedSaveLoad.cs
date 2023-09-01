@@ -1,24 +1,19 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using Monocle;
+using System.Runtime.Serialization;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.StateManager;
-using Force.DeepCloner;
-using Force.DeepCloner.Helpers;
-using Celeste.Mod.TASHelper.Utils;
-using EventInstance = FMOD.Studio.EventInstance;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 
-/*
 public static class ModifiedSaveLoad {
 
     // thanks to Krafs.Publicizer, we can try to manip it now
     public static bool SaveState() {
+        if (HasCachedCurrent) {
+            // different Predicts possibly share a common save of current frame
+            return true;
+        }
+
         if (Engine.Scene is not Level level) {
             return false;
         }
@@ -28,14 +23,14 @@ public static class ModifiedSaveLoad {
         }
 
         // 不允许在春游图打开章节面板时存档
-        if (P_StateManager.InGameOverworldHelperIsOpen.Value?.GetValue(null) as bool? == true) {
+        if (StateManager.InGameOverworldHelperIsOpen.Value?.GetValue(null) as bool? == true) {
             return false;
         }
 
         alreadySaved = Instance.IsSaved;
 
         if (alreadySaved) {
-            StoreBackup();
+            //StoreBackup();
             Instance.ClearBeforeSave = true;
             Instance.ClearState();
             Instance.ClearBeforeSave = false;
@@ -49,13 +44,16 @@ public static class ModifiedSaveLoad {
         SaveLoadAction.OnBeforeSaveState(level);
         level.DeepCloneToShared(Instance.savedLevel = (Level)FormatterServices.GetUninitializedObject(typeof(Level)));
         Instance.savedSaveData = SaveData.Instance.DeepCloneShared();
-        Instance.savedTasCycleGroupCounter = P_StateManager.CycleGroupCounter.Value?.GetValue(null);
+        Instance.savedTasCycleGroupCounter = StateManager.CycleGroupCounter.Value?.GetValue(null);
         SaveLoadAction.OnSaveState(level);
         DeepClonerUtils.ClearSharedDeepCloneState();
         Instance.PreCloneSavedEntities();
         Instance.State = State.None;
+        HasCachedCurrent = true;
         return true;
     }
+
+    public static bool HasCachedCurrent = false;
 
     public static bool LoadState() {
         if (Engine.Scene is not Level level) {
@@ -90,26 +88,33 @@ public static class ModifiedSaveLoad {
         Instance.GcCollect();
         Instance.LoadStateComplete(level);
         if (alreadySaved) {
-            RestoreBackup();
+            //RestoreBackup();
         }
         return true;
     }
 
+    public static void ClearState() {
+        if (HasCachedCurrent) {
+            Instance.ClearState();
+            HasCachedCurrent = false;
+        }
+    }
+
     public static bool alreadySaved = false;
 
-    public static bool hasCache = false;
+    /*
+     * todo: try to fix it
+    public static bool HasCachedPast = false;
     public static void StoreBackup() {
-        if (hasCache) {
-            // todo
-
-            // different Predicts possibly share a common backup
+        if (HasCachedPast) {
+            // different Predicts possibly share a common save of some past frame
             return;
         }
         // check StateManager.ClearState() to see what's important
         // things in SaveLoadAction seems not need to store, since they do not change after first SL(initialized = true), which is true when StoreBackUp() is called
 
         State = Instance.State;
-        SavedByTas= Instance.SavedByTas;
+        SavedByTas = Instance.SavedByTas;
         LoadByTas = Instance.LoadByTas;
         ClearBeforeSave = Instance.ClearBeforeSave;
         freezeType = Instance.freezeType;
@@ -130,7 +135,7 @@ public static class ModifiedSaveLoad {
         });
 
 
-        hasCache = true;
+        HasCachedPast = true;
 
     }
 
@@ -154,7 +159,7 @@ public static class ModifiedSaveLoad {
         P_savedLevel.DeepCloneToShared(Instance.savedLevel);
         Instance.savedSaveData = P_savedSaveData.DeepCloneShared();
 
-      
+
         SaveLoadAction.OnLoadState(Instance.savedLevel);
         SaveLoadAction.OnPreCloneEntities();
         Instance.preCloneTask = Task.Run(() => {
@@ -169,10 +174,6 @@ public static class ModifiedSaveLoad {
 
         DeepClonerUtils.ClearSharedDeepCloneState();
 
-
-
-
-
         Instance.savedTasCycleGroupCounter = savedTasCycleGroupCounter;
 
         Instance.State = State;
@@ -180,11 +181,10 @@ public static class ModifiedSaveLoad {
         Instance.LoadByTas = LoadByTas;
         Instance.ClearBeforeSave = ClearBeforeSave;
         Instance.freezeType = freezeType;
-        
     }
 
     public static void Initialize() {
-        typeof(P_StateManager).GetMethod("SaveState", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => hasCache = false);
+        typeof(StateManager).GetMethod("SaveState", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => HasCachedPast = false);
     }
+     */
 }
-*/

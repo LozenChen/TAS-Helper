@@ -1,0 +1,66 @@
+﻿using Celeste.Mod.TASHelper.Utils;
+using Monocle;
+using TAS;
+using TAS.Input;
+
+namespace Celeste.Mod.TASHelper.Predictor;
+
+public static class TasFileWatcher {
+
+    public static void Initialize() {
+        typeof(InputController).GetMethod("Clear").HookAfter(StopWatchers);
+        typeof(InputController).GetMethod("ParseFileEnd", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).HookAfter(CreateWatcher);
+    }
+
+    public static FileSystemWatcher? watcher = null;
+    public static string FilePath;
+
+    public static void StopWatchers() {
+        watcher?.Dispose();
+        watcher = null;
+    }
+    public static void CreateWatcher() {
+        string filePath = InputController.StudioTasFilePath;
+        if (FilePath == filePath && TasFileWatcher.watcher is not null) {
+            return;
+        }
+        TasFileWatcher.watcher?.Dispose();
+
+        FileSystemWatcher watcher;
+        if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory)) {
+            if (Directory.GetParent(filePath) is { } parentDir) {
+                watcher = new FileSystemWatcher();
+                watcher.Path = parentDir.FullName;
+                watcher.Filter = new DirectoryInfo(filePath).Name;
+                watcher.NotifyFilter = NotifyFilters.DirectoryName;
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            watcher = new FileSystemWatcher();
+            watcher.Path = Path.GetDirectoryName(filePath);
+            watcher.Filter = Path.GetFileName(filePath);
+        }
+
+        watcher.Changed += OnTasFileChanged;
+
+        try {
+            watcher.EnableRaisingEvents = true;
+        }
+        catch (Exception e) {
+            watcher.Dispose();
+            return;
+        }
+
+        TasFileWatcher.watcher = watcher;
+        FilePath = filePath;
+    }
+
+    private static void OnTasFileChanged(object sender, FileSystemEventArgs e) {
+        if (TasHelperSettings.PredictOnFileChange && TasHelperSettings.PredictFuture && FrameStep && Engine.Scene is Level) {
+            Core.hasDelayedPredict = true;
+        }
+    }
+}
