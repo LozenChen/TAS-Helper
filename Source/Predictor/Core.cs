@@ -13,9 +13,9 @@ public static class Core {
 
     public static bool InPredict = false;
 
-    public static readonly List<Func<bool>> SkipPredictChecks = new ();
+    public static readonly List<Func<bool>> SkipPredictChecks = new();
 
-    public static readonly List<Func<PlayerState, bool>> EarlyStopChecks = new ();
+    public static readonly List<Func<PlayerState, bool>> EarlyStopChecks = new();
 
     public static void Predict(int frames) {
         if (!TasHelperSettings.PredictFutureEnabled || InPredict) {
@@ -82,6 +82,7 @@ public static class Core {
         Engine.RawDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         Engine.DeltaTime = Engine.RawDeltaTime * Engine.TimeRate * Engine.TimeRateB * Engine.GetTimeRateComponentMultiplier(engine.scene);
         Engine.FrameCounter++;
+        FreezeTimerBeforeUpdate = Engine.FreezeTimer;
 
         if (Engine.DashAssistFreeze) {
             if (Input.Dash.Check || !Engine.DashAssistFreezePress) {
@@ -130,11 +131,12 @@ public static class Core {
     public static void Initialize() {
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => {
             if (StrictFrameStep && TasHelperSettings.PredictOnFrameStep && Engine.Scene is Level) {
-                Predict(TasHelperSettings.FutureLength);
+                Predict(TasHelperSettings.TimelineLength);
             }
         });
 
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookBefore(() => {
+            FreezeTimerBeforeUpdate = Engine.FreezeTimer;
             if (!InPredict) {
                 ModifiedSaveLoad.ClearState();
             }
@@ -154,17 +156,33 @@ public static class Core {
         InitializeChecks();
     }
 
+    public static float FreezeTimerBeforeUpdate = 0f; // include those predicted frames
+
+    public static bool ThisPredictedFrameFreezed => FreezeTimerBeforeUpdate > 0f;
     public static void InitializeChecks() {
-        SkipPredictChecks.Add(() => Engine.Scene is Level level && level.Transitioning);
-        EarlyStopChecks.Add(_ => Engine.Scene is Level level && level.Transitioning);
-        EarlyStopChecks.Add(_ => _.Dead);
+        SkipPredictChecks.Clear();
+        EarlyStopChecks.Clear();
+        SkipPredictChecks.Add(SafeGuard);
+        if (!TasHelperSettings.StartPredictWhenTransition) {
+            SkipPredictChecks.Add(() => Engine.Scene is Level level && level.Transitioning);
+        }
+        if (TasHelperSettings.StopPredictWhenTransition) {
+            EarlyStopChecks.Add(_ => Engine.Scene is Level level && level.Transitioning);
+        }
+        if (TasHelperSettings.StopPredictWhenDeath) {
+            EarlyStopChecks.Add(_ => _.Dead);
+        }
+    }
+
+    private static bool SafeGuard() {
+        return Engine.Scene is not Level;
     }
 
     private static void DelayedPredict() {
         if (hasDelayedPredict && !InPredict) {
             Manager.Controller.RefreshInputs(false);
             GameInfo.Update();
-            Predict(TasHelperSettings.FutureLength);
+            Predict(TasHelperSettings.TimelineLength);
             hasDelayedPredict = false;
         }
         // we shouldn't do this in half of the render process
@@ -180,15 +198,18 @@ public static class Core {
         DashTime = GameInfo.DashTime;
         Frozen = GameInfo.Frozen;
         TransitionFrames = GameInfo.TransitionFrames;
+        freezeTimerBeforeUpdateBeforePredictLoops = FreezeTimerBeforeUpdate;
     }
 
     private static float DashTime;
     private static bool Frozen;
     private static int TransitionFrames;
+    private static float freezeTimerBeforeUpdateBeforePredictLoops;
     private static void LoadForTAS() {
         GameInfo.DashTime = DashTime;
         GameInfo.Frozen = Frozen;
         GameInfo.TransitionFrames = TransitionFrames;
+        FreezeTimerBeforeUpdate = freezeTimerBeforeUpdateBeforePredictLoops;
     }
 
     public static bool SkipPredictCheck() {

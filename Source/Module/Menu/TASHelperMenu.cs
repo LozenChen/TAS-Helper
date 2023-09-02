@@ -12,25 +12,22 @@ internal static class TASHelperMenu {
         EaseInOptionSubMenuCountExt ColorCustomizationItem = new EaseInOptionSubMenuCountExt("Color Customization".ToDialogText());
         ColorCustomizationItem.OnLeave += () => ColorCustomizationItem.MenuIndex = 0;
         ColorCustomizationItem.Add("Color Customization Finished".ToDialogText(), new List<TextMenu.Item>());
-        ColorCustomizationItem.Add("Color Customization OnOff".ToDialogText(), CustomColors.CreateColorCustomization_PageOnOff(menu, inGame));
-        ColorCustomizationItem.Add("Color Customization Spinner Color".ToDialogText(), CustomColors.CreateColorCustomization_PageSpinnerColor(menu, inGame));
-        ColorCustomizationItem.Add("Color Customization Other".ToDialogText(), CustomColors.CreateColorCustomization_PageOther(menu, inGame));
+        ColorCustomizationItem.Add("Color Customization OnOff".ToDialogText(), CustomColors.Create_PageOnOff(menu, inGame));
+        ColorCustomizationItem.Add("Color Customization Spinner Color".ToDialogText(), CustomColors.Create_PageSpinnerColor(menu, inGame));
+        ColorCustomizationItem.Add("Color Customization Predictor".ToDialogText(), CustomColors.Create_PagePredictor(menu, inGame));
+        ColorCustomizationItem.Add("Color Customization Other".ToDialogText(), CustomColors.Create_PageOther(menu, inGame));
         return ColorCustomizationItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 
-    private static EaseInSubMenu CreatePredictorSubMenu(TextMenu menu) {
-        return new EaseInSubMenu("Predictor".ToDialogText(), false).Apply(subMenu => {
-            TextMenu.Item PredictItem;
-            subMenu.Add(PredictItem = new TextMenu.OnOff("Predictor Main Switch".ToDialogText(), TasHelperSettings.PredictFutureEnabled).Change((value) => TasHelperSettings.PredictFutureEnabled = value));
-            subMenu.AddDescription(menu, PredictItem, "Predictor Description".ToDialogText());
-            subMenu.Add(new TextMenuExt.IntSlider("Future Length".ToDialogText(), 1, 999, TasHelperSettings.FutureLength).Change((value) => TasHelperSettings.FutureLength = value));
-
-            subMenu.Add(new TextMenu.OnOff("Predict On Frame Step".ToDialogText(), TasHelperSettings.PredictOnFrameStep).Change(value => TasHelperSettings.PredictOnFrameStep = value));
-            subMenu.Add(new TextMenu.OnOff("Predict On Hotkey Pressed".ToDialogText(), TasHelperSettings.PredictOnHotkeyPressed).Change(value => TasHelperSettings.PredictOnHotkeyPressed = value));
-            subMenu.Add(new TextMenu.OnOff("Predict On File Change".ToDialogText(), TasHelperSettings.PredictOnFileChange).Change(value => TasHelperSettings.PredictOnFileChange = value));
-            
-            
-        });
+    private static EaseInOptionSubMenuCountExt CreatePredictorSubMenu(TextMenu menu, bool inGame) {
+        EaseInOptionSubMenuCountExt PredictorItem = new EaseInOptionSubMenuCountExt("Predictor".ToDialogText());
+        PredictorItem.OnLeave += () => PredictorItem.MenuIndex = 0;
+        PredictorItem.Add("Predictor Finished".ToDialogText(), new List<TextMenu.Item>());
+        PredictorItem.Add("Predictor OnOff".ToDialogText(), PredictorMenu.Create_PageOnOff(menu, inGame));
+        PredictorItem.Add("Predictor Keyframe 1".ToDialogText(), PredictorMenu.Create_PageKeyframe_1(menu, inGame));
+        PredictorItem.Add("Predictor Keyframe 2".ToDialogText(), PredictorMenu.Create_PageKeyframe_2(menu, inGame));
+        PredictorItem.Add("Predictor Other".ToDialogText(), PredictorMenu.Create_PageOther(menu, inGame));
+        return PredictorItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 
 
@@ -223,7 +220,7 @@ internal static class TASHelperMenu {
             EaseInSubMenu countdownItem = CreateCountdownSubMenu(menu);
             EaseInSubMenu loadrangeItem = CreateLoadRangeSubMenu(menu);
             EaseInSubMenu simpspinnerItem = CreateSimplifiedSpinnerSubMenu(menu);
-            EaseInSubMenu predictItem = CreatePredictorSubMenu(menu);
+            EaseInOptionSubMenuCountExt predictItem = CreatePredictorSubMenu(menu, inGame);
             EaseInSubMenu moreoptionItem = CreateMoreOptionsSubMenu(menu);
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
             int N = menu.IndexOf(mainItem);

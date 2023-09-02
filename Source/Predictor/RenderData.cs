@@ -1,7 +1,6 @@
-﻿using Celeste.Mod.TASHelper.Utils;
+﻿using Celeste.Mod.TASHelper.Gameplay;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 
@@ -15,26 +14,30 @@ public class PlayerState {
     public float y;
     public float width;
     public float height;
-    
+
     public int StateMachineState;
 
-    public bool Dead;
+    public bool Dead = true; // if Player does not exist, it's also considered dead
     public bool Ducking;
-    
+
     public bool OnGround; // ignore Speed.Y check
 
-    public bool LevelNotInControl; // actually next frame will be indeed InControl
-    public bool PlayerNotInControl;
-    public bool NotInControl;
+    public bool LevelNotInControl = true; // actually next frame will be indeed InControl
+    public bool PlayerNotInControl = true; // given it default values, so if player does not exist, it still works
+    public bool NotInControl = true;
 
     public bool OnEntityState;
-    
     public int Dashes;
+    public bool CanDash;
 
     public bool GliderBoost;
     public bool MinHoldTime;
     public bool OnBounce;
     public bool OnUltra;
+    public bool OnRefillDash;
+    public float SpeedXBeforeUltra;
+    public Vector2 RespawnPoint;
+    public bool EngineFreeze;
 
     public PlayerState() {
 
@@ -55,11 +58,18 @@ public class PlayerState {
         state.Dead = player.Dead;
         state.Ducking = player.Ducking;
         state.OnGround = player.OnGround() && player.Speed.Y >= 0f;
-        state.LevelNotInControl = level.Transitioning || level.Paused || level.Frozen || level.SkippingCutscene ;
+        state.LevelNotInControl = level.Transitioning || level.Paused || level.Frozen || level.SkippingCutscene;
         state.PlayerNotInControl = state.StateMachineState > 10 && state.StateMachineState != 19 && state.StateMachineState != 24;
         state.NotInControl = state.LevelNotInControl || state.PlayerNotInControl;
         state.OnEntityState = (state.StateMachineState == 4) || (state.StateMachineState == 7) || (state.StateMachineState == 19) || (state.StateMachineState == 24);
         state.Dashes = player.Dashes;
+        state.CanDash = player.dashCooldownTimer <= 0f && player.Dashes > 0;
+        state.RespawnPoint = level.Session.RespawnPoint.Value;
+        state.EngineFreeze = Core.ThisPredictedFrameFreezed;
+        state.OnBounce = PlayerStateUtils.AnyBounce && !state.EngineFreeze;
+        state.OnUltra = PlayerStateUtils.Ultra && !state.EngineFreeze && Math.Abs(PlayerStateUtils.SpeedBeforeUltra.X) >= TasHelperSettings.UltraSpeedLowerLimit;
+        state.OnRefillDash = PlayerStateUtils.RefillDash && !state.EngineFreeze;
+        state.SpeedXBeforeUltra = state.OnUltra ? PlayerStateUtils.SpeedBeforeUltra.X : 0f;
         return state;
     }
 }
@@ -72,9 +82,11 @@ public struct RenderData {
     public float width;
     public float height;
     public KeyframeType Keyframe;
+    public bool addTime;
 
     public RenderData(int index, PlayerState PreviousState, PlayerState CurrentState) {
         this.index = index;
+        addTime = false;
         Keyframe = new();
         if (CurrentState.LevelHasPlayer) {
             x = CurrentState.x;
@@ -103,17 +115,41 @@ public struct RenderData {
         if (!CurrentState.OnGround && PreviousState.OnGround) {
             Keyframe |= KeyframeType.LoseOnGround;
         }
-        if (!CurrentState.NotInControl && PreviousState.NotInControl) {
-            Keyframe |= KeyframeType.GainControl;
+        if (!CurrentState.PlayerNotInControl && PreviousState.PlayerNotInControl) {
+            Keyframe |= KeyframeType.GainPlayerControl;
         }
-        if (CurrentState.NotInControl && !PreviousState.NotInControl) {
-            Keyframe |= KeyframeType.LoseControl;
+        if (CurrentState.PlayerNotInControl && !PreviousState.PlayerNotInControl) {
+            Keyframe |= KeyframeType.LosePlayerControl;
         }
         if (CurrentState.OnEntityState && !PreviousState.OnEntityState) {
             Keyframe |= KeyframeType.OnEntityState;
         }
-        if (CurrentState.Dashes > PreviousState.Dashes) {
-            Keyframe |= KeyframeType.GainDash; // not correct if you dash on a refill crystal, but i guess it doesn't matter
+        if (CurrentState.OnRefillDash) {
+            Keyframe |= KeyframeType.RefillDash; // not correct if you dash on a refill crystal, but i guess it doesn't matter
+        }
+        if (CurrentState.OnUltra) {
+            Keyframe |= KeyframeType.GainUltra;
+        }
+        if (CurrentState.OnBounce) {
+            Keyframe |= KeyframeType.OnBounce;
+        }
+        if (CurrentState.StateMachineState == 7 && CurrentState.CanDash && PreviousState.StateMachineState == 7 && !PreviousState.CanDash) {
+            Keyframe |= KeyframeType.CanDashInStLaunch;
+        }
+        if (!CurrentState.LevelNotInControl && PreviousState.LevelNotInControl) {
+            Keyframe |= KeyframeType.GainLevelControl;
+        }
+        if (CurrentState.LevelNotInControl && !PreviousState.LevelNotInControl) {
+            Keyframe |= KeyframeType.LoseLevelControl;
+        }
+        if (CurrentState.RespawnPoint != PreviousState.RespawnPoint) {
+            Keyframe |= KeyframeType.RespawnPointChange;
+        }
+        if (CurrentState.EngineFreeze && !PreviousState.EngineFreeze) {
+            Keyframe |= KeyframeType.GainFreeze;
+        }
+        if (!CurrentState.EngineFreeze && PreviousState.EngineFreeze) {
+            Keyframe |= KeyframeType.LoseFreeze;
         }
     }
 
@@ -128,10 +164,20 @@ public enum KeyframeType {
     LoseDuck = 1 << 3,
     GainOnGround = 1 << 4,
     LoseOnGround = 1 << 5,
-    GainControl = 1 << 6,
-    LoseControl = 1 << 7,
+    GainPlayerControl = 1 << 6,
+    LosePlayerControl = 1 << 7,
     OnEntityState = 1 << 8,
-    GainDash = 1 << 9,
+    RefillDash = 1 << 9,
     GainUltra = 1 << 10,
     OnBounce = 1 << 11,
+    CanDashInStLaunch = 1 << 12,
+    GainLevelControl = 1 << 13,
+    LoseLevelControl = 1 << 14,
+    RespawnPointChange = 1 << 15,
+    GainFreeze = 1 << 16,
+    LoseFreeze = 1 << 17,
+    GainControl = GainPlayerControl | GainLevelControl,
+    LoseControl = LosePlayerControl | LoseLevelControl,
 }
+
+// todo: even more keyframe type, e.g. keydoor open

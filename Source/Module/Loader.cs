@@ -23,6 +23,7 @@ internal static class Loader {
     }
 
     public static void HelperLoad() {
+        HookHelper.Load();
         ActualPosition.Load();
         SpinnerRenderHelper.Load();
         SpinnerCalculateHelper.Load();
@@ -35,7 +36,7 @@ internal static class Loader {
         FireBallTrack.Load();
         ModifiedAutoMute.Load();
         PredictorRenderer.Load();
-        HookHelper.Load();
+        PlayerStateUtils.Load();
     }
     public static void HelperUnload() {
         ActualPosition.Unload();
@@ -50,6 +51,7 @@ internal static class Loader {
         FireBallTrack.Unload();
         ModifiedAutoMute.Unload();
         PredictorRenderer.Unload();
+        PlayerStateUtils.Unload();
         HookHelper.Unload();
     }
 
@@ -66,6 +68,7 @@ internal static class Loader {
         SpinnerColliderHelper.Initialize();
         Countdown_and_LoadRange_Collider.Initialize();
 
+        PlayerStateUtils.Initialize();
         InputManager.Initialize();
         TasFileWatcher.Initialize();
         Predictor.Core.Initialize();

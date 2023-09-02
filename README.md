@@ -16,6 +16,8 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Simplified Spinner -> redraw hitbox of Spinner and Dust, also allow you to remove their sprites.
 
+- Predictor -> predict the future track of your tas file in real time, no longer need to run tas frequently!
+
 - Pixel Grid -> a pixel grid around player to help you find out the distance easily. Usually to check if player can climbjump/wallbounce.
 
 - Entity Activator Reminder -> remind you when a PandorasBox mod's Entity Activator is created.
@@ -45,8 +47,6 @@ A Celeste Mod designed to be a tool in TAS making.
 - Key cycle indicator.
 
 - FlingBird indicator.
-
-- Simple predictor.
 
 - Scrollable console.
 

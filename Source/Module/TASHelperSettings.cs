@@ -332,7 +332,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #endregion
 
-    #region Other
+    #region Predictor
 
     public bool predictFutureEnabled = false;
 
@@ -353,7 +353,94 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool PredictOnHotkeyPressed = true;
 
-    public int FutureLength = 20;
+    public int TimelineLength = 100;
+
+    public int UltraSpeedLowerLimit = 170;
+
+    public bool TimelineFinestScale = true;
+
+    public TimelineScales TimelineFineScale = TimelineScales._5;
+
+    public TimelineScales TimelineCoarseScale = TimelineScales.NotApplied;
+
+    public enum TimelineScales { NotApplied, _2, _5, _10, _15, _20, _25, _30, _45, _60, _100 }
+
+    public static int ToInt(TimelineScales scale) {
+        return scale switch {
+            TimelineScales.NotApplied => -1,
+            TimelineScales._2 => 2,
+            TimelineScales._5 => 5,
+            TimelineScales._10 => 10,
+            TimelineScales._15 => 15,
+            TimelineScales._20 => 20,
+            TimelineScales._25 => 25,
+            TimelineScales._30 => 30,
+            TimelineScales._45 => 45,
+            TimelineScales._60 => 60,
+            TimelineScales._100 => 100,
+            _ => -1
+        };
+    }
+
+    public bool TimelineFadeOut = true;
+
+    public bool StartPredictWhenTransition = true;
+
+    public bool StopPredictWhenTransition = true;
+
+    public bool StopPredictWhenDeath = true;
+
+    public bool UseKeyFrame = true;
+
+    public bool UseKeyFrameTime = true;
+
+    public bool UseFlagDead = true;
+
+    public bool UseFlagGainCrouched = false;
+
+    public bool UseFlagLoseCrouched = false;
+
+    public bool UseFlagGainOnGround = true;
+
+    public bool UseFlagLoseOnGround = false;
+
+    public bool UseFlagGainPlayerControl = true;
+
+    public bool UseFlagLosePlayerControl = true;
+
+    public bool UseFlagOnEntityState = true;
+
+    public bool UseFlagRefillDash = false;
+
+    public bool UseFlagGainUltra = true;
+
+    public bool UseFlagOnBounce = true;
+
+    public bool UseFlagCanDashInStLaunch = true;
+
+    public bool UseFlagGainLevelControl = true;
+
+    public bool UseFlagLoseLevelControl = true;
+
+    public bool UseFlagRespawnPointChange = false;
+
+    public bool UseFlagGainFreeze = false;
+
+    public bool UseFlagLoseFreeze = false;
+
+    public Color PredictorEndpointColor = CustomColors.defaultPredictorEndpointColor;
+
+    public Color PredictorFinestScaleColor = CustomColors.defaultPredictorFinestScaleColor;
+
+    public Color PredictorFineScaleColor = CustomColors.defaultPredictorFineScaleColor;
+
+    public Color PredictorCoarseScaleColor = CustomColors.defaultPredictorCoarseScaleColor;
+
+    public Color PredictorKeyframeColor = CustomColors.defaultPredictorKeyframeColor;
+
+    #endregion
+
+    #region Other
 
     public bool Awake_CameraTarget = true;
 
@@ -530,7 +617,7 @@ public class TASHelperSettings : EverestModuleSettings {
                     case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; Refresh("Hazard Countdown Mode = 15f Cycle"); break;
                     case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; Refresh("Hazard Countdown Mode = Off"); break;
                 }
-                
+
             }
             else {
                 HotkeyWatcher.instance?.RefreshHotkeyDisabled();
@@ -592,12 +679,12 @@ public class TASHelperSettings : EverestModuleSettings {
             else if (!FrameStep) {
                 Refresh("Not frame-stepping, refuse to predict");
             }
-            else { 
+            else {
                 Predictor.Core.hasDelayedPredict = true;
                 Refresh("Predictor Start");
-                
+
             }
-            
+
         }
         return changed;
 

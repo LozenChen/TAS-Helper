@@ -147,7 +147,7 @@ public class HotkeyWatcher : Message {
         Visible = TasHelperSettings.HotkeyStateVisualize;
     }
 
-    public void Refresh (string text) {
+    public void Refresh(string text) {
         RestoreAlpha(this.text.Equals(text));
         this.text = text;
         lifetimer = lifetime;

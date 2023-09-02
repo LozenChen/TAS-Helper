@@ -26,6 +26,7 @@ TAS_HELPER_COLOR_CUSTOMIZATION=                            Custom Colors Config
 TAS_HELPER_COLOR_CUSTOMIZATION_FINISHED=                   Finished
 TAS_HELPER_COLOR_CUSTOMIZATION_ONOFF=                      Switches
 TAS_HELPER_COLOR_CUSTOMIZATION_SPINNER_COLOR=              Cycle Hitbox Colors
+TAS_HELPER_COLOR_CUSTOMIZATION_PREDICTOR=                  Predictor
 TAS_HELPER_COLOR_CUSTOMIZATION_OTHER=                      Other
 TAS_HELPER_COLOR_CUSTOMIZATION_REMIND=                     Custom colors can only be edited in the menu of the title screen,{n}
                                                            or use commands in the console.
@@ -40,12 +41,17 @@ TAS_HELPER_SPINNERCOLOR_TASMODCYCLEHITBOXCOLOR1=           Cycle 1 Hitbox Color
 TAS_HELPER_SPINNERCOLOR_TASMODCYCLEHITBOXCOLOR2=           Cycle 2 Hitbox Color
 TAS_HELPER_SPINNERCOLOR_TASMODCYCLEHITBOXCOLOR3=           Cycle 3 Hitbox Color
 TAS_HELPER_SPINNERCOLOR_TASMODOTHERCYCLESHITBOXCOLOR=      Other Cycles Hitbox Color
-TAS_HELPER_INVIEW_RANGE_COLOR=                             InView Range Color
-TAS_HELPER_NEARPLAYER_RANGE_COLOR=                         NearPlayer Range Color
-TAS_HELPER_CAMERATARGET_COLOR=                             CameraTarget Color
-TAS_HELPER_LOAD_RANGE_COLLIDER_COLOR=                      LoadRange Collider Color
+TAS_HELPER_INVIEWRANGECOLOR=                               InView Range Color
+TAS_HELPER_NEARPLAYERRANGECOLOR=                           NearPlayer Range Color
+TAS_HELPER_CAMERATARGETCOLOR=                              CameraTarget Color
+TAS_HELPER_LOADRANGECOLLIDERCOLOR=                         LoadRange Collider Color
 TAS_HELPER_LOAD_RANGE_COLLIDER_DESCRIPTION=                i.e. color of the center of spinners
 TAS_HELPER_RESET_CUSTOM_COLOR=                             Reset Custom Colors to Default
+TAS_HELPER_PREDICTOR_FINESTSCALECOLOR=                     Timeline Finest Scale Color
+TAS_HELPER_PREDICTOR_FINESCALECOLOR=                       Timeline Fine Scale Color
+TAS_HELPER_PREDICTOR_COARSESCALECOLOR=                     Timeline Coarse Scale Color
+TAS_HELPER_PREDICTOR_ENDPOINTCOLOR=                        Timeline Endpoint Color
+TAS_HELPER_PREDICTOR_KEYFRAMECOLOR=                        Timeline Keyframe Color
 
 # ============================================= Hazard Countdown =====================================================
 TAS_HELPER_COUNTDOWN=                                      Hazard Countdown
@@ -120,11 +126,36 @@ TAS_HELPER_PREDICTOR=                                      Predictor
 TAS_HELPER_PREDICTOR_MAIN_SWITCH=                          Main Switch
 TAS_HELPER_PREDICTOR_DESCRIPTION=                          Predict your future track, when tas is paused or frame-stepping,{n}
                                                            AND any selected conditions of the following is satisfied.{n}
-                                                           (Known issue: Save State provided by SpeedrunTool will be lost)
-TAS_HELPER_FUTURE_LENGTH=                                  Prediction Length
+                                                           (Known issue: Save State provided by SpeedrunTool will be lost.)
+TAS_HELPER_TIMELINE_LENGTH=                                Timeline Length
+TAS_HELPER_PREDICT_START_CONDITIONS=                       ----------------------- Conditions: -----------------------
 TAS_HELPER_PREDICT_ON_FILE_CHANGE=                         Predict on tas file changed
 TAS_HELPER_PREDICT_ON_HOTKEY_PRESSED=                      Predict on hotkey pressed
 TAS_HELPER_PREDICT_ON_FRAME_STEP=                          Predict on frame stepping
+TAS_HELPER_PREDICTOR_FINISHED=                             Finished
+TAS_HELPER_PREDICTOR_ONOFF=                                Switches
+TAS_HELPER_PREDICTOR_KEYFRAME_1=                           Keyframe/1
+TAS_HELPER_PREDICTOR_KEYFRAME_2=                           Keyframe/2
+TAS_HELPER_KEYFRAME_DESCRIPTION=                           A Keyframe is one frame with any selected flags on.
+TAS_HELPER_PREDICTOR_OTHER=                                Other
+TAS_HELPER_TIMELINE_FINEST_SCALE=                          Timeline Finest Scale
+TAS_HELPER_TIMELINE_FINE_SCALE=                            Timeline Fine Scale
+TAS_HELPER_TIMELINE_COARSE_SCALE=                          Timeline Coarse Scale
+TAS_HELPER_TIMELINE_FADEOUT=                               Timeline Fadeout
+TAS_HELPER_ULTRA_SPEED_LOWER_LIMIT=                        Ultra Speed Lower Limit
+TAS_HELPER_ULTRA_SPEED_LOWER_LIMIT_DESCRIPTION=            An "ultra" is not considered as an ultra,{n}
+                                                           if its horizontal speed before hitting ground is lower than this limit.
+TAS_HELPER_PREDICTOR_LEVEL_CONTROL_DESCRIPTION=            Level not in control: level transitioning, paused,{n}
+                                                           skipping cutscene, or frozen (NOT freeze frames).
+TAS_HELPER_PREDICTOR_PLAYER_CONTROL_DESCRIPTION=           Player not in control: StateMachine.State > 10, and not in feather or fling bird.
+TAS_HELPER_PREDICTOR_ON_ENTITY_STATE_DESCRIPTION=          Entering StBoost, StLaunch, StStarFly or StFlingbird,{n}
+                                                           which are related with touching an entity.
+TAS_HELPER_ALLOW_START_PREDICT_WHEN_TRANSITION=            Allow start prediction when transitioning
+TAS_HELPER_STOP_PREDICT_WHEN_TRANSITION=                   Stop prediction when transitioning
+TAS_HELPER_STOP_PREDICT_WHEN_DEATH=                        Stop prediction when dead
+TAS_HELPER_USE_KEY_FRAME=                                  Keyframe Main Switch
+TAS_HELPER_USE_KEY_FRAME_TIME=                             Show index of keyframe
+TAS_HELPER_KEY_FRAME_FLAGS=                                ----------------------- Flags: -----------------------
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   More Options

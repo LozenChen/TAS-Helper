@@ -42,12 +42,17 @@ TAS_HELPER_SPINNERCOLOR_TASMODCYCLEHITBOXCOLOR1=           周期 1 颜色
 TAS_HELPER_SPINNERCOLOR_TASMODCYCLEHITBOXCOLOR2=           周期 2 颜色
 TAS_HELPER_SPINNERCOLOR_TASMODCYCLEHITBOXCOLOR3=           周期 3 颜色
 TAS_HELPER_SPINNERCOLOR_TASMODOTHERCYCLESHITBOXCOLOR=      其它周期颜色
-TAS_HELPER_INVIEW_RANGE_COLOR=                             InView 范围颜色
-TAS_HELPER_NEARPLAYER_RANGE_COLOR=                         NearPlayer 范围颜色
-TAS_HELPER_CAMERATARGET_COLOR=                             镜头移动目标的连线颜色
-TAS_HELPER_LOAD_RANGE_COLLIDER_COLOR=                      加载范围碰撞体颜色
+TAS_HELPER_INVIEWRANGECOLOR=                               InView 范围颜色
+TAS_HELPER_NEARPLAYERRANGECOLOR=                           NearPlayer 范围颜色
+TAS_HELPER_CAMERATARGETCOLOR=                              镜头移动目标的连线颜色
+TAS_HELPER_LOADRANGECOLLIDERCOLOR=                         加载范围碰撞体颜色
 TAS_HELPER_LOAD_RANGE_COLLIDER_DESCRIPTION=                即圆刺中心的颜色.
 TAS_HELPER_RESET_CUSTOM_COLOR=                             重置颜色为默认配置
+TAS_HELPER_PREDICTOR_FINESTSCALECOLOR=                     时间线最细刻度的颜色
+TAS_HELPER_PREDICTOR_FINESCALECOLOR=                       时间线细刻度的颜色
+TAS_HELPER_PREDICTOR_COARSESCALECOLOR=                     时间线粗刻度的颜色
+TAS_HELPER_PREDICTOR_ENDPOINTCOLOR=                        时间线末端的颜色
+TAS_HELPER_PREDICTOR_KEYFRAMECOLOR=                        时间线关键帧的颜色
 
 # ============================================= Hazard Countdown =====================================================
 TAS_HELPER_COUNTDOWN=                                      圆刺倒计时
@@ -120,13 +125,38 @@ TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          预测一次
 # ============================================= Predictor =====================================================
 TAS_HELPER_PREDICTOR=                                      未来视
 TAS_HELPER_PREDICTOR_MAIN_SWITCH=                          主开关
-TAS_HELPER_PREDICTOR_DESCRIPTION=                          当 TAS 暂停或步进时, 且 满足以下选出的条件时,{n}
-                                                           预测你未来的轨迹.
-                                                           (已知问题: 速通辅助工具的保存状态会被清除)
-TAS_HELPER_FUTURE_LENGTH=                                  预测的长度
+TAS_HELPER_PREDICTOR_DESCRIPTION=                          当 TAS 暂停或步进时, 且 满足以下选出的条件时, 预测你未来的轨迹.
+                                                           (已知问题: 速通辅助工具的保存状态会被清除.)
+TAS_HELPER_TIMELINE_LENGTH=                                时间线的长度
 TAS_HELPER_PREDICT_ON_FILE_CHANGE=                         条件: 当 TAS 文件内容变动
 TAS_HELPER_PREDICT_ON_HOTKEY_PRESSED=                      条件: 当按下快捷键
 TAS_HELPER_PREDICT_ON_FRAME_STEP=                          条件: 当 TAS 步进
+TAS_HELPER_PREDICT_START_CONDITIONS=                       ----------------------- 条件: -----------------------
+
+TAS_HELPER_PREDICTOR_FINISHED=                             完成
+TAS_HELPER_PREDICTOR_ONOFF=                                开关
+TAS_HELPER_PREDICTOR_KEYFRAME_1=                           关键帧/1
+TAS_HELPER_PREDICTOR_KEYFRAME_2=                           关键帧/2
+TAS_HELPER_KEYFRAME_DESCRIPTION=                           关键帧是以下选定的 flag 之一被满足的帧
+TAS_HELPER_PREDICTOR_OTHER=                                其他
+TAS_HELPER_TIMELINE_FINEST_SCALE=                          时间线最细刻度
+TAS_HELPER_TIMELINE_FINE_SCALE=                            时间线细刻度
+TAS_HELPER_TIMELINE_COARSE_SCALE=                          时间线粗刻度
+TAS_HELPER_TIMELINE_FADEOUT=                               时间线淡出
+TAS_HELPER_ULTRA_SPEED_LOWER_LIMIT=                        Ultra 速度下限
+TAS_HELPER_ULTRA_SPEED_LOWER_LIMIT_DESCRIPTION=            若撞击地面前的水平速度低于此下限, 则不认为是 ultra.
+TAS_HELPER_PREDICTOR_LEVEL_CONTROL_DESCRIPTION=            Level not in control: level transitioning, paused,{n}
+                                                           skipping cutscene, or frozen (NOT freeze frames).
+TAS_HELPER_PREDICTOR_PLAYER_CONTROL_DESCRIPTION=           Player not in control: StateMachine.State > 10, and not in feather or fling bird.
+TAS_HELPER_PREDICTOR_ON_ENTITY_STATE_DESCRIPTION=          Entering StBoost, StLaunch, StStarFly or StFlingbird,{n}
+                                                           which are related with touching an entity.
+TAS_HELPER_ALLOW_START_PREDICT_WHEN_TRANSITION=            允许切版时开始预测
+TAS_HELPER_STOP_PREDICT_WHEN_TRANSITION=                   切版时终止预测
+TAS_HELPER_STOP_PREDICT_WHEN_DEATH=                        死亡时终止预测
+TAS_HELPER_USE_KEY_FRAME=                                  关键帧的主开关
+TAS_HELPER_USE_KEY_FRAME_TIME=                             显示关键帧对应的时间点
+TAS_HELPER_KEY_FRAME_FLAGS=                                ----------------------- Flags: -----------------------
+
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   更多选项
