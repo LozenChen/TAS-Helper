@@ -46,7 +46,7 @@ public static class CustomColors {
     }
 
     public static void ResetPredictorColor() {
-        Predictor_CoarseScaleColor= defaultPredictorCoarseScaleColor;
+        Predictor_CoarseScaleColor = defaultPredictorCoarseScaleColor;
         Predictor_EndpointColor = defaultPredictorEndpointColor;
         Predictor_FineScaleColor = defaultPredictorFineScaleColor;
         Predictor_FinestScaleColor = defaultPredictorFinestScaleColor;
@@ -81,7 +81,7 @@ public static class CustomColors {
 
     public static Color Predictor_CoarseScaleColor { get => TasHelperSettings.PredictorCoarseScaleColor; set => TasHelperSettings.PredictorCoarseScaleColor = value; }
 
-    public static Color Predictor_KeyframeColor { get => TasHelperSettings.PredictorKeyframeColor; set=> TasHelperSettings.PredictorKeyframeColor = value; }
+    public static Color Predictor_KeyframeColor { get => TasHelperSettings.PredictorKeyframeColor; set => TasHelperSettings.PredictorKeyframeColor = value; }
 
     public static TextMenu.Item CreateChangeColorItem(Func<Color> getter, Action<Color> setter, string name, TextMenu textMenu, bool inGame) {
         TextMenu.Item item = new ButtonColorExt(name.ToDialogText(), getter).Pressed(
@@ -121,7 +121,7 @@ public static class CustomColors {
     }
 
     public static void AddItemWithDescriptionAndCMD(TextMenu menu, List<TextMenu.Item> page, bool inGame, Func<Color> getter, Action<Color> setter, string name, Color defaultColor) {
-        string cmd = $"Console command: tashelper_custom_color, {name}, {ColorToHex(defaultColor).Remove(0,1)}";
+        string cmd = $"Console command: tashelper_custom_color, {name}, {ColorToHex(defaultColor).Remove(0, 1)}";
         AddItemWithDescription(menu, page, inGame, getter, setter, name, cmd);
     }
 
@@ -179,7 +179,7 @@ public static class CustomColors {
 
     }
 
-    
+
     internal static List<TextMenu.Item> Create_PageOther(TextMenu menu, bool inGame) {
         List<TextMenu.Item> page = new();
         if (inGame) {

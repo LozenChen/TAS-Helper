@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.Utils.Attributes;
 internal static class AttributeUtils {
     private static readonly object[] Parameterless = { };
     private static readonly IDictionary<Type, IEnumerable<MethodInfo>> MethodInfos = new Dictionary<Type, IEnumerable<MethodInfo>>();

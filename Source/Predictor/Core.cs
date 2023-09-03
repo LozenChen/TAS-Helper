@@ -10,8 +10,8 @@ public static class Core {
 
     public static List<RenderData> futures = new();
 
-    public static bool HasCachedFutures { 
-        get => CacheFutureCountdown > 0; 
+    public static bool HasCachedFutures {
+        get => CacheFutureCountdown > 0;
         set {
             if (value) {
                 CacheFutureCountdown = CacheFuturePeriod;
@@ -53,7 +53,7 @@ public static class Core {
         }
 
         // warn: this overrides SpeedrunTool's (and thus TAS's) savestate
-        if (!ModifiedSaveLoad.SaveState()) {
+        if (!TinySRT.TH_StateManager.SaveState()) {
             return;
         }
 
@@ -89,7 +89,7 @@ public static class Core {
             }
         }
 
-        ModifiedSaveLoad.LoadState();
+        TinySRT.TH_StateManager.LoadState();
         LoadForTAS();
         ModifiedAutoMute.EndMute();
 
@@ -178,19 +178,19 @@ public static class Core {
         if (!Manager.Running) {
             HasCachedFutures = false;
             futures.Clear();
-            ModifiedSaveLoad.ClearState();
+            TinySRT.TH_StateManager.ClearState();
             return;
         }
-        
+
         CacheFutureCountdown--;
         if (!FutureMoveLeft()) {
             HasCachedFutures = false;
             futures.Clear();
-            ModifiedSaveLoad.ClearState();
+            TinySRT.TH_StateManager.ClearState();
             return;
         }
         if (!HasCachedFutures) {
-            ModifiedSaveLoad.ClearState();
+            TinySRT.TH_StateManager.ClearState();
         }
     }
 
@@ -219,7 +219,7 @@ public static class Core {
         else {
             CacheFuturePeriod = 60;
         }
-        ModifiedSaveLoad.ClearState();
+        TinySRT.TH_StateManager.ClearState();
         HasCachedFutures = false;
         futures.Clear();
     }
@@ -229,7 +229,7 @@ public static class Core {
             return false;
         }
         futures.RemoveAt(0);
-        futures = futures.Select(future => future with { index = future.index -1}).ToList();
+        futures = futures.Select(future => future with { index = future.index - 1 }).ToList();
         return true;
     }
 
@@ -256,7 +256,7 @@ public static class Core {
         if (delayedClearState && neverClearStateThisFrame && !InPredict) {
             neverClearStateThisFrame = false;
             delayedClearState = false;
-            ModifiedSaveLoad.ClearState();
+            TinySRT.TH_StateManager.ClearState();
         }
     }
     private static void DelayedPredict() {

@@ -1,4 +1,5 @@
-﻿using Monocle;
+﻿using Celeste.Mod.TASHelper.Utils;
+using Monocle;
 using TAS;
 using TAS.Input;
 

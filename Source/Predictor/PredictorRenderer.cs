@@ -151,7 +151,7 @@ public class PredictorRenderer : Entity {
 }
 
 public static class KeyframeTypeExtension {
-    public static bool HasFlag(this KeyframeType keyframe, KeyframeType flag){
+    public static bool HasFlag(this KeyframeType keyframe, KeyframeType flag) {
         return (keyframe & ~flag) != KeyframeType.None;
     }
 }

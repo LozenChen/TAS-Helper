@@ -1,5 +1,5 @@
+global using Celeste.Mod.TASHelper.Utils.Attributes;
 global using static Celeste.Mod.TASHelper.GlobalVariables;
-global using Celeste.Mod.TASHelper.Utils;
 using Celeste.Mod.TASHelper.Module;
 using Monocle;
 using TAS;

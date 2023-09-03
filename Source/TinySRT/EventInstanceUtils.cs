@@ -1,11 +1,11 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using FMOD;
+﻿using FMOD;
 using FMOD.Studio;
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+using static Celeste.Mod.SpeedrunTool.Extensions.CommonExtensions;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
-/*
+
 internal static class EventInstanceUtils {
 
     [Load]
@@ -132,4 +132,4 @@ internal static class EventInstanceExtensions {
             }
         }
     }
-}*/
+}

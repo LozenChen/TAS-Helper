@@ -34,7 +34,7 @@ public static class PredictorMenu {
         page.Add(new IntSlider("Timeline Length".ToDialogText(), 1, 999, TasHelperSettings.TimelineLength).Change((value) => {
             TasHelperSettings.TimelineLength = value;
             Predictor.Core.InitializeCachePeriod();
-            }));
+        }));
 
         page.Add(new SubHeaderExt("Predict Start Conditions".ToDialogText()) {
             TextColor = Color.Gray,
@@ -52,13 +52,13 @@ public static class PredictorMenu {
         page.Add(mainSwitchItem);
         page.AddDescriptionOnEnter(menu, mainSwitchItem, "Keyframe Description".ToDialogText());
         page.Add(new TextMenu.OnOff("Use Key Frame Time".ToDialogText(), TasHelperSettings.UseKeyFrameTime).Change(value => TasHelperSettings.UseKeyFrameTime = value));
-        page.Add(new SubHeaderExt("Key Frame Flags".ToDialogText()) { 
+        page.Add(new SubHeaderExt("Key Frame Flags".ToDialogText()) {
             TextColor = Color.Gray,
             HeightExtra = 0f
         });
         TextMenu.Item gainLevelControlItem = new TextMenu.OnOff("Gain Level Control", TasHelperSettings.UseFlagGainLevelControl).Change(value => TasHelperSettings.UseFlagGainLevelControl = value);
         TextMenu.Item loseLevelControlItem = new TextMenu.OnOff("Lose Level Control", TasHelperSettings.UseFlagLoseLevelControl).Change(value => TasHelperSettings.UseFlagLoseLevelControl = value);
-        
+
         TextMenu.Item gainPlayerControlItem = new TextMenu.OnOff("Gain Player Control", TasHelperSettings.UseFlagGainPlayerControl).Change(value => TasHelperSettings.UseFlagGainPlayerControl = value);
         TextMenu.Item losePlayerControlItem = new TextMenu.OnOff("Lose Player Control", TasHelperSettings.UseFlagLosePlayerControl).Change(value => TasHelperSettings.UseFlagLosePlayerControl = value);
 
@@ -136,7 +136,7 @@ public static class PredictorMenu {
         TextMenu.Item ultraSpeedItem = new IntSlider("Ultra Speed Lower Limit".ToDialogText(), 0, 325, TasHelperSettings.UltraSpeedLowerLimit).Change((value) => TasHelperSettings.UltraSpeedLowerLimit = value);
         page.Add(ultraSpeedItem);
         page.AddDescriptionOnEnter(menu, ultraSpeedItem, "Ultra Speed Lower Limit Description".ToDialogText());
-        
+
 
         return page;
     }

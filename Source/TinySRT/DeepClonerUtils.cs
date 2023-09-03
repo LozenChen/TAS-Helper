@@ -1,19 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using FMOD.Studio;
+﻿using FMOD.Studio;
 using Force.DeepCloner;
 using Force.DeepCloner.Helpers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Monocle;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
-using Monocle;
 using NLua;
+using System.Collections;
+using System.Runtime.CompilerServices;
+using static Celeste.Mod.SpeedrunTool.Extensions.CelesteExtensions;
+using static Celeste.Mod.SpeedrunTool.Extensions.CommonExtensions;
+using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
+using static Celeste.Mod.SpeedrunTool.Extensions.TypeExtensions;
+using static Celeste.Mod.SpeedrunTool.SaveLoad.DynDataUtils;
+using static Celeste.Mod.SpeedrunTool.SaveLoad.FrostHelperUtils;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
-/*
+
 public static class DeepClonerUtils {
     [ThreadStatic] private static Stack<Component> backupComponents;
     [ThreadStatic] private static Stack<object> backupHashSet;
@@ -48,6 +52,7 @@ public static class DeepClonerUtils {
                 || type.IsSubclassOf(typeof(GraphicsResource))
 
                 // NLua
+                
                 || type == typeof(Lua)
                 || type == typeof(KeraLua.Lua)
                 || type.IsSubclassOf(typeof(LuaBase))
@@ -115,7 +120,7 @@ public static class DeepClonerUtils {
                     EventInstance clonedEventInstance = eventInstance.Clone();
 
                     bool isMainThread = Thread.CurrentThread.IsMainThread();
-                    if (StateManager.Instance.State == State.Saving && isMainThread) {
+                    if (TH_StateManager.Instance.State == State.Saving && isMainThread) {
                         SaveLoadAction.ClonedEventInstancesWhenSave.Add(clonedEventInstance);
                     }
                     else if (!isMainThread) {
@@ -184,7 +189,7 @@ public static class DeepClonerUtils {
                     backupDict.Clear();
                 }
                 else if (clonedObj is VirtualAsset virtualAsset
-                           && (StateManager.Instance.State == State.Loading || !Thread.CurrentThread.IsMainThread())) {
+                           && (TH_StateManager.Instance.State == State.Loading || !Thread.CurrentThread.IsMainThread())) {
                     // 预克隆的资源需要等待 LoadState 中移除实体之后才能判断是否需要 Reload，必须等待主线程中再操作
                     SaveLoadAction.VirtualAssets.Add(virtualAsset);
                 }
@@ -215,11 +220,11 @@ public static class DeepClonerUtils {
                 }
 
                 // Clone dynData.Data
-                if (type is { IsClass: true } objType && !DynDataUtils.IgnoreObjects.ContainsKey(sourceObj)) {
+                if (type is { IsClass: true } objType && !IgnoreObjects.ContainsKey(sourceObj)) {
                     bool cloned = false;
 
                     do {
-                        if (DynDataUtils.NotExistDynData(objType, out object dataMap)) {
+                        if (NotExistDynData(objType, out object dataMap)) {
                             continue;
                         }
 
@@ -238,7 +243,7 @@ public static class DeepClonerUtils {
                     } while ((objType = objType.BaseType) != null && objType.IsSameOrSubclassOf(typeof(object)));
 
                     if (!cloned) {
-                        DynDataUtils.IgnoreObjects.Add(clonedObj, null);
+                        IgnoreObjects.Add(clonedObj, null);
                     }
                 }
 
@@ -247,7 +252,7 @@ public static class DeepClonerUtils {
                     DynamicData._DataMap.Add(clonedObj, value.DeepClone(deepCloneState));
                 }
 
-                FrostHelperUtils.CloneDataStore(sourceObj, clonedObj, deepCloneState);
+                CloneDataStore(sourceObj, clonedObj, deepCloneState);
             }
 
             return clonedObj;
@@ -273,12 +278,12 @@ public static class DeepClonerUtils {
         sharedDeepCloneState = deepCloneState;
     }
 
-    public static T DeepCloneShared<T>(this T obj) {
+    public static T TH_DeepCloneShared<T>(this T obj) {
         InitSharedDeepCloneState();
         return obj.DeepClone(sharedDeepCloneState);
     }
 
-    public static TTo DeepCloneToShared<TFrom, TTo>(this TFrom objFrom, TTo objTo) where TTo : class, TFrom {
+    public static TTo TH_DeepCloneToShared<TFrom, TTo>(this TFrom objFrom, TTo objTo) where TTo : class, TFrom {
         InitSharedDeepCloneState();
         return objFrom.DeepCloneTo(objTo, sharedDeepCloneState);
     }
@@ -288,4 +293,3 @@ public static class DeepClonerUtils {
         return objFrom.ShallowCloneTo(objTo, sharedDeepCloneState);
     }
 }
-*/

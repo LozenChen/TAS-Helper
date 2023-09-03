@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net4.6</TargetFramework>
+    <TargetFramework>net4.5.2</TargetFramework>
 	<LangVersion>10.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -44,6 +44,15 @@
     <Reference Include="FNA">
       <HintPath>Libs\FNA.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>Libs\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>Libs\MonoMod.RuntimeDetour.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>Libs\MonoMod.Utils-nstrip.dll</HintPath>
+    </Reference>
     <Reference Include="SpeedrunTool">
       <HintPath>Libs\SpeedrunTool.dll</HintPath>
     </Reference>
@@ -66,11 +75,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MonoMod.RuntimeDetour" Version="22.01.04.03" />
-    <PackageReference Include="NLua" Version="1.6.3" />
-    <Reference Include="PandorasBox">
-      <HintPath>Libs\PandorasBox.dll</HintPath>
-    </Reference>
+    <PackageReference Include="NLua" Version="1.4.25" />
     <Reference Include="System.Net.Http" />
     <Reference Include="VivHelper">
       <HintPath>Libs\VivHelper.dll</HintPath>
@@ -88,7 +93,7 @@
 	<ItemGroup>
 		<Publicize Include="Celeste" />
 		<Publicize Include="SpeedrunTool" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.Utils.SpeedrunToolUtils" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.Utils.SpeedrunToolUtils.saveLoadAction" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.UsedFiles" />
 		<DoNotPublicize Include="Celeste:Monocle.Scene.OnEndOfFrame" />
 		<DoNotPublicize Include="Celeste:Celeste.Mod.TextInput.OnInput" />

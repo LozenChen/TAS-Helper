@@ -3,6 +3,7 @@ using Monocle;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
+using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -249,10 +250,17 @@ internal static class ReflectionExtensions {
         return hashSet;
     }
 
+    public static ConstructorInfo GetConstructorInfo(this Type type, params Type[] types) {
+        var key = new ConstructorKey(type, types.GetCustomHashCode());
+        if (CachedConstructorInfos.TryGetValue(key, out ConstructorInfo result)) {
+            return result;
+        }
 
-    public static object? GetFieldValueSpeedrunTool(this object obj, string name) {
-        return obj.GetType().GetFieldInfo(name)?.GetValue(obj);
+        ConstructorInfo[] constructors = type.GetConstructors(StaticInstanceAnyVisibility);
+        result = constructors.FirstOrDefault(info => types.SequenceEqual(info.GetParameters().Select(i => i.ParameterType)));
+        return CachedConstructorInfos[key] = result;
     }
+
     public static T GetFieldValue<T>(this object obj, string name) {
         object result = obj.GetType().GetFieldInfo(name)?.GetValue(obj);
         if (result == null) {
