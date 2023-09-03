@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Module;
+using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework;
 using Monocle;
 using static Celeste.Mod.TASHelper.Predictor.Core;
@@ -7,29 +8,35 @@ using static Celeste.Mod.TASHelper.Predictor.Core;
 namespace Celeste.Mod.TASHelper.Predictor;
 public class PredictorRenderer : Entity {
 
-    public static Color ColorFinal = Color.DarkGreen * 0.8f;
+    public static Color ColorEndpoint => CustomColors.Predictor_EndpointColor;
 
-    public static Color ColorFinestScale = Color.Red * 0.3f;
+    public static Color ColorFinestScale => CustomColors.Predictor_FinestScaleColor;
 
-    public static Color ColorFineScale = Color.Gold * 0.5f;
+    public static Color ColorFineScale => CustomColors.Predictor_FineScaleColor;
 
-    public static Color ColorCoarseScale = Color.Green * 0.7f;
+    public static Color ColorCoarseScale => CustomColors.Predictor_CoarseScaleColor;
 
-    public static Color ColorKeyframe = Color.White * 0.9f;
+    public static Color ColorKeyframe => CustomColors.Predictor_KeyframeColor;
 
     private static readonly List<RenderData> keyframeRenderData = new List<RenderData>();
     public override void DebugRender(Camera camera) {
-        if (!TasHelperSettings.PredictFutureEnabled) {
+        if (!TasHelperSettings.PredictFutureEnabled || !FrameStep) {
             return;
         }
 
+        int count = Math.Min(futures.Count, TasHelperSettings.TimelineLength);
+
         foreach (RenderData data in futures) {
+            if (data.index > count) {
+                // those extra cached frames
+                continue;
+            }
             if (data.visible) {
                 if (TasHelperSettings.UseKeyFrame && KeyframeColorGetter(data.Keyframe, out bool addTime) is not null) {
                     keyframeRenderData.Add(data with { addTime = addTime });
                 }
                 else {
-                    if (ColorSelector(data.index, futures.Count) is Color color) {
+                    if (ColorSelector(data.index, count) is Color color) {
                         Draw.HollowRect(data.x, data.y, data.width, data.height, color);
                     }
                 }
@@ -107,7 +114,7 @@ public class PredictorRenderer : Entity {
 
     public static Color? ColorSelector(int index, int count) {
         if (index == count) {
-            return ColorFinal;
+            return ColorEndpoint;
         }
         if (TasHelperSettings.TimelineCoarseScale != TASHelperSettings.TimelineScales.NotApplied && index % TASHelperSettings.ToInt(TasHelperSettings.TimelineCoarseScale) == 0) {
             return ColorCoarseScale * (TasHelperSettings.TimelineFadeOut ? (1 - 0.1f * Math.Min((float)index / FadeOutCoraseTillThisFrame, 1f)) : 1f);

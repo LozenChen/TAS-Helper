@@ -28,6 +28,7 @@ TAS_HELPER_COLOR_CUSTOMIZATION=                            色彩配置
 TAS_HELPER_COLOR_CUSTOMIZATION_FINISHED=                   完成
 TAS_HELPER_COLOR_CUSTOMIZATION_ONOFF=                      开关
 TAS_HELPER_COLOR_CUSTOMIZATION_SPINNER_COLOR=              周期性实体颜色
+TAS_HELPER_COLOR_CUSTOMIZATION_PREDICTOR=                  未来视
 TAS_HELPER_COLOR_CUSTOMIZATION_OTHER=                      其他
 TAS_HELPER_COLOR_CUSTOMIZATION_REMIND=                     请到标题页 Mod 菜单中修改色彩配置,{n}
                                                            或者在控制台使用相应指令.
@@ -150,6 +151,7 @@ TAS_HELPER_PREDICTOR_LEVEL_CONTROL_DESCRIPTION=            Level not in control:
 TAS_HELPER_PREDICTOR_PLAYER_CONTROL_DESCRIPTION=           Player not in control: StateMachine.State > 10, and not in feather or fling bird.
 TAS_HELPER_PREDICTOR_ON_ENTITY_STATE_DESCRIPTION=          Entering StBoost, StLaunch, StStarFly or StFlingbird,{n}
                                                            which are related with touching an entity.
+TAS_HELPER_AUTODROP_PREDICTION=                            TAS 文件内容变动时, 自动丢弃先前预测
 TAS_HELPER_ALLOW_START_PREDICT_WHEN_TRANSITION=            允许切版时开始预测
 TAS_HELPER_STOP_PREDICT_WHEN_TRANSITION=                   切版时终止预测
 TAS_HELPER_STOP_PREDICT_WHEN_DEATH=                        死亡时终止预测

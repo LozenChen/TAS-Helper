@@ -31,7 +31,10 @@ public static class PredictorMenu {
         TextMenu.Item PredictItem;
         page.Add(PredictItem = new TextMenu.OnOff("Predictor Main Switch".ToDialogText(), TasHelperSettings.PredictFutureEnabled).Change((value) => TasHelperSettings.PredictFutureEnabled = value));
         page.AddDescriptionOnEnter(menu, PredictItem, "Predictor Description".ToDialogText());
-        page.Add(new TextMenuExt.IntSlider("Timeline Length".ToDialogText(), 1, 999, TasHelperSettings.TimelineLength).Change((value) => TasHelperSettings.TimelineLength = value));
+        page.Add(new IntSlider("Timeline Length".ToDialogText(), 1, 999, TasHelperSettings.TimelineLength).Change((value) => {
+            TasHelperSettings.TimelineLength = value;
+            Predictor.Core.InitializeCachePeriod();
+            }));
 
         page.Add(new SubHeaderExt("Predict Start Conditions".ToDialogText()) {
             TextColor = Color.Gray,
@@ -115,6 +118,8 @@ public static class PredictorMenu {
         page.Add(new EnumerableSlider<TimelineScales>("Timeline Coarse Scale".ToDialogText(), CreatePredictorScalesOptions(), TasHelperSettings.TimelineCoarseScale).Change(value => TasHelperSettings.TimelineCoarseScale = value));
 
         page.Add(new TextMenu.OnOff("Timeline FadeOut".ToDialogText(), TasHelperSettings.TimelineFadeOut).Change(value => TasHelperSettings.TimelineFadeOut = value));
+
+        page.Add(new TextMenu.OnOff("Autodrop Prediction".ToDialogText(), TasHelperSettings.DropPredictionWhenTasFileChange).Change(value => TasHelperSettings.DropPredictionWhenTasFileChange = value));
 
         page.Add(new TextMenu.OnOff("Allow Start Predict When Transition".ToDialogText(), TasHelperSettings.StartPredictWhenTransition).Change(value => {
             TasHelperSettings.StartPredictWhenTransition = value;

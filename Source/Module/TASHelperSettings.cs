@@ -347,6 +347,8 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    public bool DropPredictionWhenTasFileChange = true;
+
     public bool PredictOnFrameStep = true;
 
     public bool PredictOnFileChange = false;
@@ -680,9 +682,8 @@ public class TASHelperSettings : EverestModuleSettings {
                 Refresh("Not frame-stepping, refuse to predict");
             }
             else {
-                Predictor.Core.hasDelayedPredict = true;
+                Predictor.Core.PredictLater(false);
                 Refresh("Predictor Start");
-
             }
 
         }

@@ -136,7 +136,7 @@ TAS_HELPER_PREDICTOR_FINISHED=                             Finished
 TAS_HELPER_PREDICTOR_ONOFF=                                Switches
 TAS_HELPER_PREDICTOR_KEYFRAME_1=                           Keyframe/1
 TAS_HELPER_PREDICTOR_KEYFRAME_2=                           Keyframe/2
-TAS_HELPER_KEYFRAME_DESCRIPTION=                           A Keyframe is one frame with any selected flags on.
+TAS_HELPER_KEYFRAME_DESCRIPTION=                           A Keyframe is one frame with any selected flags true.
 TAS_HELPER_PREDICTOR_OTHER=                                Other
 TAS_HELPER_TIMELINE_FINEST_SCALE=                          Timeline Finest Scale
 TAS_HELPER_TIMELINE_FINE_SCALE=                            Timeline Fine Scale
@@ -150,6 +150,7 @@ TAS_HELPER_PREDICTOR_LEVEL_CONTROL_DESCRIPTION=            Level not in control:
 TAS_HELPER_PREDICTOR_PLAYER_CONTROL_DESCRIPTION=           Player not in control: StateMachine.State > 10, and not in feather or fling bird.
 TAS_HELPER_PREDICTOR_ON_ENTITY_STATE_DESCRIPTION=          Entering StBoost, StLaunch, StStarFly or StFlingbird,{n}
                                                            which are related with touching an entity.
+TAS_HELPER_AUTODROP_PREDICTION=                            Drop previous prediction when tas file changed
 TAS_HELPER_ALLOW_START_PREDICT_WHEN_TRANSITION=            Allow start prediction when transitioning
 TAS_HELPER_STOP_PREDICT_WHEN_TRANSITION=                   Stop prediction when transitioning
 TAS_HELPER_STOP_PREDICT_WHEN_DEATH=                        Stop prediction when dead

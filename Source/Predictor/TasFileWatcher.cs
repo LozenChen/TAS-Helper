@@ -51,8 +51,16 @@ public static class TasFileWatcher {
     }
 
     private static void OnTasFileChanged(object sender, FileSystemEventArgs e) {
-        if (TasHelperSettings.PredictOnFileChange && TasHelperSettings.PredictFutureEnabled && FrameStep && Engine.Scene is Level) {
-            Core.hasDelayedPredict = true;
+        if (TasHelperSettings.PredictFutureEnabled && FrameStep && Engine.Scene is Level) {
+            if (TasHelperSettings.PredictOnFileChange) {
+                Core.PredictLater(true);
+                Core.delayedClearState = true;
+            }
+            else if (TasHelperSettings.DropPredictionWhenTasFileChange) {
+                Core.futures.Clear();
+                Core.HasCachedFutures = false;
+                Core.delayedClearState = true;
+            }
         }
     }
 }

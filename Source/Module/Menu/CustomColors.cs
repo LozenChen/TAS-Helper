@@ -20,7 +20,7 @@ public static class CustomColors {
     public static readonly Color defaultNotInViewColor = Color.Lime;
     public static readonly Color defaultNeverActivateColor = new Color(0.25f, 1f, 1f);
     public static readonly Color defaultActivateEveryFrameColor = new Color(0.8f, 0f, 0f);
-    public static readonly Color defaultPredictorEndpointColor = Color.DarkGreen * 0.8f;
+    public static readonly Color defaultPredictorEndpointColor = Color.MediumPurple * 0.8f;
     public static readonly Color defaultPredictorFinestScaleColor = Color.Red * 0.3f;
     public static readonly Color defaultPredictorFineScaleColor = Color.Gold * 0.5f;
     public static readonly Color defaultPredictorCoarseScaleColor = Color.Green * 0.7f;

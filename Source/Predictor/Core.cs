@@ -1,15 +1,26 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Cil;
 using System.Reflection;
 using TAS;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 public static class Core {
 
-    public static readonly List<RenderData> futures = new();
+    public static List<RenderData> futures = new();
 
-    public static bool HasPredict = false;
+    public static bool HasCachedFutures { 
+        get => CacheFutureCountdown > 0; 
+        set {
+            if (value) {
+                CacheFutureCountdown = CacheFuturePeriod;
+            }
+            else {
+                CacheFutureCountdown = 0;
+            }
+        }
+    }
 
     public static bool InPredict = false;
 
@@ -17,7 +28,15 @@ public static class Core {
 
     public static readonly List<Func<PlayerState, bool>> EarlyStopChecks = new();
 
-    public static void Predict(int frames) {
+    public static int CacheFuturePeriod { get; private set; } = 60;
+
+    public static int CacheFutureCountdown { get; private set; } = 0;
+
+    public static void Predict(int frames, bool mustRedo = true) {
+        if (!mustRedo && HasCachedFutures) {
+            return;
+        }
+
         if (!TasHelperSettings.PredictFutureEnabled || InPredict) {
             return;
         }
@@ -38,14 +57,13 @@ public static class Core {
             return;
         }
 
+        Celeste.Commands.Log($"An actual Prediction in frame: {Manager.Controller.CurrentFrameInTas}");
+
         SaveForTAS();
 
         InPredict = true;
 
-        if (HasPredict) {
-            futures.Clear();
-            HasPredict = false;
-        }
+        futures.Clear();
 
         ModifiedAutoMute.StartMute();
         InputManager.ReadInputs(frames);
@@ -74,8 +92,9 @@ public static class Core {
         LoadForTAS();
         ModifiedAutoMute.EndMute();
 
-        HasPredict = true;
+        HasCachedFutures = true;
         InPredict = false;
+        CacheFutureCountdown = CacheFuturePeriod;
     }
 
     private static void AlmostEngineUpdate(Engine engine, GameTime gameTime) {
@@ -129,31 +148,43 @@ public static class Core {
     }
 
     public static void Initialize() {
+        // CelesteTAS.Core uses DetourContext {After = new List<string> {"*"}}, so our hooks are "inside" TAS.Core hooks
+        // how tas frame is paused: early return in MInput. So our hooks should be after this
+
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => {
             if (StrictFrameStep && TasHelperSettings.PredictOnFrameStep && Engine.Scene is Level) {
-                Predict(TasHelperSettings.TimelineLength);
+                Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, false);
+            }
+        });
+        typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).IlHook((cursor, _) => {
+            if (cursor.TryGotoNext(MoveType.After, ins => ins.MatchCall(typeof(MInput), "Update"))) {
+                cursor.EmitDelegate(AfterMInputUpdate);
             }
         });
 
-        typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookBefore(() => {
-            FreezeTimerBeforeUpdate = Engine.FreezeTimer;
-            if (!InPredict) {
-                ModifiedSaveLoad.ClearState();
-            }
-        });
-
-        typeof(Scene).GetMethod("BeforeUpdate").HookAfter(() => {
-            if (!InPredict) {
-                futures.Clear();
-                HasPredict = false;
-            }
-        });
-
-        typeof(Level).GetMethod("BeforeRender").HookBefore(DelayedPredict);
+        typeof(Level).GetMethod("BeforeRender").HookBefore(DelayedActions);
 
         HookHelper.SkipMethod(typeof(Core), nameof(InPredictMethod), typeof(GameInfo).GetMethod("Update", BindingFlags.Public | BindingFlags.Static));
 
         InitializeChecks();
+        InitializeCachePeriod();
+    }
+
+    private static void AfterMInputUpdate() {
+        FreezeTimerBeforeUpdate = Engine.FreezeTimer;
+        neverClearStateThisFrame = true;
+        if (!Manager.Running) {
+            HasCachedFutures = false;
+            futures.Clear();
+            ModifiedSaveLoad.ClearState();
+            return;
+        }
+        
+        CacheFutureCountdown--;
+        FutureMoveLeft();
+        if (!HasCachedFutures) {
+            ModifiedSaveLoad.ClearState();
+        }
     }
 
     public static float FreezeTimerBeforeUpdate = 0f; // include those predicted frames
@@ -174,21 +205,61 @@ public static class Core {
         }
     }
 
+    public static void InitializeCachePeriod() {
+        if (TasHelperSettings.TimelineLength > 500) {
+            CacheFuturePeriod = 120;
+        }
+        else {
+            CacheFuturePeriod = 60;
+        }
+        ModifiedSaveLoad.ClearState();
+        HasCachedFutures = false;
+        futures.Clear();
+    }
+
+    public static void FutureMoveLeft() {
+        if (futures.Count == 0) {
+            return;
+        }
+        futures.RemoveAt(0);
+        futures = futures.Select(future => future with { index = future.index -1}).ToList();
+    }
+
     private static bool SafeGuard() {
         return Engine.Scene is not Level;
     }
 
+    internal static bool delayedClearState = false;
+
+    private static bool neverClearStateThisFrame = true;
+
+    private static bool delayedMustRedo;
+
+    private static bool hasDelayedPredict = false;
+    public static void PredictLater(bool mustRedo) {
+        hasDelayedPredict = true;
+        delayedMustRedo = mustRedo;
+    }
+    private static void DelayedActions() {
+        DelayedClearState();
+        DelayedPredict();
+    }
+    private static void DelayedClearState() {
+        if (delayedClearState && neverClearStateThisFrame && !InPredict) {
+            neverClearStateThisFrame = false;
+            delayedClearState = false;
+            ModifiedSaveLoad.ClearState();
+        }
+    }
     private static void DelayedPredict() {
         if (hasDelayedPredict && !InPredict) {
             Manager.Controller.RefreshInputs(false);
             GameInfo.Update();
-            Predict(TasHelperSettings.TimelineLength);
+            Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, delayedMustRedo);
             hasDelayedPredict = false;
         }
         // we shouldn't do this in half of the render process
     }
-
-    public static bool hasDelayedPredict = false;
 
     private static bool InPredictMethod() {
         return InPredict;
