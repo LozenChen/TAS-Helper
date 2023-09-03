@@ -37,6 +37,10 @@
     <Reference Include="ChronoHelper">
       <HintPath>Libs\ChronoHelper.dll</HintPath>
     </Reference>
+    <Reference Include="DeepCloner">
+      <HintPath>Libs\DeepCloner.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FNA">
       <HintPath>Libs\FNA.dll</HintPath>
     </Reference>
@@ -58,7 +62,6 @@
     <Reference Include="MMHOOK_Celeste">
       <HintPath>Libs\MMHOOK_Celeste.dll</HintPath>
     </Reference>
-    <PackageReference Include="DeepCloner" Version="0.10.4" />
     <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -84,7 +87,8 @@
 	<ItemGroup>
 		<Publicize Include="Celeste" />
 		<Publicize Include="SpeedrunTool" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.UsedFiles"/>
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.Utils.SpeedrunToolUtils" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.UsedFiles" />
 		<DoNotPublicize Include="Celeste:Monocle.Scene.OnEndOfFrame" />
 		<DoNotPublicize Include="Celeste:Celeste.Mod.TextInput.OnInput" />
 	</ItemGroup>

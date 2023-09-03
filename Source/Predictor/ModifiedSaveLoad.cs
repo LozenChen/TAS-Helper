@@ -1,11 +1,21 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Monocle;
+using Celeste.Mod.TASHelper.Utils;
 using System.Runtime.Serialization;
-using static Celeste.Mod.SpeedrunTool.SaveLoad.StateManager;
+using FMOD.Studio;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
+using Force.DeepCloner;
+using Force.DeepCloner.Helpers;
+using MonoMod.RuntimeDetour;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 
 public static class ModifiedSaveLoad {
+
+    public static StateManager Instance => StateManager.Instance;
+
+    public static string InstanceFrom => Instance == OurInstance ? "TasHelper" : "SpeedrunTool";
 
     // thanks to Krafs.Publicizer, we can try to manip it now
     public static bool SaveState() {
@@ -27,13 +37,16 @@ public static class ModifiedSaveLoad {
             return false;
         }
 
-        alreadySaved = Instance.IsSaved;
-
-        if (alreadySaved) {
-            //StoreBackup();
+        if (Instance.IsSaved) {
+            SavedBySRT = true;
+            CloneSRT();
             Instance.ClearBeforeSave = true;
             Instance.ClearState();
             Instance.ClearBeforeSave = false;
+            Push();
+        }
+        else {
+            SavedBySRT = false;
         }
 
         SaveLoadAction.InitActions();
@@ -55,7 +68,12 @@ public static class ModifiedSaveLoad {
 
     public static bool HasCachedCurrent = false;
 
+    public static bool SavedBySRT = false;
     public static bool LoadState() {
+        bool result = LoadStateInner();
+        return result;
+    }
+    private static bool LoadStateInner() {
         if (Engine.Scene is not Level level) {
             return false;
         }
@@ -64,9 +82,7 @@ public static class ModifiedSaveLoad {
             return false;
         }
 
-        if (!Instance.SavedByTas) {
-            return false;
-        }
+        // Instance = StateManger.Instance in any cases
 
         Instance.LoadByTas = true;
         Instance.State = State.Loading;
@@ -87,9 +103,7 @@ public static class ModifiedSaveLoad {
         Instance.PreCloneSavedEntities();
         Instance.GcCollect();
         Instance.LoadStateComplete(level);
-        if (alreadySaved) {
-            //RestoreBackup();
-        }
+        
         return true;
     }
 
@@ -97,94 +111,76 @@ public static class ModifiedSaveLoad {
         if (HasCachedCurrent) {
             Instance.ClearState();
             HasCachedCurrent = false;
+            if (SavedBySRT) {
+                Pop();
+                RestoreSRT();
+            }
         }
     }
 
-    public static bool alreadySaved = false;
 
-    /*
-     * todo: try to fix it
-    public static bool HasCachedPast = false;
-    public static void StoreBackup() {
-        if (HasCachedPast) {
-            // different Predicts possibly share a common save of some past frame
-            return;
+    public static void CloneSRT() {
+        /* VirtualAssets = SaveLoadAction.VirtualAssets;
+         ClonedEventInstancesWhenSave = SaveLoadAction.ClonedEventInstancesWhenSave;
+         ClonedEventInstancesWhenPreClone = SaveLoadAction.ClonedEventInstancesWhenPreClone;
+         All = typeof(SaveLoadAction).GetFieldValue<List<SaveLoadAction>>("All");
+         // nope, these fields are readonly
+         typeof(SaveLoadAction).SetFieldValue("VirtualAssets", new List<VirtualAsset>());
+         typeof(SaveLoadAction).SetFieldValue("ClonedEventInstancesWhenSave", new List<EventInstance>());
+         typeof(SaveLoadAction).SetFieldValue("ClonedEventInstancesWhenPreClone", new List<EventInstance>());
+         typeof(SaveLoadAction).SetFieldValue("All", new List<SaveLoadAction>());*/
+
+
+        sharedDeepCloneState = DeepClonerUtils.sharedDeepCloneState.DeepClone();
+        Instance.preCloneTask?.Wait();
+        playingEventInstances = new HashSet<EventInstance>(Instance.playingEventInstances);
+        Instance.playingEventInstances.Clear();
+        savedLevel = Instance.savedLevel.DeepCloneShared();
+        savedSaveData = Instance.savedSaveData.DeepCloneShared();
+    }
+
+    public static void RestoreSRT() {
+        /*     typeof(SaveLoadAction).SetFieldValue("VirtualAssets", VirtualAssets);
+             typeof(SaveLoadAction).SetFieldValue("ClonedEventInstancesWhenSave", ClonedEventInstancesWhenSave);
+             typeof(SaveLoadAction).SetFieldValue("ClonedEventInstancesWhenPreClone", ClonedEventInstancesWhenPreClone);
+             typeof(SaveLoadAction).SetFieldValue("All", All);*/
+
+
+        DeepClonerUtils.sharedDeepCloneState = sharedDeepCloneState.DeepClone();
+        foreach (var item in playingEventInstances) {
+            Instance.playingEventInstances.Add(item);
         }
-        // check StateManager.ClearState() to see what's important
-        // things in SaveLoadAction seems not need to store, since they do not change after first SL(initialized = true), which is true when StoreBackUp() is called
-
-        State = Instance.State;
-        SavedByTas = Instance.SavedByTas;
-        LoadByTas = Instance.LoadByTas;
-        ClearBeforeSave = Instance.ClearBeforeSave;
-        freezeType = Instance.freezeType;
-
-        SaveLoadAction.OnBeforeSaveState(Instance.savedLevel);
-        Instance.savedLevel.DeepCloneToShared(P_savedLevel = (Level)FormatterServices.GetUninitializedObject(typeof(Level)));
-        P_savedSaveData = Instance.savedSaveData.DeepCloneShared();
-        savedTasCycleGroupCounter = Instance.savedTasCycleGroupCounter is null ? null : (int)Instance.savedTasCycleGroupCounter;
-        SaveLoadAction.OnSaveState(Instance.savedLevel);
-        DeepClonerUtils.ClearSharedDeepCloneState();
-        SaveLoadAction.OnPreCloneEntities();
-        P_preCloneTask = Task.Run(() => {
-            DeepCloneState deepCloneState = new();
-            P_savedLevel.Entities.DeepClone(deepCloneState);
-            P_savedLevel.RendererList.DeepClone(deepCloneState);
-            P_savedSaveData.DeepClone(deepCloneState);
-            return deepCloneState;
-        });
-
-
-        HasCachedPast = true;
-
+        Instance.savedLevel = savedLevel.DeepCloneShared();
+        Instance.savedSaveData = savedSaveData.DeepCloneShared();
+        
     }
 
-    private static State State;
-    private static bool SavedByTas;
-    private static bool LoadByTas;
-    private static bool ClearBeforeSave;
-    private static Level P_savedLevel;
-    private static SaveData P_savedSaveData;
-    private static Task<DeepCloneState> P_preCloneTask;
-    private static FreezeType freezeType;
-    private static object savedTasCycleGroupCounter;
+    private static readonly Lazy<StateManager> Lazy = new(() => new StateManager());
+    public static StateManager OurInstance => Lazy.Value;
 
-    public static void RestoreBackup() {
+    private static List<VirtualAsset> VirtualAssets;
+    private static List<EventInstance> ClonedEventInstancesWhenSave;
+    private static List<EventInstance> ClonedEventInstancesWhenPreClone;
+    private static List<SaveLoadAction> All;
+    private static HashSet<EventInstance> playingEventInstances;
+    private static Level savedLevel;
+    private static SaveData savedSaveData;
+    private static DeepCloneState sharedDeepCloneState;
 
-        SaveLoadAction.OnBeforeLoadState(Instance.savedLevel);
-
-        DeepClonerUtils.SetSharedDeepCloneState(P_preCloneTask?.Result);
-        Instance.UnloadLevel(Instance.savedLevel);
-
-        P_savedLevel.DeepCloneToShared(Instance.savedLevel);
-        Instance.savedSaveData = P_savedSaveData.DeepCloneShared();
-
-
-        SaveLoadAction.OnLoadState(Instance.savedLevel);
-        SaveLoadAction.OnPreCloneEntities();
-        Instance.preCloneTask = Task.Run(() => {
-            DeepCloneState deepCloneState = new();
-            P_savedLevel.Entities.DeepClone(deepCloneState);
-            P_savedLevel.RendererList.DeepClone(deepCloneState);
-            P_savedSaveData.DeepClone(deepCloneState);
-            return deepCloneState;
-        });
-        Instance.GcCollect();
-
-
-        DeepClonerUtils.ClearSharedDeepCloneState();
-
-        Instance.savedTasCycleGroupCounter = savedTasCycleGroupCounter;
-
-        Instance.State = State;
-        Instance.SavedByTas = SavedByTas;
-        Instance.LoadByTas = LoadByTas;
-        Instance.ClearBeforeSave = ClearBeforeSave;
-        Instance.freezeType = freezeType;
+    private static ILHook hook;
+    private static void Manipulator(ILContext il) {
+        ILCursor cursor = new ILCursor(il);
+        cursor.EmitDelegate(() => OurInstance);
+        cursor.Emit(OpCodes.Ret);
+    }
+    public static void Push() {
+        Celeste.Commands.Log("Push");
+        hook = new ILHook(typeof(StateManager).GetGetMethod("Instance"), Manipulator);
     }
 
-    public static void Initialize() {
-        typeof(StateManager).GetMethod("SaveState", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => HasCachedPast = false);
+    public static void Pop() {
+        Celeste.Commands.Log("Pop");
+        hook?.Dispose();
     }
-     */
+
 }

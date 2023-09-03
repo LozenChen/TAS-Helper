@@ -57,7 +57,7 @@ public static class Core {
             return;
         }
 
-        Celeste.Commands.Log($"An actual Prediction in frame: {Manager.Controller.CurrentFrameInTas}");
+        // Celeste.Commands.Log($"An actual Prediction in frame: {Manager.Controller.CurrentFrameInTas}");
 
         SaveForTAS();
 
