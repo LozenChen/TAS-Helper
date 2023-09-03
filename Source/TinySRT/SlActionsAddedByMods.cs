@@ -5,17 +5,29 @@ namespace Celeste.Mod.TASHelper.TinySRT;
 
 public static class SlActionsAddedByMods {
 
-    public static TH TAS_slAction;
+    // if there's mod which add SlAction by itself, instead of by SRT, then we also add it to our SaveLoadActions
+
+    public static readonly List<TH> Actions = new();
 
     [Load]
     public static void LoadTAS() {
-        TH TAS_slAction = ((SRT)TAS.Utils.SpeedrunToolUtils.saveLoadAction).Convert();
-        TH.Add(TAS_slAction);
+        // Actions.Add(((SRT)TAS.Utils.SpeedrunToolUtils.saveLoadAction).Convert());
+        /*
+        * no, we don't need to add this to our TH.All
+        * everything is ok
+        */
+
+        foreach (TH action in Actions) {
+            TH.Add(action);
+        }
     }
 
     [Unload]
     public static void UnloadTAS() {
-        TH.Remove(TAS_slAction);
+        foreach (TH action in Actions) {
+            TH.Remove(action);
+        }
+        Actions.Clear();
     }
 
     public static TH.SlAction Convert(this SRT.SlAction action) {

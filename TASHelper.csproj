@@ -44,6 +44,9 @@
     <Reference Include="FNA">
       <HintPath>Libs\FNA.dll</HintPath>
     </Reference>
+    <Reference Include="IsaMods">
+      <HintPath>Libs\IsaMods.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>Libs\Mono.Cecil.dll</HintPath>
     </Reference>
@@ -64,9 +67,6 @@
     </Reference>
     <Reference Include="FrostTempleHelper">
       <HintPath>Libs\FrostTempleHelper.dll</HintPath>
-    </Reference>
-    <Reference Include="IsaMods">
-      <HintPath>Libs\IsaMods.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_Celeste">
       <HintPath>Libs\MMHOOK_Celeste.dll</HintPath>

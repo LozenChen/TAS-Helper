@@ -8,7 +8,6 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using NLua;
 using System.Collections;
-using System.Runtime.CompilerServices;
 using static Celeste.Mod.SpeedrunTool.Extensions.CelesteExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.CommonExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
@@ -52,7 +51,7 @@ public static class DeepClonerUtils {
                 || type.IsSubclassOf(typeof(GraphicsResource))
 
                 // NLua
-                
+
                 || type == typeof(Lua)
                 || type == typeof(KeraLua.Lua)
                 || type.IsSubclassOf(typeof(LuaBase))
@@ -247,10 +246,13 @@ public static class DeepClonerUtils {
                     }
                 }
 
+                /*
+                 * don't know why but if add this, game crash on entering level
                 // Clone DynamicData
                 if (DynamicData._DataMap.TryGetValue(sourceObj, out DynamicData._Data_ value) && value.Data.Count > 0) {
                     DynamicData._DataMap.Add(clonedObj, value.DeepClone(deepCloneState));
                 }
+                */
 
                 CloneDataStore(sourceObj, clonedObj, deepCloneState);
             }

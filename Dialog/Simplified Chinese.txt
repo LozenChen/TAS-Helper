@@ -127,7 +127,6 @@ TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          预测一次
 TAS_HELPER_PREDICTOR=                                      未来视
 TAS_HELPER_PREDICTOR_MAIN_SWITCH=                          主开关
 TAS_HELPER_PREDICTOR_DESCRIPTION=                          当 TAS 暂停或步进时, 且 满足以下选出的条件时, 预测你未来的轨迹.
-                                                           (已知问题: 速通辅助工具的保存状态会被清除.)
 TAS_HELPER_TIMELINE_LENGTH=                                时间线的长度
 TAS_HELPER_PREDICT_ON_FILE_CHANGE=                         条件: 当 TAS 文件内容变动
 TAS_HELPER_PREDICT_ON_HOTKEY_PRESSED=                      条件: 当按下快捷键
