@@ -38,6 +38,7 @@ public class PlayerState {
     public float SpeedXBeforeUltra;
     public Vector2 RespawnPoint;
     public bool EngineFreeze;
+    public bool Transitioning;
 
     public PlayerState() {
 
@@ -70,6 +71,7 @@ public class PlayerState {
         state.OnUltra = PlayerStateUtils.Ultra && !state.EngineFreeze && Math.Abs(PlayerStateUtils.SpeedBeforeUltra.X) >= TasHelperSettings.UltraSpeedLowerLimit;
         state.OnRefillDash = PlayerStateUtils.RefillDash && !state.EngineFreeze;
         state.SpeedXBeforeUltra = state.OnUltra ? PlayerStateUtils.SpeedBeforeUltra.X : 0f;
+        state.Transitioning = level.Transitioning;
         return state;
     }
 }
@@ -146,10 +148,13 @@ public struct RenderData {
             Keyframe |= KeyframeType.RespawnPointChange;
         }
         if (CurrentState.EngineFreeze && !PreviousState.EngineFreeze) {
-            Keyframe |= KeyframeType.GainFreeze;
+            Keyframe |= KeyframeType.BeginEngineFreeze;
         }
         if (!CurrentState.EngineFreeze && PreviousState.EngineFreeze) {
-            Keyframe |= KeyframeType.LoseFreeze;
+            Keyframe |= KeyframeType.EndEngineFreeze;
+        }
+        if (CurrentState.Transitioning && !PreviousState.Transitioning) {
+            Keyframe |= KeyframeType.BeginTransition;
         }
     }
 
@@ -174,8 +179,9 @@ public enum KeyframeType {
     GainLevelControl = 1 << 13,
     LoseLevelControl = 1 << 14,
     RespawnPointChange = 1 << 15,
-    GainFreeze = 1 << 16,
-    LoseFreeze = 1 << 17,
+    BeginEngineFreeze = 1 << 16,
+    EndEngineFreeze = 1 << 17,
+    BeginTransition = 1 << 18,
     GainControl = GainPlayerControl | GainLevelControl,
     LoseControl = LosePlayerControl | LoseLevelControl,
 }

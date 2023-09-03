@@ -101,10 +101,10 @@ public class PredictorRenderer : Entity {
         if (TasHelperSettings.UseFlagCanDashInStLaunch && keyframe.HasFlag(KeyframeType.CanDashInStLaunch)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagGainFreeze && keyframe.HasFlag(KeyframeType.GainFreeze)) {
+        if (TasHelperSettings.UseFlagGainFreeze && keyframe.HasFlag(KeyframeType.BeginEngineFreeze)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagLoseFreeze && keyframe.HasFlag(KeyframeType.LoseFreeze)) {
+        if (TasHelperSettings.UseFlagLoseFreeze && keyframe.HasFlag(KeyframeType.EndEngineFreeze)) {
             return ColorKeyframe;
         }
 

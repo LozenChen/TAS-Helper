@@ -26,7 +26,7 @@ public static class Core {
 
     public static readonly List<Func<bool>> SkipPredictChecks = new();
 
-    public static readonly List<Func<PlayerState, bool>> EarlyStopChecks = new();
+    public static readonly List<Func<RenderData, bool>> EarlyStopChecks = new();
 
     public static int CacheFuturePeriod { get; private set; } = 60;
 
@@ -82,8 +82,9 @@ public static class Core {
             if (PreventSwitchScene()) {
                 break;
             }
-            futures.Add(new RenderData(i + 1, PreviousState, CurrentState));
-            if (EarlyStopCheck(CurrentState)) {
+            RenderData data = new RenderData(i + 1, PreviousState, CurrentState);
+            futures.Add(data);
+            if (EarlyStopCheck(data)) {
                 break;
             }
         }
@@ -181,7 +182,12 @@ public static class Core {
         }
         
         CacheFutureCountdown--;
-        FutureMoveLeft();
+        if (!FutureMoveLeft()) {
+            HasCachedFutures = false;
+            futures.Clear();
+            ModifiedSaveLoad.ClearState();
+            return;
+        }
         if (!HasCachedFutures) {
             ModifiedSaveLoad.ClearState();
         }
@@ -198,10 +204,10 @@ public static class Core {
             SkipPredictChecks.Add(() => Engine.Scene is Level level && level.Transitioning);
         }
         if (TasHelperSettings.StopPredictWhenTransition) {
-            EarlyStopChecks.Add(_ => Engine.Scene is Level level && level.Transitioning);
+            EarlyStopChecks.Add(data => data.Keyframe.HasFlag(KeyframeType.BeginTransition));
         }
         if (TasHelperSettings.StopPredictWhenDeath) {
-            EarlyStopChecks.Add(_ => _.Dead);
+            EarlyStopChecks.Add(data => data.Keyframe.HasFlag(KeyframeType.GainDead));
         }
     }
 
@@ -217,12 +223,13 @@ public static class Core {
         futures.Clear();
     }
 
-    public static void FutureMoveLeft() {
-        if (futures.Count == 0) {
-            return;
+    public static bool FutureMoveLeft() {
+        if (futures.Count <= 0) {
+            return false;
         }
         futures.RemoveAt(0);
         futures = futures.Select(future => future with { index = future.index -1}).ToList();
+        return true;
     }
 
     private static bool SafeGuard() {
@@ -300,9 +307,9 @@ public static class Core {
 
         return false;
     }
-    public static bool EarlyStopCheck(PlayerState state) {
-        foreach (Func<PlayerState, bool> check in EarlyStopChecks) {
-            if (check(state)) {
+    public static bool EarlyStopCheck(RenderData data) {
+        foreach (Func<RenderData, bool> check in EarlyStopChecks) {
+            if (check(data)) {
                 return true;
             }
         }

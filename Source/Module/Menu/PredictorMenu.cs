@@ -68,8 +68,8 @@ public static class PredictorMenu {
         page.Add(gainPlayerControlItem);
         page.AddDescriptionBothControl(menu, gainPlayerControlItem, losePlayerControlItem, "Predictor Player Control Description".ToDialogText());
         page.Add(losePlayerControlItem);
-        page.Add(new TextMenu.OnOff("Gain Engine Freeze", TasHelperSettings.UseFlagGainFreeze).Change(value => TasHelperSettings.UseFlagGainFreeze = value));
-        page.Add(new TextMenu.OnOff("Lose Engine Freeze", TasHelperSettings.UseFlagLoseFreeze).Change(value => TasHelperSettings.UseFlagLoseFreeze = value));
+        page.Add(new TextMenu.OnOff("Begin Engine Freeze", TasHelperSettings.UseFlagGainFreeze).Change(value => TasHelperSettings.UseFlagGainFreeze = value));
+        page.Add(new TextMenu.OnOff("End Engine Freeze", TasHelperSettings.UseFlagLoseFreeze).Change(value => TasHelperSettings.UseFlagLoseFreeze = value));
 
         return page;
     }

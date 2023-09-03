@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net4.5.2</TargetFramework>
+    <TargetFramework>net4.6</TargetFramework>
 	<LangVersion>10.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -39,7 +39,7 @@
     </Reference>
     <Reference Include="DeepCloner">
       <HintPath>Libs\DeepCloner.dll</HintPath>
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="FNA">
       <HintPath>Libs\FNA.dll</HintPath>
@@ -67,6 +67,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MonoMod.RuntimeDetour" Version="22.01.04.03" />
+    <PackageReference Include="NLua" Version="1.6.3" />
     <Reference Include="PandorasBox">
       <HintPath>Libs\PandorasBox.dll</HintPath>
     </Reference>
