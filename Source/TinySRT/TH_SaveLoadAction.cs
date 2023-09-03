@@ -24,7 +24,7 @@ using static Celeste.Mod.SpeedrunTool.SaveLoad.StrawberryJamUtils;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
-public sealed class SaveLoadAction {
+public sealed class TH_SaveLoadAction {
     public delegate void SlAction(Dictionary<Type, Dictionary<string, object>> savedValues, Level level);
 
     // 第一次 SL 时才初始化，避免通过安装依赖功能解除禁用的 Mod 被忽略
@@ -34,7 +34,7 @@ public sealed class SaveLoadAction {
     public static readonly List<EventInstance> ClonedEventInstancesWhenSave = new();
     public static readonly List<EventInstance> ClonedEventInstancesWhenPreClone = new();
 
-    internal static readonly List<SaveLoadAction> All = new();
+    internal static readonly List<TH_SaveLoadAction> All = new();
 
     private static Dictionary<Type, FieldInfo[]> simpleStaticFields;
     private static Dictionary<Type, FieldInfo[]> modModuleFields;
@@ -50,7 +50,7 @@ public sealed class SaveLoadAction {
 
     private Action<Level, List<Entity>, Entity> unloadLevel;
 
-    public SaveLoadAction(SlAction saveState = null, SlAction loadState = null, Action clearState = null,
+    public TH_SaveLoadAction(SlAction saveState = null, SlAction loadState = null, Action clearState = null,
         Action<Level> beforeSaveState = null, Action preCloneEntities = null) {
         this.saveState = saveState;
         this.loadState = loadState;
@@ -59,7 +59,7 @@ public sealed class SaveLoadAction {
         this.preCloneEntities = preCloneEntities;
     }
 
-    public SaveLoadAction(SlAction saveState, SlAction loadState, Action clearState,
+    public TH_SaveLoadAction(SlAction saveState, SlAction loadState, Action clearState,
         Action<Level> beforeSaveState, Action<Level> beforeLoadState, Action preCloneEntities) {
         this.saveState = saveState;
         this.loadState = loadState;
@@ -70,7 +70,7 @@ public sealed class SaveLoadAction {
     }
 
     // ReSharper disable once UnusedMember.Global
-    public static void Add(SaveLoadAction saveLoadAction) {
+    public static void Add(TH_SaveLoadAction saveLoadAction) {
         All.Add(saveLoadAction);
     }
 
@@ -79,7 +79,7 @@ public sealed class SaveLoadAction {
     public static object SafeAdd(Action<Dictionary<Type, Dictionary<string, object>>, Level> saveState = null,
         Action<Dictionary<Type, Dictionary<string, object>>, Level> loadState = null, Action clearState = null,
         Action<Level> beforeSaveState = null, Action preCloneEntities = null) {
-        SaveLoadAction saveLoadAction = new(CreateSlAction(saveState), CreateSlAction(loadState), clearState, beforeSaveState, preCloneEntities);
+        TH_SaveLoadAction saveLoadAction = new(CreateSlAction(saveState), CreateSlAction(loadState), clearState, beforeSaveState, preCloneEntities);
         All.Add(saveLoadAction);
         return saveLoadAction;
     }
@@ -87,7 +87,7 @@ public sealed class SaveLoadAction {
     public static object SafeAdd(Action<Dictionary<Type, Dictionary<string, object>>, Level> saveState,
         Action<Dictionary<Type, Dictionary<string, object>>, Level> loadState, Action clearState,
         Action<Level> beforeSaveState, Action<Level> beforeLoadState, Action preCloneEntities = null) {
-        SaveLoadAction saveLoadAction = new(CreateSlAction(saveState), CreateSlAction(loadState), clearState, beforeSaveState, beforeLoadState, preCloneEntities);
+        TH_SaveLoadAction saveLoadAction = new(CreateSlAction(saveState), CreateSlAction(loadState), clearState, beforeSaveState, beforeLoadState, preCloneEntities);
         All.Add(saveLoadAction);
         return saveLoadAction;
     }
@@ -96,49 +96,49 @@ public sealed class SaveLoadAction {
         return (SlAction)action?.Method.CreateDelegate(typeof(SlAction), action.Target);
     }
 
-    public static bool Remove(SaveLoadAction saveLoadAction) {
+    public static bool Remove(TH_SaveLoadAction saveLoadAction) {
         return All.Remove(saveLoadAction);
     }
 
     internal static void OnSaveState(Level level) {
-        foreach (SaveLoadAction saveLoadAction in All) {
+        foreach (TH_SaveLoadAction saveLoadAction in All) {
             saveLoadAction.saveState?.Invoke(saveLoadAction.savedValues, level);
         }
     }
 
     internal static void OnLoadState(Level level) {
-        foreach (SaveLoadAction saveLoadAction in All) {
+        foreach (TH_SaveLoadAction saveLoadAction in All) {
             saveLoadAction.loadState?.Invoke(saveLoadAction.savedValues, level);
         }
     }
 
     internal static void OnClearState() {
-        foreach (SaveLoadAction saveLoadAction in All) {
+        foreach (TH_SaveLoadAction saveLoadAction in All) {
             saveLoadAction.savedValues.Clear();
             saveLoadAction.clearState?.Invoke();
         }
     }
 
     internal static void OnBeforeSaveState(Level level) {
-        foreach (SaveLoadAction saveLoadAction in All) {
+        foreach (TH_SaveLoadAction saveLoadAction in All) {
             saveLoadAction.beforeSaveState?.Invoke(level);
         }
     }
 
     internal static void OnBeforeLoadState(Level level) {
-        foreach (SaveLoadAction saveLoadAction in All) {
+        foreach (TH_SaveLoadAction saveLoadAction in All) {
             saveLoadAction.beforeLoadState?.Invoke(level);
         }
     }
 
     internal static void OnPreCloneEntities() {
-        foreach (SaveLoadAction saveLoadAction in All) {
+        foreach (TH_SaveLoadAction saveLoadAction in All) {
             saveLoadAction.preCloneEntities?.Invoke();
         }
     }
 
     internal static void OnUnloadLevel(Level level, List<Entity> entities, Entity entity) {
-        foreach (SaveLoadAction saveLoadAction in All) {
+        foreach (TH_SaveLoadAction saveLoadAction in All) {
             saveLoadAction.unloadLevel?.Invoke(level, entities, entity);
         }
     }
@@ -597,12 +597,12 @@ public sealed class SaveLoadAction {
             },
             clearState: () => {
                 RoomTimerManager.ClearPbTimes(!StateManager.Instance.ClearBeforeSave);
-                DeepClonerUtils.ClearSharedDeepCloneState();
+                TH_DeepClonerUtils.ClearSharedDeepCloneState();
                 ClearCached();
             },
             beforeSaveState: level => {
                 RoomTimerManager.ClearPbTimes(false);
-                DeepClonerUtils.ClearSharedDeepCloneState();
+                TH_DeepClonerUtils.ClearSharedDeepCloneState();
                 ClearCached();
 
                 IgnoreSaveLoadComponent.RemoveAll(level);
@@ -1046,7 +1046,7 @@ public sealed class SaveLoadAction {
                 }
             );
 
-            ((SaveLoadAction)action).unloadLevel = (_, entities, entity) => {
+            ((TH_SaveLoadAction)action).unloadLevel = (_, entities, entity) => {
                 if (entity.GetType() == timeControllerType) {
                     entities.Add(entity);
                 }

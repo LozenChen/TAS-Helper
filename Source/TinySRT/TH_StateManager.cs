@@ -7,11 +7,13 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using EventInstance = FMOD.Studio.EventInstance;
-using TH = Celeste.Mod.TASHelper.TinySRT.SaveLoadAction;
-using TH_Deep = Celeste.Mod.TASHelper.TinySRT.DeepClonerUtils;
+using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
+using TH_Deep = Celeste.Mod.TASHelper.TinySRT.TH_DeepClonerUtils;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
+// if you desire extending SRT saveslots in an elegant way, you'd better pack StateManager, SaveLoadAction & DeepCloneUtils into a bigger class
+// then you can have a new saveslot by just new an instance of the bigger class
 public class TH_StateManager {
 
     private TH_StateManager() { }
@@ -213,7 +215,7 @@ public class TH_StateManager {
                 continue;
             }
 
-            SaveLoadAction.OnUnloadLevel(level, entities, entity);
+            TH_SaveLoadAction.OnUnloadLevel(level, entities, entity);
         }
     }
 

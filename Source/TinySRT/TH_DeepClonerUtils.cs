@@ -14,10 +14,11 @@ using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.TypeExtensions;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.DynDataUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.FrostHelperUtils;
+using static Celeste.Mod.SpeedrunTool.SaveLoad.EventInstanceExtensions;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
-public static class DeepClonerUtils {
+public static class TH_DeepClonerUtils {
     [ThreadStatic] private static Stack<Component> backupComponents;
     [ThreadStatic] private static Stack<object> backupHashSet;
     [ThreadStatic] private static Dictionary<object, object> backupDict;
@@ -120,10 +121,10 @@ public static class DeepClonerUtils {
 
                     bool isMainThread = Thread.CurrentThread.IsMainThread();
                     if (TH_StateManager.Instance.State == State.Saving && isMainThread) {
-                        SaveLoadAction.ClonedEventInstancesWhenSave.Add(clonedEventInstance);
+                        TH_SaveLoadAction.ClonedEventInstancesWhenSave.Add(clonedEventInstance);
                     }
                     else if (!isMainThread) {
-                        SaveLoadAction.ClonedEventInstancesWhenPreClone.Add(clonedEventInstance);
+                        TH_SaveLoadAction.ClonedEventInstancesWhenPreClone.Add(clonedEventInstance);
                     }
 
                     return clonedEventInstance;
@@ -190,7 +191,7 @@ public static class DeepClonerUtils {
                 else if (clonedObj is VirtualAsset virtualAsset
                            && (TH_StateManager.Instance.State == State.Loading || !Thread.CurrentThread.IsMainThread())) {
                     // 预克隆的资源需要等待 LoadState 中移除实体之后才能判断是否需要 Reload，必须等待主线程中再操作
-                    SaveLoadAction.VirtualAssets.Add(virtualAsset);
+                    TH_SaveLoadAction.VirtualAssets.Add(virtualAsset);
                 }
                 else if (type.IsHashSet(out Type hashSetElementType) && !hashSetElementType.IsSimple()) {
                     IEnumerator enumerator = ((IEnumerable)clonedObj).GetEnumerator();
