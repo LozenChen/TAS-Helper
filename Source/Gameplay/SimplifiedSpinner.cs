@@ -27,6 +27,8 @@ internal static class SimplifiedSpinner {
     // sprites are created by e.g. AddSprites(), so they do not necessarily exist when load level
 
     private static bool Updated => !AddingEntities && wasSpritesCleared == SpritesCleared;
+
+    [Load]
     public static void Load() {
         // hook after CelesteTAS.CycleHitboxColor's hook
         using (new DetourContext { After = new List<string> { "*" } }) {
@@ -36,6 +38,7 @@ internal static class SimplifiedSpinner {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
     }
 
+    [Unload]
     public static void Unload() {
         On.Monocle.Entity.DebugRender -= PatchDebugRender;
         On.Monocle.EntityList.UpdateLists -= OnLevelAddEntity;
@@ -55,6 +58,8 @@ internal static class SimplifiedSpinner {
                 typeof(ChronoEntities.ShatterSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
             };
     }
+
+    [Initialize]
     public static void Initialize() {
         CrysExtraComponentGetter = new() {
             typeof(CrystalStaticSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),

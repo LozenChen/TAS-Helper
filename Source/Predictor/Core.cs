@@ -148,6 +148,7 @@ public static class Core {
         // base.Update(gameTime); i don't know how to call this correctly... bugs always occur
     }
 
+    [Initialize]
     public static void Initialize() {
         // CelesteTAS.Core uses DetourContext {After = new List<string> {"*"}}, so our hooks are "inside" TAS.Core hooks
         // how tas frame is paused: early return in MInput. So our hooks should be after this

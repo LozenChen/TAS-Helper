@@ -8,6 +8,8 @@ internal static class Countdown_and_LoadRange_Collider {
     public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || Engine.Scene.Paused;
 
     private static MTexture starShape;
+
+    [Initialize]
     public static void Initialize() {
         starShape = GFX.Game["TASHelper/SpinnerCenter/spinner_center"];
     }

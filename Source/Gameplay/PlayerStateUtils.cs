@@ -21,6 +21,7 @@ public static class PlayerStateUtils {
         Bounce = SuperBounce = SideBounce = Rebound = ReflectBounce = PointBounce = Ultra = RefillDash = false;
     }
 
+    [Initialize]
     public static void Initialize() {
         typeof(Player).GetMethod("Bounce").HookBefore(() => Bounce = true);
         typeof(Player).GetMethod("SuperBounce").HookBefore(() => SuperBounce = true);
@@ -31,11 +32,14 @@ public static class PlayerStateUtils {
         typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).IlHook(ILUltra);
     }
 
+    [Load]
     public static void Load() {
         On.Monocle.Scene.BeforeUpdate += OnBeforeUpdate;
         On.Celeste.Player.SideBounce += OnSideBounce;
         On.Celeste.Player.RefillDash += OnRefillDash;
     }
+
+    [Unload]
 
     public static void Unload() {
         On.Monocle.Scene.BeforeUpdate -= OnBeforeUpdate;

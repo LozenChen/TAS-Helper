@@ -1,6 +1,4 @@
-﻿using Celeste.Mod.SpeedrunTool.Extensions;
-using Celeste.Mod.TASHelper.Utils;
-using Monocle;
+﻿using Monocle;
 using TAS;
 using TAS.Input;
 
@@ -8,6 +6,7 @@ namespace Celeste.Mod.TASHelper.Predictor;
 
 public static class TasFileWatcher {
 
+    [Initialize]
     public static void Initialize() {
         typeof(InputController).GetMethod("Clear").HookAfter(StopWatchers);
         typeof(InputController).GetMethod("ParseFileEnd", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).HookAfter(CreateWatcher);

@@ -21,6 +21,7 @@ internal static class ActualPosition {
     internal static Vector2 PlayerPositionBeforeCameraUpdate = Vector2.Zero;
     internal static int PlayerPositionChangedCount = 0;
 
+    [Initialize]
     public static void Initialize() {
         if (ModUtils.FrostHelperInstalled) {
             PatchFrostSpinnerUpdate();
@@ -48,6 +49,7 @@ internal static class ActualPosition {
         }
     }
 
+    [Load]
     public static void Load() {
         On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         On.Celeste.Lightning.Update += PatchLightningUpdate;
@@ -56,6 +58,7 @@ internal static class ActualPosition {
         typeof(Player).GetMethod("orig_Update").IlHook(PlayerPositionBeforeCameraUpdateIL);
     }
 
+    [Unload]
     public static void Unload() {
         On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
         On.Celeste.Lightning.Update -= PatchLightningUpdate;

@@ -8,19 +8,19 @@ public class TASHelperModule : EverestModule {
     public static TASHelperModule Instance;
     public TASHelperModule() {
         Instance = this;
+        AttributeUtils.CollectMethods<LoadAttribute>();
+        AttributeUtils.CollectMethods<UnloadAttribute>();
+        AttributeUtils.CollectMethods<LoadContentAttribute>();
+        AttributeUtils.CollectMethods<InitializeAttribute>();
     }
 
     public override Type SettingsType => typeof(TASHelperSettings);
     public override void Load() {
-        On.Celeste.Level.Render += HotkeysPressed;
-        Loader.HelperLoad();
-        Loader.EntityLoad();
+        Loader.Load();
     }
 
     public override void Unload() {
-        On.Celeste.Level.Render -= HotkeysPressed;
-        Loader.HelperUnload();
-        Loader.EntityUnload();
+        Loader.Unload();
     }
 
     public override void Initialize() {
@@ -41,13 +41,6 @@ public class TASHelperModule : EverestModule {
     public override void CreateModMenuSection(TextMenu menu, bool inGame, EventInstance snapshot) {
         CreateModMenuSectionHeader(menu, inGame, snapshot);
         TASHelperMenu.CreateMenu(this, menu, inGame);
-    }
-
-    private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
-        orig(self);
-        if (TasHelperSettings.SettingsHotkeysPressed()) {
-            Instance.SaveSettings();
-        }
     }
 }
 

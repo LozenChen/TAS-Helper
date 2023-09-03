@@ -15,6 +15,7 @@ public static class InputManager {
         }
     }
 
+    [Initialize]
     public static void Initialize() {
         InputFrame.TryParse("9999", 0, null, out InputFrame emptyInput);
         EmptyInput = emptyInput;

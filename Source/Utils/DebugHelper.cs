@@ -19,6 +19,8 @@ public static class DebugHelper {
     public static bool LogFPS = false;
 
     public static Dictionary<string, int> dict = new();
+
+    [Load]
     internal static void Load() {
         if (usingDebug) {
             On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
@@ -27,6 +29,8 @@ public static class DebugHelper {
             On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
         }
     }
+
+    [Unload]
     internal static void Unload() {
         if (usingDebug) {
             On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
@@ -173,9 +177,12 @@ public static class Logger {
         return obj.GetType().IsGenericType && obj is System.Collections.IEnumerable;
     }
 
+    [Load]
     internal static void Load() {
         On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
     }
+
+    [Unload]
     internal static void Unload() {
         On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
     }

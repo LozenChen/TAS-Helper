@@ -13,6 +13,7 @@ public static class HiresLevelRenderer {
     // Hires but works similar with GameplayRenderer
     // Coordinate = 6 * that of Gameplay coordinate
 
+    [Load]
     public static void Load() {
         On.Celeste.Level.Begin += OnLevelBegin;
         On.Celeste.Level.End += OnLevelEnd;
@@ -20,6 +21,7 @@ public static class HiresLevelRenderer {
         CountdownRenderer.Load();
     }
 
+    [Unload]
     public static void Unload() {
         On.Celeste.Level.Begin -= OnLevelBegin;
         On.Celeste.Level.End -= OnLevelEnd;

@@ -7,12 +7,18 @@ namespace Celeste.Mod.TASHelper.Entities;
 public class SpawnPoint : Entity {
 
     public static MTexture Maddy;
+
+    [Load]
     public static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
     }
+
+    [Unload]
     public static void Unload() {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
     }
+
+    [Initialize]
     public static void Initialize() {
         Maddy = GFX.Game["TASHelper/Spawn/sitDown00"];
     }

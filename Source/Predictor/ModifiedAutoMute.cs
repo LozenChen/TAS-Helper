@@ -82,6 +82,7 @@ public static class ModifiedAutoMute {
         }
     }
 
+    [Load]
     public static void Load() {
         On.Celeste.Audio.SetMusic += AudioOnSetMusic;
         On.Celeste.Audio.SetAltMusic += AudioOnSetAltMusic;
@@ -89,7 +90,7 @@ public static class ModifiedAutoMute {
         IL.Celeste.CassetteBlockManager.AdvanceMusic += CassetteBlockManagerOnAdvanceMusic;
     }
 
-
+    [Unload]
     public static void Unload() {
         On.Celeste.Audio.SetMusic -= AudioOnSetMusic;
         On.Celeste.Audio.SetAltMusic -= AudioOnSetAltMusic;

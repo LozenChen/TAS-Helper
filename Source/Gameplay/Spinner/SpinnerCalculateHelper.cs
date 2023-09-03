@@ -15,9 +15,13 @@ public static class SpinnerCalculateHelper {
 
     public static float[] PredictLoadTimeActive = new float[10];
     public static float[] PredictUnloadTimeActive = new float[100];
+
+    [Load]
     public static void Load() {
         On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
     }
+
+    [Unload]
     public static void Unload() {
         On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
     }
@@ -54,6 +58,7 @@ public static class SpinnerCalculateHelper {
         OffsetGetters.Add(type, type.CreateGetDelegate<object, float>(offsetName));
     }
 
+    [Initialize]
     public static void Initialize() {
         Assembly Vanilla = ModUtils.VanillaAssembly;
         DictionaryAdderNormal(Vanilla.GetType("Celeste.CrystalStaticSpinner"), "offset", spinner);

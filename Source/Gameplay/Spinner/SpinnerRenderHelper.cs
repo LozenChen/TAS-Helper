@@ -10,6 +10,7 @@ namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 internal static class SpinnerRenderHelper {
     private static MTexture[] numbers;
 
+    [Initialize]
     public static void Initialize() {
         // copied from ExtendedVariants.Entities.DashCountIndicator
         MTexture source = GFX.Game["pico8/font"];
@@ -34,11 +35,6 @@ internal static class SpinnerRenderHelper {
         }
     }
 
-    public static void Load() {
-    }
-
-    public static void Unload() {
-    }
 
 
     internal static Color DefaultColor => TasSettings.EntityHitboxColor;

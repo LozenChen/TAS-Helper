@@ -25,6 +25,7 @@ public static class SpinnerColliderHelper {
 
     public static SpinnerColliderValue Vanilla;
 
+    [Initialize]
     public static void Initialize() {
         // learn from https://github.com/EverestAPI/Resources/wiki/Adding-Sprites#using-a-spritebank-file
 

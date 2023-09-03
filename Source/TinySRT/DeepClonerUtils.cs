@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Celeste.Mod.SpeedrunTool.Extensions;
 using FMOD.Studio;
 using Force.DeepCloner;
 using Force.DeepCloner.Helpers;
@@ -13,8 +12,8 @@ using MonoMod.Utils;
 using Monocle;
 using NLua;
 
-namespace Celeste.Mod.TASHelper.Predictor;
-
+namespace Celeste.Mod.TASHelper.TinySRT;
+/*
 public static class DeepClonerUtils {
     [ThreadStatic] private static Stack<Component> backupComponents;
     [ThreadStatic] private static Stack<object> backupHashSet;
@@ -289,3 +288,4 @@ public static class DeepClonerUtils {
         return objFrom.ShallowCloneTo(objTo, sharedDeepCloneState);
     }
 }
+*/

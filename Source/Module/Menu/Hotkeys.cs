@@ -22,10 +22,20 @@ public static class TH_Hotkeys {
 
     public static Hotkey PredictFutureHotkey { get; set; }
 
-    static TH_Hotkeys() {
-        HotkeyInitialize();
+    [Load]
+    public static void Load() {
+        On.Celeste.Level.Render += HotkeysPressed;
+        IL.Celeste.Mod.ModuleSettingsKeyboardConfigUI.Reset += ModReload;
     }
 
+    [Unload]
+    public static void Unload() {
+        On.Celeste.Level.Render -= HotkeysPressed;
+        IL.Celeste.Mod.ModuleSettingsKeyboardConfigUI.Reset -= ModReload;
+    }
+
+
+    [Initialize]
     public static void HotkeyInitialize() {
         MainSwitchHotkey = BindingToHotkey(TasHelperSettings.keyMainSwitch);
         CountDownHotkey = BindingToHotkey(TasHelperSettings.keyCountDown);
@@ -35,6 +45,13 @@ public static class TH_Hotkeys {
         PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
     }
 
+    private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
+        orig(self);
+        if (TasHelperSettings.SettingsHotkeysPressed()) {
+            TASHelperModule.Instance.SaveSettings();
+        }
+    }
+
     private static Hotkey BindingToHotkey(ButtonBinding binding, bool held = false) {
         return new(binding.Keys, binding.Buttons, true, held);
     }
@@ -42,13 +59,6 @@ public static class TH_Hotkeys {
     private static IEnumerable<PropertyInfo> bindingProperties;
 
     private static FieldInfo bindingFieldInfo;
-    public static void Load() {
-        IL.Celeste.Mod.ModuleSettingsKeyboardConfigUI.Reset += ModReload;
-    }
-
-    public static void Unload() {
-        IL.Celeste.Mod.ModuleSettingsKeyboardConfigUI.Reset -= ModReload;
-    }
 
     private static void ModReload(ILContext il) {
         bindingProperties = typeof(TASHelperSettings)

@@ -4,9 +4,12 @@ using Monocle;
 namespace Celeste.Mod.TASHelper.Entities;
 
 internal static class PixelGridHook {
+    [Load]
     public static void Load() {
         On.Celeste.Level.LoadLevel += CreatePixelGridAroundPlayer;
     }
+
+    [Unload]
     public static void Unload() {
         On.Celeste.Level.LoadLevel -= CreatePixelGridAroundPlayer;
     }

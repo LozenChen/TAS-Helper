@@ -7,16 +7,20 @@ namespace Celeste.Mod.TASHelper.Gameplay;
 
 public static class FireBallTrack {
 
+    [Load]
     public static void Load() {
         On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
         On.Celeste.Level.LoadLevel += OnLoadLevel;
     }
+
+    [Unload]
 
     public static void Unload() {
         On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
     }
 
+    [Initialize]
 
     public static void Initialize() {
         typeof(FireBall).GetMethod("Added").HookAfter<FireBall>((fireball) => {

@@ -9,11 +9,12 @@ internal static class LoadRange_and_CameraTarget {
     internal static Color NearPlayerRangeColor => TasHelperSettings.NearPlayerRangeColor;
     internal static Color CameraTargetVectorColor => TasHelperSettings.CameraTargetColor;
 
-
+    [Load]
     public static void Load() {
         On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
     }
 
+    [Unload]
     public static void Unload() {
         On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
     }

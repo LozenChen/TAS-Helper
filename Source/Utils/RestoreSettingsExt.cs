@@ -9,6 +9,7 @@ public static class RestoreSettingsExt {
 
     private static FieldInfo origModSettingsGetter;
 
+    [Initialize]
     public static void Initialize() {
         origModSettingsGetter = typeof(TAS.EverestInterop.RestoreSettings).GetField("origModSettings", BindingFlags.NonPublic | BindingFlags.Static);
         typeof(TAS.Manager).GetMethod("EnableRun").IlHook((cursor, _) => {
