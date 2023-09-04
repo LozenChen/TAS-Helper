@@ -2,7 +2,6 @@
 using Celeste.Mod.SpeedrunTool;
 using Celeste.Mod.SpeedrunTool.DeathStatistics;
 using Celeste.Mod.SpeedrunTool.RoomTimer;
-using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Celeste.Mod.SpeedrunTool.Utils;
 using FMOD.Studio;
 using Microsoft.Xna.Framework;
@@ -12,6 +11,8 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System.Collections.Concurrent;
 using System.Reflection;
+using SRT = Celeste.Mod.SpeedrunTool.SaveLoad;
+// need to check: never use SRT.StateManager
 using static Celeste.Mod.SpeedrunTool.Extensions.LoggerExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.TypeExtensions;
@@ -21,6 +22,7 @@ using static Celeste.Mod.SpeedrunTool.SaveLoad.FrostHelperUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.IgnoreSaveLoadComponent;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.MuteAudioUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.StrawberryJamUtils;
+using static Celeste.Mod.SpeedrunTool.SaveLoad.EventInstanceExtensions;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
@@ -418,27 +420,12 @@ public sealed class TH_SaveLoadAction {
         });
     }
 
+    
     private static void BetterCasualPlay() {
         SafeAdd(beforeSaveState: level => {
             level.Session.SetFlag("SpeedrunTool_Reset_unpauseTimer", false);
-            if (StateManager.Instance.SavedByTas) {
+            if (TH_StateManager.Instance.SavedByTas) {
                 return;
-            }
-
-            // 移除冻结帧，移除暂停黑屏
-            Engine.FreezeTimer = 0f;
-            level.HudRenderer.BackgroundFade = 0f;
-
-            // 移除暂停帧
-            if (level.GetFieldValue<float>("unpauseTimer") > 0f || !level.Paused && level.wasPaused) {
-                level.Session.SetFlag("SpeedrunTool_Reset_unpauseTimer");
-
-                if (level.GetFieldValue<float>("unpauseTimer") > 0f) {
-                    level.SetFieldValue("unpauseTimer", 0f);
-                }
-
-                level.wasPaused = false;
-                level.EndPauseEffects();
             }
         });
     }
@@ -500,7 +487,7 @@ public sealed class TH_SaveLoadAction {
                 savedValues[inputType] = inputDict.TH_DeepCloneShared();
 
                 foreach (EverestModule everestModule in Everest.Modules) {
-                    if (everestModule.Metadata?.Name == "CelesteTAS" || everestModule == SpeedrunToolModule.Instance) {
+                    if (everestModule.Metadata?.Name == "CelesteTAS" || everestModule == SpeedrunToolModule.Instance || everestModule == TASHelper.Module.TASHelperModule.Instance) {
                         continue;
                     }
 
@@ -530,7 +517,7 @@ public sealed class TH_SaveLoadAction {
             }, (savedValues, _) => {
                 savedValues = savedValues.TH_DeepCloneShared();
 
-                if (StateManager.Instance.LoadByTas) {
+                if (TH_StateManager.Instance.LoadByTas) {
                     MInput.VirtualInputs = (List<VirtualInput>)savedValues[typeof(MInput)][nameof(MInput.VirtualInputs)];
                 }
 
@@ -538,7 +525,7 @@ public sealed class TH_SaveLoadAction {
                 foreach (string fieldName in dictionary.Keys) {
                     object virtualInput = dictionary[fieldName];
 
-                    if (StateManager.Instance.LoadByTas) {
+                    if (TH_StateManager.Instance.LoadByTas) {
                         inputType.SetFieldValue(fieldName, virtualInput);
                     }
                     else {
@@ -556,9 +543,9 @@ public sealed class TH_SaveLoadAction {
                     }
                 }
 
-                if (StateManager.Instance.LoadByTas) {
+                if (TH_StateManager.Instance.LoadByTas) {
                     foreach (EverestModule everestModule in Everest.Modules) {
-                        if (everestModule.Metadata?.Name == "CelesteTAS" || everestModule == SpeedrunToolModule.Instance) {
+                        if (everestModule.Metadata?.Name == "CelesteTAS" || everestModule == SpeedrunToolModule.Instance || everestModule == TASHelper.Module.TASHelperModule.Instance) {
                             continue;
                         }
 
@@ -596,7 +583,7 @@ public sealed class TH_SaveLoadAction {
                 EndPoint.AllReadyForTime();
             },
             clearState: () => {
-                RoomTimerManager.ClearPbTimes(!StateManager.Instance.ClearBeforeSave);
+                RoomTimerManager.ClearPbTimes(!TH_StateManager.Instance.ClearBeforeSave);
                 TH_DeepClonerUtils.ClearSharedDeepCloneState();
                 ClearCached();
             },
@@ -605,8 +592,8 @@ public sealed class TH_SaveLoadAction {
                 TH_DeepClonerUtils.ClearSharedDeepCloneState();
                 ClearCached();
 
-                IgnoreSaveLoadComponent.RemoveAll(level);
-                ClearBeforeSaveComponent.RemoveAll(level);
+                SRT.IgnoreSaveLoadComponent.RemoveAll(level);
+                SRT.ClearBeforeSaveComponent.RemoveAll(level);
 
                 // 冲刺残影方向错误，干脆移除屏幕不显示了
                 level.Tracker.GetEntities<TrailManager.Snapshot>()
@@ -627,7 +614,7 @@ public sealed class TH_SaveLoadAction {
                     }
                 }
             },
-            beforeLoadState: IgnoreSaveLoadComponent.RemoveAll
+            beforeLoadState: SRT.IgnoreSaveLoadComponent.RemoveAll
         );
     }
 
@@ -742,10 +729,10 @@ public sealed class TH_SaveLoadAction {
             if (pipeHelper.GetMethodInfo("AllowComponentsForList") != null && pipeHelper.GetMethodInfo("ShouldAddComponentsForList") != null) {
                 SafeAdd((_, level) => {
                     if (pipeHelper.InvokeMethod("ShouldAddComponentsForList", level.Entities) as bool? == true) {
-                        pipeHelper.InvokeMethod("AllowComponentsForList", StateManager.Instance.SavedLevel.Entities);
+                        pipeHelper.InvokeMethod("AllowComponentsForList", TH_StateManager.Instance.SavedLevel.Entities);
                     }
                 }, (_, level) => {
-                    if (pipeHelper.InvokeMethod("ShouldAddComponentsForList", StateManager.Instance.SavedLevel.Entities) as bool? == true) {
+                    if (pipeHelper.InvokeMethod("ShouldAddComponentsForList", TH_StateManager.Instance.SavedLevel.Entities) as bool? == true) {
                         pipeHelper.InvokeMethod("AllowComponentsForList", level.Entities);
                     }
                 });
@@ -983,7 +970,7 @@ public sealed class TH_SaveLoadAction {
             },
             (savedValues, _) => {
                 // 本来打算将关卡中 ExtendedVariantsTrigger 涉及相关的值强制 SL，想想还是算了
-                if (!ModSettings.SaveExtendedVariants && !StateManager.Instance.SavedByTas) {
+                if (!ModSettings.SaveExtendedVariants && !TH_StateManager.Instance.SavedByTas) {
                     return;
                 }
 

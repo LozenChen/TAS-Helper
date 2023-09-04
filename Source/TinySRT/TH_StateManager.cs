@@ -100,6 +100,7 @@ public class TH_StateManager {
             Instance.ClearBeforeSave = false;
         }
 
+        TH_Deep.PushProcessor();
         TH.InitActions();
 
         Instance.State = State.Saving;
@@ -157,6 +158,7 @@ public class TH_StateManager {
         if (HasCachedCurrent) {
             Instance.ClearStateInner();
             HasCachedCurrent = false;
+            TH_Deep.PopProcessor();
         }
     }
 

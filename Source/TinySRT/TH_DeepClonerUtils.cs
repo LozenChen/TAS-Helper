@@ -29,53 +29,20 @@ public static class TH_DeepClonerUtils {
     // some class/field used in _DataMap becomes private after MonoMod.Utils upgrade, needs to publicize
     private static ConditionalWeakTable<object, DynamicData._Data_> _DataMap => DynamicData._DataMap;
 
-    [Initialize]
+    public static PreCloneProcessor TH_preCloneProcessor;
+
+    public static PostCloneProcessor TH_postCloneProcessor;
+
+    public static PreCloneProcessor SRT_preCloneProcessor;
+
+    public static PostCloneProcessor SRT_postCloneProcessor;
+
+    [Load]
     private static void Config() {
-        // Clone 开始时，判断哪些类型是直接使用原对象而不 DeepClone 的
-        // Before cloning, determine which types use the original object directly
-        DeepCloner.SetKnownTypesProcessor(type => {
-            if (
-                // Celeste Singleton
-                type == typeof(Celeste)
-                || type == typeof(Settings)
-
-                // Everest
-                || type.IsSubclassOf(typeof(ModAsset))
-                || type.IsSubclassOf(typeof(EverestModule))
-                || type == typeof(EverestModuleMetadata)
-
-                // Monocle
-                || type == typeof(GraphicsDevice)
-                || type == typeof(GraphicsDeviceManager)
-                || type == typeof(Monocle.Commands)
-                || type == typeof(BitTag)
-                || type == typeof(Atlas)
-
-                // XNA GraphicsResource
-                || type.IsSubclassOf(typeof(GraphicsResource))
-
-                // NLua
-
-                || type == typeof(Lua)
-                || type == typeof(KeraLua.Lua)
-                || type.IsSubclassOf(typeof(LuaBase))
-
-                // MonoMod
-                || type.GetInterfaces().Contains(typeof(IDetour))
-                || type.GetInterfaces().Any(t => t.FullName == "MonoMod.RuntimeDetour.IDetourBase")
-
-                // CelesteNet
-                || type.FullName != null && type.FullName.StartsWith("Celeste.Mod.CelesteNet.") && !type.IsSubclassOf(typeof(Entity))
-            ) {
-                return true;
-            }
-
-            return null;
-        });
-
-        // Clone 对象的字段前，判断哪些类型是直接使用原对象或者自行通过其它方法 clone
-        // Before cloning object's field, determine which types are directly used by the original object
-        DeepCloner.SetPreCloneProcessor((sourceObj, deepCloneState) => {
+        SRT_preCloneProcessor = DeepCloner._preCloneProcessor;
+        SRT_postCloneProcessor = DeepCloner._postCloneProcessor;
+        TH_preCloneProcessor = 
+        ((sourceObj, deepCloneState) => {
             if (sourceObj == null) {
                 return null;
             }
@@ -156,9 +123,8 @@ public static class TH_DeepClonerUtils {
             return null;
         });
 
-        // Clone 对象的字段后，进行自定的处理
-        // After cloning, perform custom processing
-        DeepCloner.SetPostCloneProcessor((sourceObj, clonedObj, deepCloneState) => {
+        TH_postCloneProcessor = 
+        ((sourceObj, clonedObj, deepCloneState) => {
             if (sourceObj == null) {
                 return null;
             }
@@ -251,8 +217,6 @@ public static class TH_DeepClonerUtils {
                     }
                 }
 
-                
-                // don't know why but if add this, game crash on entering level
                 // Clone DynamicData
                 if (_DataMap.TryGetValue(sourceObj, out DynamicData._Data_ value) && value.Data.Count > 0) {
                     _DataMap.Add(clonedObj, value.DeepClone(deepCloneState));
@@ -266,11 +230,23 @@ public static class TH_DeepClonerUtils {
         });
     }
 
+
     [Unload]
     private static void Clear() {
-        DeepCloner.ClearKnownTypesProcessor();
-        DeepCloner.ClearPreCloneProcessor();
-        DeepCloner.ClearPostCloneProcessor();
+        SRT_preCloneProcessor = null;
+        TH_preCloneProcessor = null;
+        SRT_postCloneProcessor = null;
+        TH_postCloneProcessor = null;
+    }
+    
+    public static void PushProcessor() {
+        DeepCloner._preCloneProcessor = TH_preCloneProcessor;
+        DeepCloner._postCloneProcessor= TH_postCloneProcessor;
+    }
+
+    public static void PopProcessor() {
+        DeepCloner._preCloneProcessor = SRT_preCloneProcessor;
+        DeepCloner._postCloneProcessor = SRT_postCloneProcessor;
     }
 
     private static void InitSharedDeepCloneState() {
