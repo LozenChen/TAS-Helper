@@ -262,6 +262,7 @@ public static class Core {
     private static void DelayedPredict() {
         if (hasDelayedPredict && !InPredict) {
             Manager.Controller.RefreshInputs(false);
+            // if you insert/delete lines before CurrentFrame, then Studio will jump to the line of CurrentFrame, to notice you shouldn't do that!
             GameInfo.Update();
             Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, delayedMustRedo);
             hasDelayedPredict = false;

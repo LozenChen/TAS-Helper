@@ -15,9 +15,9 @@ using static Celeste.Mod.SpeedrunTool.Extensions.TypeExtensions;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.DynDataUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.FrostHelperUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.EventInstanceExtensions;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
-
 public static class TH_DeepClonerUtils {
     [ThreadStatic] private static Stack<Component> backupComponents;
     [ThreadStatic] private static Stack<object> backupHashSet;
@@ -26,7 +26,10 @@ public static class TH_DeepClonerUtils {
     // 共用 DeepCloneState 可使多次 DeepClone 复用相同对象避免多次克隆同一对象
     private static DeepCloneState sharedDeepCloneState = new();
 
-    [Load]
+    // some class/field used in _DataMap becomes private after MonoMod.Utils upgrade, needs to publicize
+    private static ConditionalWeakTable<object, DynamicData._Data_> _DataMap => DynamicData._DataMap;
+
+    [Initialize]
     private static void Config() {
         // Clone 开始时，判断哪些类型是直接使用原对象而不 DeepClone 的
         // Before cloning, determine which types use the original object directly
@@ -204,6 +207,7 @@ public static class TH_DeepClonerUtils {
 
                     if (backupHashSet.Count >= 0) {
                         clonedObj.InvokeMethod("Clear");
+                        // it seems MonoMod.Utils.FastReflectionDelegate no longer exists after MonoMod.Utils v25.0.0
                         FastReflectionDelegate addDelegate = type.GetMethodDelegate("Add");
                         while (backupHashSet.Count > 0) {
                             addDelegate.Invoke(clonedObj, backupHashSet.Pop());
@@ -247,13 +251,13 @@ public static class TH_DeepClonerUtils {
                     }
                 }
 
-                /*
-                 * don't know why but if add this, game crash on entering level
+                
+                // don't know why but if add this, game crash on entering level
                 // Clone DynamicData
-                if (DynamicData._DataMap.TryGetValue(sourceObj, out DynamicData._Data_ value) && value.Data.Count > 0) {
-                    DynamicData._DataMap.Add(clonedObj, value.DeepClone(deepCloneState));
+                if (_DataMap.TryGetValue(sourceObj, out DynamicData._Data_ value) && value.Data.Count > 0) {
+                    _DataMap.Add(clonedObj, value.DeepClone(deepCloneState));
                 }
-                */
+                
 
                 CloneDataStore(sourceObj, clonedObj, deepCloneState);
             }

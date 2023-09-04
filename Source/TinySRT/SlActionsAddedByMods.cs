@@ -29,7 +29,9 @@ public static class SlActionsAddedByMods {
         }
         Actions.Clear();
     }
+}
 
+public static class Converter {
     public static TH.SlAction Convert(this SRT.SlAction action) {
         return (savedValues, level) => { action(savedValues, level); };
     }
@@ -38,3 +40,4 @@ public static class SlActionsAddedByMods {
         return new TH(action.saveState.Convert(), action.loadState.Convert(), action.clearState, action.beforeSaveState, action.beforeLoadState, action.preCloneEntities);
     }
 }
+
