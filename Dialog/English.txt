@@ -1,6 +1,7 @@
 ﻿# ============================================= TAS Helper =====================================================
 TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        Enabled
+TAS_HELPER_HLINE=                                          ---------------------------------------------
 
 # ============================================= Spinner Main Switch =====================================================
 TAS_HELPER_SPINNER_MAIN_SWITCH=                            Main Switch
@@ -94,14 +95,19 @@ TAS_HELPER_APPLY_CAMERA_ZOOM=                              InView Range zoom wit
 TAS_HELPER_APPLY_CAMERA_ZOOM_DESCRIPTION=                  Turn it on only when need checking VivHelper.CustomSpinner is InView or not.
 
 # ============================================= Simplified Spinners =====================================================
+TAS_HELPER_SIMPLIFIED_GRAPHICS=                            Simplified Graphics
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            Simplified Spinners
 TAS_HELPER_CLEAR_SPINNER_SPRITES=                          Clear Spinner Sprites
-TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_OFF=                 Off
-TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=When Simplified Graphics
-TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              Always
+TAS_HELPER_SIMPLIFIED_GRAPHICS_MODE_OFF=                   Off
+TAS_HELPER_SIMPLIFIED_GRAPHICS_MODE_WHEN_SIMPLIFIED_GRAPHICS=When Simplified Graphics
+TAS_HELPER_SIMPLIFIED_GRAPHICS_MODE_ALWAYS=                Always
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity (Collidable)
 TAS_HELPER_SPINNER_FILLER_OPACITY_EXTRA=                   Spinner Filler Opacity (Uncollidable)
-TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           Ignore TAS mod's Uncollidable Hitboxes Opacity 
+TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           Ignore TAS mod's Uncollidable Hitboxes Opacity
+TAS_HELPER_SIMPLIFIED_LIGHTNING=                           Lightning Enhancement
+TAS_HELPER_SIMPLIFIED_LIGHTNING_DESCRIPTION=               Collidable: high opacity with solid border | Uncollidable: low opacity with dashed border.
+TAS_HELPER_HIGHLIGHT_LOAD_UNLOAD=                          Highlight loading/unloading lightning
+TAS_HELPER_HIGHLIGHT_DESCRIPTION=                          White: loading | Black: unloading.
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        Hotkeys

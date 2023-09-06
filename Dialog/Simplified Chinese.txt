@@ -3,6 +3,7 @@
 # ============================================= TAS Helper =====================================================
 TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        开关
+TAS_HELPER_HLINE=                                          ---------------------------------------------
 
 # ============================================= Spinner Main Switch =====================================================
 TAS_HELPER_SPINNER_MAIN_SWITCH=                            主开关
@@ -96,14 +97,19 @@ TAS_HELPER_APPLY_CAMERA_ZOOM=                              InView 范围随镜�
 TAS_HELPER_APPLY_CAMERA_ZOOM_DESCRIPTION=                  仅在需要判定 VivHelper.CustomSpinner 是否 InView 时需要开启此项.
 
 # ============================================= Simplified Spinners =====================================================
+TAS_HELPER_SIMPLIFIED_GRAPHICS=                            简化图形
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            简化圆刺
 TAS_HELPER_CLEAR_SPINNER_SPRITES=                          清除圆刺贴图
-TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_OFF=                 关
-TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_WHEN_SIMPLIFIED_GRAPHICS=简化图形时
-TAS_HELPER_CLEAR_SPINNER_SPRITES_MODE_ALWAYS=              总是
+TAS_HELPER_CLEAR_GRAPHICS_MODE_MODE_OFF=                   关
+TAS_HELPER_CLEAR_GRAPHICS_MODE_MODE_WHEN_SIMPLIFIED_GRAPHICS=简化图形时
+TAS_HELPER_CLEAR_GRAPHICS_MODE_MODE_ALWAYS=                总是
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部不透明度 (可碰撞时)
 TAS_HELPER_SPINNER_FILLER_OPACITY_EXTRA=                   圆刺内部不透明度 (不可碰撞时)
-TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           不使用 TAS mod 的不可碰撞透明度                      
+TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           不使用 TAS mod 的不可碰撞透明度
+TAS_HELPER_SIMPLIFIED_LIGHTNING=                           闪电调整内部颜色
+TAS_HELPER_SIMPLIFIED_LIGHTNING_DESCRIPTION=               可碰撞: 低透明度且实线边框  | 不可碰撞: 高透明度且虚线边框.
+TAS_HELPER_HIGHLIGHT_LOAD_UNLOAD=                          高亮加载/卸载中的闪电
+TAS_HELPER_HIGHLIGHT_DESCRIPTION=                          白: 加载中 | 黑: 卸载中.
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        快捷键

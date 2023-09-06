@@ -1,21 +1,17 @@
 ﻿using FMOD.Studio;
 using Force.DeepCloner;
 using Force.DeepCloner.Helpers;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Monocle;
-using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
-using NLua;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using static Celeste.Mod.SpeedrunTool.Extensions.CelesteExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.CommonExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.TypeExtensions;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.DynDataUtils;
-using static Celeste.Mod.SpeedrunTool.SaveLoad.FrostHelperUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.EventInstanceExtensions;
-using System.Runtime.CompilerServices;
+using static Celeste.Mod.SpeedrunTool.SaveLoad.FrostHelperUtils;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 public static class TH_DeepClonerUtils {
@@ -41,7 +37,7 @@ public static class TH_DeepClonerUtils {
     private static void Config() {
         SRT_preCloneProcessor = DeepCloner._preCloneProcessor;
         SRT_postCloneProcessor = DeepCloner._postCloneProcessor;
-        TH_preCloneProcessor = 
+        TH_preCloneProcessor =
         ((sourceObj, deepCloneState) => {
             if (sourceObj == null) {
                 return null;
@@ -123,7 +119,7 @@ public static class TH_DeepClonerUtils {
             return null;
         });
 
-        TH_postCloneProcessor = 
+        TH_postCloneProcessor =
         ((sourceObj, clonedObj, deepCloneState) => {
             if (sourceObj == null) {
                 return null;
@@ -221,7 +217,7 @@ public static class TH_DeepClonerUtils {
                 if (_DataMap.TryGetValue(sourceObj, out DynamicData._Data_ value) && value.Data.Count > 0) {
                     _DataMap.Add(clonedObj, value.DeepClone(deepCloneState));
                 }
-                
+
 
                 CloneDataStore(sourceObj, clonedObj, deepCloneState);
             }
@@ -238,10 +234,10 @@ public static class TH_DeepClonerUtils {
         SRT_postCloneProcessor = null;
         TH_postCloneProcessor = null;
     }
-    
+
     public static void PushProcessor() {
         DeepCloner._preCloneProcessor = TH_preCloneProcessor;
-        DeepCloner._postCloneProcessor= TH_postCloneProcessor;
+        DeepCloner._postCloneProcessor = TH_postCloneProcessor;
     }
 
     public static void PopProcessor() {

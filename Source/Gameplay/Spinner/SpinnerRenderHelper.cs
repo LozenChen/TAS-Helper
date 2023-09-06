@@ -60,6 +60,11 @@ internal static class SpinnerRenderHelper {
 #pragma warning restore CS8524
     }
 
+    public static SpinnerColorIndex GetSpinnerColorIndex(Entity Hazard, bool checkInView) {
+        // we assume you've checked it's a hazard
+        return checkInView ? CycleHitboxColorIndex(Hazard, SpinnerCalculateHelper.GetOffset(Hazard).Value, ActualPosition.CameraPosition) : CycleHitboxColorIndexNoInView(Hazard, SpinnerCalculateHelper.GetOffset(Hazard).Value);
+    }
+
     internal const int ID_nocycle = -2;
     internal const int ID_infinity = -1;
     public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index) {
@@ -102,13 +107,17 @@ internal static class SpinnerRenderHelper {
         }
     }
 
-    public static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float offset, Vector2 CameraPosition) {
+    private static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float offset, Vector2 CameraPosition) {
         if (TasHelperSettings.UsingNotInViewColor && !SpinnerCalculateHelper.InView(self, CameraPosition) && !SpinnerCalculateHelper.NoPeriodicCheckInViewBehavior(self)) {
             // NotInView Color is in some sense, not a cycle hitbox color, we make it independent
             // Dust needs InView to establish graphics, but that's almost instant (actually every frame can establish up to 25 dust graphics)
             // so InView seems meaningless for Dusts, especially if we only care about those 3f/15f periodic behaviors
             return SpinnerColorIndex.NotInView;
         }
+        return CycleHitboxColorIndexNoInView(self, offset);
+    }
+
+    private static SpinnerColorIndex CycleHitboxColorIndexNoInView(Entity self, float offset) {
         if (!TasHelperSettings.ShowCycleHitboxColors) {
             return SpinnerColorIndex.Default;
         }

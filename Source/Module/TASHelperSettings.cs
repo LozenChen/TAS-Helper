@@ -23,7 +23,7 @@ public class TASHelperSettings : EverestModuleSettings {
         countdownMode = CountdownModes.Off;
         CountdownFont = CountdownFonts.HiresFont;
         loadRangeMode = LoadRangeModes.Neither;
-        enforceClearSprites = ClearSpritesMode.WhenSimplifyGraphics;
+        EnforceClearSprites = SimplifiedGraphicsMode.WhenSimplifyGraphics;
     }
 
     internal void OnLoadSettings() {
@@ -222,7 +222,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #endregion
 
-    #region Simplified Spinner
+    #region Simplified Graphics
 
     public bool Awake_EnableSimplifiedSpinner = true;
 
@@ -237,17 +237,15 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public enum ClearSpritesMode { Off, WhenSimplifyGraphics, Always };
+    public enum SimplifiedGraphicsMode { Off, WhenSimplifyGraphics, Always };
 
-    public ClearSpritesMode enforceClearSprites;
-
-    [YamlIgnore]
-    public ClearSpritesMode EnforceClearSprites {
-        get => enforceClearSprites;
-        set => enforceClearSprites = value;
+    public static bool SGModeToBool(SimplifiedGraphicsMode mode) {
+        return mode == SimplifiedGraphicsMode.Always || (mode == SimplifiedGraphicsMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics);
     }
 
-    public bool ClearSpinnerSprites => EnableSimplifiedSpinner && (EnforceClearSprites == ClearSpritesMode.Always || (EnforceClearSprites == ClearSpritesMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics));
+    public SimplifiedGraphicsMode EnforceClearSprites = SimplifiedGraphicsMode.WhenSimplifyGraphics;
+
+    public bool ClearSpinnerSprites => EnableSimplifiedSpinner && SGModeToBool(EnforceClearSprites);
 
     public int spinnerFillerOpacity_Collidable = 8;
 
@@ -272,6 +270,12 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     public bool Ignore_TAS_UnCollidableAlpha = true;
+
+    public SimplifiedGraphicsMode EnableSimplifiedLightningMode = SimplifiedGraphicsMode.WhenSimplifyGraphics;
+
+    public bool EnableSimplifiedLightning => Enabled && SGModeToBool(EnableSimplifiedLightningMode);
+
+    public bool HighlightLoadUnload = false;
 
     #endregion
 

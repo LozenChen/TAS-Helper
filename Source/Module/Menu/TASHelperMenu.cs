@@ -8,6 +8,7 @@ namespace Celeste.Mod.TASHelper.Module.Menu;
 internal static class TASHelperMenu {
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
 
+    private static readonly TextMenu.Item Hline = new TextMenuExt.SubHeaderExt("Hline".ToDialogText()) { TextColor = Color.Gray, HeightExtra = 0f};
     private static EaseInOptionSubMenuCountExt CreateColorCustomizationSubMenu(TextMenu menu, bool inGame) {
         EaseInOptionSubMenuCountExt ColorCustomizationItem = new EaseInOptionSubMenuCountExt("Color Customization".ToDialogText());
         ColorCustomizationItem.OnLeave += () => ColorCustomizationItem.MenuIndex = 0;
@@ -66,13 +67,20 @@ internal static class TASHelperMenu {
         });
     }
 
-    private static EaseInSubMenu CreateSimplifiedSpinnerSubMenu(TextMenu menu) {
-        return new EaseInSubMenu("Simplified Spinners".ToDialogText(), false).Apply(subMenu => {
-            subMenu.Add(new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.EnableSimplifiedSpinner).Change(value => TasHelperSettings.EnableSimplifiedSpinner = value));
-            subMenu.Add(new TextMenuExt.EnumerableSlider<ClearSpritesMode>("Clear Spinner Sprites".ToDialogText(), CreateClearSpritesModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
+    private static EaseInSubMenu CreateSimplifiedGraphicSubMenu(TextMenu menu) {
+        return new EaseInSubMenu("Simplified Graphics".ToDialogText(), false).Apply(subMenu => {
+            subMenu.Add(new TextMenu.OnOff("Simplified Spinners".ToDialogText(), TasHelperSettings.EnableSimplifiedSpinner).Change(value => TasHelperSettings.EnableSimplifiedSpinner = value));
+            subMenu.Add(new TextMenuExt.EnumerableSlider<SimplifiedGraphicsMode>("Clear Spinner Sprites".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
             subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Collidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Collidable = value));
             subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity Extra".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Uncollidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Uncollidable = value));
             subMenu.Add(new TextMenu.OnOff("Spinner_Ignore_TAS_UncollidableAlpha".ToDialogText(), TasHelperSettings.Ignore_TAS_UnCollidableAlpha).Change(value => TasHelperSettings.Ignore_TAS_UnCollidableAlpha = value));
+            subMenu.Add(Hline);
+            TextMenu.Item simplifiedLightning;
+            subMenu.Add(simplifiedLightning = new TextMenuExt.EnumerableSlider<SimplifiedGraphicsMode>("Simplified Lightning".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnableSimplifiedLightningMode).Change(value => TasHelperSettings.EnableSimplifiedLightningMode = value));
+            subMenu.AddDescription(menu, simplifiedLightning,"Simplified Lightning Description".ToDialogText());
+            TextMenu.Item highlightItem;
+            subMenu.Add(highlightItem = new TextMenu.OnOff("Highlight Load Unload".ToDialogText(), TasHelperSettings.HighlightLoadUnload).Change(value => TasHelperSettings.HighlightLoadUnload = value));
+            subMenu.AddDescription(menu, highlightItem,"Highlight Description".ToDialogText());
         });
     }
 
@@ -177,11 +185,11 @@ internal static class TASHelperMenu {
             new(LoadRangeModes.Both, "Load Range Mode Both".ToDialogText()),
         };
     }
-    private static IEnumerable<KeyValuePair<ClearSpritesMode, string>> CreateClearSpritesModeOptions() {
-        return new List<KeyValuePair<ClearSpritesMode, string>> {
-            new(ClearSpritesMode.Off, "Clear Spinner Sprites Mode Off".ToDialogText()),
-            new(ClearSpritesMode.WhenSimplifyGraphics, "Clear Spinner Sprites Mode When Simplified Graphics".ToDialogText()),
-            new(ClearSpritesMode.Always, "Clear Spinner Sprites Mode Always".ToDialogText()),
+    private static IEnumerable<KeyValuePair<SimplifiedGraphicsMode, string>> CreateSimplifiedGraphicsModeOptions() {
+        return new List<KeyValuePair<SimplifiedGraphicsMode, string>> {
+            new(SimplifiedGraphicsMode.Off, "Simplified Graphics Mode Off".ToDialogText()),
+            new(SimplifiedGraphicsMode.WhenSimplifyGraphics, "Simplified Graphics Mode When Simplified Graphics".ToDialogText()),
+            new(SimplifiedGraphicsMode.Always, "Simplified Graphics Mode Always".ToDialogText()),
         };
     }
 
@@ -219,7 +227,7 @@ internal static class TASHelperMenu {
             EaseInOptionSubMenuCountExt colorItem = CreateColorCustomizationSubMenu(menu, inGame);
             EaseInSubMenu countdownItem = CreateCountdownSubMenu(menu);
             EaseInSubMenu loadrangeItem = CreateLoadRangeSubMenu(menu);
-            EaseInSubMenu simpspinnerItem = CreateSimplifiedSpinnerSubMenu(menu);
+            EaseInSubMenu simpspinnerItem = CreateSimplifiedGraphicSubMenu(menu);
             EaseInOptionSubMenuCountExt predictItem = CreatePredictorSubMenu(menu, inGame);
             EaseInSubMenu moreoptionItem = CreateMoreOptionsSubMenu(menu);
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);

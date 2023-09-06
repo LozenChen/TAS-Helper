@@ -3,8 +3,10 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using TAS.EverestInterop;
 using TAS.EverestInterop.Hitboxes;
 using ChronoEntities = Celeste.Mod.ChronoHelper.Entities;
 using VivEntities = VivHelper.Entities;
@@ -36,6 +38,8 @@ internal static class SimplifiedSpinner {
             On.Monocle.EntityList.UpdateLists += OnLevelAddEntity;
         }
         On.Celeste.Level.LoadLevel += OnLoadLevel;
+
+
     }
 
     [Unload]
@@ -111,6 +115,7 @@ internal static class SimplifiedSpinner {
         }
 
     }
+
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
         orig(self, playerIntro, isFromLoader);
@@ -276,12 +281,22 @@ internal static class SimplifiedSpinner {
         }
 
 #pragma warning disable CS8629
-        SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.CycleHitboxColorIndex(self, SpinnerCalculateHelper.GetOffset(self).Value, ActualPosition.CameraPosition);
+        SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.GetSpinnerColorIndex(self, true);
 #pragma warning restore CS8629
         Color color = SpinnerRenderHelper.GetSpinnerColor(index);
         // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
-        if (!self.isLightning() && TasHelperSettings.EnableSimplifiedSpinner) {
-            SpinnerRenderHelper.DrawSpinnerCollider(self, color);
+        if (TasHelperSettings.EnableSimplifiedSpinner) {
+            if (!self.isLightning()) {
+                SpinnerRenderHelper.DrawSpinnerCollider(self, color);
+            }
+            else {
+                if (TasHelperSettings.EnableSimplifiedLightning && !self.Collidable) {
+                    DashedLine.DrawRect(self.Position + Vector2.One, self.Width, self.Height, color * 0.8f);
+                }
+                else {
+                    self.Collider.Render(camera, color * (self.Collidable ? 1f : HitboxColor.UnCollidableAlpha));
+                }
+            }
         }
         else {
             self.Collider.Render(camera, color * (self.Collidable ? 1f : HitboxColor.UnCollidableAlpha));

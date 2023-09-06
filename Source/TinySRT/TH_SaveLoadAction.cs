@@ -11,18 +11,18 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System.Collections.Concurrent;
 using System.Reflection;
-using SRT = Celeste.Mod.SpeedrunTool.SaveLoad;
 // need to check: never use SRT.StateManager
 using static Celeste.Mod.SpeedrunTool.Extensions.LoggerExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.TypeExtensions;
 using static Celeste.Mod.SpeedrunTool.GlobalVariables;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.DynDataUtils;
+using static Celeste.Mod.SpeedrunTool.SaveLoad.EventInstanceExtensions;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.FrostHelperUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.IgnoreSaveLoadComponent;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.MuteAudioUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.StrawberryJamUtils;
-using static Celeste.Mod.SpeedrunTool.SaveLoad.EventInstanceExtensions;
+using SRT = Celeste.Mod.SpeedrunTool.SaveLoad;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
@@ -420,7 +420,7 @@ public sealed class TH_SaveLoadAction {
         });
     }
 
-    
+
     private static void BetterCasualPlay() {
         SafeAdd(beforeSaveState: level => {
             level.Session.SetFlag("SpeedrunTool_Reset_unpauseTimer", false);
