@@ -19,6 +19,8 @@ public static class CustomInfoHelper {
                 }
             }
             if (level.SkippingCutscene) {
+                // can be wrong if cached CS and turn off, and turn on agagin when skipping another cutscene, but this does not really matter
+                // let's just avoid Updates as many as possible
                 return cachedCS;
             }
             return cachedCS = "";

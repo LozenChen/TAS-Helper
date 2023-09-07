@@ -54,7 +54,7 @@ public class TH_StateManager {
     private readonly HashSet<EventInstance> playingEventInstances = new();
 
 
-    // todo 
+    // seems unnecessary
     /*
      * private void ClearStateWhenSwitchScene(On.Monocle.Scene.orig_Begin orig, Scene self) {
         orig(self);
