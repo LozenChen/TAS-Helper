@@ -8,6 +8,21 @@ namespace Celeste.Mod.TASHelper.Gameplay;
 public static class CustomInfoHelper {
     // provide some property for Custom Info
 
+    private static string cachedCS = "";
+    public static string Cutscene { get {
+            if (Engine.Scene is not Level level) {
+                return cachedCS = "";
+            }
+            foreach (CutsceneEntity cs in level.Tracker.GetEntities<CutsceneEntity>()) {
+                if (cs.Running) {
+                    return cachedCS = cs.GetType().Name;
+                }
+            }
+            if (level.SkippingCutscene) {
+                return cachedCS;
+            }
+            return cachedCS = "";
+        } }
     public static Vector2 MouseState => MouseButtons.Position;
     public static Vector2 MouseCursorPos => Vector2.Transform(new Vector2(MouseState.X, MouseState.Y), Matrix.Invert(Engine.ScreenMatrix));
 
@@ -45,4 +60,9 @@ public static class CustomInfoHelper {
         }
     }
     // TAS mod somehow hides Player.Position, so we provide this
+
+    [Initialize]
+    private static void Initialize() {
+        LevelExtensions.AddToTracker(typeof(CutsceneEntity), true);
+    }
 }

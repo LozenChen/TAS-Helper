@@ -148,19 +148,31 @@ public static class Core {
         // base.Update(gameTime); i don't know how to call this correctly... bugs always occur
     }
 
+    [Load]
+    public static void Load() {
+        // CelesteTAS.Core uses DetourContext {After = new List<string> {"*"}} ""in Load"", so our hooks are "inside" TAS.Core hooks
+        // how tas frame is paused: early return in MInput. So our hooks should be after this
+        // not sure how the hook order works. to be safe i use same type of hook
+        IL.Monocle.Engine.Update += ILEngineUpdate;
+    }
+
+    [Unload]
+    public static void Unload() {
+        IL.Monocle.Engine.Update -= ILEngineUpdate;
+    }
+
+    private static void ILEngineUpdate(ILContext context) {
+        ILCursor cursor = new ILCursor(context);
+        if (cursor.TryGotoNext(MoveType.After, ins => ins.MatchCall(typeof(MInput), "Update"))) {
+            cursor.EmitDelegate(AfterMInputUpdate);
+        }
+    }
+
     [Initialize]
     public static void Initialize() {
-        // CelesteTAS.Core uses DetourContext {After = new List<string> {"*"}}, so our hooks are "inside" TAS.Core hooks
-        // how tas frame is paused: early return in MInput. So our hooks should be after this
-
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => {
             if (StrictFrameStep && TasHelperSettings.PredictOnFrameStep && Engine.Scene is Level) {
                 Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, false);
-            }
-        });
-        typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).IlHook((cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.After, ins => ins.MatchCall(typeof(MInput), "Update"))) {
-                cursor.EmitDelegate(AfterMInputUpdate);
             }
         });
 

@@ -442,19 +442,30 @@ internal static class DictionaryExtensions {
 }
 
 internal static class LevelExtensions {
-    public static void AddToTracker(Type t) {
-        typeof(Level).GetMethod("LoadLevel").IlHook((cursor, _) => {
-            cursor.Emit(Mono.Cecil.Cil.OpCodes.Ldarg_0);
-            cursor.EmitDelegate((Level level) => {
-                if (!Tracker.TrackedEntityTypes.ContainsKey(t)) {
-                    Tracker.TrackedEntityTypes.Add(t, new List<Type>());
-                    Tracker.TrackedEntityTypes[t].Add(t);
+    public static void AddToTracker(Type entity, bool inherited = false) {
+        if (!typeof(Entity).IsAssignableFrom(entity)) {
+            return;
+        }
+
+        if (!Tracker.TrackedEntityTypes.ContainsKey(entity)) {
+            Tracker.TrackedEntityTypes.Add(entity, new List<Type>());
+            Tracker.TrackedEntityTypes[entity].Add(entity);
+        }
+
+        if (inherited) {
+            foreach (Type subclass in Tracker.GetSubclasses(entity)) {
+                if (!subclass.IsAbstract) {
+                    if (!Tracker.TrackedEntityTypes.ContainsKey(subclass)) {
+                        Tracker.TrackedEntityTypes.Add(subclass, new List<Type>());
+                    }
+                    Tracker.TrackedEntityTypes[subclass].Add(entity);
                 }
-                if (!level.Tracker.Entities.ContainsKey(t)) {
-                    level.Tracker.Entities.Add(t, new List<Entity>());
-                }
-            });
-        });
+            }
+        }
+
+        if (!Tracker.StoredEntityTypes.Contains(entity)) {
+            Tracker.StoredEntityTypes.Add(entity);
+        }
     }
 
     public static Vector2 ScreenToWorld(this Level level, Vector2 position) {

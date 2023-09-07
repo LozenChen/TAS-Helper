@@ -25,7 +25,7 @@ internal static class SimplifiedLightning {
             Color color;
             if (index == SpinnerRenderHelper.SpinnerColorIndex.Default) {
                 color = item.Collidable ? Color.Yellow * 0.5f : Color.White * alpha;
-            }else if (index == SpinnerRenderHelper.SpinnerColorIndex.Group1 || index == SpinnerRenderHelper.SpinnerColorIndex.Group2 || index == SpinnerRenderHelper.SpinnerColorIndex.Group3 || index == SpinnerRenderHelper.SpinnerColorIndex.MoreThan3) {
+            }else if (index is SpinnerRenderHelper.SpinnerColorIndex.Group1 or SpinnerRenderHelper.SpinnerColorIndex.Group2 or SpinnerRenderHelper.SpinnerColorIndex.Group3 or SpinnerRenderHelper.SpinnerColorIndex.MoreThan3) {
                 if (TasHelperSettings.HighlightLoadUnload && !item.Collidable && inView) {
                     color = Color.White * 0.2f;
                 } 
