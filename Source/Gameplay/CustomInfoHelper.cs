@@ -9,7 +9,8 @@ public static class CustomInfoHelper {
     // provide some property for Custom Info
 
     private static string cachedCS = "";
-    public static string Cutscene { get {
+    public static string Cutscene {
+        get {
             if (Engine.Scene is not Level level) {
                 return cachedCS = "";
             }
@@ -24,7 +25,8 @@ public static class CustomInfoHelper {
                 return cachedCS;
             }
             return cachedCS = "";
-        } }
+        }
+    }
     public static Vector2 MouseState => MouseButtons.Position;
     public static Vector2 MouseCursorPos => Vector2.Transform(new Vector2(MouseState.X, MouseState.Y), Matrix.Invert(Engine.ScreenMatrix));
 

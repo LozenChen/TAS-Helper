@@ -1,5 +1,5 @@
-﻿using Monocle;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using Monocle;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -16,7 +16,7 @@ public static class DashedLine {
 
     public static void Draw_H(Vector2 position, int length, Color color) {
         if (length > MaxPeriod) {
-            texture_H.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(1,MaxPeriod + 2, MaxPeriod, 1));
+            texture_H.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(1, MaxPeriod + 2, MaxPeriod, 1));
             Draw_H(position + MaxPeriod * Vector2.UnitX, length - MaxPeriod, color);
         }
         texture_H.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(1, length, length, 1));
@@ -34,9 +34,9 @@ public static class DashedLine {
         int w = (int)width;
         int h = (int)height;
         Draw_H(position, w, color);
-        Draw_H(position + (h - 1) * Vector2.UnitY , w, color);
-        Draw_V(position + Vector2.UnitY, h -2, color);
-        Draw_V(position + (w-1) * Vector2.UnitX + Vector2.UnitY, h-2, color);
+        Draw_H(position + (h - 1) * Vector2.UnitY, w, color);
+        Draw_V(position + Vector2.UnitY, h - 2, color);
+        Draw_V(position + (w - 1) * Vector2.UnitX + Vector2.UnitY, h - 2, color);
     }
     public static void DrawRect(Rectangle rect, Color color) {
         Draw_H(new Vector2(rect.X, rect.Y), rect.Width, color);

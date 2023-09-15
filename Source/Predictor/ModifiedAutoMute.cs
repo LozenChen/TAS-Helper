@@ -1,14 +1,10 @@
-﻿using Celeste.Mod.SpeedrunTool.Utils;
-using Celeste.Mod.TASHelper.Utils;
+﻿using Celeste.Mod.TASHelper.Utils;
 using FMOD;
 using FMOD.Studio;
-using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
 using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
-using TAS.Utils;
+
 
 namespace Celeste.Mod.TASHelper.Predictor;
 
@@ -94,7 +90,7 @@ public static class ModifiedAutoMute {
         // our goal on hooking CassetteBlockManager:
         // make predict in casseette rooms silent
         // SJ/Paint doesn't desync
-         IL.Celeste.CassetteBlockManager.AdvanceMusic += CassetteBlockManagerOnAdvanceMusic;
+        IL.Celeste.CassetteBlockManager.AdvanceMusic += CassetteBlockManagerOnAdvanceMusic;
     }
 
     [Unload]
@@ -152,7 +148,7 @@ public static class ModifiedAutoMute {
         ILCursor ilCursor = new(il);
         ilCursor.Goto(ilCursor.Instrs.Count - 1);
 
-        if (ilCursor.TryGotoPrev(MoveType.Before, ins => ins.OpCode == OpCodes.Ldstr,ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt(typeof(CassetteBlockManager), "GetSixteenthNote"))) {
+        if (ilCursor.TryGotoPrev(MoveType.Before, ins => ins.OpCode == OpCodes.Ldstr, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt(typeof(CassetteBlockManager), "GetSixteenthNote"))) {
             ilCursor.MoveAfterLabels();
             ilCursor.EmitDelegate(GetShouldBeMuted);
             Instruction next = ilCursor.Next;

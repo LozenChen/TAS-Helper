@@ -2,7 +2,6 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
-using YamlDotNet.Core;
 
 namespace Celeste.Mod.TASHelper.Utils;
 internal static class HookHelper {

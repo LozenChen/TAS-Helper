@@ -8,7 +8,7 @@ namespace Celeste.Mod.TASHelper.Module.Menu;
 internal static class TASHelperMenu {
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
 
-    private static readonly TextMenu.Item Hline = new TextMenuExt.SubHeaderExt("Hline".ToDialogText()) { TextColor = Color.Gray, HeightExtra = 0f};
+    private static readonly TextMenu.Item Hline = new TextMenuExt.SubHeaderExt("Hline".ToDialogText()) { TextColor = Color.Gray, HeightExtra = 0f };
     private static EaseInOptionSubMenuCountExt CreateColorCustomizationSubMenu(TextMenu menu, bool inGame) {
         EaseInOptionSubMenuCountExt ColorCustomizationItem = new EaseInOptionSubMenuCountExt("Color Customization".ToDialogText());
         ColorCustomizationItem.OnLeave += () => ColorCustomizationItem.MenuIndex = 0;
@@ -77,10 +77,10 @@ internal static class TASHelperMenu {
             subMenu.Add(Hline);
             TextMenu.Item simplifiedLightning;
             subMenu.Add(simplifiedLightning = new TextMenuExt.EnumerableSlider<SimplifiedGraphicsMode>("Simplified Lightning".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnableSimplifiedLightningMode).Change(value => TasHelperSettings.EnableSimplifiedLightningMode = value));
-            subMenu.AddDescription(menu, simplifiedLightning,"Simplified Lightning Description".ToDialogText());
+            subMenu.AddDescription(menu, simplifiedLightning, "Simplified Lightning Description".ToDialogText());
             TextMenu.Item highlightItem;
             subMenu.Add(highlightItem = new TextMenu.OnOff("Highlight Load Unload".ToDialogText(), TasHelperSettings.HighlightLoadUnload).Change(value => TasHelperSettings.HighlightLoadUnload = value));
-            subMenu.AddDescription(menu, highlightItem,"Highlight Description".ToDialogText());
+            subMenu.AddDescription(menu, highlightItem, "Highlight Description".ToDialogText());
         });
     }
 
