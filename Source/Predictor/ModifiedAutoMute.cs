@@ -1,9 +1,13 @@
-﻿using Celeste.Mod.TASHelper.Utils;
+﻿using Celeste.Mod.SpeedrunTool.Utils;
+using Celeste.Mod.TASHelper.Utils;
 using FMOD;
 using FMOD.Studio;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using TAS.Utils;
 
 namespace Celeste.Mod.TASHelper.Predictor;
@@ -87,7 +91,10 @@ public static class ModifiedAutoMute {
         On.Celeste.Audio.SetMusic += AudioOnSetMusic;
         On.Celeste.Audio.SetAltMusic += AudioOnSetAltMusic;
         On.FMOD.Studio.EventDescription.createInstance += EventDescriptionOnCreateInstance;
-        IL.Celeste.CassetteBlockManager.AdvanceMusic += CassetteBlockManagerOnAdvanceMusic;
+        // our goal on hooking CassetteBlockManager:
+        // make predict in casseette rooms silent
+        // SJ/Paint doesn't desync
+         IL.Celeste.CassetteBlockManager.AdvanceMusic += CassetteBlockManagerOnAdvanceMusic;
     }
 
     [Unload]
@@ -123,7 +130,7 @@ public static class ModifiedAutoMute {
             result = orig(self, out instance);
         }
 
-        if (!ShouldBeMuted && instance != null && path.IsNotNullOrEmpty()) {
+        if (inPredict && settingMusic && instance != null && path.IsNotNullOrEmpty()) {
             int delayFrames = -1;
             if (LoopAudioPaths.Contains(path)) {
                 delayFrames = 10;
@@ -144,14 +151,20 @@ public static class ModifiedAutoMute {
     private static void CassetteBlockManagerOnAdvanceMusic(ILContext il) {
         ILCursor ilCursor = new(il);
         ilCursor.Goto(ilCursor.Instrs.Count - 1);
-        if (ilCursor.TryGotoPrev(ins => ins.MatchLdfld<CassetteBlockManager>("leadBeats"), ins => ins.OpCode == OpCodes.Ldc_I4_0)) {
-            ilCursor.Index++;
-            ilCursor.EmitDelegate<Func<int, int>>(MuteBeats);
+
+        if (ilCursor.TryGotoPrev(MoveType.Before, ins => ins.OpCode == OpCodes.Ldstr,ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt(typeof(CassetteBlockManager), "GetSixteenthNote"))) {
+            ilCursor.MoveAfterLabels();
+            ilCursor.EmitDelegate(GetShouldBeMuted);
+            Instruction next = ilCursor.Next;
+            ilCursor.Emit(OpCodes.Brfalse, next);
+            ilCursor.Emit(OpCodes.Pop);
+            ilCursor.Emit(OpCodes.Ret);
         }
     }
 
-    private static int MuteBeats(int leadBeats) {
-        return ShouldBeMuted ? 1 : leadBeats;
+
+    public static bool GetShouldBeMuted() {
+        return ShouldBeMuted;
     }
 
     internal static void StartMute() {
@@ -162,5 +175,27 @@ public static class ModifiedAutoMute {
     internal static void EndMute() {
         Settings.Instance.ApplySFXVolume();
         inPredict = false;
+    }
+
+    internal static void CelesteOnUpdate() {
+        Audio.CurrentAmbienceEventInstance?.setVolume(0);
+
+        if (LoopAudioInstances.Count > 0) {
+            WeakReference<EventInstance>[] copy = LoopAudioInstances.Keys.ToArray();
+            foreach (WeakReference<EventInstance> loopAudioInstance in copy) {
+                if (loopAudioInstance.TryGetTarget(out EventInstance eventInstance)) {
+                    if (LoopAudioInstances[loopAudioInstance] <= 0) {
+                        eventInstance.setVolume(0);
+                        LoopAudioInstances.Remove(loopAudioInstance);
+                    }
+                    else {
+                        LoopAudioInstances[loopAudioInstance]--;
+                    }
+                }
+                else {
+                    LoopAudioInstances.Remove(loopAudioInstance);
+                }
+            }
+        }
     }
 }

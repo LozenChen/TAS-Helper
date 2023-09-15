@@ -2,6 +2,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using YamlDotNet.Core;
 
 namespace Celeste.Mod.TASHelper.Utils;
 internal static class HookHelper {
@@ -93,6 +94,21 @@ internal static class HookHelper {
                     ilCursor.Emit(OpCodes.Brfalse, start).Emit(OpCodes.Ldc_R4, 0f).Emit(OpCodes.Ret);
                 });
             }
+        }
+    }
+
+    public static void CILCodeLogger(this ILCursor ilCursor, int logCount = 19) {
+        // remember, Commands.Log can only work in Initialize()
+        Celeste.Commands.Log("------------------------------");
+        while (logCount > 0 && ilCursor.Next is not null) {
+            if (ilCursor.Next.Operand is ILLabel label) {
+                Celeste.Commands.Log($"{ilCursor.Next.Offset}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand} | {label.Target.Offset}, {label.Target.OpCode}");
+            }
+            else {
+                Celeste.Commands.Log($"{ilCursor.Next.Offset}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand}");
+            }
+            logCount--;
+            ilCursor.Index++;
         }
     }
 }

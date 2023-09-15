@@ -48,7 +48,7 @@ internal static class SimplifiedLightning {
             Monocle.Draw.Rect(rectangle, color);
             //Draw.SpriteBatch.Draw(GameplayBuffers.Lightning, item.Position + Vector2.One, rectangle, Color.Yellow);
 
-            if (visible) {
+            if (!DebugRendered && visible) {
                 Draw.HollowRect(rectangle, Color.LightGoldenrodYellow);
             }
 
