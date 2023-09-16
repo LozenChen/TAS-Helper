@@ -172,7 +172,8 @@ internal static class TASHelperMenu {
         return new List<KeyValuePair<LoadRangeColliderModes, string>> {
             new(LoadRangeColliderModes.Off, "LRC Mode Off".ToDialogText()),
             new(LoadRangeColliderModes.Auto, "LRC Mode Auto".ToDialogText()),
-            new(LoadRangeColliderModes.Always, "LRC Mode Always".ToDialogText()),
+            //new(LoadRangeColliderModes.Always, "LRC Mode Always".ToDialogText()),
+            // Always Mode is a bit cursed, so i remove it
         };
     }
     private static IEnumerable<KeyValuePair<CountdownModes, string>> CreateCountdownOptions() {

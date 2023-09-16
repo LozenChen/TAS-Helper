@@ -15,6 +15,9 @@ public static class DashedLine {
     }
 
     public static void Draw_H(Vector2 position, int length, Color color) {
+        if (length <= 0) {
+            return;
+        }
         if (length > MaxPeriod) {
             texture_H.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(1, MaxPeriod + 2, MaxPeriod, 1));
             Draw_H(position + MaxPeriod * Vector2.UnitX, length - MaxPeriod, color);
@@ -23,6 +26,9 @@ public static class DashedLine {
     }
 
     public static void Draw_V(Vector2 position, int length, Color color) {
+        if (length <= 0) {
+            return;
+        }
         if (length > MaxPeriod) {
             texture_V.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(MaxPeriod + 2, 1, 1, MaxPeriod));
             Draw_V(position + MaxPeriod * Vector2.UnitY, length - MaxPeriod, color);
@@ -30,18 +36,37 @@ public static class DashedLine {
         texture_V.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(length, 1, 1, length));
     }
 
+    public static void Trunc_Draw_V(Vector2 position, int length, Color color) {
+        if (length <= MaxPeriod - 2) {
+            texture_V.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(length + 2, 2, 1, length));
+            return;
+        }
+
+        // draw top end
+        texture_V.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(MaxPeriod + 2, 2, 1, MaxPeriod - 1));
+        position += Vector2.UnitY * (MaxPeriod - 1);
+        length -= MaxPeriod - 1;
+        while (length > MaxPeriod) {
+            texture_V.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(MaxPeriod + 2, 1, 1, MaxPeriod));
+            position += MaxPeriod * Vector2.UnitY;
+            length -= MaxPeriod;
+        }
+        // draw bottom end
+        texture_V.Draw(position, Vector2.Zero, color, Vector2.One, 0f, new Rectangle(length + 1, 1, 1, length));
+    }
+
     public static void DrawRect(Vector2 position, float width, float height, Color color) {
         int w = (int)width;
         int h = (int)height;
         Draw_H(position, w, color);
         Draw_H(position + (h - 1) * Vector2.UnitY, w, color);
-        Draw_V(position + Vector2.UnitY, h - 2, color);
-        Draw_V(position + (w - 1) * Vector2.UnitX + Vector2.UnitY, h - 2, color);
+        Trunc_Draw_V(position + Vector2.UnitY, h - 2, color);
+        Trunc_Draw_V(position + (w - 1) * Vector2.UnitX + Vector2.UnitY, h - 2, color);
     }
     public static void DrawRect(Rectangle rect, Color color) {
         Draw_H(new Vector2(rect.X, rect.Y), rect.Width, color);
         Draw_H(new Vector2(rect.X, rect.Y + rect.Height - 1), rect.Width, color);
-        Draw_V(new Vector2(rect.X, rect.Y + 1), rect.Height - 2, color);
-        Draw_V(new Vector2(rect.X + rect.Width - 1, rect.Y + 1), rect.Height - 2, color);
+        Trunc_Draw_V(new Vector2(rect.X, rect.Y + 1), rect.Height - 2, color);
+        Trunc_Draw_V(new Vector2(rect.X + rect.Width - 1, rect.Y + 1), rect.Height - 2, color);
     }
 }
