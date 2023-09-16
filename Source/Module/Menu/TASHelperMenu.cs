@@ -64,6 +64,10 @@ internal static class TASHelperMenu {
             TextMenu.Item CameraZoomItem;
             subMenu.Add(CameraZoomItem = new TextMenu.OnOff("Apply Camera Zoom".ToDialogText(), TasHelperSettings.ApplyCameraZoom).Change(value => TasHelperSettings.ApplyCameraZoom = value));
             subMenu.AddDescription(menu, CameraZoomItem, "Apply Camera Zoom Description".ToDialogText());
+            TextMenu.Item LRCItem;
+            subMenu.Add(LRCItem = new TextMenuExt.EnumerableSlider<LoadRangeColliderModes>("Load Range Collider".ToDialogText(), CreateEnableLoadRangeColliderOptions(),
+                TasHelperSettings.LoadRangeColliderMode).Change(value => TasHelperSettings.LoadRangeColliderMode = value));
+            subMenu.AddDescription(menu, LRCItem, "LRC Description".ToDialogText());
         });
     }
 
@@ -161,6 +165,14 @@ internal static class TASHelperMenu {
             new(UsingNotInViewColorModes.Off, "NotInView Color Modes Off".ToDialogText()),
             new(UsingNotInViewColorModes.WhenUsingInViewRange, "NotInView Color Modes When".ToDialogText()),
             new(UsingNotInViewColorModes.Always, "NotInView Color Modes Always".ToDialogText()),
+        };
+    }
+
+    private static IEnumerable<KeyValuePair<LoadRangeColliderModes, string>> CreateEnableLoadRangeColliderOptions() {
+        return new List<KeyValuePair<LoadRangeColliderModes, string>> {
+            new(LoadRangeColliderModes.Off, "LRC Mode Off".ToDialogText()),
+            new(LoadRangeColliderModes.Auto, "LRC Mode Auto".ToDialogText()),
+            new(LoadRangeColliderModes.Always, "LRC Mode Always".ToDialogText()),
         };
     }
     private static IEnumerable<KeyValuePair<CountdownModes, string>> CreateCountdownOptions() {

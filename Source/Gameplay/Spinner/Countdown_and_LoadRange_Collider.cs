@@ -17,7 +17,7 @@ internal static class Countdown_and_LoadRange_Collider {
         if (TasHelperSettings.DoNotRenderWhenFarFromView && SpinnerCalculateHelper.FarFromRange(self, ActualPosition.PlayerPosition, ActualPosition.CameraPosition, 0.25f)) {
             return;
         }
-        if (TasHelperSettings.UsingLoadRange) {
+        if (TasHelperSettings.UsingLoadRangeCollider) {
             DrawLoadRangeCollider(self.Position, self.Width, self.Height, ActualPosition.CameraPosition, self.isLightning());
         }
         if (TasHelperSettings.UsingCountDown && NotCountdownBoost) {
@@ -38,7 +38,7 @@ internal static class Countdown_and_LoadRange_Collider {
     public static void DrawLoadRangeCollider(Vector2 Position, float Width, float Height, Vector2 CameraPos, bool isLightning) {
         if (isLightning) {
             // only check in view for lightning
-            if (TasHelperSettings.UsingInViewRange && !SpinnerCalculateHelper.InView(Position, Width, Height, CameraPos, true)) {
+            if ((TasHelperSettings.UsingInViewRange || TasHelperSettings.loadRangeColliderMode == Module.TASHelperSettings.LoadRangeColliderModes.Always) && !SpinnerCalculateHelper.InView(Position, Width, Height, CameraPos, true)) {
                 Monocle.Draw.HollowRect(Position, Width + 1, Height + 1, SpinnerCenterColor);
             }
         }

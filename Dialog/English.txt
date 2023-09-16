@@ -93,6 +93,14 @@ TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer Range Widt
 TAS_HELPER_LOAD_RANGE_OPACITY=                             Load Range Opacity
 TAS_HELPER_APPLY_CAMERA_ZOOM=                              InView Range zoom with Camera
 TAS_HELPER_APPLY_CAMERA_ZOOM_DESCRIPTION=                  Turn it on only when need checking VivHelper.CustomSpinner is InView or not.
+TAS_HELPER_LRC_MODE_OFF=                                   Off
+TAS_HELPER_LRC_MODE_AUTO=                                  Auto
+TAS_HELPER_LRC_MODE_ALWAYS=                                Always
+TAS_HELPER_LOAD_RANGE_COLLIDER=                            Use Load Range Collider
+TAS_HELPER_LRC_DESCRIPTION=                                If a hazard's load range collider collides with a load range,{n}
+                                                           then it's inside that load range.{n}
+                                                           For spinner and dust bunny, the collider is its center point.{n}
+                                                           For lightning, the collider is a hitbox which is 1px wider & taller than its hurtbox.
 
 # ============================================= Simplified Spinners =====================================================
 TAS_HELPER_SIMPLIFIED_GRAPHICS=                            Simplified Graphics

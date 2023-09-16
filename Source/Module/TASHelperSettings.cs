@@ -24,6 +24,7 @@ public class TASHelperSettings : EverestModuleSettings {
         CountdownFont = CountdownFonts.HiresFont;
         loadRangeMode = LoadRangeModes.Neither;
         EnforceClearSprites = SimplifiedGraphicsMode.WhenSimplifyGraphics;
+        LoadRangeColliderMode = LoadRangeColliderModes.Auto;
     }
 
     internal void OnLoadSettings() {
@@ -200,6 +201,12 @@ public class TASHelperSettings : EverestModuleSettings {
             UsingInViewRange = LoadRangeMode == LoadRangeModes.InViewRange || LoadRangeMode == LoadRangeModes.Both;
             UsingNearPlayerRange = LoadRangeMode == LoadRangeModes.NearPlayerRange || LoadRangeMode == LoadRangeModes.Both;
             UsingNotInViewColor = (UsingNotInViewColorMode == UsingNotInViewColorModes.Always) || (UsingNotInViewColorMode == UsingNotInViewColorModes.WhenUsingInViewRange && UsingInViewRange);
+            UsingLoadRangeCollider = LoadRangeColliderMode switch {
+                LoadRangeColliderModes.Off => false,
+                LoadRangeColliderModes.Auto => UsingLoadRange,
+                LoadRangeColliderModes.Always => true,
+                _ => true
+            };
         }
     }
 
@@ -219,6 +226,25 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     public bool ApplyCameraZoom = false;
+
+    public enum LoadRangeColliderModes { Off, Auto, Always };
+
+    public LoadRangeColliderModes loadRangeColliderMode = LoadRangeColliderModes.Auto;
+
+    [YamlIgnore]
+
+    public LoadRangeColliderModes LoadRangeColliderMode {
+        get => loadRangeColliderMode;
+        set {
+            loadRangeColliderMode = value;
+            UsingLoadRangeCollider = LoadRangeColliderMode switch {
+                LoadRangeColliderModes.Off => false,
+                LoadRangeColliderModes.Auto => UsingLoadRange,
+                LoadRangeColliderModes.Always => true,
+                _ => true
+            };
+        }
+    }
 
     #endregion
 
@@ -311,12 +337,20 @@ public class TASHelperSettings : EverestModuleSettings {
         UsingLoadRange = (LoadRangeMode != LoadRangeModes.Neither);
         UsingInViewRange = (LoadRangeMode == LoadRangeModes.InViewRange || LoadRangeMode == LoadRangeModes.Both);
         UsingNearPlayerRange = (LoadRangeMode == LoadRangeModes.NearPlayerRange || LoadRangeMode == LoadRangeModes.Both);
+
+        UsingLoadRangeCollider = LoadRangeColliderMode switch {
+            LoadRangeColliderModes.Off => false,
+            LoadRangeColliderModes.Auto => UsingLoadRange,
+            LoadRangeColliderModes.Always => true,
+            _ => true
+        };
     }
     public bool UsingCountDown = false;
     public bool UsingLoadRange = true;
     public bool UsingInViewRange = true;
     public bool UsingNearPlayerRange = true;
     public bool SpinnerCountdownLoad = true;
+    public bool UsingLoadRangeCollider = true;
 
     [Obsolete]
     public int SpinnerCountdownUpperBound => SpinnerCountdownLoad ? 9 : 99;

@@ -70,4 +70,6 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - TAS Helper does not save settings (change settings in the menu) when closing game with the X instead of the exit button in game -> Can't reproduce. It's said that turning off and on tashelper after changing settings will work. After several changes on settings system, i guess this bug should be addressed after v1.6.5.
 
-- YamlException in Log.txt. -> fixed in v1.6.5
+- YamlException in Log.txt. -> fixed in v1.6.5.
+
+- Predictor can't handle commands like StunPause Simulate (StunPause Input is ok), SetCommands, InvokeCommands and so on. -> Currently don't plan to support them. Tell me if you need this feature.

@@ -95,6 +95,13 @@ TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer 范围的�
 TAS_HELPER_LOAD_RANGE_OPACITY=                             加载范围的不透明度
 TAS_HELPER_APPLY_CAMERA_ZOOM=                              InView 范围随镜头缩放
 TAS_HELPER_APPLY_CAMERA_ZOOM_DESCRIPTION=                  仅在需要判定 VivHelper.CustomSpinner 是否 InView 时需要开启此项.
+TAS_HELPER_LRC_MODE_OFF=                                   关
+TAS_HELPER_LRC_MODE_AUTO=                                  自动
+TAS_HELPER_LRC_MODE_ALWAYS=                                总是
+TAS_HELPER_LOAD_RANGE_COLLIDER=                            加载范围碰撞体
+TAS_HELPER_LRC_DESCRIPTION=                                如果圆刺/闪电的加载范围碰撞体, 与加载范围碰撞, 则视为它们在相应的加载区域中.{n}
+                                                           对于圆刺与煤球, 加载范围碰撞体是中心的一点.{n}
+                                                           对于闪电, 加载范围碰撞体是比其伤害箱水平竖直均多 1px 的矩形区域.
 
 # ============================================= Simplified Spinners =====================================================
 TAS_HELPER_SIMPLIFIED_GRAPHICS=                            简化图形
