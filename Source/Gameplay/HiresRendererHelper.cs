@@ -217,22 +217,28 @@ public class CountdownRenderer : THRenderer {
 
         Vector2 scale = new Vector2(TasHelperSettings.HiresFontSize / 10f);
         float stroke = TasHelperSettings.HiresFontStroke * 0.4f;
-        foreach (int ID in ID2Positions.Keys) {
+        foreach (int ID_inDict in ID2Positions.Keys) {
             string str;
-            if (ID >= 0 && ID < 100) {
-                str = ID.ToString();
+            int id = ID_inDict;
+            bool uncollidable = id > 100;
+            if (uncollidable) {
+                id -= SpinnerRenderHelper.ID_uncollidable_offset;
             }
-            else if (ID == SpinnerRenderHelper.ID_infinity) {
+            if (id >= 0 && id < 100) {
+                str = id.ToString();
+            }
+            else if (id == SpinnerRenderHelper.ID_infinity) {
                 str = "oo";
             }
-            else if (ID == SpinnerRenderHelper.ID_nocycle) {
+            else if (id == SpinnerRenderHelper.ID_nocycle) {
                 str = "0";
             }
             else {
-                throw new Exception($"[Error] TASHelper: Unexpected ID ({ID}) in CountdownRenderer!");
+                throw new Exception($"[Error] TASHelper: Unexpected ID ({ID_inDict}) in CountdownRenderer!");
             }
-            foreach (Vector2 Position in ID2Positions[ID]) {
-                Message.RenderMessage(str, Position, new Vector2(0.5f, 0.2f), scale, stroke);
+            Color colorInside = TasHelperSettings.DarkenWhenUncollidable && uncollidable ? Color.Gray : Color.White;
+            foreach (Vector2 Position in ID2Positions[ID_inDict]) {
+                Message.RenderMessage(str, Position, new Vector2(0.5f, 0.2f), scale, stroke, colorInside, Color.Black);
             }
         }
     }

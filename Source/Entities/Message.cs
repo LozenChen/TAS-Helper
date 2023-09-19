@@ -147,7 +147,9 @@ public class HotkeyWatcher : Message {
 
     public void RefreshMainSwitch() {
         RestoreAlpha(false);
+#pragma warning disable CS8524
         text = "TAS Helper Main Switch Mode " + (TasHelperSettings.MainSwitchThreeStates ? "[Off - Default - All]" : "[Off - All]") + " = " + (TasHelperSettings.MainSwitch switch { MainSwitchModes.Off => "Off", MainSwitchModes.OnlyDefault => "Default", MainSwitchModes.AllowAll => "All" });
+#pragma warning restore CS8524
         lifetimer = lifetime;
         Active = true;
         Visible = TasHelperSettings.HotkeyStateVisualize;
@@ -239,5 +241,9 @@ public class Message : Entity {
     }
     public static void RenderMessage(string str, Vector2 Position, Vector2 justify, Vector2 scale, float stroke) {
         Font.DrawOutline(BaseSize, str, Position, justify, scale, Color.White, stroke, Color.Black);
+    }
+
+    public static void RenderMessage(string str, Vector2 Position, Vector2 justify, Vector2 scale, float stroke, Color colorInside, Color colorOutline) {
+        Font.DrawOutline(BaseSize, str, Position, justify, scale, colorInside, stroke, colorOutline);
     }
 }

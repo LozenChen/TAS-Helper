@@ -43,6 +43,7 @@ internal static class TASHelperMenu {
             subMenu.AddDescription(menu, CountdownBoostItem, "Countdown Boost Description".ToDialogText());
             subMenu.Add(new TextMenuExt.EnumerableSlider<CountdownFonts>("Font".ToDialogText(), CreateCountdownFontOptions(),
                 TasHelperSettings.CountdownFont).Change(value => TasHelperSettings.CountdownFont = value));
+            subMenu.Add(new TextMenu.OnOff("Darken When Uncollidable".ToDialogText(), TasHelperSettings.DarkenWhenUncollidable).Change(value => TasHelperSettings.DarkenWhenUncollidable = value));
             subMenu.Add(new TextMenuExt.IntSlider("Hires Font Size".ToDialogText(), 1, 20, TasHelperSettings.HiresFontSize).Change(value => TasHelperSettings.HiresFontSize = value));
             subMenu.Add(new TextMenuExt.IntSlider("Hires Font Stroke".ToDialogText(), 0, 20, TasHelperSettings.HiresFontStroke).Change(value => TasHelperSettings.HiresFontStroke = value));
             TextMenu.Item OptimizationItem;
@@ -393,7 +394,9 @@ public class ModuleSettingsKeyboardConfigUIExt : ModuleSettingsKeyboardConfigUI 
 
                 Bindings.Add(new ButtonBindingEntry(binding, defaults));
 
+#pragma warning disable CS8600
                 string subheader = prop.GetCustomAttribute<SettingSubHeaderAttribute>()?.SubHeader;
+#pragma warning restore CS8600
                 if (subheader != null)
                     Add(new TextMenuExt.SubHeaderExt(subheader.DialogCleanOrNull() ?? subheader) {
                         TextColor = Color.Gray,
@@ -403,7 +406,9 @@ public class ModuleSettingsKeyboardConfigUIExt : ModuleSettingsKeyboardConfigUI 
 
                 AddMapForceLabel(name, binding.Binding);
 
+#pragma warning disable CS8600
                 string description = prop.GetCustomAttribute<SettingDescriptionHardcodedAttribute>()?.description();
+#pragma warning restore CS8600
                 if (description != null)
                     Add(new TextMenuExt.SubHeaderExt(description) {
                         TextColor = Color.Gray,
@@ -434,7 +439,9 @@ public class EaseInSubHeaderExtPub : TextMenuExt.SubHeaderExt {
     public bool FadeVisible { get; set; } = true;
 
 
+#pragma warning disable CS8625
     public EaseInSubHeaderExtPub(string title, bool initiallyVisible, TextMenu containingMenu, string icon = null)
+#pragma warning restore CS8625
         : base(title, icon) {
         this.containingMenu = containingMenu;
         FadeVisible = initiallyVisible;

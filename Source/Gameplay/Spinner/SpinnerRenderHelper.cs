@@ -35,8 +35,6 @@ internal static class SpinnerRenderHelper {
         }
     }
 
-
-
     internal static Color DefaultColor => TasSettings.EntityHitboxColor;
     internal static Color NotInViewColor => TasHelperSettings.NotInViewColor;
     internal static Color NeverActivateColor => TasHelperSettings.NeverActivateColor;
@@ -62,12 +60,15 @@ internal static class SpinnerRenderHelper {
 
     public static SpinnerColorIndex GetSpinnerColorIndex(Entity Hazard, bool checkInView) {
         // we assume you've checked it's a hazard
+#pragma warning disable CS8629
         return checkInView ? CycleHitboxColorIndex(Hazard, SpinnerCalculateHelper.GetOffset(Hazard).Value, ActualPosition.CameraPosition) : CycleHitboxColorIndexNoInView(Hazard, SpinnerCalculateHelper.GetOffset(Hazard).Value);
+#pragma warning restore CS8629
     }
 
     internal const int ID_nocycle = -2;
     internal const int ID_infinity = -1;
-    public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index) {
+    internal const int ID_uncollidable_offset = 163;
+    public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index, bool collidable = true) {
         if (TasHelperSettings.usingHiresFont) {
             // when TimeRate > 1, NeverActivate can activate; when TimeRate < 1, FreezeActivatesEveryFrame can take more than 0 frame.
             // so in these cases i just use CountdownTimer
@@ -83,16 +84,20 @@ internal static class SpinnerRenderHelper {
             else {
                 ID = CountdownTimer;
             }
+            if (!collidable) {
+                ID += ID_uncollidable_offset;
+            }
             CountdownRenderer.Add(ID, (Position + new Vector2(1.5f, -0.5f)) * 6f);
             return;
         }
         else {
+            Color color = !TasHelperSettings.DarkenWhenUncollidable || collidable ? Color.White : Color.Gray;
             if (index == SpinnerColorIndex.NoCycle) {
-                numbers[0].DrawOutline(Position);
+                numbers[0].DrawOutline(Position, Vector2.Zero, color);
                 return;
             }
             if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
-                numbers[9].DrawOutline(Position);
+                numbers[9].DrawOutline(Position, Vector2.Zero, color);
                 return;
             }
             //if (index == SpinnerColorIndex.ActivatesEveryFrame) {
@@ -100,10 +105,10 @@ internal static class SpinnerRenderHelper {
             //    return;
             //}
             if (CountdownTimer > 9) {
-                numbers[CountdownTimer / 10].DrawOutline(Position + new Vector2(-4, 0));
+                numbers[CountdownTimer / 10].DrawOutline(Position + new Vector2(-4, 0), Vector2.Zero, color);
                 CountdownTimer %= 10;
             }
-            numbers[CountdownTimer].DrawOutline(Position);
+            numbers[CountdownTimer].DrawOutline(Position, Vector2.Zero, color);
         }
     }
 

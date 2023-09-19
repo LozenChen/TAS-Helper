@@ -72,6 +72,7 @@ TAS_HELPER_HIRES_FONT=                                     Hires Font
 TAS_HELPER_PIXEL_FONT=                                     Pixel Font
 TAS_HELPER_HIRES_FONT_SIZE=                                Hires Font Size
 TAS_HELPER_HIRES_FONT_STROKE=                              Hires Font Stroke
+TAS_HELPER_DARKEN_WHEN_UNCOLLIDABLE=                       Darken when Uncollidable
 TAS_HELPER_PERFORMANCE_OPTIMIZATION=                       Performance Optimization
 TAS_HELPER_PERFORMANCE_OPTIMIZATION_DESCRIPTION=           Countdown and LoadRangeCollider will not render when far from view.
 TAS_HELPER_COUNTDOWN_BOOST=                                Auto Hide/Show Countdown
@@ -91,7 +92,7 @@ TAS_HELPER_IN_VIEW_DESCRIPTION=                            When InView Range Wid
                                                            It matches Celeste TAS's Camera Hitboxes.
 TAS_HELPER_NEAR_PLAYER_RANGE_WIDTH=                        NearPlayer Range Width
 TAS_HELPER_LOAD_RANGE_OPACITY=                             Load Range Opacity
-TAS_HELPER_APPLY_CAMERA_ZOOM=                              InView Range zoom with Camera
+TAS_HELPER_APPLY_CAMERA_ZOOM=                              InView Range Zoom with Camera
 TAS_HELPER_APPLY_CAMERA_ZOOM_DESCRIPTION=                  Turn it on only when need checking VivHelper.CustomSpinner is InView or not.
 TAS_HELPER_LRC_MODE_OFF=                                   Off
 TAS_HELPER_LRC_MODE_AUTO=                                  Auto
@@ -102,7 +103,7 @@ TAS_HELPER_LRC_DESCRIPTION=                                If a hazard's load ra
                                                            For spinner and dust bunny, the collider is its center point.{n}
                                                            For lightning, the collider is a hitbox which is 1px wider & taller than its hurtbox.
 
-# ============================================= Simplified Spinners =====================================================
+# ============================================= Simplified Graphics =====================================================
 TAS_HELPER_SIMPLIFIED_GRAPHICS=                            Simplified Graphics
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            Simplified Spinners
 TAS_HELPER_CLEAR_SPINNER_SPRITES=                          Clear Spinner Sprites
@@ -114,7 +115,7 @@ TAS_HELPER_SPINNER_FILLER_OPACITY_EXTRA=                   Spinner Filler Opacit
 TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           Ignore TAS mod's Uncollidable Hitboxes Opacity
 TAS_HELPER_SIMPLIFIED_LIGHTNING=                           Lightning Enhancement
 TAS_HELPER_SIMPLIFIED_LIGHTNING_DESCRIPTION=               Collidable: high opacity with solid border | Uncollidable: low opacity with dashed border.
-TAS_HELPER_HIGHLIGHT_LOAD_UNLOAD=                          Highlight loading/unloading lightning
+TAS_HELPER_HIGHLIGHT_LOAD_UNLOAD=                          Highlight Loading/Unloading Lightning
 TAS_HELPER_HIGHLIGHT_DESCRIPTION=                          White: loading | Black: unloading.
 
 # ============================================= Hotkeys =====================================================
@@ -130,7 +131,7 @@ TAS_HELPER_MAIN_SWITCH_STATE=                              Mode of Main Switch H
 TAS_HELPER_MAIN_SWITCH_THREE_STATES=                       Off - Default - All
 TAS_HELPER_MAIN_SWITCH_TWO_STATES=                         Off - All
 TAS_HELPER_MAIN_SWITCH_VISUALIZE=                          Visualize Hotkey
-TAS_HELPER_MAIN_SWITCH_PREVENT=                            Allow enabling this mod with hotkey
+TAS_HELPER_MAIN_SWITCH_PREVENT=                            Allow Enabling this Mod with Hotkey
 TAS_HELPER_CONFIGURE_AT_STATE_ALL=                         Please configure other settings in State All.
 TAS_HELPER_PREDICT_ENABLE_HOTKEY=                          Enable/Disable Predictor
 TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          Make a Prediction
@@ -142,9 +143,9 @@ TAS_HELPER_PREDICTOR_DESCRIPTION=                          Predict your future t
                                                            AND any selected conditions of the following is satisfied.
 TAS_HELPER_TIMELINE_LENGTH=                                Timeline Length
 TAS_HELPER_PREDICT_START_CONDITIONS=                       ----------------------- Conditions: -----------------------
-TAS_HELPER_PREDICT_ON_FILE_CHANGE=                         Predict on tas file changed
-TAS_HELPER_PREDICT_ON_HOTKEY_PRESSED=                      Predict on hotkey pressed
-TAS_HELPER_PREDICT_ON_FRAME_STEP=                          Predict on frame stepping
+TAS_HELPER_PREDICT_ON_FILE_CHANGE=                         Predict on Tas File Changed
+TAS_HELPER_PREDICT_ON_HOTKEY_PRESSED=                      Predict on Hotkey Pressed
+TAS_HELPER_PREDICT_ON_FRAME_STEP=                          Predict on Frame Stepping
 TAS_HELPER_PREDICTOR_FINISHED=                             Finished
 TAS_HELPER_PREDICTOR_ONOFF=                                Switches
 TAS_HELPER_PREDICTOR_KEYFRAME_1=                           Keyframe/1
@@ -163,12 +164,12 @@ TAS_HELPER_PREDICTOR_LEVEL_CONTROL_DESCRIPTION=            Level not in control:
 TAS_HELPER_PREDICTOR_PLAYER_CONTROL_DESCRIPTION=           Player not in control: StateMachine.State > 10, and not in feather or fling bird.
 TAS_HELPER_PREDICTOR_ON_ENTITY_STATE_DESCRIPTION=          Entering StBoost, StLaunch, StStarFly or StFlingbird,{n}
                                                            which are related with touching an entity.
-TAS_HELPER_AUTODROP_PREDICTION=                            Drop previous prediction when tas file changed
-TAS_HELPER_ALLOW_START_PREDICT_WHEN_TRANSITION=            Allow start prediction when transitioning
-TAS_HELPER_STOP_PREDICT_WHEN_TRANSITION=                   Stop prediction when transitioning
-TAS_HELPER_STOP_PREDICT_WHEN_DEATH=                        Stop prediction when dead
+TAS_HELPER_AUTODROP_PREDICTION=                            Drop Previous Prediction when Tas File Changed
+TAS_HELPER_ALLOW_START_PREDICT_WHEN_TRANSITION=            Allow Start Prediction when Transitioning
+TAS_HELPER_STOP_PREDICT_WHEN_TRANSITION=                   Stop Prediction when Transitioning
+TAS_HELPER_STOP_PREDICT_WHEN_DEATH=                        Stop Prediction when Dead
 TAS_HELPER_USE_KEY_FRAME=                                  Keyframe Main Switch
-TAS_HELPER_USE_KEY_FRAME_TIME=                             Show index of keyframe
+TAS_HELPER_USE_KEY_FRAME_TIME=                             Show Index of Keyframe
 TAS_HELPER_KEY_FRAME_FLAGS=                                ----------------------- Flags: -----------------------
 
 # ============================================= Other =====================================================

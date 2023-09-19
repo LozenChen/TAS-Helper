@@ -41,7 +41,7 @@ public static class TasFileWatcher {
         try {
             watcher.EnableRaisingEvents = true;
         }
-        catch (Exception e) {
+        catch {
             watcher.Dispose();
             return;
         }

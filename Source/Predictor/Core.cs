@@ -112,7 +112,9 @@ public static class Core {
                 if (engine.scene != null) {
                     engine.scene.Tracker.GetEntity<PlayerDashAssist>()?.Update();
                     if (engine.scene is Level) {
+#pragma warning disable CS8602
                         (engine.scene as Level).UpdateTime();
+#pragma warning restore CS8602
                     }
                     engine.scene.Entities.UpdateLists();
                 }

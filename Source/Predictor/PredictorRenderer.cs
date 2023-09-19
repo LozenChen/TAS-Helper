@@ -18,7 +18,7 @@ public class PredictorRenderer : Entity {
 
     public static Color ColorKeyframe => CustomColors.Predictor_KeyframeColor;
 
-    private static readonly List<RenderData> keyframeRenderData = new List<RenderData>();
+    private static readonly List<Tuple<RenderData, Color>> keyframeRenderData = new List<Tuple<RenderData, Color>>();
     public override void DebugRender(Camera camera) {
         if (!TasHelperSettings.PredictFutureEnabled || !FrameStep) {
             return;
@@ -32,8 +32,8 @@ public class PredictorRenderer : Entity {
                 continue;
             }
             if (data.visible) {
-                if (TasHelperSettings.UseKeyFrame && KeyframeColorGetter(data.Keyframe, out bool addTime) is not null) {
-                    keyframeRenderData.Add(data with { addTime = addTime });
+                if (TasHelperSettings.UseKeyFrame && KeyframeColorGetter(data.Keyframe, out bool addTime) is Color colorKeyframe) {
+                    keyframeRenderData.Add(new Tuple<RenderData, Color>(data with { addTime = addTime }, colorKeyframe));
                 }
                 else {
                     if (ColorSelector(data.index, count) is Color color) {
@@ -44,8 +44,9 @@ public class PredictorRenderer : Entity {
             }
         }
         // todo: add descriptions to some keyframeData addTime
-        foreach (RenderData keyframeData in keyframeRenderData) {
-            Draw.HollowRect(keyframeData.x, keyframeData.y, keyframeData.width, keyframeData.height, KeyframeColorGetter(keyframeData.Keyframe, out bool _).Value);
+        foreach (Tuple<RenderData, Color> data in keyframeRenderData) {
+            RenderData keyframeData = data.Item1;
+            Draw.HollowRect(keyframeData.x, keyframeData.y, keyframeData.width, keyframeData.height, data.Item2);
             if (TasHelperSettings.UseKeyFrameTime && keyframeData.addTime) {
                 HiresLevelRenderer.Add(new OneFrameTextRenderer(keyframeData.index.ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f));
             }

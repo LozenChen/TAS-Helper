@@ -110,7 +110,9 @@ public static class TH_DeepClonerUtils {
 
                 // 手动克隆 WeakReference<T>
                 if (sourceObj.GetType() is { } type && type.IsWeakReference(out Type genericType)) {
+#pragma warning disable CS8625 
                     object[] parameters = { null };
+#pragma warning restore CS8625
                     sourceObj.InvokeMethod("TryGetTarget", parameters);
                     return type.GetConstructorInfo(genericType).Invoke(parameters.DeepClone(deepCloneState));
                 }
@@ -194,7 +196,9 @@ public static class TH_DeepClonerUtils {
                             continue;
                         }
 
+#pragma warning disable CS8625
                         object[] parameters = { sourceObj, null };
+#pragma warning restore CS8625 
                         if (false == (bool)dataMap.InvokeMethod("TryGetValue", parameters)) {
                             continue;
                         }
@@ -229,10 +233,12 @@ public static class TH_DeepClonerUtils {
 
     [Unload]
     private static void Clear() {
+#pragma warning disable CS8625 
         SRT_preCloneProcessor = null;
         TH_preCloneProcessor = null;
         SRT_postCloneProcessor = null;
         TH_postCloneProcessor = null;
+#pragma warning restore CS8625 
     }
 
     public static void PushProcessor() {
@@ -250,7 +256,9 @@ public static class TH_DeepClonerUtils {
     }
 
     internal static void ClearSharedDeepCloneState() {
+#pragma warning disable CS8625
         sharedDeepCloneState = null;
+#pragma warning restore CS8625
     }
 
     internal static void SetSharedDeepCloneState(DeepCloneState deepCloneState) {

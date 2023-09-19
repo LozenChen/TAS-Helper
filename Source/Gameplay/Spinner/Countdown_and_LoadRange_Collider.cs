@@ -2,7 +2,7 @@
 using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
-internal static class Countdown_and_LoadRange_Collider { 
+internal static class Countdown_and_LoadRange_Collider {
 
     public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || Engine.Scene.Paused;
 
@@ -24,7 +24,7 @@ internal static class Countdown_and_LoadRange_Collider {
             else {
                 CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
-            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.isDust()), index);
+            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.isDust()), index, self.Collidable);
         }
     }
 
@@ -32,7 +32,7 @@ internal static class Countdown_and_LoadRange_Collider {
         if (isLightning) {
             // only check in view for lightning
             if ((TasHelperSettings.UsingInViewRange || TasHelperSettings.loadRangeColliderMode == Module.TASHelperSettings.LoadRangeColliderModes.Always) && !SpinnerCalculateHelper.InView(Position, Width, Height, CameraPos, true)) {
-                LoadRangeColliderRenderer.lightningDatas.Add(new LoadRangeColliderRenderer.LightningData( Position, Width +1, Height +1 ));
+                LoadRangeColliderRenderer.lightningDatas.Add(new LoadRangeColliderRenderer.LightningData(Position, Width + 1, Height + 1));
             }
         }
         else {

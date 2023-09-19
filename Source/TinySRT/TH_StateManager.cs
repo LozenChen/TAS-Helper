@@ -17,7 +17,7 @@ namespace Celeste.Mod.TASHelper.TinySRT;
 public class TH_StateManager {
 
     private TH_StateManager() { }
-
+#pragma warning disable CS8603
     private static readonly Lazy<PropertyInfo> InGameOverworldHelperIsOpen = new(
         () => ModUtils.GetType("CollabUtils2", "Celeste.Mod.CollabUtils2.UI.InGameOverworldHelper")?.GetPropertyInfo("IsOpen")
     );
@@ -25,7 +25,7 @@ public class TH_StateManager {
     private static readonly Lazy<FieldInfo> CycleGroupCounter = new(
         () => ModUtils.GetType("CelesteTAS", "TAS.EverestInterop.Hitboxes.CycleHitboxColor")?.GetFieldInfo("GroupCounter")
     );
-
+#pragma warning restore CS8603
 
     private static readonly Lazy<TH_StateManager> Lazy = new(() => new TH_StateManager());
     public static TH_StateManager Instance => Lazy.Value;
@@ -109,7 +109,9 @@ public class TH_StateManager {
         TH.OnBeforeSaveState(level);
         level.TH_DeepCloneToShared(Instance.savedLevel = (Level)FormatterServices.GetUninitializedObject(typeof(Level)));
         Instance.savedSaveData = SaveData.Instance.TH_DeepCloneShared();
+#pragma warning disable CS8601 
         Instance.savedTasCycleGroupCounter = TH_StateManager.CycleGroupCounter.Value?.GetValue(null);
+#pragma warning restore CS8601 
         TH.OnSaveState(level);
         TH_Deep.ClearSharedDeepCloneState();
         Instance.PreCloneSavedEntities();
@@ -136,7 +138,9 @@ public class TH_StateManager {
 
         TH.OnBeforeLoadState(level);
 
+#pragma warning disable CS8604 
         TH_Deep.SetSharedDeepCloneState(Instance.preCloneTask?.Result);
+#pragma warning restore CS8604
 
         Instance.UpdateTimeAndDeaths(level);
         Instance.UnloadLevel(level);
@@ -288,11 +292,13 @@ public class TH_StateManager {
         }
 
         playingEventInstances.Clear();
+#pragma warning disable CS8625 
         savedLevel = null;
         savedSaveData = null;
         preCloneTask = null;
         celesteProcess?.Dispose();
         celesteProcess = null;
+#pragma warning restore CS8625
         TH.OnClearState();
         State = State.None;
     }

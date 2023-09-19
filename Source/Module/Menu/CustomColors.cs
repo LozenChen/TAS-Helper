@@ -428,7 +428,9 @@ public class OptionSubMenuCountExt : TextMenu.Item {
     public List<TextMenu.Item> CurrentMenu {
         get {
             if (Menus.Count <= 0) {
+#pragma warning disable CS8603
                 return null;
+#pragma warning restore CS8603
             }
 
             return Menus[MenuIndex].Item2;
@@ -438,7 +440,9 @@ public class OptionSubMenuCountExt : TextMenu.Item {
     public TextMenu.Item Current {
         get {
             if (CurrentMenu.Count <= 0 || Selection < 0) {
+#pragma warning disable CS8603
                 return null;
+#pragma warning restore CS8603
             }
 
             return CurrentMenu[Selection];
@@ -873,7 +877,9 @@ public class ButtonColorExt : TextMenu.Button, IItemExt {
         return base.LeftWidth() * Scale.X;
     }
 
+#pragma warning disable CS8625
     public ButtonColorExt(string label, Func<Color> cubecolorGetter, string icon = null)
+#pragma warning restore CS8625
         : base(label) {
         CubeColorGetter = cubecolorGetter;
         Icon = icon;
@@ -1029,7 +1035,9 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
         }
 
         widestLine = widestLineCount * widestLetter;
+#pragma warning disable CS8600
         letterChars = null;
+#pragma warning restore CS8600
 
         lineHeight = fscale * ActiveFont.LineHeight;
         lineSpacing = fscale * ActiveFont.LineHeight * 0.1f;
@@ -1338,7 +1346,9 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
         if (Value.Length >= MinValueLength) {
             Focused = false;
             OnExit?.Invoke(true);
+#pragma warning disable CS8625
             OnExit = null;
+#pragma warning restore CS8625
             Audio.Play(SFX.ui_main_rename_entry_accept);
         }
         else {
@@ -1351,7 +1361,9 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
         Value = StartingValue;
         Focused = false;
         OnExit?.Invoke(false);
+#pragma warning disable CS8625
         OnExit = null;
+#pragma warning restore CS8625
         Audio.Play(SFX.ui_main_button_back);
     }
 

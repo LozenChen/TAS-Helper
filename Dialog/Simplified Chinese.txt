@@ -74,6 +74,7 @@ TAS_HELPER_HIRES_FONT=                                     高清字体
 TAS_HELPER_PIXEL_FONT=                                     像素字体
 TAS_HELPER_HIRES_FONT_SIZE=                                高清字体大小
 TAS_HELPER_HIRES_FONT_STROKE=                              高清字体描边
+TAS_HELPER_DARKEN_WHEN_UNCOLLIDABLE=                       不可碰撞时变暗
 TAS_HELPER_PERFORMANCE_OPTIMIZATION=                       性能优化
 TAS_HELPER_PERFORMANCE_OPTIMIZATION_DESCRIPTION=           在较远处时将不再显示倒计时和实体的加载范围碰撞箱.
 TAS_HELPER_COUNTDOWN_BOOST=                                自动显示/隐藏倒计时
@@ -103,7 +104,7 @@ TAS_HELPER_LRC_DESCRIPTION=                                如果圆刺/闪电�
                                                            对于圆刺与煤球, 加载范围碰撞体是中心的一点.{n}
                                                            对于闪电, 加载范围碰撞体是比其伤害箱水平竖直均多 1px 的矩形区域.
 
-# ============================================= Simplified Spinners =====================================================
+# ============================================= Simplified Graphics =====================================================
 TAS_HELPER_SIMPLIFIED_GRAPHICS=                            简化图形
 TAS_HELPER_SIMPLIFIED_SPINNERS=                            简化圆刺
 TAS_HELPER_CLEAR_SPINNER_SPRITES=                          清除圆刺贴图

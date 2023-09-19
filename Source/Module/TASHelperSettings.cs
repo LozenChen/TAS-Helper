@@ -181,6 +181,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool CountdownBoost = false;
 
+    public bool DarkenWhenUncollidable = true;
+
     #endregion
 
     #region LoadRange
@@ -305,20 +307,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #endregion
 
-
-    public bool Awake_EntityActivatorReminder = true;
-
-    public bool entityActivatorReminder = true;
-
-    [YamlIgnore]
-    public bool EntityActivatorReminder {
-        get => Enabled && Awake_EntityActivatorReminder && entityActivatorReminder;
-        set {
-            entityActivatorReminder = value;
-            Awake_EntityActivatorReminder = true;
-        }
-    }
-
     #region Auxilary Variables
     public void UpdateAuxiliaryVariable() {
         // update the variables associated to variables govern by spinner main switch
@@ -351,9 +339,6 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool UsingNearPlayerRange = true;
     public bool SpinnerCountdownLoad = true;
     public bool UsingLoadRangeCollider = true;
-
-    [Obsolete]
-    public int SpinnerCountdownUpperBound => SpinnerCountdownLoad ? 9 : 99;
     public float SpinnerInterval = 0.05f;
     public float RangeAlpha = 0.4f;
     public float SpinnerFillerAlpha_Collidable = 0.8f;
@@ -481,6 +466,19 @@ public class TASHelperSettings : EverestModuleSettings {
     #endregion
 
     #region Other
+
+    public bool Awake_EntityActivatorReminder = true;
+
+    public bool entityActivatorReminder = true;
+
+    [YamlIgnore]
+    public bool EntityActivatorReminder {
+        get => Enabled && Awake_EntityActivatorReminder && entityActivatorReminder;
+        set {
+            entityActivatorReminder = value;
+            Awake_EntityActivatorReminder = true;
+        }
+    }
 
     public bool Awake_CameraTarget = true;
 
