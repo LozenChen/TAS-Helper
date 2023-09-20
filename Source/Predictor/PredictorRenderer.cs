@@ -43,6 +43,7 @@ public class PredictorRenderer : Entity {
 
             }
         }
+        
         // todo: add descriptions to some keyframeData addTime
         foreach (Tuple<RenderData, Color> data in keyframeRenderData) {
             RenderData keyframeData = data.Item1;

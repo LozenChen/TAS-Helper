@@ -57,7 +57,7 @@ public static class TasFileWatcher {
                 Core.delayedClearState = true;
             }
             else if (TasHelperSettings.DropPredictionWhenTasFileChange) {
-                Core.futures.Clear();
+                Core.delayedClearFutures = true; // clear it directly may interrupt PredictorRenderer.DebugRender
                 Core.HasCachedFutures = false;
                 Core.delayedClearState = true;
             }

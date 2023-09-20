@@ -257,6 +257,8 @@ public static class Core {
 
     internal static bool delayedClearState = false;
 
+    internal static bool delayedClearFutures = false;
+
     private static bool neverClearStateThisFrame = true;
 
     private static bool delayedMustRedo;
@@ -267,8 +269,16 @@ public static class Core {
         delayedMustRedo = mustRedo;
     }
     private static void DelayedActions() {
+        DelayedClearFutures();
         DelayedClearState();
         DelayedPredict();
+    }
+
+    private static void DelayedClearFutures() {
+        if (delayedClearFutures && !InPredict) {
+            futures.Clear();
+            delayedClearFutures = false;
+        }
     }
     private static void DelayedClearState() {
         if (delayedClearState && neverClearStateThisFrame && !InPredict) {
