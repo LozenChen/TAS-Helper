@@ -100,9 +100,9 @@ public static class PredictorMenu {
 
         page.Add(new TextMenu.OnOff("Lose Crouched", TasHelperSettings.UseFlagLoseCrouched).Change(value => TasHelperSettings.UseFlagLoseCrouched = value));
 
+        page.Add(new TextMenu.OnOff("Get Retained", TasHelperSettings.UseFlagGetRetained).Change(value => TasHelperSettings.UseFlagGetRetained = value));
         page.Add(new TextMenu.OnOff("Refill Dash", TasHelperSettings.UseFlagRefillDash).Change(value => TasHelperSettings.UseFlagRefillDash = value));
         page.Add(new TextMenu.OnOff("Respawn Point Change", TasHelperSettings.UseFlagRespawnPointChange).Change(value => TasHelperSettings.UseFlagRespawnPointChange = value));
-
         page.Add(new TextMenu.OnOff("Dead", TasHelperSettings.UseFlagDead).Change(value => TasHelperSettings.UseFlagDead = value));
 
 
@@ -131,6 +131,10 @@ public static class PredictorMenu {
         }));
         page.Add(new TextMenu.OnOff("Stop Predict When Death".ToDialogText(), TasHelperSettings.StopPredictWhenDeath).Change(value => {
             TasHelperSettings.StopPredictWhenDeath = value;
+            Predictor.Core.InitializeChecks();
+        }));
+        page.Add(new TextMenu.OnOff("Stop Predict When Keyframe".ToDialogText(), TasHelperSettings.StopPredictWhenKeyframe).Change(value => {
+            TasHelperSettings.StopPredictWhenKeyframe = value;
             Predictor.Core.InitializeChecks();
         }));
         TextMenu.Item ultraSpeedItem = new IntSlider("Ultra Speed Lower Limit".ToDialogText(), 0, 325, TasHelperSettings.UltraSpeedLowerLimit).Change((value) => TasHelperSettings.UltraSpeedLowerLimit = value);

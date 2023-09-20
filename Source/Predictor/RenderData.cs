@@ -39,6 +39,7 @@ public class PlayerState {
     public Vector2 RespawnPoint;
     public bool EngineFreeze;
     public bool Transitioning;
+    public float WallSpeedRetained;
 
     public PlayerState() {
 
@@ -74,6 +75,7 @@ public class PlayerState {
         state.OnRefillDash = PlayerStateUtils.RefillDash && !state.EngineFreeze;
         state.SpeedXBeforeUltra = state.OnUltra ? PlayerStateUtils.SpeedBeforeUltra.X : 0f;
         state.Transitioning = level.Transitioning;
+        state.WallSpeedRetained = player.wallSpeedRetentionTimer > 0f ? player.wallSpeedRetained : 0f;
         return state;
     }
 }
@@ -158,6 +160,9 @@ public struct RenderData {
         if (CurrentState.Transitioning && !PreviousState.Transitioning) {
             Keyframe |= KeyframeType.BeginTransition;
         }
+        if (CurrentState.WallSpeedRetained != 0f && CurrentState.WallSpeedRetained != PreviousState.WallSpeedRetained) {
+            Keyframe |= KeyframeType.GetRetained;
+        }
     }
 
 }
@@ -184,6 +189,7 @@ public enum KeyframeType {
     BeginEngineFreeze = 1 << 16,
     EndEngineFreeze = 1 << 17,
     BeginTransition = 1 << 18,
+    GetRetained = 1 << 19,
     GainControl = GainPlayerControl | GainLevelControl,
     LoseControl = LosePlayerControl | LoseLevelControl,
 }

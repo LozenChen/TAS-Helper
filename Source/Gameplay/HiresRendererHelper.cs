@@ -220,7 +220,7 @@ public class CountdownRenderer : THRenderer {
         foreach (int ID_inDict in ID2Positions.Keys) {
             string str;
             int id = ID_inDict;
-            bool uncollidable = id > 100;
+            bool uncollidable = id > 120;
             if (uncollidable) {
                 id -= SpinnerRenderHelper.ID_uncollidable_offset;
             }

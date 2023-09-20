@@ -168,6 +168,7 @@ TAS_HELPER_AUTODROP_PREDICTION=                            Drop Previous Predict
 TAS_HELPER_ALLOW_START_PREDICT_WHEN_TRANSITION=            Allow Start Prediction when Transitioning
 TAS_HELPER_STOP_PREDICT_WHEN_TRANSITION=                   Stop Prediction when Transitioning
 TAS_HELPER_STOP_PREDICT_WHEN_DEATH=                        Stop Prediction when Dead
+TAS_HELPER_STOP_PREDICT_WHEN_KEYFRAME=                     Stop Prediction when Keyframe
 TAS_HELPER_USE_KEY_FRAME=                                  Keyframe Main Switch
 TAS_HELPER_USE_KEY_FRAME_TIME=                             Show Index of Keyframe
 TAS_HELPER_KEY_FRAME_FLAGS=                                ----------------------- Flags: -----------------------

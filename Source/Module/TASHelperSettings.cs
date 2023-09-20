@@ -415,6 +415,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool StopPredictWhenDeath = true;
 
+    public bool StopPredictWhenKeyframe = false;
+
     public bool UseKeyFrame = true;
 
     public bool UseKeyFrameTime = true;
@@ -452,6 +454,8 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool UseFlagGainFreeze = false;
 
     public bool UseFlagLoseFreeze = false;
+
+    public bool UseFlagGetRetained = false;
 
     public Color PredictorEndpointColor = CustomColors.defaultPredictorEndpointColor;
 

@@ -67,7 +67,7 @@ internal static class SpinnerRenderHelper {
 
     internal const int ID_nocycle = -2;
     internal const int ID_infinity = -1;
-    internal const int ID_uncollidable_offset = 163;
+    internal const int ID_uncollidable_offset = 163; // related codes is based on this constant, hardcoded, so don't change it
     public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index, bool collidable = true) {
         if (TasHelperSettings.usingHiresFont) {
             // when TimeRate > 1, NeverActivate can activate; when TimeRate < 1, FreezeActivatesEveryFrame can take more than 0 frame.

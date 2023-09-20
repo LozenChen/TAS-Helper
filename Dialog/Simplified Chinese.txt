@@ -168,6 +168,7 @@ TAS_HELPER_AUTODROP_PREDICTION=                            TAS 文件内容变�
 TAS_HELPER_ALLOW_START_PREDICT_WHEN_TRANSITION=            允许切版时开始预测
 TAS_HELPER_STOP_PREDICT_WHEN_TRANSITION=                   切版时终止预测
 TAS_HELPER_STOP_PREDICT_WHEN_DEATH=                        死亡时终止预测
+TAS_HELPER_STOP_PREDICT_WHEN_KEYFRAME=                     关键帧处终止预测
 TAS_HELPER_USE_KEY_FRAME=                                  关键帧的主开关
 TAS_HELPER_USE_KEY_FRAME_TIME=                             显示关键帧对应的时间点
 TAS_HELPER_KEY_FRAME_FLAGS=                                ----------------------- Flags: -----------------------

@@ -108,6 +108,9 @@ public class PredictorRenderer : Entity {
         if (TasHelperSettings.UseFlagLoseFreeze && keyframe.HasFlag(KeyframeType.EndEngineFreeze)) {
             return ColorKeyframe;
         }
+        if (TasHelperSettings.UseFlagGetRetained && keyframe.HasFlag(KeyframeType.GetRetained)) {
+            return ColorKeyframe;
+        }
 
         addTime = false;
         return null;

@@ -225,6 +225,9 @@ public static class Core {
         if (TasHelperSettings.StopPredictWhenDeath) {
             EarlyStopChecks.Add(data => data.Keyframe.HasFlag(KeyframeType.GainDead));
         }
+        if (TasHelperSettings.StopPredictWhenKeyframe) {
+            EarlyStopChecks.Add(data => PredictorRenderer.KeyframeColorGetter(data.Keyframe, out _) is not null);
+        }
     }
 
     public static void InitializeCachePeriod() {
