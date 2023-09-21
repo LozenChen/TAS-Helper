@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using TAS.EverestInterop;
 using ChronoEnitites = Celeste.Mod.ChronoHelper.Entities;
 using VivEntites = VivHelper.Entities;
 
@@ -20,6 +21,7 @@ internal static class ActualPosition {
     internal static Vector2 PreviousPlayerPosition = Vector2.Zero;
     internal static Vector2 PlayerPositionBeforeCameraUpdate = Vector2.Zero;
     internal static int PlayerPositionChangedCount = 0;
+    internal static Vector2 CenterCameraPosition = Vector2.Zero;
 
     [Initialize]
     public static void Initialize() {
@@ -47,6 +49,12 @@ internal static class ActualPosition {
         if (ModUtils.IsaGrabBagInstalled) {
             // do nothing
         }
+
+        typeof(CenterCamera).GetMethod("CenterTheCamera", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).HookAfter(() => {
+            if (Engine.Scene is Level level) {
+                CenterCameraPosition = level.Camera.Position;
+            }
+        });
     }
 
     [Load]

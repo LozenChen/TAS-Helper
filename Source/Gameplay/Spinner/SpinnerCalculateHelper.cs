@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using TAS.EverestInterop;
 using VivEntites = VivHelper.Entities;
 // VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
@@ -291,7 +292,16 @@ public static class SpinnerCalculateHelper {
         }
     }
 
-    public static bool FarFromRange(Entity self, Vector2 PlayerPosition, Vector2 CameraPos, float scale) {
+    public static bool FarFromRange(Entity self, Vector2 PlayerPosition, float scale) {
+        if (TasSettings.CenterCamera) {
+            return FarFromRangeImpl(self, PlayerPosition, ActualPosition.CenterCameraPosition, scale) && FarFromRangeImpl(self, PlayerPosition, ActualPosition.CameraPosition, scale);
+        }
+        else {
+            return FarFromRangeImpl(self, PlayerPosition, ActualPosition.CameraPosition, scale);
+        }
+    }
+
+    private static bool FarFromRangeImpl(Entity self, Vector2 PlayerPosition, Vector2 CameraPos, float scale) {
         if (self.isLightning()) {
             if (self.X > CameraPos.X + 320f * scale + 320f + 16f || self.Y > CameraPos.Y + 180f * scale + 180f + 16f || self.Y + self.Height < CameraPos.Y - 180f * scale - 16f || self.X + self.Width < CameraPos.X - 320f * scale - 16f) {
                 return true;

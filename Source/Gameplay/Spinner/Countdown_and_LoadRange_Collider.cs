@@ -8,7 +8,7 @@ internal static class Countdown_and_LoadRange_Collider {
     public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || (Engine.Scene.Paused && !Manager.Running);
 
     public static void Draw(Entity self, SpinnerRenderHelper.SpinnerColorIndex index, bool collidable) {
-        if (TasHelperSettings.DoNotRenderWhenFarFromView && SpinnerCalculateHelper.FarFromRange(self, ActualPosition.PlayerPosition, ActualPosition.CameraPosition, 0.25f)) {
+        if (TasHelperSettings.DoNotRenderWhenFarFromView && SpinnerCalculateHelper.FarFromRange(self, ActualPosition.PlayerPosition, 0.25f)) {
             return;
         }
         if (TasHelperSettings.UsingLoadRangeCollider) {
