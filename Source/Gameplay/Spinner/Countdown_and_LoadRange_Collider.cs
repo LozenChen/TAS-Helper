@@ -1,12 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
+using TAS;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 internal static class Countdown_and_LoadRange_Collider {
 
-    public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || Engine.Scene.Paused;
+    public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || (Engine.Scene.Paused && !Manager.Running);
 
-    public static void Draw(Entity self, SpinnerRenderHelper.SpinnerColorIndex index) {
+    public static void Draw(Entity self, SpinnerRenderHelper.SpinnerColorIndex index, bool collidable) {
         if (TasHelperSettings.DoNotRenderWhenFarFromView && SpinnerCalculateHelper.FarFromRange(self, ActualPosition.PlayerPosition, ActualPosition.CameraPosition, 0.25f)) {
             return;
         }
@@ -24,7 +25,7 @@ internal static class Countdown_and_LoadRange_Collider {
             else {
                 CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
-            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.isDust()), index, self.Collidable);
+            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.isDust()), index, collidable);
         }
     }
 

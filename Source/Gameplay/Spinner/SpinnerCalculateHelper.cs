@@ -2,6 +2,8 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using VivEntites = VivHelper.Entities;
@@ -104,7 +106,7 @@ public static class SpinnerCalculateHelper {
         if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) {
             HazardTypesTreatNormal.Add(cassetteSpinnerType, spinner);
             OffsetGetters.Add(cassetteSpinnerType, OffsetGetters[typeof(CrystalStaticSpinner)]);
-            NoPeriodicCheckInViewTypes.Add(cassetteSpinnerType);
+            NoPeriodicInViewCheckTypes.Add(cassetteSpinnerType);
             // CassetteSpinner also has a MethodInfo field called offset
             // visible is still governed by offset
             // but collidable is completely determined by cassette, so we consider it as no cycle and no in view behavior
@@ -113,7 +115,7 @@ public static class SpinnerCalculateHelper {
         if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinner") is { } dreamSpinnerType) {
             HazardTypesTreatNormal.Add(dreamSpinnerType, spinner);
             OffsetGetters.Add(dreamSpinnerType, _ => 0);
-            NoPeriodicCheckInViewTypes.Add(dreamSpinnerType);
+            NoPeriodicInViewCheckTypes.Add(dreamSpinnerType);
         }
 
 
@@ -135,36 +137,19 @@ public static class SpinnerCalculateHelper {
         // [Irrelavent] LunaticHelper.CustomDust: it's a backdrop, not a dust spinner.
 
         if (ModUtils.IsaGrabBagInstalled) {
-            typeof(SpinnerCalculateHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
-                Instruction skipIsaGrabBag = cursor.Next;
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(IsaGrabBagPatch);
-                cursor.Emit(OpCodes.Brfalse, skipIsaGrabBag);
-                cursor.Emit(OpCodes.Ldc_I4_1);
-                cursor.Emit(OpCodes.Ret);
-            });
+            IsaGrabBagPatch();
         }
 
         if (ModUtils.BrokemiaHelperInstalled) {
-            typeof(SpinnerCalculateHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
-                Instruction skipBrokemia = cursor.Next;
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(BrokemiaPatch);
-                cursor.Emit(OpCodes.Brfalse, skipBrokemia);
-                cursor.Emit(OpCodes.Ldc_I4_1);
-                cursor.Emit(OpCodes.Ret);
-            });
+            BrokemiaPatch();
         }
 
         if (ModUtils.FrostHelperInstalled) {
-            typeof(SpinnerCalculateHelper).GetMethod("NoCycle").IlHook((cursor, _) => {
-                Instruction skipFrost = cursor.Next;
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(FrostPatch);
-                cursor.Emit(OpCodes.Brfalse, skipFrost);
-                cursor.Emit(OpCodes.Ldc_I4_1);
-                cursor.Emit(OpCodes.Ret);
-            });
+            FrostPatch();
+        }
+
+        if (ModUtils.ChronoHelperInstalled) {
+            ChronoPatch();
         }
 
         if (ModUtils.VivHelperInstalled) {
@@ -178,7 +163,11 @@ public static class SpinnerCalculateHelper {
 
     private static Dictionary<Type, GetDelegate<object, float>> OffsetGetters = new();
 
-    private static List<Type> NoPeriodicCheckInViewTypes = new();
+    private static List<Type> NoPeriodicInViewCheckTypes = new();
+
+    private static Dictionary<Type, Func<Entity, bool>> LightningCollidable = new();
+
+    private static Dictionary<Type, Func<Entity, bool>> NoCycleTypes = new();
 
     public static FieldInfo VivHitboxStringGetter;
 
@@ -186,32 +175,55 @@ public static class SpinnerCalculateHelper {
         VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
     }
     public static bool NoCycle(Entity self) {
+        if (NoCycleTypes.TryGetValue(self.GetType(), out Func<Entity, bool> func)) {
+            return func(self);
+        }
         return false;
+    }
+
+    public static bool GetCollidable(Entity self) {
+        if (LightningCollidable.TryGetValue(self.GetType(), out Func<Entity, bool> func)) {
+            return func(self);
+        }
+        if (self is Lightning lightning) {
+            // FrostHelper.AttachedLightning inherits from Lightning, so no need to check before
+            return lightning.Collidable && !lightning.disappearing;
+        }
+        return self.Collidable;
     }
 
     public static bool NoPeriodicCheckInViewBehavior(Entity self) {
         if (self.isDust()) {
             return true;
         }
-        if (NoPeriodicCheckInViewTypes.Contains(self.GetType())) {
+        if (NoPeriodicInViewCheckTypes.Contains(self.GetType())) {
             return true;
         }
         return false;
     }
-    private static bool IsaGrabBagPatch(Entity self) {
-        return self is IsaGrabBag.DreamSpinner;
+    private static void IsaGrabBagPatch() {
+        NoCycleTypes.Add(typeof(IsaGrabBag.DreamSpinner), _ => true);
     }
-    private static bool BrokemiaPatch(Entity self) {
-        return self is BrokemiaHelper.CassetteSpinner;
+    private static void BrokemiaPatch() {
+        NoCycleTypes.Add(typeof(BrokemiaHelper.CassetteSpinner), _ => true);
     }
 
-    private static bool FrostPatch(Entity self) {
-        if (self is FrostHelper.CustomSpinner spinner) {
-            if (typeof(FrostHelper.CustomSpinner).GetFieldInfo("controller").GetValue(spinner) is FrostHelper.CustomSpinnerController controller) {
+    private static void FrostPatch() {
+        NoCycleTypes.Add(typeof(FrostHelper.CustomSpinner), e => {
+            if (typeof(FrostHelper.CustomSpinner).GetFieldInfo("controller").GetValue(e) is FrostHelper.CustomSpinnerController controller) {
                 return controller.NoCycles;
             }
-        }
-        return false;
+            return false;
+        });
+    }
+
+    private static void ChronoPatch() {
+        LightningCollidable.Add(typeof(ChronoHelper.Entities.DarkLightning), e => {
+            if (typeof(ChronoHelper.Entities.DarkLightning).GetFieldInfo("disappearing").GetValue(e) is bool b) {
+                return b;
+            }
+            return true;
+        });
     }
 
     internal const int spinner = 0;

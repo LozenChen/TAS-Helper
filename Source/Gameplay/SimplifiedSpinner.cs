@@ -283,24 +283,25 @@ internal static class SimplifiedSpinner {
 #pragma warning restore CS8629
         Color color = SpinnerRenderHelper.GetSpinnerColor(index);
         // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
+        bool collidable = SpinnerCalculateHelper.GetCollidable(self);
         if (TasHelperSettings.EnableSimplifiedSpinner) {
             if (!self.isLightning()) {
                 SpinnerRenderHelper.DrawSpinnerCollider(self, color);
             }
             else {
-                if (TasHelperSettings.EnableSimplifiedLightning && !self.Collidable) {
+                if (TasHelperSettings.EnableSimplifiedLightning && !collidable) {
                     DashedLine.DrawRect(self.Position + Vector2.One, self.Width, self.Height, color * 0.8f);
                 }
                 else {
-                    self.Collider.Render(camera, color * (self.Collidable ? 1f : HitboxColor.UnCollidableAlpha));
+                    self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
                 }
             }
         }
         else {
-            self.Collider.Render(camera, color * (self.Collidable ? 1f : HitboxColor.UnCollidableAlpha));
+            self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
         }
 
-        Countdown_and_LoadRange_Collider.Draw(self, index);
+        Countdown_and_LoadRange_Collider.Draw(self, index, collidable);
     }
 
 }

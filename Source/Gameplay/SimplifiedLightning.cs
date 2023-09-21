@@ -19,21 +19,22 @@ internal static class SimplifiedLightning {
         if (TasHelperSettings.EnableSimplifiedLightning) {
             Rectangle rectangle = new((int)item.X + 1, (int)item.Y + 1, (int)item.Width, (int)item.Height);
 
-            float alpha = item.Collidable ? 0.5f : 0.5f * HitboxColor.UnCollidableAlpha;
+            bool collidable = item.Collidable && !item.disappearing;
+            float alpha = collidable ? 0.5f : 0.5f * HitboxColor.UnCollidableAlpha;
             bool inView = SpinnerCalculateHelper.InView(item, ActualPosition.CameraPosition);
             SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.GetSpinnerColorIndex(item, false);
             Color color;
             if (index == SpinnerRenderHelper.SpinnerColorIndex.Default) {
-                color = item.Collidable ? Color.Yellow * 0.5f : Color.White * alpha;
+                color = collidable ? Color.Yellow * 0.5f : Color.White * alpha;
             }
             else if (index is SpinnerRenderHelper.SpinnerColorIndex.Group1 or SpinnerRenderHelper.SpinnerColorIndex.Group2 or SpinnerRenderHelper.SpinnerColorIndex.Group3 or SpinnerRenderHelper.SpinnerColorIndex.MoreThan3) {
-                if (TasHelperSettings.HighlightLoadUnload && !item.Collidable && inView) {
+                if (TasHelperSettings.HighlightLoadUnload && !collidable && inView) {
                     color = Color.White * 0.2f;
                 }
-                else if (TasHelperSettings.HighlightLoadUnload && item.Collidable && !inView) {
+                else if (TasHelperSettings.HighlightLoadUnload && collidable && !inView) {
                     color = Color.Black * 0.9f;
                 }
-                else if (!item.Collidable) {
+                else if (!collidable) {
                     color = Color.Black * 0.2f;
                 }
                 else {
