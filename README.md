@@ -28,7 +28,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Main Switch hotkey -> Settings are memorized in a way that, ActualSettings = MainSwitch state && MemorizedSettings (if both sides are boolean. Similar for other types). The Main Switch hotkey just modifies MainSwitch state, and will not modify MemorizedSettings. Editing settings in menu or using other hotkeys will modify MemorizedSettings.
 
-- Add some commands -> Currently only spinner_freeze cmd + some setting-related cmd.
+- Add some commands -> Currently only spinner_freeze cmd, nearest_timeactive cmd + some setting-related cmd.
 
 - ... Check the menu in game!
 
