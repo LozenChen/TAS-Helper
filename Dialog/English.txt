@@ -112,6 +112,7 @@ TAS_HELPER_SIMPLIFIED_GRAPHICS_MODE_WHEN_SIMPLIFIED_GRAPHICS=When Simplified Gra
 TAS_HELPER_SIMPLIFIED_GRAPHICS_MODE_ALWAYS=                Always
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacity (Collidable)
 TAS_HELPER_SPINNER_FILLER_OPACITY_EXTRA=                   Spinner Filler Opacity (Uncollidable)
+TAS_HELPER_SPINNER_DASHED_BORDER=                          Apply Dashed Border when Uncollidable
 TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           Ignore TAS mod's Uncollidable Hitboxes Opacity
 TAS_HELPER_SIMPLIFIED_LIGHTNING=                           Lightning Enhancement
 TAS_HELPER_SIMPLIFIED_LIGHTNING_DESCRIPTION=               Collidable: high opacity with solid border | Uncollidable: low opacity with dashed border.

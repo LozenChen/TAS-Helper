@@ -1,4 +1,5 @@
-﻿using Monocle;
+﻿using Microsoft.Xna.Framework.Graphics;
+using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
@@ -7,9 +8,20 @@ public static class SpinnerColliderHelper {
     public struct SpinnerColliderValue {
         public MTexture Outline;
         public MTexture Inside;
-        public SpinnerColliderValue(MTexture Outline, MTexture Inside) {
+        public MTexture Outline_Dashed1;
+        public MTexture Outline_Dashed2;
+        public SpinnerColliderValue(MTexture Outline, MTexture Inside, MTexture Dashed1, MTexture Dashed2) {
             this.Outline = Outline;
             this.Inside = Inside;
+            this.Outline_Dashed1 = Dashed1;
+            this.Outline_Dashed2 = Dashed2;
+        }
+
+        public SpinnerColliderValue(string name) {
+            this.Outline = GFX.Game[$"TASHelper/SpinnerCollider/{name}_outline"];
+            this.Inside = GFX.Game[$"TASHelper/SpinnerCollider/{name}_inside"];
+            this.Outline_Dashed1 = GFX.Game[$"TASHelper/SpinnerCollider/{name}_outlineDashed1"];
+            this.Outline_Dashed2 = GFX.Game[$"TASHelper/SpinnerCollider/{name}_outlineDashed2"];
         }
     }
 
@@ -31,31 +43,27 @@ public static class SpinnerColliderHelper {
 
         // it's quite foolish, as it cant spot identical expressions, i have to manually add some after i find it not working properly
 
-        MTexture C6_o = GFX.Game["TASHelper/SpinnerCollider/C600_outline"];
-        MTexture C6_i = GFX.Game["TASHelper/SpinnerCollider/C600_inside"];
-        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6", 1f), new SpinnerColliderValue(C6_o, C6_i));
-        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0", 1f), new SpinnerColliderValue(C6_o, C6_i));
+        SpinnerColliderValue C6 =  new SpinnerColliderValue("C600");
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6", 1f), C6);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0", 1f), C6);
 
-        MTexture vanilla_o = GFX.Game["TASHelper/SpinnerCollider/vanilla_outline"];
-        MTexture vanilla_i = GFX.Game["TASHelper/SpinnerCollider/vanilla_inside"];
-        Vanilla = new SpinnerColliderValue(vanilla_o, vanilla_i);
+        Vanilla = new SpinnerColliderValue("vanilla");
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,-3", 1f), Vanilla);
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,*1@-4", 1f), Vanilla);
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,*4;-8,*-3", 1f), Vanilla);
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,4;-8,*1@-4", 1f), Vanilla);
         SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,*4;-8,*-3", 1f), Vanilla);
 
-        MTexture reverted_o = GFX.Game["TASHelper/SpinnerCollider/reverted_outline"];
-        MTexture reverted_i = GFX.Game["TASHelper/SpinnerCollider/reverted_inside"];
-        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
-        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,*4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
-        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
-        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,*4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
-        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,4;-8,*-1", 1f), new SpinnerColliderValue(reverted_o, reverted_i));
+        SpinnerColliderValue reverted = new SpinnerColliderValue("reverted");
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,-1", 1f), reverted);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,*4;-8,*-1", 1f), reverted);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6|R:16,4;-8,*-1", 1f), reverted);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,*4;-8,*-1", 1f), reverted);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:6;0,0|R:16,4;-8,*-1", 1f), reverted);
 
-        MTexture C800_o = GFX.Game["TASHelper/SpinnerCollider/C800_outline"];
-        MTexture C800_i = GFX.Game["TASHelper/SpinnerCollider/C800_inside"];
-        SpinnerColliderTextures.Add(SpinnerColliderKey("C:8", 1f), new SpinnerColliderValue(C800_o, C800_i));
-        SpinnerColliderTextures.Add(SpinnerColliderKey("C:8;0,0", 1f), new SpinnerColliderValue(C800_o, C800_i));
+        SpinnerColliderValue C8 = new SpinnerColliderValue("C800");
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:8", 1f), C8);
+        SpinnerColliderTextures.Add(SpinnerColliderKey("C:8;0,0", 1f), C8);
+
     }
 }

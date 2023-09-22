@@ -203,7 +203,13 @@ internal static class SpinnerRenderHelper {
     public static void DrawOutlineAndInside(this SpinnerColliderHelper.SpinnerColliderValue value, Vector2 Position, Color color, bool Collidable) {
         float alpha = TasHelperSettings.Ignore_TAS_UnCollidableAlpha || Collidable ? 1f : HitboxColor.UnCollidableAlpha;
         float inner_mult = Collidable ? TasHelperSettings.SpinnerFillerAlpha_Collidable : TasHelperSettings.SpinnerFillerAlpha_Uncollidable;
-        value.Outline.DrawCentered(Position, color.SetAlpha(alpha));
+        if (Collidable || !TasHelperSettings.SimplifiedSpinnerDashedBorder) {
+            value.Outline.DrawCentered(Position, color.SetAlpha(alpha));
+        }
+        else {
+            value.Outline_Dashed1.DrawCentered(Position, color.SetAlpha(alpha));
+            value.Outline_Dashed2.DrawCentered(Position, color.SetAlpha(alpha) * 0.3f);
+        }
         value.Inside.DrawCentered(Position, Color.Lerp(color, Color.Black, 0.6f).SetAlpha(alpha * inner_mult));
     }
 

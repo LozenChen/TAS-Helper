@@ -113,6 +113,7 @@ TAS_HELPER_SIMPLIFIED_GRAPHICS_MODE_WHEN_SIMPLIFIED_GRAPHICS=简化图形时
 TAS_HELPER_SIMPLIFIED_GRAPHICS_MODE_ALWAYS=                总是
 TAS_HELPER_SPINNER_FILLER_OPACITY=                         圆刺内部不透明度 (可碰撞时)
 TAS_HELPER_SPINNER_FILLER_OPACITY_EXTRA=                   圆刺内部不透明度 (不可碰撞时)
+TAS_HELPER_SPINNER_DASHED_BORDER=                          不可碰撞时使用虚线边框
 TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           不使用 TAS mod 的不可碰撞透明度
 TAS_HELPER_SIMPLIFIED_LIGHTNING=                           闪电调整内部颜色
 TAS_HELPER_SIMPLIFIED_LIGHTNING_DESCRIPTION=               可碰撞: 低透明度且实线边框  | 不可碰撞: 高透明度且虚线边框.

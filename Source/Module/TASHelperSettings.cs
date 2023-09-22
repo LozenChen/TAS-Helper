@@ -286,7 +286,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public int spinnerFillerOpacity_Uncollidable = 0;
+    public int spinnerFillerOpacity_Uncollidable = 2;
 
     [YamlIgnore]
     public int SpinnerFillerOpacity_Uncollidable {
@@ -298,6 +298,8 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     public bool Ignore_TAS_UnCollidableAlpha = true;
+
+    public bool SimplifiedSpinnerDashedBorder = true;
 
     public SimplifiedGraphicsMode EnableSimplifiedLightningMode = SimplifiedGraphicsMode.WhenSimplifyGraphics;
 
