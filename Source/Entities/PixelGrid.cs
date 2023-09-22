@@ -21,14 +21,11 @@ internal static class PixelGridHook {
             self.Collider.Left = player.Collider.Left;
             self.Collider.Top = player.Collider.Top;
             self.width = TasHelperSettings.PixelGridWidth;
-            // when use self.Collider = player.Collider, and turn off Celeste TAS's ShowHitboxes,
-            // if you demodash into wall, then player will stuck in wall
-            // don't know why
         }
     }
     private static void CreatePixelGridAroundPlayer(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
         orig(self, playerIntro, isFromLoader);
-        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid && player is not null, PixelGridAroundPlayerUpdate, false));
+        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid && player is not null, PixelGridAroundPlayerUpdate));
     }
 
 }
@@ -41,47 +38,23 @@ public class PixelGrid : Entity {
     public Func<bool> visibleGetter;
     public int width = 0;
     public Action<PixelGrid> UpdateBeforeRender;
-    public bool fadeOut = false;
 
-    public PixelGrid(Func<bool> visibleGetter, Action<PixelGrid> UpdateBeforeRender, bool fadeOut = false) {
+    private static MTexture texture;
+
+    private const int TextureSize = 24 - 2;
+
+    public PixelGrid(Func<bool> visibleGetter, Action<PixelGrid> UpdateBeforeRender) {
         Depth = 8900;
         // lower than BackgroudTiles
         Collidable = false;
         Collider = new Hitbox(0f, 0f);
         this.visibleGetter = visibleGetter;
         this.UpdateBeforeRender = UpdateBeforeRender;
-        this.fadeOut = fadeOut;
     }
 
-#pragma warning disable CS8509
-    public static Color GetGridColor(int index, float alpha = 0.5f) {
-        return (Math.Abs(index) % 2) switch {
-            0 => color1 * alpha,
-            1 => color2 * alpha,
-        };
-    }
-#pragma warning restore CS8509
-
-    public Color FadeOutColor(int RelativeX, int RelativeY, float width) {
-        return GetGridColor(RelativeX + RelativeY, fadeOut ? (1 - Distance(RelativeX, RelativeY) / width) * TasHelperSettings.PixelGridOpacity * 0.1f : TasHelperSettings.PixelGridOpacity * 0.1f);
-    }
-
-    public float Distance(int RelativeX, int RelativeY) {
-        float DistX = 0f;
-        float DistY = 0f;
-        if (RelativeX < Collider.Left - 1) {
-            DistX = Collider.Left - 1 - RelativeX;
-        }
-        else if (RelativeX > Collider.Right) {
-            DistX = RelativeX - Collider.Right;
-        }
-        if (RelativeY < Collider.Top - 1) {
-            DistY = Collider.Top - 1 - RelativeY;
-        }
-        else if (RelativeY > Collider.Bottom) {
-            DistY = RelativeY - Collider.Bottom;
-        }
-        return (float)Math.Sqrt(DistX * DistX + DistY * DistY);
+    [Initialize]
+    public static void Initialize() {
+        texture = GFX.Game["TASHelper/PixelGrid/grid"];
     }
 
     public override void Update() {
@@ -103,11 +76,46 @@ public class PixelGrid : Entity {
     }
 
     public void RenderWithoutCondition() {
-        for (int x = (int)(Collider.Left - width); x < Collider.Right + width; x++) {
-            for (int y = (int)(Collider.Top - width); y < Collider.Bottom + width; y++) {
-                Draw.Point(new Vector2(Position.X + x, Position.Y + y), FadeOutColor(x, y, width));
-            }
+        int left = (int)(Collider.Left - width);
+        int top = (int)(Collider.Top - width);
+        int w = (int)Collider.Width + 2 * width;
+        int h = (int)Collider.Height + 2 * width;
+        Color c1, c2;
+        float alpha = TasHelperSettings.PixelGridOpacity * 0.1f;
+        if ((left + top) % 2 == 0){
+            c1 = color1 * alpha;
+            c2 = color2 * alpha;
         }
+        else {
+            c2 = color1 * alpha;
+            c1 = color2 * alpha;
+        }
+        Draw(this.Position + new Vector2(left, top), w, h, c1, c2);
+
+    }
+
+    private static void Draw(Vector2 Position, int width, int height, Color color1, Color color2) {
+        if (width <= TextureSize && height <= TextureSize) {
+            texture.Draw(Position, Vector2.Zero, color1, Vector2.One, 0f, new Rectangle(0, 0, width, height));
+            texture.Draw(Position, Vector2.Zero, color2, Vector2.One, 0f, new Rectangle(1, 0, width, height));
+            return;
+        }
+        if (height <= TextureSize) {
+            while (width > 0) {
+                int w = Math.Min(width, TextureSize);
+                Draw(Position, w, height, color1, color2);
+                Position += Vector2.UnitX * w;
+                width -= w;
+            }
+            return;
+        }
+        while (height > 0) {
+            int h = Math.Min(height, TextureSize);
+            Draw(Position, width, h, color1, color2);
+            Position += Vector2.UnitY * h;
+            height -= h;
+        }
+        return;
     }
 }
 
