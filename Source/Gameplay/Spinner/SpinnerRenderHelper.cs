@@ -162,12 +162,11 @@ internal static class SpinnerRenderHelper {
 #pragma warning disable CS8600, CS8604
                 string[] hitboxString = SpinnerCalculateHelper.VivHitboxStringGetter.GetValue(spinner) as string[];
                 float scale = spinner.scale;
-                string key = SpinnerColliderHelper.SpinnerColliderKey(hitboxString, scale);
-#pragma warning restore CS8600, CS8604
-                if (SpinnerColliderHelper.SpinnerColliderTextures.TryGetValue(key, out SpinnerColliderHelper.SpinnerColliderValue value)) {
+                if (SpinnerColliderHelper.TryGetValue(hitboxString, scale, out SpinnerColliderHelper.SpinnerColliderValue value)) {
                     value.DrawOutlineAndInside(self.Position, color, self.Collidable);
                     return true;
                 }
+#pragma warning restore CS8600, CS8604
             }
             DrawComplexSpinnerCollider(spinner, color);
             return true;

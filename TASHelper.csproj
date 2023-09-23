@@ -56,9 +56,6 @@
     <Reference Include="SpeedrunTool">
       <HintPath>Libs\SpeedrunTool.dll</HintPath>
     </Reference>
-    <Reference Include="vitmod">
-      <HintPath>Libs\CrystallineHelper.dll</HintPath>
-    </Reference>
     <Reference Include="ExtendedVariantMode">
       <HintPath>Libs\ExtendedVariantMode.dll</HintPath>
     </Reference>
