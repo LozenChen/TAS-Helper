@@ -67,13 +67,29 @@ public static class SpinnerColliderHelper {
             return true;
         }
         ColliderList list = ParseHitboxType(hitboxString, scale);
-        if (list is not null && ComparingDict.TryGetValue(list, out SpinnerColliderValue v2)) {
+        if (list is null) {
+            value = null;
+            return false;
+        }
+        if (ComparingDict.TryGetValue(list, out SpinnerColliderValue v2)) {
             SpinnerColliderTextures.Add(SpinnerColliderKey(hitboxString, scale), v2);
             value = v2;
             return true;
         }
+        if (TryAutoGenerateTexture(list, out SpinnerColliderValue v3)) {
+            SpinnerColliderTextures.Add(SpinnerColliderKey(hitboxString, scale), v3);
+            ComparingDict.Add(list, v3);
+            value = v3;
+            return true;
+        }
 
-        value = Vanilla;
+        value = null;
+        return false;
+    }
+
+    public static bool TryAutoGenerateTexture(ColliderList list, out SpinnerColliderValue value) {
+        // to be implemented
+        value = null;
         return false;
     }
 

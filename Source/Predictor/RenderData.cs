@@ -66,9 +66,7 @@ public class PlayerState {
         state.OnEntityState = (state.StateMachineState == 4) || (state.StateMachineState == 7) || (state.StateMachineState == 19) || (state.StateMachineState == 24);
         state.Dashes = player.Dashes;
         state.CanDash = player.dashCooldownTimer <= 0f && player.Dashes > 0;
-#pragma warning disable CS8629
-        state.RespawnPoint = level.Session.RespawnPoint.Value;
-#pragma warning restore CS8629
+        state.RespawnPoint = level.Session.RespawnPoint ?? Vector2.Zero;
         state.EngineFreeze = Core.ThisPredictedFrameFreezed;
         state.OnBounce = PlayerStateUtils.AnyBounce && !state.EngineFreeze;
         state.OnUltra = PlayerStateUtils.Ultra && !state.EngineFreeze && Math.Abs(PlayerStateUtils.SpeedBeforeUltra.X) >= TasHelperSettings.UltraSpeedLowerLimit;

@@ -40,9 +40,11 @@ public class SpawnPoint : Entity {
         if (DebugRendered && TasHelperSettings.UsingSpawnPoint) {
             // we show the actual respawn point, instead of closest spawn point
             // respawn point are set by level transition in general, and sometimes by triggers
-#pragma warning disable CS8629
+            
+            if (level.Session.RespawnPoint is null) {
+                return;
+            }
             Vector2 RespawnPoint = level.Session.RespawnPoint.Value;
-#pragma warning restore CS8629
             foreach (Vector2 spawn in spawns) {
                 Facings Facing = Facings.Right;
                 SpawnFacingTrigger spawnFacingTrigger = CollideFirst<SpawnFacingTrigger>(new Vector2((int)spawn.X, (int)spawn.Y));
