@@ -109,9 +109,7 @@ public class TH_StateManager {
         TH.OnBeforeSaveState(level);
         level.TH_DeepCloneToShared(Instance.savedLevel = (Level)FormatterServices.GetUninitializedObject(typeof(Level)));
         Instance.savedSaveData = SaveData.Instance.TH_DeepCloneShared();
-#pragma warning disable CS8601 
-        Instance.savedTasCycleGroupCounter = TH_StateManager.CycleGroupCounter.Value?.GetValue(null);
-#pragma warning restore CS8601 
+        Instance.savedTasCycleGroupCounter = TH_StateManager.CycleGroupCounter.Value?.GetValue(null) ?? 0;
         TH.OnSaveState(level);
         TH_Deep.ClearSharedDeepCloneState();
         Instance.PreCloneSavedEntities();

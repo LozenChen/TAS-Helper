@@ -3,6 +3,7 @@ using Celeste.Mod.TASHelper.Module;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework;
 using Monocle;
+using Celeste.Mod.TASHelper.Utils;
 using static Celeste.Mod.TASHelper.Predictor.Core;
 
 namespace Celeste.Mod.TASHelper.Predictor;
@@ -58,58 +59,58 @@ public class PredictorRenderer : Entity {
 
     public static Color? KeyframeColorGetter(KeyframeType keyframe, out bool addTime) {
         addTime = true;
-        if (TasHelperSettings.UseFlagDead && keyframe.HasFlag(KeyframeType.GainDead)) {
+        if (TasHelperSettings.UseFlagDead && keyframe.Has(KeyframeType.GainDead)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagGainCrouched && keyframe.HasFlag(KeyframeType.GainDuck)) {
+        if (TasHelperSettings.UseFlagGainCrouched && keyframe.Has(KeyframeType.GainDuck)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagGainLevelControl && keyframe.HasFlag(KeyframeType.GainLevelControl)) {
+        if (TasHelperSettings.UseFlagGainLevelControl && keyframe.Has(KeyframeType.GainLevelControl)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagGainOnGround && keyframe.HasFlag(KeyframeType.GainOnGround)) {
+        if (TasHelperSettings.UseFlagGainOnGround && keyframe.Has(KeyframeType.GainOnGround)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagGainPlayerControl && keyframe.HasFlag(KeyframeType.GainPlayerControl)) {
+        if (TasHelperSettings.UseFlagGainPlayerControl && keyframe.Has(KeyframeType.GainPlayerControl)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagGainUltra && keyframe.HasFlag(KeyframeType.GainUltra)) {
+        if (TasHelperSettings.UseFlagGainUltra && keyframe.Has(KeyframeType.GainUltra)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagLoseCrouched && keyframe.HasFlag(KeyframeType.LoseDuck)) {
+        if (TasHelperSettings.UseFlagLoseCrouched && keyframe.Has(KeyframeType.LoseDuck)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagLoseLevelControl && keyframe.HasFlag(KeyframeType.LoseLevelControl)) {
+        if (TasHelperSettings.UseFlagLoseLevelControl && keyframe.Has(KeyframeType.LoseLevelControl)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagLoseOnGround && keyframe.HasFlag(KeyframeType.LoseOnGround)) {
+        if (TasHelperSettings.UseFlagLoseOnGround && keyframe.Has(KeyframeType.LoseOnGround)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagLosePlayerControl && keyframe.HasFlag(KeyframeType.LosePlayerControl)) {
+        if (TasHelperSettings.UseFlagLosePlayerControl && keyframe.Has(KeyframeType.LosePlayerControl)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagOnBounce && keyframe.HasFlag(KeyframeType.OnBounce)) {
+        if (TasHelperSettings.UseFlagOnBounce && keyframe.Has(KeyframeType.OnBounce)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagOnEntityState && keyframe.HasFlag(KeyframeType.OnEntityState)) {
+        if (TasHelperSettings.UseFlagOnEntityState && keyframe.Has(KeyframeType.OnEntityState)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagRefillDash && keyframe.HasFlag(KeyframeType.RefillDash)) {
+        if (TasHelperSettings.UseFlagRefillDash && keyframe.Has(KeyframeType.RefillDash)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagRespawnPointChange && keyframe.HasFlag(KeyframeType.RespawnPointChange)) {
+        if (TasHelperSettings.UseFlagRespawnPointChange && keyframe.Has(KeyframeType.RespawnPointChange)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagCanDashInStLaunch && keyframe.HasFlag(KeyframeType.CanDashInStLaunch)) {
+        if (TasHelperSettings.UseFlagCanDashInStLaunch && keyframe.Has(KeyframeType.CanDashInStLaunch)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagGainFreeze && keyframe.HasFlag(KeyframeType.BeginEngineFreeze)) {
+        if (TasHelperSettings.UseFlagGainFreeze && keyframe.Has(KeyframeType.BeginEngineFreeze)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagLoseFreeze && keyframe.HasFlag(KeyframeType.EndEngineFreeze)) {
+        if (TasHelperSettings.UseFlagLoseFreeze && keyframe.Has(KeyframeType.EndEngineFreeze)) {
             return ColorKeyframe;
         }
-        if (TasHelperSettings.UseFlagGetRetained && keyframe.HasFlag(KeyframeType.GetRetained)) {
+        if (TasHelperSettings.UseFlagGetRetained && keyframe.Has(KeyframeType.GetRetained)) {
             return ColorKeyframe;
         }
 
@@ -152,11 +153,5 @@ public class PredictorRenderer : Entity {
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes introTypes, bool isFromLoader) {
         orig(self, introTypes, isFromLoader);
         self.Add(new PredictorRenderer());
-    }
-}
-
-public static class KeyframeTypeExtension {
-    public static bool HasFlag(this KeyframeType keyframe, KeyframeType flag) {
-        return (keyframe & ~flag) != KeyframeType.None;
     }
 }

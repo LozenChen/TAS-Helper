@@ -3,6 +3,7 @@ using Monocle;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 
 namespace Celeste.Mod.TASHelper.Utils;
@@ -524,5 +525,22 @@ internal static class ColorExtensions {
     public static Color SetAlpha(this Color color, float alpha) {
         float beta = (3 - alpha) * alpha * 0.5f;
         return new Color((int)((float)color.R * beta), (int)((float)color.G * beta), (int)((float)color.B * beta), (int)((float)color.A * alpha));
+    }
+}
+
+// https://github.com/NoelFB/Foster/blob/main/Framework/Extensions/EnumExt.cs
+internal static class EnumExtensions {
+    /// <summary>
+    /// Enum.Has boxes the value, where as this method does not.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static unsafe bool Has<TEnum>(this TEnum lhs, TEnum rhs) where TEnum : unmanaged, Enum {
+        return sizeof(TEnum) switch {
+            1 => (*(byte*)&lhs & *(byte*)&rhs) > 0,
+            2 => (*(ushort*)&lhs & *(ushort*)&rhs) > 0,
+            4 => (*(uint*)&lhs & *(uint*)&rhs) > 0,
+            8 => (*(ulong*)&lhs & *(ulong*)&rhs) > 0,
+            _ => throw new Exception("Size does not match a known Enum backing type."),
+        };
     }
 }

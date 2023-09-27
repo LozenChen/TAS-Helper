@@ -220,10 +220,10 @@ public static class Core {
             SkipPredictChecks.Add(() => Engine.Scene is Level level && level.Transitioning);
         }
         if (TasHelperSettings.StopPredictWhenTransition) {
-            EarlyStopChecks.Add(data => data.Keyframe.HasFlag(KeyframeType.BeginTransition));
+            EarlyStopChecks.Add(data => data.Keyframe.Has(KeyframeType.BeginTransition));
         }
         if (TasHelperSettings.StopPredictWhenDeath) {
-            EarlyStopChecks.Add(data => data.Keyframe.HasFlag(KeyframeType.GainDead));
+            EarlyStopChecks.Add(data => data.Keyframe.Has(KeyframeType.GainDead));
         }
         if (TasHelperSettings.StopPredictWhenKeyframe) {
             EarlyStopChecks.Add(data => PredictorRenderer.KeyframeColorGetter(data.Keyframe, out _) is not null);
