@@ -24,11 +24,11 @@ internal static class SimplifiedSpinner {
 
     private static bool wasSpritesCleared = !SpritesCleared;
 
-    private static bool AddingEntities = true;
+    private static bool NeedClearSprites = true;
 
     // sprites are created by e.g. AddSprites(), so they do not necessarily exist when load level
 
-    private static bool NotUpdated => AddingEntities || wasSpritesCleared != SpritesCleared;
+    private static bool NotUpdated => NeedClearSprites || wasSpritesCleared != SpritesCleared;
 
     private static readonly List<Action<Level>> ClearSpritesAction = new();
 
@@ -37,17 +37,13 @@ internal static class SimplifiedSpinner {
         // hook after CelesteTAS.CycleHitboxColor's hook
         using (new DetourContext { After = new List<string> { "*" } }) {
             On.Monocle.Entity.DebugRender += PatchDebugRender;
-            On.Monocle.EntityList.UpdateLists += OnLevelAddEntity;
         }
         On.Celeste.Level.LoadLevel += OnLoadLevel;
-
-
     }
 
     [Unload]
     public static void Unload() {
         On.Monocle.Entity.DebugRender -= PatchDebugRender;
-        On.Monocle.EntityList.UpdateLists -= OnLevelAddEntity;
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
     }
 
@@ -55,7 +51,7 @@ internal static class SimplifiedSpinner {
     public static void Initialize() {
         typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate(IlLevelBeforeRender);
+            cursor.EmitDelegate(LevelBeforeRender);
         });
 
         CrysExtraComponentGetter = new() {
@@ -63,28 +59,59 @@ internal static class SimplifiedSpinner {
             typeof(CrystalStaticSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
         };
         ClearSpritesAction.Add(VanillaBeforeRender);
+        OnCreateSprites(typeof(CrystalStaticSpinner));
+        EOF(typeof(DustGraphic).GetConstructor(new Type[]{ typeof(bool), typeof(bool), typeof(bool)}));
 
         if (ModUtils.FrostHelperInstalled) {
-            ClearSpritesAction.Add(FrostBeforeRender);
+            if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
+                ClearSpritesAction.Add(FrostBeforeRender);
+                OnCreateSprites(frostSpinnerType);
+            }
         }
+
         if (ModUtils.VivHelperInstalled) {
             CreateVivGetter();
             ClearSpritesAction.Add(VivBeforeRender);
+            if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType) {
+                OnCreateSprites(vivSpinnerType);
+            }
+
+            if (ModUtils.GetType("VivHelper", "VivHelper.Entities.AnimatedSpinner") is { } vivAnimSpinnerType) {
+                OnCreateSprites(vivAnimSpinnerType);
+            }
         }
 
         if (ModUtils.ChronoHelperInstalled) {
             CreateChronoGetter();
             ClearSpritesAction.Add(ChronoBeforeRender);
+            if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
+                OnCreateSprites(chronoSpinnerType);
+            }
         }
 
         if (ModUtils.BrokemiaHelperInstalled) {
             TrackCassetteSpinner();
             ClearSpritesAction.Add(BrokemiaBeforeRender);
+            // CreateSprites inherited from Crys spinner, so no need to hook
         }
 
         if (ModUtils.IsaGrabBagInstalled) {
             TrackDreamSpinnerRenderer();
             ClearSpritesAction.Add(IsaGrabBagBeforeRender);
+            if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinnerRenderer") is { } dreamSpinnerRendererType) {
+                EOF(dreamSpinnerRendererType.GetConstructor(Type.EmptyTypes));
+            }
+        }
+
+        void EOF(MethodBase method) {
+            method.IlHook((cursor, _) => {
+                cursor.Goto(cursor.Instrs.Count - 1);
+                cursor.EmitDelegate(CallNeedClearSprites);
+            });
+        }
+
+        void OnCreateSprites(Type type) {
+            EOF(type.GetMethod("CreateSprites", BindingFlags.NonPublic | BindingFlags.Instance));
         }
     }
 
@@ -107,18 +134,19 @@ internal static class SimplifiedSpinner {
         wasSpritesCleared = !SpritesCleared;
     }
 
-    private static void OnLevelAddEntity(On.Monocle.EntityList.orig_UpdateLists orig, EntityList self) {
-        if (!AddingEntities && TasHelperSettings.Enabled && self.Scene is Level && self.ToAdd.Count > 0) {
-            AddingEntities = true;
-        }
-        orig(self);
-    }
+    private static void LevelBeforeRender(Level self) {
+        /* the following comments are based on the implementation that: detect adding entities in Scene.Entities.UpdateLists, which we abandoned
+         the most common Scene.Entities.UpdateLists call happens in Scene.BeforeUpdate
+         CrystalStaticSpinner.CreateSprites happen in Scene.Update, which add the entity border and filler to Scene, so border and filler will render next frame
+         however, it also add some image as components of CrystalStaticSpinner, they will render this frame
+         so we should clear it right now
+        */
 
-    private static void IlLevelBeforeRender(Level self) {
+        // we manually track in which cases, we need to clear sprites, so we do not need to update every frame
+
         // here i assume all the components are always visible
         // if that's not the case, then this implementation has bug
 
-        // all other hooks must be before this
         if (NotUpdated) {
             foreach (Action<Level> action in ClearSpritesAction) {
                 action(self);
@@ -126,11 +154,15 @@ internal static class SimplifiedSpinner {
 
             // we must set it here immediately, instead of setting this at e.g. Level.AfterRender
             // coz SpritesCleared may change during this period of time, in that case wasSpritesCleared will not detect this change
+            
             wasSpritesCleared = SpritesCleared;
-            AddingEntities = false;
+            NeedClearSprites = false;
         }
     }
 
+    private static void CallNeedClearSprites() {
+        NeedClearSprites = true;
+    }
     private static void VanillaBeforeRender(Level self) {
         foreach (Entity dust in self.Tracker.GetEntities<DustStaticSpinner>()) {
             dust.UpdateComponentVisiblity();
@@ -257,9 +289,7 @@ internal static class SimplifiedSpinner {
             return;
         }
 
-#pragma warning disable CS8629
         SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.GetSpinnerColorIndex(self, true);
-#pragma warning restore CS8629
         Color color = SpinnerRenderHelper.GetSpinnerColor(index);
         // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
         bool collidable = SpinnerCalculateHelper.GetCollidable(self);
