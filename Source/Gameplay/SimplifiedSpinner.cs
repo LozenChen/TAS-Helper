@@ -12,6 +12,8 @@ using VivEntities = VivHelper.Entities;
 namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class SimplifiedSpinner {
 
+    // Tas mod's UnloadedRoomHitbox also draws spinner textures, but we do not plan to clear them
+    // some room like Farewell [c-alt-01], adjacent rooms can have spinner in same position! in that case, it may seem that sprite is not cleared
     public static bool SpritesCleared => DebugRendered && TasHelperSettings.ClearSpinnerSprites;
 
     private static List<FieldInfo> CrysExtraComponentGetter;
@@ -26,7 +28,9 @@ internal static class SimplifiedSpinner {
 
     // sprites are created by e.g. AddSprites(), so they do not necessarily exist when load level
 
-    private static bool Updated => !AddingEntities && wasSpritesCleared == SpritesCleared;
+    private static bool NotUpdated => AddingEntities || wasSpritesCleared != SpritesCleared;
+
+    private static readonly List<Action<Level>> ClearSpritesAction = new();
 
     [Load]
     public static void Load() {
@@ -47,6 +51,43 @@ internal static class SimplifiedSpinner {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
     }
 
+    [Initialize]
+    public static void Initialize() {
+        typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate(IlLevelBeforeRender);
+        });
+
+        CrysExtraComponentGetter = new() {
+            typeof(CrystalStaticSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
+            typeof(CrystalStaticSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
+        };
+        ClearSpritesAction.Add(VanillaBeforeRender);
+
+        if (ModUtils.FrostHelperInstalled) {
+            ClearSpritesAction.Add(FrostBeforeRender);
+        }
+        if (ModUtils.VivHelperInstalled) {
+            CreateVivGetter();
+            ClearSpritesAction.Add(VivBeforeRender);
+        }
+
+        if (ModUtils.ChronoHelperInstalled) {
+            CreateChronoGetter();
+            ClearSpritesAction.Add(ChronoBeforeRender);
+        }
+
+        if (ModUtils.BrokemiaHelperInstalled) {
+            TrackCassetteSpinner();
+            ClearSpritesAction.Add(BrokemiaBeforeRender);
+        }
+
+        if (ModUtils.IsaGrabBagInstalled) {
+            TrackDreamSpinnerRenderer();
+            ClearSpritesAction.Add(IsaGrabBagBeforeRender);
+        }
+    }
+
     private static void CreateVivGetter() {
         VivSpinnerExtraComponentGetter = new() {
                 typeof(VivEntities.CustomSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
@@ -60,60 +101,6 @@ internal static class SimplifiedSpinner {
                 typeof(ChronoEntities.ShatterSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
             };
     }
-
-    [Initialize]
-    public static void Initialize() {
-        CrysExtraComponentGetter = new() {
-            typeof(CrystalStaticSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
-            typeof(CrystalStaticSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
-        };
-
-        // this one must be at first
-        typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate(IlLevelBeforeRender);
-        });
-
-        if (ModUtils.FrostHelperInstalled) {
-            typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(FrostBeforeRender);
-            });
-        }
-        if (ModUtils.VivHelperInstalled) {
-            CreateVivGetter();
-            typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(VivBeforeRender);
-            });
-        }
-
-        if (ModUtils.ChronoHelperInstalled) {
-            CreateChronoGetter();
-            typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(ChronoBeforeRender);
-            });
-        }
-
-        if (ModUtils.BrokemiaHelperInstalled) {
-            TrackCassetteSpinner();
-            typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(BrokemiaBeforeRender);
-            });
-        }
-
-        if (ModUtils.IsaGrabBagInstalled) {
-            TrackDreamSpinnerRenderer();
-            typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(IsaGrabBagBeforeRender);
-            });
-        }
-
-    }
-
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
         orig(self, playerIntro, isFromLoader);
@@ -132,19 +119,11 @@ internal static class SimplifiedSpinner {
         // if that's not the case, then this implementation has bug
 
         // all other hooks must be before this
-        if (!Updated) {
-            foreach (Entity dust in self.Tracker.GetEntities<DustStaticSpinner>()) {
-                dust.UpdateComponentVisiblity();
+        if (NotUpdated) {
+            foreach (Action<Level> action in ClearSpritesAction) {
+                action(self);
             }
-            foreach (Entity spinner in self.Tracker.GetEntities<CrystalStaticSpinner>()) {
-                spinner.UpdateComponentVisiblity();
-                foreach (FieldInfo getter in CrysExtraComponentGetter) {
-                    object obj = getter.GetValue(spinner);
-                    if (obj != null) {
-                        obj.SetFieldValue("Visible", !SpritesCleared);
-                    }
-                }
-            }
+
             // we must set it here immediately, instead of setting this at e.g. Level.AfterRender
             // coz SpritesCleared may change during this period of time, in that case wasSpritesCleared will not detect this change
             wasSpritesCleared = SpritesCleared;
@@ -152,10 +131,22 @@ internal static class SimplifiedSpinner {
         }
     }
 
-    private static void FrostBeforeRender(Level self) {
-        if (Updated) {
-            return;
+    private static void VanillaBeforeRender(Level self) {
+        foreach (Entity dust in self.Tracker.GetEntities<DustStaticSpinner>()) {
+            dust.UpdateComponentVisiblity();
         }
+        foreach (Entity spinner in self.Tracker.GetEntities<CrystalStaticSpinner>()) {
+            spinner.UpdateComponentVisiblity();
+            foreach (FieldInfo getter in CrysExtraComponentGetter) {
+                object obj = getter.GetValue(spinner);
+                if (obj != null) {
+                    obj.SetFieldValue("Visible", !SpritesCleared);
+                }
+            }
+        }
+    }
+
+    private static void FrostBeforeRender(Level self) {
         foreach (Entity customSpinner in self.Tracker.GetEntities<FrostHelper.CustomSpinner>()) {
             customSpinner.UpdateComponentVisiblity();
         }
@@ -171,9 +162,6 @@ internal static class SimplifiedSpinner {
     }
 
     private static void VivBeforeRender(Level self) {
-        if (Updated) {
-            return;
-        }
         foreach (Entity customSpinner in self.Tracker.GetEntities<VivEntities.CustomSpinner>()) {
             customSpinner.UpdateComponentVisiblity();
             foreach (FieldInfo getter in VivSpinnerExtraComponentGetter) {
@@ -205,9 +193,6 @@ internal static class SimplifiedSpinner {
         }
     }
     private static void ChronoBeforeRender(Level self) {
-        if (Updated) {
-            return;
-        }
         foreach (Entity spinner in self.Tracker.GetEntities<ChronoEntities.ShatterSpinner>()) {
             spinner.UpdateComponentVisiblity();
             foreach (FieldInfo getter in ChronoSpinnerExtraComponentGetter) {
@@ -223,9 +208,6 @@ internal static class SimplifiedSpinner {
         LevelExtensions.AddToTracker(typeof(BrokemiaHelper.CassetteSpinner));
     }
     private static void BrokemiaBeforeRender(Level self) {
-        if (Updated) {
-            return;
-        }
         foreach (Entity spinner in self.Tracker.GetEntities<BrokemiaHelper.CassetteSpinner>()) {
             spinner.UpdateComponentVisiblity();
             foreach (FieldInfo getter in CrysExtraComponentGetter) {
@@ -242,9 +224,6 @@ internal static class SimplifiedSpinner {
     }
 
     private static void IsaGrabBagBeforeRender(Level self) {
-        if (Updated) {
-            return;
-        }
         foreach (Entity renderer in self.Tracker.GetEntities<IsaGrabBag.DreamSpinnerRenderer>()) {
             renderer.Visible = !SpritesCleared;
         }
