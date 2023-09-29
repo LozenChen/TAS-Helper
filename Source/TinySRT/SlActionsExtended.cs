@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework.Input;
-using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
 using TAS.EverestInterop.InfoHUD;
 using TAS.EverestInterop;
@@ -7,35 +6,48 @@ using TAS.Input.Commands;
 using SRT = Celeste.Mod.SpeedrunTool.SaveLoad.SaveLoadAction;
 using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
 using Monocle;
-using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Celeste.Mod.TASHelper.Entities;
 using TAS;
+using System.Reflection;
+using Celeste.Mod.SpeedrunTool.SaveLoad;
+
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
-public static class SlActionsAddedByMods {
+public static class SlActionsExtended {
 
     // if there's mod which add SlAction by itself, instead of by SRT, then we also add it to our SaveLoadActions
 
-    public static readonly List<TH> Actions = new();
+    public static readonly List<TH> TH_Actions = new();
+
+    public static List<SRT> SRT_Actions = new();
 
     // we want to ensure these actions are added lastly
     [Initialize]
     public static void Load() {
-        Actions.Add(TasModSL.Create());
-        Actions.Add(TasHelperSL.Create());
-
-        foreach (TH action in Actions) {
+        TH_Actions.Add(TasModSL.Create());
+        // tas mod already adds to SRT itself
+        TH_Actions.Add(TasHelperSL.Create());
+        SRT_Actions.Add(TasHelperSL.CreateSRT());
+        foreach (TH action in TH_Actions) {
             TH.Add(action);
+        }
+        foreach (SRT action in SRT_Actions) {
+            SRT.Add(action);
         }
     }
 
     [Unload]
     public static void Unload() {
-        foreach (TH action in Actions) {
+        foreach (TH action in TH_Actions) {
             TH.Remove(action);
         }
-        Actions.Clear();
+        TH_Actions.Clear();
+
+        foreach (SRT action in SRT_Actions) {
+            SRT.Remove(action);
+        }
+        SRT_Actions.Clear();
     }
 }
 
@@ -44,8 +56,17 @@ public static class Converter {
         return (savedValues, level) => { action(savedValues, level); };
     }
 
+    public static SRT.SlAction Convert(this TH.SlAction action) {
+        return (savedValues, level) => { action(savedValues, level); };
+    }
+
     public static TH Convert(this SRT action) {
         return new TH(action.saveState.Convert(), action.loadState.Convert(), action.clearState, action.beforeSaveState, action.beforeLoadState, action.preCloneEntities);
+    }
+    // only works if these action are quite simple, didn't use the corresponding DeepCloneUtils
+
+    public static SRT Convert(this TH action) {
+        return new SRT(action.saveState.Convert(), action.loadState.Convert(), action.clearState, action.beforeSaveState, action.beforeLoadState, action.preCloneEntities);
     }
 }
 
@@ -113,29 +134,57 @@ internal static class TasModSL {
 
 internal static class TasHelperSL {
 
-    private static HashSet<Entity> pauseUpdaterEntities;
+    private static HashSet<Entity> TH_pauseUpdaterEntities;
+    private static HashSet<Entity> SRT_pauseUpdaterEntities;
     private static float DashTime;
     private static bool Frozen;
     private static int TransitionFrames;
-    private static float freezeTimerBeforeUpdateBeforePredictLoops;
+    private static float TH_freezeTimerBeforeUpdateBeforePredictLoops;
+    private static float SRT_freezeTimerBeforeUpdateBeforePredictLoops;
     public static TH Create() {
         TH.SlAction save = (_, _) => {
-            pauseUpdaterEntities = PauseUpdater.entities.TH_DeepCloneShared();
+            TH_pauseUpdaterEntities = PauseUpdater.entities.TH_DeepCloneShared();
             DashTime = GameInfo.DashTime;
             Frozen = GameInfo.Frozen;
             TransitionFrames = GameInfo.TransitionFrames;
-            freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
+            TH_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
         };
         TH.SlAction load = (_, _) => {
-            PauseUpdater.entities = pauseUpdaterEntities.TH_DeepCloneShared();
+            PauseUpdater.entities = TH_pauseUpdaterEntities.TH_DeepCloneShared();
             GameInfo.DashTime = DashTime;
             GameInfo.Frozen = Frozen;
             GameInfo.TransitionFrames = TransitionFrames;
-            Predictor.Core.FreezeTimerBeforeUpdate = freezeTimerBeforeUpdateBeforePredictLoops;
+            Predictor.Core.FreezeTimerBeforeUpdate = TH_freezeTimerBeforeUpdateBeforePredictLoops;
         };
         Action clear = () => {
-            pauseUpdaterEntities = null;
+            TH_pauseUpdaterEntities = null;
         };
         return new TH(save, load, clear, null, null);
+    }
+
+    public static SRT CreateSRT() {
+        SRT.SlAction save = (_, _) => {
+            SRT_pauseUpdaterEntities = PauseUpdater.entities.DeepCloneShared();
+            SRT_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
+        };
+        SRT.SlAction load = (_, _) => {
+            PauseUpdater.entities = SRT_pauseUpdaterEntities.DeepCloneShared();
+            Predictor.Core.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
+        };
+        Action clear = () => {
+            SRT_pauseUpdaterEntities = null;
+        };
+
+        ConstructorInfo constructor = typeof(SRT).GetConstructors()[0];
+        Type delegateType = constructor.GetParameters()[0].ParameterType;
+
+        return (SRT) constructor.Invoke(new object[] {
+                save.Method.CreateDelegate(delegateType, save.Target),
+                load.Method.CreateDelegate(delegateType, load.Target),
+                clear,
+                null,
+                null
+            }
+        );
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
 using FMOD;
 using FMOD.Studio;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System.Collections.Concurrent;
@@ -55,7 +56,7 @@ public static class ModifiedAutoMute {
         "event:/CommunalHelperEvents/game/melvin/move_loop",
         "event:/CommunalHelperEvents/game/railedMoveBlock/railedmoveblock_move",
         "event:/CommunalHelperEvents/game/customBoosters/dreamBooster/dreambooster_move",
-    };
+};
 
     private static readonly IDictionary<WeakReference<EventInstance>, int>
         LoopAudioInstances = new ConcurrentDictionary<WeakReference<EventInstance>, int>();
@@ -91,6 +92,7 @@ public static class ModifiedAutoMute {
         // make predict in casseette rooms silent
         // SJ/Paint doesn't desync
         IL.Celeste.CassetteBlockManager.AdvanceMusic += CassetteBlockManagerOnAdvanceMusic;
+        On.Celeste.Celeste.Update += CelesteOnUpdate;
     }
 
     [Unload]
@@ -99,6 +101,7 @@ public static class ModifiedAutoMute {
         On.Celeste.Audio.SetAltMusic -= AudioOnSetAltMusic;
         On.FMOD.Studio.EventDescription.createInstance -= EventDescriptionOnCreateInstance;
         IL.Celeste.CassetteBlockManager.AdvanceMusic -= CassetteBlockManagerOnAdvanceMusic;
+        On.Celeste.Celeste.Update -= CelesteOnUpdate;
     }
 
     private static void AudioOnSetAltMusic(On.Celeste.Audio.orig_SetAltMusic orig, string path) {
@@ -126,7 +129,7 @@ public static class ModifiedAutoMute {
             result = orig(self, out instance);
         }
 
-        if (inPredict && settingMusic && instance != null && path.IsNotNullOrEmpty()) {
+        if (!ShouldBeMuted && instance != null && path.IsNotNullOrEmpty()) {
             int delayFrames = -1;
             if (LoopAudioPaths.Contains(path)) {
                 delayFrames = 10;
@@ -136,9 +139,11 @@ public static class ModifiedAutoMute {
                 delayFrames = 0;
             }
 
-            if (delayFrames >= 0) {
+            // no idea how "event:/game/general/touchswitch_last_oneshot" works
+            // if i start predictor on same frame when this sfx is played, then every time i predict (in same frame), the sfx will play again
+            // if (delayFrames >= 0) {
                 LoopAudioInstances.Add(new WeakReference<EventInstance>(instance), delayFrames);
-            }
+            // }
         }
 
         return result;
@@ -177,7 +182,7 @@ public static class ModifiedAutoMute {
         inPredict = false;
     }
 
-    internal static void CelesteOnUpdate() {
+    internal static void OnPredictorUpdate() {
         Audio.CurrentAmbienceEventInstance?.setVolume(0);
 
         if (LoopAudioInstances.Count > 0) {
@@ -193,6 +198,18 @@ public static class ModifiedAutoMute {
                     }
                 }
                 else {
+                    LoopAudioInstances.Remove(loopAudioInstance);
+                }
+            }
+        }
+    }
+
+    private static void CelesteOnUpdate(On.Celeste.Celeste.orig_Update orig, Celeste self, GameTime gameTime) {
+        orig(self, gameTime);
+
+        if (LoopAudioInstances.Count > 0) {
+            foreach (WeakReference<EventInstance> loopAudioInstance in LoopAudioInstances.Keys.ToArray()) {
+                if (!loopAudioInstance.TryGetTarget(out _)) {
                     LoopAudioInstances.Remove(loopAudioInstance);
                 }
             }

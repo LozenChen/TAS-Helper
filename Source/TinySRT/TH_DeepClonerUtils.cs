@@ -10,8 +10,6 @@ using static Celeste.Mod.SpeedrunTool.Extensions.CommonExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.TypeExtensions;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.DynDataUtils;
-using static Celeste.Mod.SpeedrunTool.SaveLoad.EventInstanceExtensions;
-using static Celeste.Mod.SpeedrunTool.SaveLoad.FrostHelperUtils;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 public static class TH_DeepClonerUtils {
@@ -223,7 +221,7 @@ public static class TH_DeepClonerUtils {
                 }
 
 
-                CloneDataStore(sourceObj, clonedObj, deepCloneState);
+                TH_FrostHelperUtils.TH_CloneDataStore(sourceObj, clonedObj, deepCloneState);
             }
 
             return clonedObj;

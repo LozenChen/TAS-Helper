@@ -2,8 +2,6 @@
 using Celeste.Mod.SpeedrunTool;
 using Celeste.Mod.SpeedrunTool.DeathStatistics;
 using Celeste.Mod.SpeedrunTool.RoomTimer;
-using Celeste.Mod.SpeedrunTool.Utils;
-using Celeste.Mod.TASHelper.Entities;
 using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -13,16 +11,12 @@ using MonoMod.Utils;
 using System.Collections.Concurrent;
 using System.Reflection;
 // need to check: never use SRT.StateManager
-using static Celeste.Mod.SpeedrunTool.Extensions.LoggerExtensions;
+using ModUtils = Celeste.Mod.SpeedrunTool.Utils.ModUtils;
 using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.TypeExtensions;
 using static Celeste.Mod.SpeedrunTool.GlobalVariables;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.DynDataUtils;
-using static Celeste.Mod.SpeedrunTool.SaveLoad.EventInstanceExtensions;
-using static Celeste.Mod.SpeedrunTool.SaveLoad.FrostHelperUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.IgnoreSaveLoadComponent;
-using static Celeste.Mod.SpeedrunTool.SaveLoad.MuteAudioUtils;
-using static Celeste.Mod.SpeedrunTool.SaveLoad.StrawberryJamUtils;
 using SRT = Celeste.Mod.SpeedrunTool.SaveLoad;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
@@ -42,14 +36,14 @@ public sealed class TH_SaveLoadAction {
     internal static Dictionary<Type, FieldInfo[]> simpleStaticFields;
     internal static Dictionary<Type, FieldInfo[]> modModuleFields;
 
-    private readonly Action clearState;
-    private readonly Action<Level> beforeSaveState;
-    private readonly Action<Level> beforeLoadState;
-    private readonly Action preCloneEntities;
-    private readonly SlAction loadState;
+    internal readonly Action clearState;
+    internal readonly Action<Level> beforeSaveState;
+    internal readonly Action<Level> beforeLoadState;
+    internal readonly Action preCloneEntities;
+    internal readonly SlAction loadState;
 
     private readonly Dictionary<Type, Dictionary<string, object>> savedValues = new();
-    private readonly SlAction saveState;
+    internal readonly SlAction saveState;
 
     private Action<Level, List<Entity>, Entity> unloadLevel;
 
@@ -217,7 +211,7 @@ public sealed class TH_SaveLoadAction {
         SupportInput();
         SupportAudioMusic();
         FixVertexLight();
-        AddAction();
+        TH_MuteAudioUtils.AddAction();
         ExternalAction();
         SupportModSessionAndSaveData();
         SupportMaxHelpingHand();
@@ -228,11 +222,11 @@ public sealed class TH_SaveLoadAction {
         SupportXaphanHelper();
         SupportIsaGrabBag();
         SupportSpirialisHelper();
-        //DeathTrackerHelper.AddSupport();
+
         SupportCommunalHelper();
         SupportBrokemiaHelper();
-        AddSupport();
-        SupportFrostHelper();
+        TH_StrawberryJamUtils.AddSupport();
+        TH_FrostHelperUtils.SupportFrostHelper();
         SupportVivHelper();
 
         // 放最后，确保收集了所有克隆的 VirtualAssets 与 EventInstance
@@ -1164,5 +1158,27 @@ public sealed class TH_SaveLoadAction {
                 (savedValues, _) => SaveStaticMemberValues(savedValues, modType, fields),
                 (savedValues, _) => LoadStaticMemberValues(savedValues));
         }
+    }
+
+    
+
+}
+
+internal static class TinySRT_Logger {
+    private const string Tag = "Tas Helper TinySRT";
+
+    internal static void Log(this object message, LogLevel logLevel = LogLevel.Warn) {
+        string text = "";
+        Session session = SpeedrunTool.Extensions.CelesteExtensions.GetSession(Engine.Scene);
+        if (session != null) {
+            text = text + "[" + session.Area.SID + " " + session.Level + "] ";
+        }
+
+        string arg = "";
+        if (Engine.Scene != null) {
+            arg = "[" + (int)Math.Round((double)Engine.Scene.RawTimeActive / 0.0166667) + "] ";
+        }
+
+        Logger.Log(logLevel, Tag, $"{text}{arg}{message}");
     }
 }

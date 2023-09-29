@@ -129,7 +129,7 @@ public static class Core {
                 engine.scene.AfterUpdate();
             }
         }
-        ModifiedAutoMute.CelesteOnUpdate();
+        ModifiedAutoMute.OnPredictorUpdate();
 
         /* dont do this, leave it to PreventSwitchScene
         if (engine.scene != engine.nextScene) {
