@@ -148,7 +148,11 @@ public static class ModifiedAutoMute {
         ILCursor ilCursor = new(il);
         ilCursor.Goto(ilCursor.Instrs.Count - 1);
 
-        if (ilCursor.TryGotoPrev(MoveType.Before, ins => ins.OpCode == OpCodes.Ldstr, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt(typeof(CassetteBlockManager), "GetSixteenthNote"))) {
+        if (ilCursor.TryGotoPrev(MoveType.Before,
+            ins => ins.OpCode == OpCodes.Ldstr,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchCallOrCallvirt(typeof(CassetteBlockManager), "GetSixteenthNote")
+         )) {
             ilCursor.MoveAfterLabels();
             ilCursor.EmitDelegate(GetShouldBeMuted);
             Instruction next = ilCursor.Next;

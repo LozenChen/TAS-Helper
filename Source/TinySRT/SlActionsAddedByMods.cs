@@ -7,6 +7,9 @@ using TAS.Input.Commands;
 using SRT = Celeste.Mod.SpeedrunTool.SaveLoad.SaveLoadAction;
 using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
 using Monocle;
+using Celeste.Mod.SpeedrunTool.SaveLoad;
+using Celeste.Mod.TASHelper.Entities;
+using TAS;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
@@ -16,9 +19,11 @@ public static class SlActionsAddedByMods {
 
     public static readonly List<TH> Actions = new();
 
-    [Load]
-    public static void LoadTAS() {
+    // we want to ensure these actions are added lastly
+    [Initialize]
+    public static void Load() {
         Actions.Add(TasModSL.Create());
+        Actions.Add(TasHelperSL.Create());
 
         foreach (TH action in Actions) {
             TH.Add(action);
@@ -26,7 +31,7 @@ public static class SlActionsAddedByMods {
     }
 
     [Unload]
-    public static void UnloadTAS() {
+    public static void Unload() {
         foreach (TH action in Actions) {
             TH.Remove(action);
         }
@@ -43,7 +48,6 @@ public static class Converter {
         return new TH(action.saveState.Convert(), action.loadState.Convert(), action.clearState, action.beforeSaveState, action.beforeLoadState, action.preCloneEntities);
     }
 }
-
 
 internal static class TasModSL {
     private static TH saveLoadAction;
@@ -102,10 +106,36 @@ internal static class TasModSL {
             InfoWatchEntity.SavedRequireWatchEntities.Clear();
         };
 
-        ConstructorInfo constructor = typeof(TH).GetConstructors()[0];
-        Type delegateType = constructor.GetParameters()[0].ParameterType;
-
         saveLoadAction = new TH(save, load, clear, null, null);
         return saveLoadAction;
+    }
+}
+
+internal static class TasHelperSL {
+
+    private static HashSet<Entity> pauseUpdaterEntities;
+    private static float DashTime;
+    private static bool Frozen;
+    private static int TransitionFrames;
+    private static float freezeTimerBeforeUpdateBeforePredictLoops;
+    public static TH Create() {
+        TH.SlAction save = (_, _) => {
+            pauseUpdaterEntities = PauseUpdater.entities.TH_DeepCloneShared();
+            DashTime = GameInfo.DashTime;
+            Frozen = GameInfo.Frozen;
+            TransitionFrames = GameInfo.TransitionFrames;
+            freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
+        };
+        TH.SlAction load = (_, _) => {
+            PauseUpdater.entities = pauseUpdaterEntities.TH_DeepCloneShared();
+            GameInfo.DashTime = DashTime;
+            GameInfo.Frozen = Frozen;
+            GameInfo.TransitionFrames = TransitionFrames;
+            Predictor.Core.FreezeTimerBeforeUpdate = freezeTimerBeforeUpdateBeforePredictLoops;
+        };
+        Action clear = () => {
+            pauseUpdaterEntities = null;
+        };
+        return new TH(save, load, clear, null, null);
     }
 }

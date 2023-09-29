@@ -3,6 +3,7 @@ using Celeste.Mod.SpeedrunTool;
 using Celeste.Mod.SpeedrunTool.DeathStatistics;
 using Celeste.Mod.SpeedrunTool.RoomTimer;
 using Celeste.Mod.SpeedrunTool.Utils;
+using Celeste.Mod.TASHelper.Entities;
 using FMOD.Studio;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -38,8 +39,8 @@ public sealed class TH_SaveLoadAction {
 
     internal static readonly List<TH_SaveLoadAction> All = new();
 
-    private static Dictionary<Type, FieldInfo[]> simpleStaticFields;
-    private static Dictionary<Type, FieldInfo[]> modModuleFields;
+    internal static Dictionary<Type, FieldInfo[]> simpleStaticFields;
+    internal static Dictionary<Type, FieldInfo[]> modModuleFields;
 
     private readonly Action clearState;
     private readonly Action<Level> beforeSaveState;

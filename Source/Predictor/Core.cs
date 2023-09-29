@@ -59,8 +59,6 @@ public static class Core {
 
         // Celeste.Commands.Log($"An actual Prediction in frame: {Manager.Controller.CurrentFrameInTas}");
 
-        SaveForTAS();
-
         InPredict = true;
 
         futures.Clear();
@@ -88,9 +86,7 @@ public static class Core {
                 break;
             }
         }
-
         TinySRT.TH_StateManager.LoadState();
-        LoadForTAS();
         ModifiedAutoMute.EndMute();
 
         HasCachedFutures = true;
@@ -300,24 +296,6 @@ public static class Core {
 
     private static bool InPredictMethod() {
         return InPredict;
-    }
-
-    private static void SaveForTAS() {
-        DashTime = GameInfo.DashTime;
-        Frozen = GameInfo.Frozen;
-        TransitionFrames = GameInfo.TransitionFrames;
-        freezeTimerBeforeUpdateBeforePredictLoops = FreezeTimerBeforeUpdate;
-    }
-
-    private static float DashTime;
-    private static bool Frozen;
-    private static int TransitionFrames;
-    private static float freezeTimerBeforeUpdateBeforePredictLoops;
-    private static void LoadForTAS() {
-        GameInfo.DashTime = DashTime;
-        GameInfo.Frozen = Frozen;
-        GameInfo.TransitionFrames = TransitionFrames;
-        FreezeTimerBeforeUpdate = freezeTimerBeforeUpdateBeforePredictLoops;
     }
 
     public static bool SkipPredictCheck() {

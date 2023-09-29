@@ -76,6 +76,7 @@ public class EntityActivatorWarner : Message {
         this.Depth = -20000;
         this.Visible = false;
         this.Active = false;
+        PauseUpdater.Register(this);
     }
 
     public void Watch(EntityData data) {
@@ -135,6 +136,7 @@ public class HotkeyWatcher : Message {
         this.Visible = TasHelperSettings.HotkeyStateVisualize;
         base.Tag |= Tags.Global;
         instance = this;
+        PauseUpdater.Register(this);
     }
 
     public void RefreshHotkeyDisabled() {

@@ -226,6 +226,7 @@ internal static class TASHelperMenu {
     public static void CreateMenu(EverestModule everestModule, TextMenu menu, bool inGame) {
         menu.Add(mainItem = new TextMenu.OnOff("Enabled".ToDialogText(), TasHelperSettings.Enabled).Change((value) => { TasHelperSettings.Enabled = value; UpdateEnableItems(value, true, everestModule, menu, inGame); }));
         UpdateEnableItems(TasHelperSettings.Enabled, false, everestModule, menu, inGame);
+        menu.OnClose += () => disabledItems.Clear();
     }
     private static void UpdateEnableItems(bool enable, bool fromChange, EverestModule everestModule, TextMenu menu, bool inGame) {
         if (enable) {
@@ -239,6 +240,7 @@ internal static class TASHelperMenu {
                 menu.Remove(item);
             }
             disabledItems.Clear();
+
             EaseInOptionSubMenuCountExt colorItem = CreateColorCustomizationSubMenu(menu, inGame);
             EaseInSubMenu countdownItem = CreateCountdownSubMenu(menu);
             EaseInSubMenu loadrangeItem = CreateLoadRangeSubMenu(menu);
