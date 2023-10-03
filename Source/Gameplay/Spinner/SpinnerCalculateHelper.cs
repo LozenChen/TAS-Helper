@@ -1,13 +1,8 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
-using Mono.Cecil.Cil;
 using Monocle;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using TAS.EverestInterop;
-using VivEntites = VivHelper.Entities;
 // VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
@@ -56,6 +51,7 @@ public static class SpinnerCalculateHelper {
         HazardTypesTreatNormal.Add(type, HazardType);
         OffsetGetters.Add(type, type.CreateGetDelegate<object, float>(offsetName));
     }
+
     private static void DictionaryAdderSpecial(Type type, string offsetName, GetDelegate<object, int?> HazardTypeGetter) {
         HazardTypesTreatSpecial.Add(type, HazardTypeGetter);
         OffsetGetters.Add(type, type.CreateGetDelegate<object, float>(offsetName));
@@ -69,8 +65,14 @@ public static class SpinnerCalculateHelper {
         DictionaryAdderNormal(Vanilla.GetType("Celeste.DustStaticSpinner"), "offset", dust);
         // for some reasons mentioned below, subclass should be considered different, so we add these three types into dictionary, instead of manually check "if (entity is CrystalStaticSpinner) ..."
 
-        if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
-            DictionaryAdderSpecial(frostSpinnerType, "offset", FrostSpinnerHazardType);
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType && ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinnerController") is { } frostControllerType) {
+            DictionaryAdderSpecial(frostSpinnerType, "offset", e => e.GetFieldValue<bool>("HasCollider") ? spinner : null);
+            NoCycleTypes.Add(frostSpinnerType, e => {
+                if (frostSpinnerType.GetFieldInfo("controller").GetValue(e) is { } controller && frostControllerType.GetFieldInfo("NoCycles").GetValue(controller) is bool b) {
+                    return b;
+                }
+                return false;
+            });
         }
 
         if (ModUtils.GetType("FrostHelper", "FrostHelper.AttachedLightning") is { } frostAttLightningType) {
@@ -85,15 +87,16 @@ public static class SpinnerCalculateHelper {
         // i can do this and hook its debug render alone, but that would be... really no difference from its original implmentation
 
         if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType) {
-            DictionaryAdderSpecial(vivSpinnerType, "offset", VivSpinnerHazardType);
+            DictionaryAdderSpecial(vivSpinnerType, "offset", e => e.GetFieldValue("Collider") is null ? null : spinner);
+            VivHitboxStringGetter = vivSpinnerType.GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         if (ModUtils.GetType("VivHelper", "VivHelper.Entities.AnimatedSpinner") is { } vivAnimSpinnerType) {
-            DictionaryAdderSpecial(vivAnimSpinnerType, "offset", VivSpinnerHazardType);
+            DictionaryAdderSpecial(vivAnimSpinnerType, "offset", e => e.GetFieldValue("Collider") is null ? null : spinner);
         }
 
         if (ModUtils.GetType("VivHelper", "VivHelper.Entities.MovingSpinner") is { } vivMoveSpinnerType) {
-            DictionaryAdderSpecial(vivMoveSpinnerType, "offset", VivSpinnerHazardType);
+            DictionaryAdderSpecial(vivMoveSpinnerType, "offset", e => e.GetFieldValue("Collider") is null ? null : spinner);
         }
 
         if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
@@ -102,12 +105,19 @@ public static class SpinnerCalculateHelper {
 
         if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.DarkLightning") is { } chronoLightningType) {
             DictionaryAdderNormal(chronoLightningType, "toggleOffset", lightning);
+            LightningCollidable.Add(chronoLightningType, e => {
+                if (chronoLightningType.GetFieldInfo("disappearing").GetValue(e) is bool b) {
+                    return b;
+                }
+                return true;
+            });
         }
 
         if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) {
             HazardTypesTreatNormal.Add(cassetteSpinnerType, spinner);
             OffsetGetters.Add(cassetteSpinnerType, OffsetGetters[typeof(CrystalStaticSpinner)]);
             NoPeriodicInViewCheckTypes.Add(cassetteSpinnerType);
+            NoCycleTypes.Add(cassetteSpinnerType, _ => true);
             // CassetteSpinner also has a MethodInfo field called offset
             // visible is still governed by offset
             // but collidable is completely determined by cassette, so we consider it as no cycle and no in view behavior
@@ -117,6 +127,7 @@ public static class SpinnerCalculateHelper {
             HazardTypesTreatNormal.Add(dreamSpinnerType, spinner);
             OffsetGetters.Add(dreamSpinnerType, _ => 0);
             NoPeriodicInViewCheckTypes.Add(dreamSpinnerType);
+            NoCycleTypes.Add(dreamSpinnerType, _ => true);
         }
 
 
@@ -136,26 +147,6 @@ public static class SpinnerCalculateHelper {
         // [Done] BrokemiaHelper.CassetteSpinner: brokemia defines a CassetteEntity interface, which is basically same as CassetteBlock? and CassetteSpinner is a crys spinner with CassetteEntity interface, its update is also affected. only need to clear sprites and simplify
         // [BANNED] ScuffedHelper.RandomSpinner: same as crys spinner, but will remove self randomly on load level.
         // [Irrelavent] LunaticHelper.CustomDust: it's a backdrop, not a dust spinner.
-
-        if (ModUtils.IsaGrabBagInstalled) {
-            IsaGrabBagPatch();
-        }
-
-        if (ModUtils.BrokemiaHelperInstalled) {
-            BrokemiaPatch();
-        }
-
-        if (ModUtils.FrostHelperInstalled) {
-            FrostPatch();
-        }
-
-        if (ModUtils.ChronoHelperInstalled) {
-            ChronoPatch();
-        }
-
-        if (ModUtils.VivHelperInstalled) {
-            CreateVivHitboxStringGetter();
-        }
     }
 
     private static Dictionary<Type, int> HazardTypesTreatNormal = new();
@@ -172,9 +163,6 @@ public static class SpinnerCalculateHelper {
 
     public static FieldInfo VivHitboxStringGetter;
 
-    private static void CreateVivHitboxStringGetter() {
-        VivHitboxStringGetter = typeof(VivEntites.CustomSpinner).GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
-    }
     public static bool NoCycle(Entity self) {
         if (NoCycleTypes.TryGetValue(self.GetType(), out Func<Entity, bool> func)) {
             return func(self);
@@ -202,30 +190,6 @@ public static class SpinnerCalculateHelper {
         }
         return false;
     }
-    private static void IsaGrabBagPatch() {
-        NoCycleTypes.Add(typeof(IsaGrabBag.DreamSpinner), _ => true);
-    }
-    private static void BrokemiaPatch() {
-        NoCycleTypes.Add(typeof(BrokemiaHelper.CassetteSpinner), _ => true);
-    }
-
-    private static void FrostPatch() {
-        NoCycleTypes.Add(typeof(FrostHelper.CustomSpinner), e => {
-            if (typeof(FrostHelper.CustomSpinner).GetFieldInfo("controller").GetValue(e) is FrostHelper.CustomSpinnerController controller) {
-                return controller.NoCycles;
-            }
-            return false;
-        });
-    }
-
-    private static void ChronoPatch() {
-        LightningCollidable.Add(typeof(ChronoHelper.Entities.DarkLightning), e => {
-            if (typeof(ChronoHelper.Entities.DarkLightning).GetFieldInfo("disappearing").GetValue(e) is bool b) {
-                return b;
-            }
-            return true;
-        });
-    }
 
     internal const int spinner = 0;
     internal const int dust = 1;
@@ -238,20 +202,6 @@ public static class SpinnerCalculateHelper {
         }
         else if (HazardTypesTreatSpecial.TryGetValue(type, out GetDelegate<object, int?> getter)) {
             return getter(self);
-        }
-        return null;
-    }
-
-    private static int? FrostSpinnerHazardType(object self) {
-        if (self is FrostHelper.CustomSpinner customSpinner) {
-            return customSpinner.HasCollider ? spinner : null;
-        }
-        return null;
-    }
-
-    private static int? VivSpinnerHazardType(object self) {
-        if (self is VivEntites.CustomSpinner customSpinner) {
-            return customSpinner.Collider is null ? null : spinner;
         }
         return null;
     }
@@ -272,6 +222,10 @@ public static class SpinnerCalculateHelper {
         return HazardType(self) == dust;
     }
 
+    public static bool LightningInView(Entity self, Vector2 CameraPos) {
+        float zoom = ActualPosition.CameraZoom;
+        return self.X + self.Width > CameraPos.X - 16f && self.Y + self.Height > CameraPos.Y - 16f && self.X < CameraPos.X + 320f * zoom + 16f && self.Y < CameraPos.Y + 180f * zoom + 16f;
+    }
     public static bool InView(Entity self, Vector2 CameraPos) {
         float zoom = ActualPosition.CameraZoom;
         if (self.isLightning()) {

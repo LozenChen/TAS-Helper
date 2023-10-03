@@ -46,9 +46,11 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.OnOff("Darken When Uncollidable".ToDialogText(), TasHelperSettings.DarkenWhenUncollidable).Change(value => TasHelperSettings.DarkenWhenUncollidable = value));
             subMenu.Add(new TextMenuExt.IntSlider("Hires Font Size".ToDialogText(), 1, 20, TasHelperSettings.HiresFontSize).Change(value => TasHelperSettings.HiresFontSize = value));
             subMenu.Add(new TextMenuExt.IntSlider("Hires Font Stroke".ToDialogText(), 0, 20, TasHelperSettings.HiresFontStroke).Change(value => TasHelperSettings.HiresFontStroke = value));
+            /*
             TextMenu.Item OptimizationItem;
             subMenu.Add(OptimizationItem = new TextMenu.OnOff("Performance Optimization".ToDialogText(), TasHelperSettings.DoNotRenderWhenFarFromView).Change(value => TasHelperSettings.DoNotRenderWhenFarFromView = value));
             subMenu.AddDescription(menu, OptimizationItem, "Performance Optimization Description".ToDialogText());
+            */
         });
     }
     private static EaseInSubMenu CreateLoadRangeSubMenu(TextMenu menu) {

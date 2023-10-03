@@ -1,17 +1,20 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Module.Menu;
+using Microsoft.Xna.Framework;
 using Monocle;
 using TAS;
-using Celeste.Mod.TASHelper.Module.Menu;
-using Celeste.Mod.TASHelper.Entities;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
 internal static class Countdown {
 
+    public static bool LastNotCountdownBoost = !NotCountdownBoost;
     public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || (Engine.Scene.Paused && !Manager.Running);
 
     public static void Draw(Entity self, SpinnerRenderHelper.SpinnerColorIndex index, bool collidable) {
-
+        if (CountdownRenderer.Cached) {
+            return;
+        }
         if (TasHelperSettings.UsingCountDown && NotCountdownBoost) {
 #pragma warning disable CS8629
             float offset = SpinnerCalculateHelper.GetOffset(self).Value;
@@ -36,6 +39,8 @@ internal class CountdownRenderer : THRenderer {
 
     private static MTexture[] numbers;
 
+    public static bool Cached = false;
+
     public CountdownRenderer() {
         Instance = this;
         ID2Positions = new Dictionary<int, List<Vector2>>();
@@ -45,12 +50,14 @@ internal class CountdownRenderer : THRenderer {
     public static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
         On.Monocle.EntityList.DebugRender += NonHiresRender;
+        On.Monocle.Scene.BeforeUpdate += OnSceneBeforeUpdate;
     }
 
     [Unload]
     public static void Unload() {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
         On.Monocle.EntityList.DebugRender -= NonHiresRender;
+        On.Monocle.Scene.BeforeUpdate -= OnSceneBeforeUpdate;
     }
 
     [Initialize]
@@ -85,6 +92,8 @@ internal class CountdownRenderer : THRenderer {
         if (!TasHelperSettings.UsingHiresFont) {
             return;
         }
+
+        Cached = true;
 
         if (TASHelperMenu.mainItem?.Container is { } container && container.Visible) {
             // it's a bit too laggy
@@ -127,7 +136,6 @@ internal class CountdownRenderer : THRenderer {
         }
 
         foreach (int ID_inDict in ID2Positions.Keys) {
-            string str;
             int index = ID_inDict;
             bool uncollidable = index > 120;
             if (uncollidable) {
@@ -151,11 +159,26 @@ internal class CountdownRenderer : THRenderer {
                 numbers[index].DrawOutline(pos, Vector2.Zero, color);
             }
         }
+
+        Cached = true;
     }
 
     public override void AfterRender() {
+        if (Countdown.LastNotCountdownBoost != Countdown.NotCountdownBoost) {
+            ClearCache();
+            Countdown.LastNotCountdownBoost = Countdown.NotCountdownBoost;
+        }
+    }
+
+    public static void ClearCache() {
         foreach (int ID in ID2Positions.Keys) {
             ID2Positions[ID].Clear();
         }
+        Cached = false;
+    }
+
+    private static void OnSceneBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
+        orig(self);
+        ClearCache();
     }
 }

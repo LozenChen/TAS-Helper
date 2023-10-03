@@ -1,9 +1,9 @@
 ﻿using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Module;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using Celeste.Mod.TASHelper.Utils;
 using static Celeste.Mod.TASHelper.Predictor.Core;
 
 namespace Celeste.Mod.TASHelper.Predictor;
@@ -55,7 +55,7 @@ public class PredictorRenderer : Entity {
                 }
             }
         }
-        
+
         // todo: add descriptions to some keyframeData addTime
         foreach (Tuple<RenderData, Color> data in keyframeRenderData) {
             RenderData keyframeData = data.Item1;
@@ -65,11 +65,9 @@ public class PredictorRenderer : Entity {
                     HiresLevelRenderer.Add(new TempTextRenderer(keyframeData.index.ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f, textRendererLabel));
                 }
             }
+            // render keyframes above normal frames
         }
-        if (!keyframeMessageCached) {
-            keyframeMessageCached = true;
-        }
-        // render keyframes above normal frames
+        keyframeMessageCached = true;
 
         keyframeRenderData.Clear();
     }

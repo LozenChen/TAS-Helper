@@ -1,39 +1,27 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.TASHelper.Module.Menu;
+using Microsoft.Xna.Framework;
 using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 internal static class LoadRangeCollider {
-
     public static void Draw(Entity self) {
         if (LoadRangeColliderRenderer.Cached) {
             return;
         }
 
         if (TasHelperSettings.UsingLoadRangeCollider) {
-            DrawLoadRangeCollider(self.Position, self.Width, self.Height, ActualPosition.CameraPosition, self.isLightning());
-        }
-
-    }
-
-    public static void DrawLoadRangeCollider(Vector2 Position, float Width, float Height, Vector2 CameraPos, bool isLightning) {
-        if (isLightning) {
-            // only check in view for lightning
-            if ((TasHelperSettings.UsingInViewRange || TasHelperSettings.loadRangeColliderMode == Module.TASHelperSettings.LoadRangeColliderModes.Always) && !SpinnerCalculateHelper.InView(Position, Width, Height, CameraPos, true)) {
-                LoadRangeColliderRenderer.lightningDatas.Add(new LoadRangeColliderRenderer.LightningData(Position, Width + 1, Height + 1));
+            if (self.isLightning()) {
+                // only check in view for lightning
+                if ((TasHelperSettings.UsingInViewRange || TasHelperSettings.LoadRangeColliderMode == Module.TASHelperSettings.LoadRangeColliderModes.Always) && !SpinnerCalculateHelper.LightningInView(self, ActualPosition.CameraPosition)) {
+                    LoadRangeColliderRenderer.lightningDatas.Add(new LoadRangeColliderRenderer.LightningData(self.Position, self.Width + 1, self.Height + 1));
+                }
             }
-        }
-        else {
-            // spinner use in view for visible, and near player for collidable
-            // dust use in view for graphics establish, and near player for collidable
-            // so we render the center when using load range
-            LoadRangeColliderRenderer.starShapePositions.Add(Position);
-            /*
-            Monocle.Draw.Point(Position, SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(-1f, -1f), SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(-1f, 1f), SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(1f, -1f), SpinnerCenterColor);
-            Monocle.Draw.Point(Position + new Vector2(1f, 1f), SpinnerCenterColor);
-            */
+            else {
+                // spinner use in view for visible, and near player for collidable
+                // dust use in view for graphics establish, and near player for collidable
+                // so we render the center when using load range
+                LoadRangeColliderRenderer.starShapePositions.Add(self.Position);
+            }
         }
     }
 }
@@ -42,9 +30,9 @@ internal static class LoadRangeCollider {
 internal static class LoadRangeColliderRenderer {
 
     public static bool Cached = false;
-    private static Color SpinnerCenterColor => TasHelperSettings.LoadRangeColliderColor;
+    internal static Color SpinnerCenterColor => CustomColors.LoadRangeColliderColor;
 
-    private static MTexture starShape;
+    internal static MTexture starShape;
 
     [Load]
     public static void Load() {
@@ -91,6 +79,10 @@ internal static class LoadRangeColliderRenderer {
 
     private static void OnSceneBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         orig(self);
+        ClearCache();
+    }
+
+    public static void ClearCache() {
         lightningDatas.Clear();
         starShapePositions.Clear();
         Cached = false;

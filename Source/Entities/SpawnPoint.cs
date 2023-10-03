@@ -40,7 +40,7 @@ public class SpawnPoint : Entity {
         if (DebugRendered && TasHelperSettings.UsingSpawnPoint) {
             // we show the actual respawn point, instead of closest spawn point
             // respawn point are set by level transition in general, and sometimes by triggers
-            
+
             if (level.Session.RespawnPoint is null) {
                 return;
             }

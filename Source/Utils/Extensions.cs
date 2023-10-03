@@ -262,6 +262,10 @@ internal static class ReflectionExtensions {
         return CachedConstructorInfos[key] = result;
     }
 
+    public static object GetFieldValue(this object obj, string name) {
+        return obj.GetType().GetFieldInfo(name)?.GetValue(obj);
+    }
+
     public static T GetFieldValue<T>(this object obj, string name) {
         object result = obj.GetType().GetFieldInfo(name)?.GetValue(obj);
         if (result == null) {

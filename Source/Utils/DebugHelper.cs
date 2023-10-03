@@ -6,10 +6,13 @@ using System.Text;
 namespace Celeste.Mod.TASHelper.Utils;
 
 #pragma warning disable CS8602
+
+#if usingDebug
 public static class DebugHelper {
 
     // only for developing this mod, so make it readonly
     // and set usingDebug = false when release
+
     public static readonly bool usingDebug = false;
 
     public static bool usingEntityLog = false;
@@ -20,25 +23,23 @@ public static class DebugHelper {
 
     public static Dictionary<string, int> dict = new();
 
+
     [Load]
     internal static void Load() {
-        if (usingDebug) {
-            On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
-            On.Monocle.Scene.Update += PatchUpdate;
-            On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
-            On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
-        }
+        On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
+        On.Monocle.Scene.Update += PatchUpdate;
+        On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
+        On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
     }
 
     [Unload]
     internal static void Unload() {
-        if (usingDebug) {
-            On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
-            On.Monocle.Scene.Update -= PatchUpdate;
-            On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
-            On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
-        }
+        On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
+        On.Monocle.Scene.Update -= PatchUpdate;
+        On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
+        On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
     }
+
 
     public static float triggerBuffer = 1.0f;
     public static float triggerTimer = 0.0f;
@@ -98,8 +99,8 @@ public static class DebugHelper {
         orig(self);
     }
     public static bool StartToLog = false;
-
 }
+#endif
 
 public static class Logger {
     public static int stringLength = 0;
@@ -107,12 +108,18 @@ public static class Logger {
     public static StringBuilder StringBuilder = new StringBuilder();
     public const string sep = ", ";
 
+#if usingDebug
     public static void Log(this object? obj, string? after = null, string? before = null, bool onlyDebug = true) {
-        if (onlyDebug && !DebugHelper.usingDebug) {
+        orig_Log(obj, after, before);
+    }
+#else
+    public static void Log(this object? obj, string? after = null, string? before = null, bool onlyDebug = true) {
+        if (onlyDebug) {
             return;
         }
         orig_Log(obj, after, before);
     }
+#endif
     public static void orig_Log(this object? obj, string? after = null, string? before = null) {
         if (before != null || after != null) {
             orig_Log(before);

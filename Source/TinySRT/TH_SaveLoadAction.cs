@@ -10,13 +10,13 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System.Collections.Concurrent;
 using System.Reflection;
-// need to check: never use SRT.StateManager
-using ModUtils = Celeste.Mod.SpeedrunTool.Utils.ModUtils;
 using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 using static Celeste.Mod.SpeedrunTool.Extensions.TypeExtensions;
 using static Celeste.Mod.SpeedrunTool.GlobalVariables;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.DynDataUtils;
 using static Celeste.Mod.SpeedrunTool.SaveLoad.IgnoreSaveLoadComponent;
+// need to check: never use SRT.StateManager
+using ModUtils = Celeste.Mod.SpeedrunTool.Utils.ModUtils;
 using SRT = Celeste.Mod.SpeedrunTool.SaveLoad;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
@@ -1160,7 +1160,7 @@ public sealed class TH_SaveLoadAction {
         }
     }
 
-    
+
 
 }
 

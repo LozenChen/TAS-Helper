@@ -1,18 +1,17 @@
 ﻿
 
+using Celeste.Mod.TASHelper.Utils;
 using FMOD;
-using Force.DeepCloner.Helpers;
+using FMOD.Studio;
 using Force.DeepCloner;
-using MonoMod.Utils;
+using Force.DeepCloner.Helpers;
+using Mono.Cecil.Cil;
+using Monocle;
+using MonoMod.Cil;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Celeste.Mod.TASHelper.Utils;
-using FMOD.Studio;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
 using static Celeste.Mod.SpeedrunTool.Extensions.CommonExtensions;
-using Monocle;
 using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
@@ -77,7 +76,7 @@ internal static class TH_StrawberryJamUtils {
             int localIndex = 0;
             if (cursor.TryGotoNext(MoveType.Before, (Instruction i) => i.MatchLdsfld<Engine>("FreezeTimer"), (Instruction i) => i.MatchStloc(out localIndex))) {
                 cursor.Index++;
-                cursor.Emit(OpCodes.Dup).Emit(OpCodes.Stsfld, typeof(TH_StrawberryJamUtils).GetFieldInfo("currentOldFreezeTimer"));
+                cursor.Emit(OpCodes.Dup).Emit(OpCodes.Stsfld, typeof(TH_StrawberryJamUtils).GetFieldInfo(nameof(currentOldFreezeTimer)));
                 if (cursor.TryGotoNext(MoveType.After, (Instruction i) => i.MatchLdloc(localIndex))) {
                     cursor.EmitDelegate<Func<float, float>>(RestoreOldFreezeTimer);
                     hooked = true;

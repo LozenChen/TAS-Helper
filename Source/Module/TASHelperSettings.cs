@@ -1,4 +1,5 @@
 using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
@@ -156,6 +157,7 @@ public class TASHelperSettings : EverestModuleSettings {
             Awake_CountdownModes = true;
 
             UsingCountDown = (CountdownMode != CountdownModes.Off);
+            CountdownRenderer.ClearCache();
             if (CountdownMode == CountdownModes._3fCycle) {
                 SpinnerCountdownLoad = true;
                 SpinnerInterval = 0.05f;
@@ -177,6 +179,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int HiresFontStroke = 5;
 
+    [Obsolete]
     public bool DoNotRenderWhenFarFromView = true;
 
     public bool CountdownBoost = false;
@@ -209,6 +212,8 @@ public class TASHelperSettings : EverestModuleSettings {
                 LoadRangeColliderModes.Always => true,
                 _ => true
             };
+            LoadRangeColliderRenderer.ClearCache();
+            CountdownRenderer.ClearCache(); // using load range affects count down position, so we need clear cache
         }
     }
 
@@ -245,6 +250,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 LoadRangeColliderModes.Always => true,
                 _ => true
             };
+            LoadRangeColliderRenderer.ClearCache();
         }
     }
 
@@ -334,6 +340,8 @@ public class TASHelperSettings : EverestModuleSettings {
             LoadRangeColliderModes.Always => true,
             _ => true
         };
+        LoadRangeColliderRenderer.ClearCache();
+        CountdownRenderer.ClearCache();
     }
     public bool UsingCountDown = false;
     public bool UsingLoadRange = true;

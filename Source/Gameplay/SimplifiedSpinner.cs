@@ -35,7 +35,9 @@ internal static class SimplifiedSpinner {
     [Load]
     public static void Load() {
         // hook after CelesteTAS.CycleHitboxColor's hook
-        using (new DetourContext { After = new List<string> { "*" } }) {
+        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }, ID = "TAS Helper SimplifiedSpinner" }) {
+            // CelesteTAS.HitboxOptimized also hooks this, and it'll early return if entity is not in the camera
+            // so we need to be after HitboxOptimized hook, which already uses After = {"*"}, so we need even more configs
             On.Monocle.Entity.DebugRender += PatchDebugRender;
         }
         On.Celeste.Level.LoadLevel += OnLoadLevel;
@@ -60,7 +62,7 @@ internal static class SimplifiedSpinner {
         };
         ClearSpritesAction.Add(VanillaBeforeRender);
         OnCreateSprites(typeof(CrystalStaticSpinner));
-        EOF(typeof(DustGraphic).GetConstructor(new Type[]{ typeof(bool), typeof(bool), typeof(bool)}));
+        EOF(typeof(DustGraphic).GetConstructor(new Type[] { typeof(bool), typeof(bool), typeof(bool) }));
 
         if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
             ClearSpritesAction.Add(FrostBeforeRender);
@@ -143,7 +145,7 @@ internal static class SimplifiedSpinner {
 
             // we must set it here immediately, instead of setting this at e.g. Level.AfterRender
             // coz SpritesCleared may change during this period of time, in that case wasSpritesCleared will not detect this change
-            
+
             wasSpritesCleared = SpritesCleared;
             NeedClearSprites = false;
         }
@@ -282,21 +284,32 @@ internal static class SimplifiedSpinner {
         Color color = SpinnerRenderHelper.GetSpinnerColor(index);
         // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
         bool collidable = SpinnerCalculateHelper.GetCollidable(self);
-        if (TasHelperSettings.EnableSimplifiedSpinner) {
-            if (!self.isLightning()) {
-                SpinnerRenderHelper.DrawSpinnerCollider(self, color);
-            }
-            else {
-                if (TasHelperSettings.EnableSimplifiedLightning && !collidable) {
-                    DashedLine.DrawRect(self.Position + Vector2.One, self.Width, self.Height, color * 0.8f);
-                }
-                else {
-                    self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
-                }
-            }
+
+
+        int width = camera.Viewport.Width;
+        int height = camera.Viewport.Height;
+        Rectangle bounds = new((int)camera.Left - width / 2, (int)camera.Top - height / 2, width * 2, height * 2);
+        if (self.Right < bounds.Left || self.Left > bounds.Right || self.Top > bounds.Bottom ||
+            self.Bottom < bounds.Top) {
+            // skip part of render
         }
         else {
-            self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
+            if (TasHelperSettings.EnableSimplifiedSpinner) {
+                if (!self.isLightning()) {
+                    SpinnerRenderHelper.DrawSpinnerCollider(self, color);
+                }
+                else {
+                    if (TasHelperSettings.EnableSimplifiedLightning && !collidable) {
+                        DashedLine.DrawRect(self.Position + Vector2.One, self.Width, self.Height, color * 0.8f);
+                    }
+                    else {
+                        self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
+                    }
+                }
+            }
+            else {
+                self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
+            }
         }
 
         LoadRangeCollider.Draw(self);

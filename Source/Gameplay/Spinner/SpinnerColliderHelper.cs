@@ -1,9 +1,5 @@
-﻿using FrostHelper;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
-using System.Globalization;
-using static Celeste.Mod.TASHelper.Gameplay.Spinner.SpinnerColliderHelper;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
@@ -57,7 +53,7 @@ public static class SpinnerColliderHelper {
         void Add(string hitboxS, float scale, SpinnerColliderValue value) {
             string[] hitboxString = hitboxS.Split('|');
             ComparingDict.Add(ParseHitboxType(hitboxString, scale), value);
-            SpinnerColliderTextures.Add(SpinnerColliderKey(hitboxString,scale),value);
+            SpinnerColliderTextures.Add(SpinnerColliderKey(hitboxString, scale), value);
         }
     }
 

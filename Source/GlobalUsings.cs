@@ -1,11 +1,11 @@
 global using Celeste.Mod.TASHelper.Utils.Attributes;
 global using static Celeste.Mod.TASHelper.GlobalVariables;
 using Celeste.Mod.TASHelper.Module;
+using Celeste.Mod.TASHelper.Utils;
 using Monocle;
 using TAS;
 using TAS.EverestInterop.Hitboxes;
 using TAS.Module;
-using Celeste.Mod.TASHelper.Utils;
 
 namespace Celeste.Mod.TASHelper;
 

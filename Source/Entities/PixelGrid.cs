@@ -82,7 +82,7 @@ public class PixelGrid : Entity {
         int h = (int)Collider.Height + 2 * width;
         Color c1, c2;
         float alpha = TasHelperSettings.PixelGridOpacity * 0.1f;
-        if ((left + top) % 2 == 0){
+        if ((left + top) % 2 == 0) {
             c1 = color1 * alpha;
             c2 = color2 * alpha;
         }

@@ -1,15 +1,15 @@
-﻿using Microsoft.Xna.Framework.Input;
+﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
+using Celeste.Mod.TASHelper.Entities;
+using Microsoft.Xna.Framework.Input;
+using Monocle;
+using System.Reflection;
+using TAS;
+using TAS.EverestInterop;
 using TAS.EverestInterop.Hitboxes;
 using TAS.EverestInterop.InfoHUD;
-using TAS.EverestInterop;
 using TAS.Input.Commands;
 using SRT = Celeste.Mod.SpeedrunTool.SaveLoad.SaveLoadAction;
 using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
-using Monocle;
-using Celeste.Mod.TASHelper.Entities;
-using TAS;
-using System.Reflection;
-using Celeste.Mod.SpeedrunTool.SaveLoad;
 
 
 namespace Celeste.Mod.TASHelper.TinySRT;
@@ -178,7 +178,7 @@ internal static class TasHelperSL {
         ConstructorInfo constructor = typeof(SRT).GetConstructors()[0];
         Type delegateType = constructor.GetParameters()[0].ParameterType;
 
-        return (SRT) constructor.Invoke(new object[] {
+        return (SRT)constructor.Invoke(new object[] {
                 save.Method.CreateDelegate(delegateType, save.Target),
                 load.Method.CreateDelegate(delegateType, load.Target),
                 clear,
