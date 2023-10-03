@@ -173,7 +173,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int HiresFontSize = 8;
 
-    public bool usingHiresFont => CountdownFont == CountdownFonts.HiresFont;
+    public bool UsingHiresFont => CountdownFont == CountdownFonts.HiresFont;
 
     public int HiresFontStroke = 5;
 

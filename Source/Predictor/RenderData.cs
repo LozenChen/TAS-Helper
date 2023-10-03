@@ -40,6 +40,7 @@ public class PlayerState {
     public bool EngineFreeze;
     public bool Transitioning;
     public float WallSpeedRetained;
+    public float WallSpeedRetainTimer;
 
     public PlayerState() {
 
@@ -74,6 +75,7 @@ public class PlayerState {
         state.SpeedXBeforeUltra = state.OnUltra ? PlayerStateUtils.SpeedBeforeUltra.X : 0f;
         state.Transitioning = level.Transitioning;
         state.WallSpeedRetained = player.wallSpeedRetentionTimer > 0f ? player.wallSpeedRetained : 0f;
+        state.WallSpeedRetainTimer = player.wallSpeedRetentionTimer;
         return state;
     }
 }
@@ -158,7 +160,7 @@ public struct RenderData {
         if (CurrentState.Transitioning && !PreviousState.Transitioning) {
             Keyframe |= KeyframeType.BeginTransition;
         }
-        if (CurrentState.WallSpeedRetained != 0f && CurrentState.WallSpeedRetained != PreviousState.WallSpeedRetained) {
+        if (CurrentState.WallSpeedRetained != 0f && CurrentState.WallSpeedRetainTimer >= PreviousState.WallSpeedRetainTimer && !CurrentState.EngineFreeze) {
             Keyframe |= KeyframeType.GetRetained;
         }
     }

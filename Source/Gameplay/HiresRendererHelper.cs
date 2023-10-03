@@ -1,6 +1,4 @@
 using Celeste.Mod.TASHelper.Entities;
-using Celeste.Mod.TASHelper.Gameplay.Spinner;
-using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,7 +16,7 @@ public static class HiresLevelRenderer {
         On.Celeste.Level.Begin += OnLevelBegin;
         On.Celeste.Level.End += OnLevelEnd;
         IL.Celeste.Level.Render += ILLevelRender;
-        CountdownRenderer.Load();
+        On.Monocle.Scene.AfterUpdate += OnLevelAfterUpdate;
     }
 
     [Unload]
@@ -26,7 +24,7 @@ public static class HiresLevelRenderer {
         On.Celeste.Level.Begin -= OnLevelBegin;
         On.Celeste.Level.End -= OnLevelEnd;
         IL.Celeste.Level.Render -= ILLevelRender;
-        CountdownRenderer.Unload();
+        On.Monocle.Scene.AfterUpdate -= OnLevelAfterUpdate;
     }
 
     private static void OnLevelBegin(On.Celeste.Level.orig_Begin orig, Level self) {
@@ -43,15 +41,23 @@ public static class HiresLevelRenderer {
         orig(self);
     }
 
+    private static void OnLevelAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
+        orig(self);
+        UpdateLists();
+        foreach (THRenderer renderer in list) {
+            renderer.Update();
+        }
+    }
+
     public static VirtualRenderTarget HiresLevelTarget;
 
     public static Camera camera = new Camera(1920, 1080);
 
-    private static List<THRenderer> list = new();
+    internal static readonly List<THRenderer> list = new();
 
-    private static List<THRenderer> toAdd = new();
+    private static readonly List<THRenderer> toAdd = new();
 
-    private static List<THRenderer> toRemove = new();
+    private static readonly List<THRenderer> toRemove = new();
 
 
     public static void Add(THRenderer renderer) {
@@ -103,10 +109,6 @@ public static class HiresLevelRenderer {
         }
     }
     private static void Render(Level level) {
-        UpdateLists();
-        foreach (THRenderer renderer in list) {
-            renderer.Update();
-        }
         UpdateLists();
         foreach (THRenderer renderer in list) {
             renderer.BeforeRender();
@@ -164,88 +166,27 @@ public class THRenderer {
     public virtual void Update() { }
 }
 
-public class OneFrameTextRenderer : THRenderer {
-    public string text;
+public class TempTextRenderer : THRenderer {
+    // use for those texts that appear and die quickly
 
+    public string text;
     public Vector2 position;
-    public OneFrameTextRenderer(string text, Vector2 position) {
+    public string label;
+    public TempTextRenderer(string text, Vector2 position, string label) {
         this.text = text;
         this.position = position;
+        this.label = label;
     }
 
     public override void Render() {
         Message.RenderMessage(text, position, new Vector2(0.5f, 0.2f), new Vector2(TasHelperSettings.HiresFontSize / 10f), TasHelperSettings.HiresFontStroke * 0.4f);
-        HiresLevelRenderer.Remove(this);
-    }
-}
-
-public class CountdownRenderer : THRenderer {
-    public static CountdownRenderer Instance;
-
-    public static Dictionary<int, List<Vector2>> ID2Positions = new Dictionary<int, List<Vector2>>();
-
-    public CountdownRenderer() {
-        Instance = this;
-        ID2Positions = new Dictionary<int, List<Vector2>>();
-    }
-    public static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
     }
 
-    public static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
-    }
-
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        orig(level, playerIntro, isFromLoader);
-        if (Instance is null || !HiresLevelRenderer.Contains(Instance)) {
-            HiresLevelRenderer.Add(new CountdownRenderer());
-        }
-    }
-
-    public static void Add(int ID, Vector2 Position) {
-        if (!ID2Positions.ContainsKey(ID)) {
-            ID2Positions.Add(ID, new List<Vector2>());
-        }
-        ID2Positions[ID].Add(Position);
-    }
-    public override void Render() {
-        if (TASHelperMenu.mainItem?.Container is { } container && container.Visible) {
-            // it's a bit too laggy
-            return;
-        }
-
-        Vector2 scale = new Vector2(TasHelperSettings.HiresFontSize / 10f);
-        float stroke = TasHelperSettings.HiresFontStroke * 0.4f;
-        foreach (int ID_inDict in ID2Positions.Keys) {
-            string str;
-            int id = ID_inDict;
-            bool uncollidable = id > 120;
-            if (uncollidable) {
-                id -= SpinnerRenderHelper.ID_uncollidable_offset;
+    public static void Clear(string label) {
+        foreach (THRenderer renderer in HiresLevelRenderer.list) {
+            if (renderer is TempTextRenderer tmp && tmp.label == label) {
+                HiresLevelRenderer.Remove(tmp);
             }
-            if (id >= 0 && id < 100) {
-                str = id.ToString();
-            }
-            else if (id == SpinnerRenderHelper.ID_infinity) {
-                str = "oo";
-            }
-            else if (id == SpinnerRenderHelper.ID_nocycle) {
-                str = "0";
-            }
-            else {
-                throw new Exception($"[Error] TASHelper: Unexpected ID ({ID_inDict}) in CountdownRenderer!");
-            }
-            Color colorInside = TasHelperSettings.DarkenWhenUncollidable && uncollidable ? Color.Gray : Color.White;
-            foreach (Vector2 Position in ID2Positions[ID_inDict]) {
-                Message.RenderMessage(str, Position, new Vector2(0.5f, 0.2f), scale, stroke, colorInside, Color.Black);
-            }
-        }
-    }
-
-    public override void AfterRender() {
-        foreach (int ID in ID2Positions.Keys) {
-            ID2Positions[ID].Clear();
         }
     }
 }

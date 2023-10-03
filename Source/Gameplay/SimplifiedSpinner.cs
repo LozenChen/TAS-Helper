@@ -62,45 +62,34 @@ internal static class SimplifiedSpinner {
         OnCreateSprites(typeof(CrystalStaticSpinner));
         EOF(typeof(DustGraphic).GetConstructor(new Type[]{ typeof(bool), typeof(bool), typeof(bool)}));
 
-        if (ModUtils.FrostHelperInstalled) {
-            if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
-                ClearSpritesAction.Add(FrostBeforeRender);
-                OnCreateSprites(frostSpinnerType);
-            }
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
+            ClearSpritesAction.Add(FrostBeforeRender);
+            OnCreateSprites(frostSpinnerType);
         }
 
-        if (ModUtils.VivHelperInstalled) {
+        if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType && ModUtils.GetType("VivHelper", "VivHelper.Entities.AnimatedSpinner") is { } vivAnimSpinnerType) {
             CreateVivGetter();
             ClearSpritesAction.Add(VivBeforeRender);
-            if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType) {
-                OnCreateSprites(vivSpinnerType);
-            }
-
-            if (ModUtils.GetType("VivHelper", "VivHelper.Entities.AnimatedSpinner") is { } vivAnimSpinnerType) {
-                OnCreateSprites(vivAnimSpinnerType);
-            }
+            OnCreateSprites(vivSpinnerType);
+            OnCreateSprites(vivAnimSpinnerType);
         }
 
-        if (ModUtils.ChronoHelperInstalled) {
+        if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
             CreateChronoGetter();
             ClearSpritesAction.Add(ChronoBeforeRender);
-            if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
-                OnCreateSprites(chronoSpinnerType);
-            }
+            OnCreateSprites(chronoSpinnerType);
         }
 
-        if (ModUtils.BrokemiaHelperInstalled) {
+        if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) { // we use this as a mod version check
             TrackCassetteSpinner();
             ClearSpritesAction.Add(BrokemiaBeforeRender);
             // CreateSprites inherited from Crys spinner, so no need to hook
         }
 
-        if (ModUtils.IsaGrabBagInstalled) {
+        if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinnerRenderer") is { } dreamSpinnerRendererType) {
             TrackDreamSpinnerRenderer();
             ClearSpritesAction.Add(IsaGrabBagBeforeRender);
-            if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinnerRenderer") is { } dreamSpinnerRendererType) {
-                EOF(dreamSpinnerRendererType.GetConstructor(Type.EmptyTypes));
-            }
+            EOF(dreamSpinnerRendererType.GetConstructor(Type.EmptyTypes));
         }
 
         void EOF(MethodBase method) {
@@ -310,7 +299,8 @@ internal static class SimplifiedSpinner {
             self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
         }
 
-        Countdown_and_LoadRange_Collider.Draw(self, index, collidable);
+        LoadRangeCollider.Draw(self);
+        Countdown.Draw(self, index, collidable);
     }
 
 }

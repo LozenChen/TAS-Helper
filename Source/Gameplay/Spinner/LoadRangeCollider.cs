@@ -1,32 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
-using TAS;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
-internal static class Countdown_and_LoadRange_Collider {
+internal static class LoadRangeCollider {
 
-    public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || (Engine.Scene.Paused && !Manager.Running);
-
-    public static void Draw(Entity self, SpinnerRenderHelper.SpinnerColorIndex index, bool collidable) {
-        if (TasHelperSettings.DoNotRenderWhenFarFromView && SpinnerCalculateHelper.FarFromRange(self, ActualPosition.PlayerPosition, 0.25f)) {
+    public static void Draw(Entity self) {
+        if (LoadRangeColliderRenderer.Cached) {
             return;
         }
+
         if (TasHelperSettings.UsingLoadRangeCollider) {
             DrawLoadRangeCollider(self.Position, self.Width, self.Height, ActualPosition.CameraPosition, self.isLightning());
         }
-        if (TasHelperSettings.UsingCountDown && NotCountdownBoost) {
-#pragma warning disable CS8629
-            float offset = SpinnerCalculateHelper.GetOffset(self).Value;
-#pragma warning restore CS8629
-            Vector2 CountdownPos;
-            if (self.isLightning()) {
-                CountdownPos = self.Center + new Vector2(-1f, -2f);
-            }
-            else {
-                CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
-            }
-            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.isDust()), index, collidable);
-        }
+
     }
 
     public static void DrawLoadRangeCollider(Vector2 Position, float Width, float Height, Vector2 CameraPos, bool isLightning) {
@@ -53,8 +39,9 @@ internal static class Countdown_and_LoadRange_Collider {
 }
 
 
-public static class LoadRangeColliderRenderer {
+internal static class LoadRangeColliderRenderer {
 
+    public static bool Cached = false;
     private static Color SpinnerCenterColor => TasHelperSettings.LoadRangeColliderColor;
 
     private static MTexture starShape;
@@ -62,17 +49,20 @@ public static class LoadRangeColliderRenderer {
     [Load]
     public static void Load() {
         On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
+        On.Monocle.Scene.BeforeUpdate += OnSceneBeforeUpdate;
     }
 
     [Unload]
     public static void Unload() {
         On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
+        On.Monocle.Scene.BeforeUpdate -= OnSceneBeforeUpdate;
     }
 
     [Initialize]
     public static void Initialize() {
         starShape = GFX.Game["TASHelper/SpinnerCenter/spinner_center"];
     }
+
 
     public struct LightningData {
         public Vector2 Position;
@@ -96,7 +86,13 @@ public static class LoadRangeColliderRenderer {
         foreach (Vector2 position in starShapePositions) {
             starShape.Draw(position, new Vector2(1f, 1f), SpinnerCenterColor);
         }
+        Cached = true;
+    }
+
+    private static void OnSceneBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
+        orig(self);
         lightningDatas.Clear();
         starShapePositions.Clear();
+        Cached = false;
     }
 }

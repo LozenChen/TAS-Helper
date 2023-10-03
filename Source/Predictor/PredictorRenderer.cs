@@ -20,8 +20,20 @@ public class PredictorRenderer : Entity {
     public static Color ColorKeyframe => CustomColors.Predictor_KeyframeColor;
 
     private static readonly List<Tuple<RenderData, Color>> keyframeRenderData = new List<Tuple<RenderData, Color>>();
+
+    public static bool keyframeMessageCached = false;
+
+    private const string textRendererLabel = "PredictorKeyframe";
+
+    public static void ClearCachedMessage() {
+        if (keyframeMessageCached) {
+            TempTextRenderer.Clear(textRendererLabel);
+            keyframeMessageCached = false;
+        }
+    }
     public override void DebugRender(Camera camera) {
         if (!TasHelperSettings.PredictFutureEnabled || !FrameStep) {
+            ClearCachedMessage();
             return;
         }
 
@@ -41,7 +53,6 @@ public class PredictorRenderer : Entity {
                         Draw.HollowRect(data.x, data.y, data.width, data.height, color);
                     }
                 }
-
             }
         }
         
@@ -49,11 +60,17 @@ public class PredictorRenderer : Entity {
         foreach (Tuple<RenderData, Color> data in keyframeRenderData) {
             RenderData keyframeData = data.Item1;
             Draw.HollowRect(keyframeData.x, keyframeData.y, keyframeData.width, keyframeData.height, data.Item2);
-            if (TasHelperSettings.UseKeyFrameTime && keyframeData.addTime) {
-                HiresLevelRenderer.Add(new OneFrameTextRenderer(keyframeData.index.ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f));
+            if (!keyframeMessageCached) {
+                if (TasHelperSettings.UseKeyFrameTime && keyframeData.addTime) {
+                    HiresLevelRenderer.Add(new TempTextRenderer(keyframeData.index.ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f, textRendererLabel));
+                }
             }
         }
+        if (!keyframeMessageCached) {
+            keyframeMessageCached = true;
+        }
         // render keyframes above normal frames
+
         keyframeRenderData.Clear();
     }
 
@@ -143,15 +160,22 @@ public class PredictorRenderer : Entity {
     [Load]
     public static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
+        On.Monocle.Scene.AfterUpdate += OnSceneAfterUpdate;
     }
 
     [Unload]
     public static void Unload() {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
+        On.Monocle.Scene.AfterUpdate -= OnSceneAfterUpdate;
     }
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes introTypes, bool isFromLoader) {
         orig(self, introTypes, isFromLoader);
         self.Add(new PredictorRenderer());
+    }
+
+    private static void OnSceneAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
+        orig(self);
+        ClearCachedMessage();
     }
 }

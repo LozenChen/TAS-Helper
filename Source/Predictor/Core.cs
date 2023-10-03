@@ -92,6 +92,8 @@ public static class Core {
         HasCachedFutures = true;
         InPredict = false;
         CacheFutureCountdown = CacheFuturePeriod;
+
+        PredictorRenderer.ClearCachedMessage();
     }
 
     private static void AlmostEngineUpdate(Engine engine, GameTime gameTime) {

@@ -8,21 +8,9 @@ using VivEntities = VivHelper.Entities;
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
 internal static class SpinnerRenderHelper {
-    private static MTexture[] numbers;
 
     [Initialize]
     public static void Initialize() {
-        // copied from ExtendedVariants.Entities.DashCountIndicator
-        MTexture source = GFX.Game["pico8/font"];
-        numbers = new MTexture[10];
-        int index = 0;
-        for (int i = 104; index < 4; i += 4) {
-            numbers[index++] = source.GetSubtexture(i, 0, 3, 5);
-        }
-        for (int i = 0; index < 10; i += 4) {
-            numbers[index++] = source.GetSubtexture(i, 6, 3, 5);
-        }
-
         if (ModUtils.VivHelperInstalled) {
             typeof(SpinnerRenderHelper).GetMethod("DrawSpinnerCollider").IlHook((cursor, _) => {
                 Instruction skipViv = cursor.Next;
@@ -69,47 +57,25 @@ internal static class SpinnerRenderHelper {
     internal const int ID_infinity = -1;
     internal const int ID_uncollidable_offset = 163; // related codes is based on this constant, hardcoded, so don't change it
     public static void DrawCountdown(Vector2 Position, int CountdownTimer, SpinnerColorIndex index, bool collidable = true) {
-        if (TasHelperSettings.usingHiresFont) {
-            // when TimeRate > 1, NeverActivate can activate; when TimeRate < 1, FreezeActivatesEveryFrame can take more than 0 frame.
-            // so in these cases i just use CountdownTimer
-            // here by TimeRate i actually mean DeltaTime / RawDeltaTime
-            // note in 2023 Jan, Everest introduced TimeRateModifier in the calculation of Engine.DeltaTime, so it's no longer DeltaTime = RawDeltaTime * TimeRate * TimeRateB
-            int ID;
-            if (index == SpinnerColorIndex.NoCycle) {
-                ID = ID_nocycle;
-            }
-            else if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
-                ID = ID_infinity;
-            }
-            else {
-                ID = CountdownTimer;
-            }
-            if (!collidable) {
-                ID += ID_uncollidable_offset;
-            }
-            CountdownRenderer.Add(ID, (Position + new Vector2(1.5f, -0.5f)) * 6f);
-            return;
+        // when TimeRate > 1, NeverActivate can activate; when TimeRate < 1, FreezeActivatesEveryFrame can take more than 0 frame.
+        // so in these cases i just use CountdownTimer
+        // here by TimeRate i actually mean DeltaTime / RawDeltaTime
+        // note in 2023 Jan, Everest introduced TimeRateModifier in the calculation of Engine.DeltaTime, so it's no longer DeltaTime = RawDeltaTime * TimeRate * TimeRateB
+        int ID;
+        if (index == SpinnerColorIndex.NoCycle) {
+            ID = ID_nocycle;
+        }
+        else if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
+            ID = ID_infinity;
         }
         else {
-            Color color = !TasHelperSettings.DarkenWhenUncollidable || collidable ? Color.White : Color.Gray;
-            if (index == SpinnerColorIndex.NoCycle) {
-                numbers[0].DrawOutline(Position, Vector2.Zero, color);
-                return;
-            }
-            if (index == SpinnerColorIndex.NeverActivate && Engine.DeltaTime <= Engine.RawDeltaTime) {
-                numbers[9].DrawOutline(Position, Vector2.Zero, color);
-                return;
-            }
-            //if (index == SpinnerColorIndex.ActivatesEveryFrame) {
-            //    numbers[0].DrawOutline(Position);
-            //    return;
-            //}
-            if (CountdownTimer > 9) {
-                numbers[CountdownTimer / 10].DrawOutline(Position + new Vector2(-4, 0), Vector2.Zero, color);
-                CountdownTimer %= 10;
-            }
-            numbers[CountdownTimer].DrawOutline(Position, Vector2.Zero, color);
+            ID = CountdownTimer;
         }
+        if (!collidable) {
+            ID += ID_uncollidable_offset;
+        }
+        CountdownRenderer.Add(ID, (Position + new Vector2(1.5f, -0.5f)) * 6f);
+        return;
     }
 
     private static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float offset, Vector2 CameraPosition) {

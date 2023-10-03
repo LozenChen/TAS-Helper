@@ -30,6 +30,14 @@ public static class PlayerStateUtils {
         typeof(Player).GetMethod("PointBounce").HookBefore(() => PointBounce = true);
         typeof(Player).GetMethod("OnCollideV", BindingFlags.NonPublic | BindingFlags.Instance).IlHook(ILUltra);
         typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).IlHook(ILUltra);
+        if (ModUtils.GetType("ExtendedVariantMode", "ExtendedVariants.Variants.EveryJumpIsUltra") is { } ultraVariantType) {
+            ultraVariantType.GetMethod("forceUltra", BindingFlags.NonPublic | BindingFlags.Instance).IlHook((cursor, _) => {
+                if (cursor.TryGotoNext(MoveType.After,ins => ins.OpCode == OpCodes.Brfalse_S)) {
+                    cursor.Emit(OpCodes.Ldarg_1);
+                    cursor.EmitDelegate<Action<Player>>(player => { SpeedBeforeUltra = player.Speed; Ultra = true; });
+                }
+            });
+        }
     }
 
     [Load]

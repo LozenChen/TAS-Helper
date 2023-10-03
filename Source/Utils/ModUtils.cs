@@ -49,7 +49,7 @@ internal static class ModUtils {
 
     public static bool IsaGrabBagInstalled = false;
 
-    public static bool SpeedrunToolInstalled = false; // now SpeedrunTool is non-optional dependency, but we still leave this field here anyway
+    public static bool SpeedrunToolInstalled = false;
 
     private static readonly Lazy<object> upsideDownVariant =
         new(() => Enum.Parse(typeof(ExtendedVariantsModule.Variant), "UpsideDown"));
