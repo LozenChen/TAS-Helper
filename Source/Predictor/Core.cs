@@ -62,7 +62,6 @@ public static class Core {
         InPredict = true;
 
         futures.Clear();
-        PredictorRenderer.ClearCachedMessage();
 
         ModifiedAutoMute.StartMute();
         InputManager.ReadInputs(frames);
@@ -93,6 +92,10 @@ public static class Core {
         HasCachedFutures = true;
         InPredict = false;
         CacheFutureCountdown = CacheFuturePeriod;
+
+        // i'm not sure, but we can not move it to before LoadState i guess (maybe they're restored?)
+        // otherwise hotkey predict will have bug that it does not render in first frame
+        PredictorRenderer.ClearCachedMessage();
     }
 
     private static void AlmostEngineUpdate(Engine engine, GameTime gameTime) {
