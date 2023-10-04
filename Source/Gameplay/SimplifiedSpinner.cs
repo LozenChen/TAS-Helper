@@ -6,8 +6,6 @@ using Monocle;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
-using ChronoEntities = Celeste.Mod.ChronoHelper.Entities;
-using VivEntities = VivHelper.Entities;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class SimplifiedSpinner {
@@ -64,33 +62,63 @@ internal static class SimplifiedSpinner {
         OnCreateSprites(typeof(CrystalStaticSpinner));
         EOF(typeof(DustGraphic).GetConstructor(new Type[] { typeof(bool), typeof(bool), typeof(bool) }));
 
-        if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
-            ClearSpritesAction.Add(FrostBeforeRender);
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType && ModUtils.GetType("FrostHelper", "FrostHelper.SpinnerConnectorRenderer") is { } rendererType1 && ModUtils.GetType("FrostHelper", "FrostHelper.SpinnerBorderRenderer") is { } rendererType2 && ModUtils.GetType("FrostHelper", "FrostHelper.SpinnerDecoRenderer") is { } rendererType3) {
+            ClearSpritesAction.Add(self => FrostBeforeRender(self, frostSpinnerType, new Type[] {rendererType1, rendererType2, rendererType3}));
             OnCreateSprites(frostSpinnerType);
         }
 
-        if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType && ModUtils.GetType("VivHelper", "VivHelper.Entities.AnimatedSpinner") is { } vivAnimSpinnerType) {
-            CreateVivGetter();
-            ClearSpritesAction.Add(VivBeforeRender);
+        if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType && ModUtils.GetType("VivHelper", "VivHelper.Entities.AnimatedSpinner") is { } vivAnimSpinnerType && ModUtils.GetType("VivHelper", "VivHelper.Entities.MovingSpinner") is { } vivMoveSpinnerType) {
+            VivSpinnerExtraComponentGetter = new() {
+                vivSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
+                vivSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
+            };
+            ClearSpritesAction.Add(self => VivBeforeRender(self, new Type[] { vivSpinnerType, vivAnimSpinnerType, vivMoveSpinnerType}));
             OnCreateSprites(vivSpinnerType);
             OnCreateSprites(vivAnimSpinnerType);
         }
 
         if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
-            CreateChronoGetter();
-            ClearSpritesAction.Add(ChronoBeforeRender);
+            ChronoSpinnerExtraComponentGetter = new() {
+                chronoSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
+                chronoSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
+            };
+            ClearSpritesAction.Add(self => {
+                foreach (Entity spinner in self.Tracker.Entities[chronoSpinnerType]) {
+                    spinner.UpdateComponentVisiblity();
+                    foreach (FieldInfo getter in ChronoSpinnerExtraComponentGetter) {
+                        object obj = getter.GetValue(spinner);
+                        if (obj != null) {
+                            obj.SetFieldValue("Visible", !SpritesCleared);
+                        }
+                    }
+                }
+            });
             OnCreateSprites(chronoSpinnerType);
         }
 
         if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) { // we use this as a mod version check
-            TrackCassetteSpinner();
-            ClearSpritesAction.Add(BrokemiaBeforeRender);
+            LevelExtensions.AddToTracker(cassetteSpinnerType);
+            ClearSpritesAction.Add(self => {
+                foreach (Entity spinner in self.Tracker.Entities[cassetteSpinnerType]) {
+                    spinner.UpdateComponentVisiblity();
+                    foreach (FieldInfo getter in CrysExtraComponentGetter) {
+                        object obj = getter.GetValue(spinner);
+                        if (obj != null) {
+                            obj.SetFieldValue("Visible", !SpritesCleared);
+                        }
+                    }
+                }
+            });
             // CreateSprites inherited from Crys spinner, so no need to hook
         }
 
         if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinnerRenderer") is { } dreamSpinnerRendererType) {
-            TrackDreamSpinnerRenderer();
-            ClearSpritesAction.Add(IsaGrabBagBeforeRender);
+            LevelExtensions.AddToTracker(dreamSpinnerRendererType);
+            ClearSpritesAction.Add(self => {
+                foreach (Entity renderer in self.Tracker.Entities[dreamSpinnerRendererType]) {
+                    renderer.Visible = !SpritesCleared;
+                }
+            });
             EOF(dreamSpinnerRendererType.GetConstructor(Type.EmptyTypes));
         }
 
@@ -104,20 +132,6 @@ internal static class SimplifiedSpinner {
         void OnCreateSprites(Type type) {
             EOF(type.GetMethod("CreateSprites", BindingFlags.NonPublic | BindingFlags.Instance));
         }
-    }
-
-    private static void CreateVivGetter() {
-        VivSpinnerExtraComponentGetter = new() {
-                typeof(VivEntities.CustomSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
-                typeof(VivEntities.CustomSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
-            };
-    }
-
-    private static void CreateChronoGetter() {
-        ChronoSpinnerExtraComponentGetter = new() {
-                typeof(ChronoEntities.ShatterSpinner).GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
-                typeof(ChronoEntities.ShatterSpinner).GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
-            };
     }
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
@@ -169,88 +183,31 @@ internal static class SimplifiedSpinner {
         }
     }
 
-    private static void FrostBeforeRender(Level self) {
-        foreach (Entity customSpinner in self.Tracker.GetEntities<FrostHelper.CustomSpinner>()) {
+    private static void FrostBeforeRender(Level self, Type customSpinnerType, Type[] renderers) {
+        foreach (Entity customSpinner in self.Tracker.Entities[customSpinnerType]) {
             customSpinner.UpdateComponentVisiblity();
         }
-        foreach (Entity renderer in self.Tracker.GetEntities<FrostHelper.SpinnerConnectorRenderer>()) {
-            renderer.Visible = !SpritesCleared;
-        }
-        foreach (Entity renderer in self.Tracker.GetEntities<FrostHelper.SpinnerBorderRenderer>()) {
-            renderer.Visible = !SpritesCleared;
-        }
-        foreach (Entity renderer in self.Tracker.GetEntities<FrostHelper.SpinnerDecoRenderer>()) {
-            renderer.Visible = !SpritesCleared;
+        foreach (Type type in renderers) {
+            foreach (Entity renderer in self.Tracker.Entities[type]) {
+                renderer.Visible = !SpritesCleared;
+            }
         }
     }
 
-    private static void VivBeforeRender(Level self) {
-        foreach (Entity customSpinner in self.Tracker.GetEntities<VivEntities.CustomSpinner>()) {
-            customSpinner.UpdateComponentVisiblity();
-            foreach (FieldInfo getter in VivSpinnerExtraComponentGetter) {
-                object obj = getter.GetValue(customSpinner);
-                if (obj != null) {
-                    obj.SetFieldValue("Visible", !SpritesCleared);
-                }
-            }
-        }
-        // viv use Inherited(true) so all subclass of custom spinners are added to TrackedEntityTypes
-        // so AnimatedSpinner is standalone, can't be fetched by track CustomSpinners
-        foreach (Entity customSpinner in self.Tracker.GetEntities<VivEntities.AnimatedSpinner>()) {
-            customSpinner.UpdateComponentVisiblity();
-            foreach (FieldInfo getter in VivSpinnerExtraComponentGetter) {
-                object obj = getter.GetValue(customSpinner);
-                if (obj != null) {
-                    obj.SetFieldValue("Visible", !SpritesCleared);
-                }
-            }
-        }
-        foreach (Entity customSpinner in self.Tracker.GetEntities<VivEntities.MovingSpinner>()) {
-            customSpinner.UpdateComponentVisiblity();
-            foreach (FieldInfo getter in VivSpinnerExtraComponentGetter) {
-                object obj = getter.GetValue(customSpinner);
-                if (obj != null) {
-                    obj.SetFieldValue("Visible", !SpritesCleared);
-                }
-            }
-        }
-    }
-    private static void ChronoBeforeRender(Level self) {
-        foreach (Entity spinner in self.Tracker.GetEntities<ChronoEntities.ShatterSpinner>()) {
-            spinner.UpdateComponentVisiblity();
-            foreach (FieldInfo getter in ChronoSpinnerExtraComponentGetter) {
-                object obj = getter.GetValue(spinner);
-                if (obj != null) {
-                    obj.SetFieldValue("Visible", !SpritesCleared);
+    private static void VivBeforeRender(Level self, Type[] types) {
+        foreach (Type type in types) {
+            foreach (Entity customSpinner in self.Tracker.Entities[type]) {
+                customSpinner.UpdateComponentVisiblity();
+                foreach (FieldInfo getter in VivSpinnerExtraComponentGetter) {
+                    object obj = getter.GetValue(customSpinner);
+                    if (obj != null) {
+                        obj.SetFieldValue("Visible", !SpritesCleared);
+                    }
                 }
             }
         }
     }
 
-    private static void TrackCassetteSpinner() {
-        LevelExtensions.AddToTracker(typeof(BrokemiaHelper.CassetteSpinner));
-    }
-    private static void BrokemiaBeforeRender(Level self) {
-        foreach (Entity spinner in self.Tracker.GetEntities<BrokemiaHelper.CassetteSpinner>()) {
-            spinner.UpdateComponentVisiblity();
-            foreach (FieldInfo getter in CrysExtraComponentGetter) {
-                object obj = getter.GetValue(spinner);
-                if (obj != null) {
-                    obj.SetFieldValue("Visible", !SpritesCleared);
-                }
-            }
-        }
-    }
-
-    private static void TrackDreamSpinnerRenderer() {
-        LevelExtensions.AddToTracker(typeof(IsaGrabBag.DreamSpinnerRenderer));
-    }
-
-    private static void IsaGrabBagBeforeRender(Level self) {
-        foreach (Entity renderer in self.Tracker.GetEntities<IsaGrabBag.DreamSpinnerRenderer>()) {
-            renderer.Visible = !SpritesCleared;
-        }
-    }
 
     private static void UpdateComponentVisiblity(this Entity self) {
         foreach (Component component in self.Components) {

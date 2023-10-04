@@ -87,6 +87,7 @@ public static class SpinnerCalculateHelper {
         // i can do this and hook its debug render alone, but that would be... really no difference from its original implmentation
 
         if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType) {
+            VivSpinnerType = vivSpinnerType;
             DictionaryAdderSpecial(vivSpinnerType, "offset", e => e.GetFieldValue("Collider") is null ? null : spinner);
             VivHitboxStringGetter = vivSpinnerType.GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
         }
@@ -163,11 +164,17 @@ public static class SpinnerCalculateHelper {
 
     public static FieldInfo VivHitboxStringGetter;
 
+    private static Type VivSpinnerType;
+
     public static bool NoCycle(Entity self) {
         if (NoCycleTypes.TryGetValue(self.GetType(), out Func<Entity, bool> func)) {
             return func(self);
         }
         return false;
+    }
+
+    public static bool IsVivSpinner(Entity self) {
+        return self.GetType().IsSameOrSubclassOf(VivSpinnerType);
     }
 
     public static bool GetCollidable(Entity self) {

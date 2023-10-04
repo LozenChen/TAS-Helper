@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using TAS.EverestInterop.Hitboxes;
-using VivEntities = VivHelper.Entities;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
@@ -123,18 +122,18 @@ internal static class SpinnerRenderHelper {
     }
 
     public static bool DrawVivCollider(Entity self, Color color) {
-        if (self is VivEntities.CustomSpinner spinner) {
+        if (SpinnerCalculateHelper.IsVivSpinner(self)) {
             if (OnGrid(self)) {
 #pragma warning disable CS8600, CS8604
-                string[] hitboxString = SpinnerCalculateHelper.VivHitboxStringGetter.GetValue(spinner) as string[];
-                float scale = spinner.scale;
+                string[] hitboxString = SpinnerCalculateHelper.VivHitboxStringGetter.GetValue(self) as string[];
+                float scale = self.GetFieldValue<float>("scale");
                 if (SpinnerColliderHelper.TryGetValue(hitboxString, scale, out SpinnerColliderHelper.SpinnerColliderValue value)) {
                     value.DrawOutlineAndInside(self.Position, color, self.Collidable);
                     return true;
                 }
 #pragma warning restore CS8600, CS8604
             }
-            DrawComplexSpinnerCollider(spinner, color);
+            DrawComplexSpinnerCollider(self, color);
             return true;
         }
         return false;

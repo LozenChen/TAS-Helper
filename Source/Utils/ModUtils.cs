@@ -1,7 +1,6 @@
 using Celeste.Mod.Helpers;
-using ExtendedVariants.Module;
+using MonoMod.Utils;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -50,14 +49,7 @@ internal static class ModUtils {
     public static bool IsaGrabBagInstalled = false;
 
     public static bool SpeedrunToolInstalled = false;
-
-    private static readonly Lazy<object> upsideDownVariant =
-        new(() => Enum.Parse(typeof(ExtendedVariantsModule.Variant), "UpsideDown"));
-    private static bool upsideDown {
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        get => (bool)ExtendedVariantsModule.Instance.TriggerManager.GetCurrentVariantValue((ExtendedVariantsModule.Variant)upsideDownVariant.Value);
-    }
-    public static bool UpsideDown => ExtendedVariantInstalled && upsideDown;
+    public static bool UpsideDown => ExtendedVariantsUtils.UpsideDown;
     public static void InitializeAtFirst() {
         FrostHelperInstalled = IsInstalled("FrostHelper");
         VivHelperInstalled = IsInstalled("VivHelper");
@@ -71,4 +63,36 @@ internal static class ModUtils {
         // so all entities mentioned in corresponding hooks do exist
     }
 
+
+    private static class ExtendedVariantsUtils {
+        private static readonly Lazy<EverestModule> module = new(() => ModUtils.GetModule("ExtendedVariantMode"));
+        private static readonly Lazy<object> triggerManager = new(() => module.Value?.GetFieldValue<object>("TriggerManager"));
+
+        private static readonly Lazy<FastReflectionDelegate> getCurrentVariantValue = new(() =>
+            triggerManager.Value?.GetType().GetMethodInfo("GetCurrentVariantValue")?.GetFastDelegate());
+
+        private static readonly Lazy<Type> variantType =
+            new(() => module.Value?.GetType().Assembly.GetType("ExtendedVariants.Module.ExtendedVariantsModule+Variant"));
+
+        // enum value might be different between different ExtendedVariantMode version, so we have to parse from string
+        private static readonly Lazy<object> upsideDownVariant = new(ParseVariant("UpsideDown"));
+
+        public static Func<object> ParseVariant(string value) {
+            return () => {
+                try {
+                    return variantType.Value == null ? null : Enum.Parse(variantType.Value, value);
+                }
+                catch (Exception e) {
+                    return null;
+                }
+            };
+        }
+
+        public static bool UpsideDown => GetCurrentVariantValue(upsideDownVariant) is { } value && (bool)value;
+
+        public static object GetCurrentVariantValue(Lazy<object> variant) {
+            if (variant.Value is null) return null;
+            return getCurrentVariantValue.Value?.Invoke(triggerManager.Value, variant.Value);
+        }
+    }
 }

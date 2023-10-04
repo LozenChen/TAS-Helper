@@ -24,18 +24,12 @@
   </ItemDefinitionGroup>
 
   <ItemGroup>
-    <Reference Include="BrokemiaHelper">
-      <HintPath>Libs\BrokemiaHelper.dll</HintPath>
-    </Reference>
     <Reference Include="Celeste">
       <HintPath>Libs\Celeste.exe</HintPath>
     </Reference>
     <Reference Include="CelesteTAS-EverestInterop">
       <HintPath>Libs\CelesteTAS-EverestInterop.dll</HintPath>
       <Private>False</Private>
-    </Reference>
-    <Reference Include="ChronoHelper">
-      <HintPath>Libs\ChronoHelper.dll</HintPath>
     </Reference>
     <Reference Include="DeepCloner">
       <HintPath>Libs\DeepCloner.dll</HintPath>
@@ -44,23 +38,11 @@
     <Reference Include="FNA">
       <HintPath>Libs\FNA.dll</HintPath>
     </Reference>
-    <Reference Include="IsaMods">
-      <HintPath>Libs\IsaMods.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>Libs\Mono.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
       <HintPath>Libs\MonoMod.RuntimeDetour.dll</HintPath>
-    </Reference>
-    <Reference Include="SpeedrunTool">
-      <HintPath>Libs\SpeedrunTool.dll</HintPath>
-    </Reference>
-    <Reference Include="ExtendedVariantMode">
-      <HintPath>Libs\ExtendedVariantMode.dll</HintPath>
-    </Reference>
-    <Reference Include="FrostTempleHelper">
-      <HintPath>Libs\FrostTempleHelper.dll</HintPath>
     </Reference>
     <Reference Include="MMHOOK_Celeste">
       <HintPath>Libs\MMHOOK_Celeste.dll</HintPath>
@@ -71,10 +53,10 @@
     </PackageReference>
     <PackageReference Include="MonoMod.Utils" Version="22.7.31.1" />
     <PackageReference Include="NLua" Version="1.4.25" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="VivHelper">
-      <HintPath>Libs\VivHelper.dll</HintPath>
+    <Reference Include="SpeedrunTool">
+      <HintPath>Libs\SpeedrunTool.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http" />
     <Reference Include="YamlDotNet">
       <HintPath>Libs\YamlDotNet.dll</HintPath>
       <Private>False</Private>

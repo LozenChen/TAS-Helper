@@ -5,8 +5,6 @@ using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using TAS.EverestInterop;
-using ChronoEnitites = Celeste.Mod.ChronoHelper.Entities;
-using VivEntites = VivHelper.Entities;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class ActualPosition {
@@ -25,21 +23,46 @@ internal static class ActualPosition {
 
     [Initialize]
     public static void Initialize() {
-        if (ModUtils.FrostHelperInstalled) {
-            PatchFrostSpinnerUpdate();
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType) {
+            frostSpinnerType.GetMethod("Update").IlHook((cursor, _) => {
+                if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
+                    cursor.Emit(OpCodes.Ldarg_0);
+                    cursor.EmitDelegate(PatchHazardUpdate);
+                }
+            });
         }
-        if (ModUtils.VivHelperInstalled) {
-            PatchVivSpinnerUpdate();
+        if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType) {
+            vivSpinnerType.GetMethod("Update").IlHook((cursor, _) => {
+                if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
+                    cursor.Emit(OpCodes.Ldarg_0);
+                    cursor.EmitDelegate(GetCameraZoom);
+                    cursor.Emit(OpCodes.Ldarg_0);
+                    cursor.EmitDelegate(PatchHazardUpdate);
+                }
+            });
+            // also applies to VivHelper.Entities.AnimatedSpinner, MovingSpinner
         }
-        if (ModUtils.ChronoHelperInstalled) {
-            PatchChronoUpdate();
+        if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType && ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.DarkLightning") is { } chronoLightningType) {
+            chronoSpinnerType.GetMethod("Update").IlHook((cursor, _) => {
+                if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
+                    cursor.Emit(OpCodes.Ldarg_0);
+                    cursor.EmitDelegate(PatchHazardUpdate);
+                }
+            });
+            chronoLightningType.GetMethod("Update").IlHook((cursor, _) => {
+                if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
+                    cursor.Emit(OpCodes.Ldarg_0);
+                    cursor.EmitDelegate(PatchHazardUpdate);
+                }
+            });
         }
         typeof(CrystalStaticSpinner).GetMethod("Update").IlHook((cursor, _) => {
             if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
-                if (ModUtils.BrokemiaHelperInstalled) {
+                if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) {
                     Instruction gotoRet = cursor.Next;
+                    CassetteSpinnerType = cassetteSpinnerType;
                     cursor.Emit(OpCodes.Ldarg_0);
-                    cursor.EmitDelegate(PatchBrokemiaUpdate);
+                    cursor.EmitDelegate(IsCassetteSpinner);
                     cursor.Emit(OpCodes.Brtrue, gotoRet);
                 }
                 cursor.Emit(OpCodes.Ldarg_0);
@@ -55,6 +78,13 @@ internal static class ActualPosition {
                 CenterCameraPosition = level.Camera.Position;
             }
         });
+
+        
+    }
+
+    private static Type CassetteSpinnerType;
+    private static bool IsCassetteSpinner(Entity self) {
+        return self.GetType().IsSameOrSubclassOf(CassetteSpinnerType);
     }
 
     [Load]
@@ -125,9 +155,6 @@ internal static class ActualPosition {
     // everything is moved to ilhook
     //}
 
-    private static bool PatchBrokemiaUpdate(Entity self) {
-        return self is BrokemiaHelper.CassetteSpinner;
-    }
     private static void PatchDustUpdate(On.Celeste.DustStaticSpinner.orig_Update orig, DustStaticSpinner self) {
         orig(self);
         PatchHazardUpdate(self);
@@ -136,42 +163,6 @@ internal static class ActualPosition {
         orig(self);
         PatchHazardUpdate(self);
         // also applies to FrostHelper.AttachedLightning
-    }
-
-    private static void PatchFrostSpinnerUpdate() {
-        typeof(FrostHelper.CustomSpinner).GetMethod("Update").IlHook((cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(PatchHazardUpdate);
-            }
-        });
-    }
-
-    private static void PatchVivSpinnerUpdate() {
-        typeof(VivEntites.CustomSpinner).GetMethod("Update").IlHook((cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(GetCameraZoom);
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(PatchHazardUpdate);
-            }
-        });
-        // also applies to VivHelper.Entities.AnimatedSpinner, MovingSpinner
-    }
-
-    private static void PatchChronoUpdate() {
-        typeof(ChronoEnitites.ShatterSpinner).GetMethod("Update").IlHook((cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(PatchHazardUpdate);
-            }
-        });
-        typeof(ChronoEnitites.DarkLightning).GetMethod("Update").IlHook((cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(PatchHazardUpdate);
-            }
-        });
     }
 
     private static void GetCameraZoom(Entity self) {

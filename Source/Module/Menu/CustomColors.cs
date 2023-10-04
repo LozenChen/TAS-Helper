@@ -17,7 +17,7 @@ public static class CustomColors {
     public static readonly Color defaultInViewRangeColor = Color.Yellow * 0.8f;
     public static readonly Color defaultNearPlayerRangeColor = Color.Lime * 0.8f;
     public static readonly Color defaultCameraTargetColor = Color.Goldenrod;
-    public static readonly Color defaultNotInViewColor = Color.Lime;
+    public static readonly Color defaultNotInViewColor = new Color(0.2f, 1f, 0f);
     public static readonly Color defaultNeverActivateColor = new Color(0.25f, 1f, 1f);
     public static readonly Color defaultActivateEveryFrameColor = new Color(0.8f, 0f, 0f);
     public static readonly Color defaultPredictorEndpointColor = Color.MediumPurple * 0.8f;
@@ -25,7 +25,6 @@ public static class CustomColors {
     public static readonly Color defaultPredictorFineScaleColor = Color.Gold * 0.5f;
     public static readonly Color defaultPredictorCoarseScaleColor = Color.Green * 0.7f;
     public static readonly Color defaultPredictorKeyframeColor = Color.White * 0.9f;
-
 
     public static void ResetOtherColor() {
         LoadRangeColliderColor = defaultLoadRangeColliderColor;
