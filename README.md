@@ -73,3 +73,5 @@ A Celeste Mod designed to be a tool in TAS making.
 - YamlException in Log.txt. -> fixed in v1.6.5.
 
 - Predictor can't handle commands like StunPause Simulate (StunPause Input is ok), SetCommands, InvokeCommands and so on. -> Currently don't plan to support them. Tell me if you need this feature.
+
+- Celeste TAS hotkeys randomly work improperly -> Not sure if it's caused by TAS Helper.

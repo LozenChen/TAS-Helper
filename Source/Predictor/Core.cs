@@ -62,6 +62,7 @@ public static class Core {
         InPredict = true;
 
         futures.Clear();
+        PredictorRenderer.ClearCachedMessage();
 
         ModifiedAutoMute.StartMute();
         InputManager.ReadInputs(frames);
@@ -92,8 +93,6 @@ public static class Core {
         HasCachedFutures = true;
         InPredict = false;
         CacheFutureCountdown = CacheFuturePeriod;
-
-        PredictorRenderer.ClearCachedMessage();
     }
 
     private static void AlmostEngineUpdate(Engine engine, GameTime gameTime) {
@@ -191,6 +190,7 @@ public static class Core {
         if (!Manager.Running) {
             HasCachedFutures = false;
             futures.Clear();
+            // PredictorRenderer.ClearCachedMessage(); it will be cleared in PredictorRenderer.SceneAfterUpdate, so no need here
             TinySRT.TH_StateManager.ClearState();
             return;
         }
@@ -199,6 +199,7 @@ public static class Core {
         if (!FutureMoveLeft()) {
             HasCachedFutures = false;
             futures.Clear();
+            // PredictorRenderer.ClearCachedMessage();
             TinySRT.TH_StateManager.ClearState();
             return;
         }
@@ -238,6 +239,7 @@ public static class Core {
         TinySRT.TH_StateManager.ClearState();
         HasCachedFutures = false;
         futures.Clear();
+        PredictorRenderer.ClearCachedMessage();
     }
 
     public static bool FutureMoveLeft() {
@@ -275,6 +277,7 @@ public static class Core {
     private static void DelayedClearFutures() {
         if (delayedClearFutures && !InPredict) {
             futures.Clear();
+            PredictorRenderer.ClearCachedMessage();
             delayedClearFutures = false;
         }
     }
