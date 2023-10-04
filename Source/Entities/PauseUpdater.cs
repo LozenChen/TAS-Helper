@@ -1,4 +1,5 @@
 ﻿using Monocle;
+
 namespace Celeste.Mod.TASHelper.Entities;
 
 public static class PauseUpdater {
@@ -28,6 +29,7 @@ public static class PauseUpdater {
     }
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
+        entities.Clear();
         orig(level, playerIntro, isFromLoader);
         Detector.AddIfNecessary(level);
     }

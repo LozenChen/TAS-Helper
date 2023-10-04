@@ -47,9 +47,7 @@ public static class Messenger {
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         EntityActivatorWarner.MessageCount = 0;
         orig(level, playerIntro, isFromLoader);
-        if (!level.Tracker.Entities.TryGetValue(typeof(HotkeyWatcher), out var entities) || entities.Count == 0) {
-            level.Add(new HotkeyWatcher());
-        }
+        level.Add(new HotkeyWatcher());
     }
 
     private static void WatchEntityActivator(EntityData data) {
