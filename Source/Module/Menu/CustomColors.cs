@@ -12,7 +12,6 @@ using static TAS.EverestInterop.Hitboxes.HitboxColor;
 namespace Celeste.Mod.TASHelper.Module.Menu;
 
 public static class CustomColors {
-
     public static readonly Color defaultLoadRangeColliderColor = Color.Lime;
     public static readonly Color defaultInViewRangeColor = Color.Yellow * 0.8f;
     public static readonly Color defaultNearPlayerRangeColor = Color.Lime * 0.8f;
