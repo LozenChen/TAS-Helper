@@ -1,10 +1,12 @@
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.OrderOfOperation;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
+using TAS;
 using TAS.EverestInterop;
 using YamlDotNet.Serialization;
 
@@ -37,6 +39,7 @@ public class TASHelperSettings : EverestModuleSettings {
         keyPixelGridWidth ??= new((Buttons)0, Keys.LeftControl, Keys.F);
         keyPredictEnable ??= new((Buttons)0, Keys.LeftControl, Keys.W);
         keyPredictFuture ??= new((Buttons)0, Keys.LeftControl, Keys.P);
+        keyOOP ??= new((Buttons)0, Keys.LeftControl, Keys.G);
         // it seems some bug can happen with deserialization
     }
 
@@ -616,6 +619,10 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.P)]
     public ButtonBinding keyPredictFuture { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.P);
 
+    [SettingName("TAS_HELPER_OOP_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.G)]
+    public ButtonBinding keyOOP { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.G);
+
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
     public bool SettingsHotkeysPressed() {
@@ -634,14 +641,20 @@ public class TASHelperSettings : EverestModuleSettings {
             updateButton = false;
         }
 
+        if (OOP_Core.Applied) {
+            Hotkeys.Update();
+            GameInfo.Update();
+        }
+
         TH_Hotkeys.MainSwitchHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.CountDownHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.LoadRangeHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.PixelGridWidthHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.PredictEnableHotkey.Update(updateKey, updateButton);
         TH_Hotkeys.PredictFutureHotkey.Update(updateKey, updateButton);
+        TH_Hotkeys.OOPHotkey.Update(updateKey, updateButton);
 
-        bool changed = false;
+        bool changed = false; // if settings need to be saved
 
         if (TH_Hotkeys.MainSwitchHotkey.Pressed) {
             changed = true;
@@ -736,6 +749,14 @@ public class TASHelperSettings : EverestModuleSettings {
                 Refresh("Predictor Start");
             }
 
+        }
+        if (TH_Hotkeys.OOPHotkey.Pressed) {
+            if (Manager.Running && !FrameStep) {
+                Refresh("TAS is running, refuse to OOP step");
+            }
+            else {
+                OOP_Core.Step();
+            }
         }
         return changed;
 

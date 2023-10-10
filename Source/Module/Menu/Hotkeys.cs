@@ -22,6 +22,8 @@ public static class TH_Hotkeys {
 
     public static Hotkey PredictFutureHotkey { get; set; }
 
+    public static Hotkey OOPHotkey { get; set; }
+
     [Load]
     public static void Load() {
         On.Celeste.Level.Render += HotkeysPressed;
@@ -43,6 +45,7 @@ public static class TH_Hotkeys {
         PixelGridWidthHotkey = BindingToHotkey(TasHelperSettings.keyPixelGridWidth);
         PredictEnableHotkey = BindingToHotkey(TasHelperSettings.keyPredictEnable);
         PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
+        OOPHotkey = BindingToHotkey(TasHelperSettings.keyOOP);
     }
 
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
