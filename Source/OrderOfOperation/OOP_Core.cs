@@ -1,13 +1,10 @@
-using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using Celeste.Mod.TASHelper.Entities;
-using TAS;
-using Celeste.Mod.TASHelper.Utils;
-using System.Collections.Generic;
+using TAS.EverestInterop;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
 internal static class OOP_Core {
@@ -21,16 +18,14 @@ internal static class OOP_Core {
     public static bool Applied = false;
 
     public static void Step() {
-        if (prepareToUndoAll) {
-            UndoAll();
-            prepareToUndoAll = false;
-            return;
-        }
         if (!Applied) {
             ApplyAll();
         }
         else {
             stepping = true;
+            SpringBoard.RefreshAll(); // spring board relies on passed Breakpoints, so it must be cleared later
+            ResetState();
+            BreakPoints.passedBreakPoints.Clear();
         }
     }
 
@@ -50,14 +45,27 @@ internal static class OOP_Core {
 
     private static ILHookConfig manualConfig = default;
 
+    private static readonly Action<ILCursor> NullAction = (cursor) => { };
+
     [Initialize]
     public static void Initialize() {
         manualConfig.ManualApply = true;
 
-        BreakPoints.Create(EngineUpdate, "EngineUpdate_Start", label => (cursor, _) => {
+        BreakPoints.MarkEnding(EngineUpdate, "EngineUpdate end", () => prepareToUndoAll = true); // i should have configured detourcontext... don't know why, but MarkEnding must be called at first (at least before those breakpoints on same method)
+
+        BreakPoints.MarkEnding(LevelUpdate, "LevelUpdate end", () => LevelUpdate_Entry.SubMethodPassed = true);
+
+       // BreakPoints.MarkEnding(EntityListUpdate, "EntityListUpdate end", null);
+
+        BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", () => SceneUpdate_Entry.SubMethodPassed = true);
+
+        BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => PlayerOrigUpdate_Entry.SubMethodPassed = true);
+
+        BreakPoints.CreateImpl(EngineUpdate, "EngineUpdate_Start", label => (cursor, _) => {
             cursor.Emit(OpCodes.Ldstr, label);
             Instruction mark = cursor.Prev;
-            cursor.Emit(OpCodes.Pop);
+            cursor.EmitDelegate(BreakPoints.RecordLabel);
+            cursor.Emit(OpCodes.Ret);
 
             cursor.Goto(0);
             cursor.EmitDelegate(GetStepping);
@@ -65,128 +73,130 @@ internal static class OOP_Core {
             cursor.Emit(OpCodes.Ret);
         });
         
-        BreakPoints.Create(EngineUpdate, "EngineUpdate_SceneBeforeUpdate_Start", label => (cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.AfterLabel,
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.MatchLdfld<Engine>("scene"),
-                ins => ins.MatchCallOrCallvirt<Scene>("BeforeUpdate")
-                )) {
-                cursor.Emit(OpCodes.Ldstr, label);
-                cursor.Emit(OpCodes.Pop);
-                // we add these pops so the hook works
-                // and remove these pops when we create springBoards
-            }
-        });
-        BreakPoints SceneUpdate_Start = BreakPoints.Create(EngineUpdate, "EngineUpdate_SceneUpdate_Start", label => (cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.AfterLabel,
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.MatchLdfld<Engine>("scene"),
-                ins => ins.MatchCallOrCallvirt<Scene>("Update")
-                )) {
-                cursor.Emit(OpCodes.Ldstr, label);
-                cursor.Emit(OpCodes.Pop);
-            }
-        });
-        BreakPoints.Create(EngineUpdate, "EngineUpdate_SceneAfterUpdate_Start", label => (cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.AfterLabel,
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.MatchLdfld<Engine>("scene"),
-                ins => ins.MatchCallOrCallvirt<Scene>("AfterUpdate")
-                )) {
-                cursor.Emit(OpCodes.Ldstr, label);
-                cursor.Emit(OpCodes.Pop);
-            }
-        });
-        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_Start", label => (cursor, _) => {
-            cursor.Emit(OpCodes.Ldstr, label);
-            cursor.Emit(OpCodes.Pop);
-        });
+        BreakPoints.Create(EngineUpdate, "EngineUpdate_SceneBeforeUpdate_Start", 
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchLdfld<Engine>("scene"),
+            ins => ins.MatchCallOrCallvirt<Scene>("BeforeUpdate")
+        );
 
-        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_BaseUpdate", label => (cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.AfterLabel,
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.MatchCallOrCallvirt<Actor>("Update")
-                )) {
-                cursor.Emit(OpCodes.Ldstr, label);
-                cursor.Emit(OpCodes.Pop);
-            }
-        });
+        LevelUpdate_Entry = BreakPoints.CreateFull(EngineUpdate, "EngineUpdate_LevelUpdate_End", 3, NullAction, NullAction,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchLdfld<Engine>("scene"),
+            ins => ins.MatchCallOrCallvirt<Scene>("Update")
+        );
 
-        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_MoveH", label => (cursor, _) => {
-            if (cursor.TryGotoNext(
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.OpCode == OpCodes.Ldc_I4_0,
-                ins => ins.MatchCallOrCallvirt<Player>("set_Ducking"),
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.OpCode == OpCodes.Ldfld,
-                ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
-                ins => ins.MatchLdcI4(9)
-                )) {
+        SceneUpdate_Entry = BreakPoints.CreateFull(LevelUpdate, "LevelUpdate_SceneUpdate_End", 2, NullAction, NullAction , ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt<Scene>("Update"));
+
+        PlayerOrigUpdate_Entry = BreakPoints.CreateFull(PlayerUpdate, "PlayerUpdate_PlayerOrigUpdate_End", 2, NullAction, NullAction) ;
+
+        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_Start");
+
+        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_BaseUpdate", 
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchCallOrCallvirt<Actor>("Update")
+        );
+
+        BreakPoints.CreateFull(PlayerOrigUpdate, "PlayerOrigUpdate_MoveH", 0, NullAction, 
+            cursor => {
                 cursor.Index += 3;
                 cursor.MoveAfterLabels();
-                cursor.Emit(OpCodes.Ldstr, label);
-                cursor.Emit(OpCodes.Pop);
-            }
-        });
+            },
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.OpCode == OpCodes.Ldc_I4_0,
+            ins => ins.MatchCallOrCallvirt<Player>("set_Ducking"),
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.OpCode == OpCodes.Ldfld,
+            ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
+            ins => ins.MatchLdcI4(9)
+        );
 
-        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_EntityCollide", label => (cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.AfterLabel,
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.MatchCallOrCallvirt<Player>("get_Dead"),
-                ins => ins.OpCode == OpCodes.Brtrue,
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.OpCode == OpCodes.Ldfld,
-                ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
-                 ins => ins.MatchLdcI4(21)
-                )) {
-                cursor.Emit(OpCodes.Ldstr, label);
-                cursor.Emit(OpCodes.Pop);
-            }
-        });
+        BreakPoints.CreateFull(PlayerOrigUpdate, "PlayerOrigUpdate_MoveV", 0, NullAction,
+            cursor => {
+                cursor.Index += 3;
+                cursor.MoveAfterLabels();
+            },
+            ins => ins.OpCode == OpCodes.Ldnull,
+            ins => ins.MatchCallOrCallvirt<Actor>("MoveH"),
+            ins => ins.OpCode == OpCodes.Pop,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.OpCode == OpCodes.Ldfld,
+            ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
+            ins => ins.MatchLdcI4(9)
+        );
 
-        SpringBoard.Refresh(EngineUpdate);// this is based on breakpoints, so it must be refreshed after breakpoints hooks applied
-        SpringBoard.Refresh(PlayerOrigUpdate);
+        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_EntityCollide", 
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchCallOrCallvirt<Player>("get_Dead"),
+            ins => ins.OpCode == OpCodes.Brtrue,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.OpCode == OpCodes.Ldfld,
+            ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
+            ins => ins.MatchLdcI4(21)
+        );
 
-        BreakPoints.AssignAsSubmethod(SceneUpdate_Start, PlayerOrigUpdate);
-        BreakPoints.BuildSubBreakPoints(EngineUpdate);
+        BreakPoints.Create(EngineUpdate, "EngineUpdate_SceneAfterUpdate_Start",
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchLdfld<Engine>("scene"),
+            ins => ins.MatchCallOrCallvirt<Scene>("AfterUpdate")
+        );
+
+
+        SpringBoard.Create(EngineUpdate);// this is based on breakpoints, so it must be refreshed after breakpoints hooks applied
+        SpringBoard.Create(LevelUpdate);
+        SpringBoard.Create(EntityListUpdate);
+        SpringBoard.Create(PlayerUpdate);
+        SpringBoard.Create(PlayerOrigUpdate);
 
         hookTASIsPaused = new ILHook(typeof(TAS.EverestInterop.Core).GetMethod("IsPause", BindingFlags.NonPublic | BindingFlags.Static), il => {
             ILCursor cursor = new ILCursor(il);
             cursor.Emit(OpCodes.Ldc_I4_0);
             cursor.Emit(OpCodes.Ret);
         }, manualConfig);
+
     }
 
     private static ILHook hookTASIsPaused;
 
+    private static bool prepareToUndoAll = false;
+
     public static void ApplyAll() {
         BreakPoints.ApplyAll();
-        SpringBoard.ApplyAll();
+        SpringBoard.RefreshAll();
         hookTASIsPaused.Apply();
         Applied = true;
+
+        ResetState();
+
         SendText("OOP Stepping start");
     }
 
     public static void UndoAll() {
-        BreakPoints.UndoAll();
         SpringBoard.UndoAll();
+        BreakPoints.UndoAll();
         hookTASIsPaused.Undo();
         Applied = false;
+
+        ResetState();
+
         SendText("OOP Stepping end");
     }
 
-    private static void PrepareToUndoAll() {
-        prepareToUndoAll = true;
+    private static void ResetState() {
+        prepareToUndoAll = false;
+        LevelUpdate_Entry.SubMethodPassed = false;
+        SceneUpdate_Entry.SubMethodPassed = false;
+        PlayerOrigUpdate_Entry.SubMethodPassed = false;
     }
 
-    private static bool prepareToUndoAll = false;
+    private static BreakPoints LevelUpdate_Entry;
+    private static BreakPoints SceneUpdate_Entry;
+    private static BreakPoints PlayerOrigUpdate_Entry;
 
     private class BreakPoints {
 
-        // convention: starting breakpoint is necessary, while ending breakpoint is unnecessary (will be auto generated). So if we have N breakpoints, we have N parts of codes to execute
-        // if a BreakPoint has subBreakPoints, make sure it's exactly before the method call
-        // also, make sure the breakpoint is always reachable (i.e., not in a IF sentence, or no early return)
-        // or add hooks to stop OOP_Core if that early return happens
+        // if a BreakPoint has subBreakPoints, make sure it's exactly before the method call, and emit Ret exactly after the method call
+        // also, make sure if we jump to a breakpoint from start, the stack behavior is ok (i.e. no temp variable lives from before a breakpoint to after it)
+
         public const string Prefix = "TAS Helper OOP_Core";
 
         public static readonly Dictionary<string, BreakPoints> dictionary = new();
@@ -195,83 +205,53 @@ internal static class OOP_Core {
 
         public static readonly Dictionary<MethodBase, HashSet<BreakPoints>> detoursOnThisMethod = new();
 
-        public static readonly Dictionary<BreakPoints, MethodBase> subMethodOfBreakpoints = new();
+        public int RetShift = 0;
 
         public string UID;
 
         public IDetour labelEmitter;
 
-        public HashSet<string> subBreakPointsID = new();
+        public bool? SubMethodPassed = null;
 
-        private int depth = 0;
-
-        public static bool BreakPointIsFinished(string id) {
-            if (!dictionary.ContainsKey(id)) {
-                return false;
-            }
-            bool b = passedBreakPoints.Contains(id) && passedBreakPoints.IsSupersetOf(dictionary[id].subBreakPointsID);
-            passedBreakPoints.Add(id);
-            SendText(id);
-            return b;
-        }
         private BreakPoints(string ID, IDetour detour) {
             UID = ID;
             labelEmitter = detour;
-            dictionary.Add(UID, this);
         }
 
-        public static void AssignAsSubmethod(BreakPoints breakPoints, MethodBase methodBase) {
-            subMethodOfBreakpoints[breakPoints] = methodBase;
+        public static BreakPoints Create(MethodBase from, string label, params Func<Instruction, bool>[] predicates) {
+            return CreateFull(from, label, 0, NullAction, NullAction, predicates);
         }
 
-        public static void BuildSubBreakPoints(MethodBase rootMethod) {
-            foreach (BreakPoints point in dictionary.Values) {
-                point.depth = 0;
-                point.subBreakPointsID.Clear();
-            }
-            int currentDepth = 0;
-            IEnumerable<BreakPoints> CurrDepth = detoursOnThisMethod[rootMethod].Intersect(subMethodOfBreakpoints.Keys);
-            HashSet<BreakPoints> NextDepth = new HashSet<BreakPoints>();
-            do {
-                foreach (BreakPoints breakPointsCurr in CurrDepth) {
-                    NextDepth.Union(detoursOnThisMethod[subMethodOfBreakpoints[breakPointsCurr]]);
+        public static BreakPoints CreateFull(MethodBase from, string label, int RetShift, Action<ILCursor> before, Action<ILCursor> after, params Func<Instruction, bool>[] predicates) {
+            Func<string, Action<ILCursor, ILContext>> manipulator = (label) => (cursor, _) => {
+                before(cursor);
+                if (cursor.TryGotoNext(MoveType.AfterLabel, predicates)) {
+                    after(cursor);
+                    cursor.Emit(OpCodes.Ldstr, label);
+                    cursor.EmitDelegate(RecordLabel);
+                    cursor.Index += RetShift; // when there's a method, which internally has breakpoints, exactly after this breakpoint, then we Ret after this method call
+                    cursor.Emit(OpCodes.Ret);
                 }
-                currentDepth++;
-                foreach (BreakPoints breakPointsNext in NextDepth) {
-                    breakPointsNext.depth = currentDepth;
-                }
-                CurrDepth = NextDepth.Intersect(subMethodOfBreakpoints.Keys);
-                NextDepth.Clear();
-            } while (CurrDepth.IsNotEmpty());
-
-            currentDepth--;
-            while (currentDepth >= 0) {
-                foreach (BreakPoints point in dictionary.Values) {
-                   if (point.depth == currentDepth && subMethodOfBreakpoints.TryGetValue(point, out MethodBase method)) {
-                        foreach (BreakPoints next in detoursOnThisMethod[method]) {
-                            point.subBreakPointsID.Union(next.subBreakPointsID);
-                            point.subBreakPointsID.Add(next.UID);
-                        }
-                    }
-                }
-                currentDepth--;
-            }
+            };
+            return CreateImpl(from, label, manipulator, RetShift);
         }
 
-        public static BreakPoints Create(MethodBase from, string label, Func<string, Action<ILCursor, ILContext>> manipulator) {
+        internal static BreakPoints CreateImpl(MethodBase from, string label, Func<string, Action<ILCursor, ILContext>> manipulator, int RetShift = 0) {
             string ID = CreateUID(label);
             IDetour detour;
-            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OOP_Core" }) {
-                 detour = new ILHook(from, il => {
-                    ILCursor ilCursor = new(il);
-                    manipulator(ID)(ilCursor, il);
+            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OOP_Core Ending" }, ID = "TAS Helper OOP_Core BreakPoints" }) {
+                detour = new ILHook(from, il => {
+                    ILCursor cursor = new(il);
+                    manipulator(ID)(cursor, il);
                 }, manualConfig);
             }
             BreakPoints breakpoint = new BreakPoints(ID, detour);
+            breakpoint.RetShift = RetShift;
             if (!detoursOnThisMethod.ContainsKey(from)) {
                 detoursOnThisMethod[from] = new HashSet<BreakPoints>();
             }
             detoursOnThisMethod[from].Add(breakpoint);
+            dictionary[ID] = breakpoint;
             return breakpoint;
         }
 
@@ -286,6 +266,38 @@ internal static class OOP_Core {
                 index++;
             } while(dictionary.ContainsKey(result));
             return result;
+        }
+        internal static void RecordLabel(string label) {
+            passedBreakPoints.Add(label);
+            SendText(label); // if several labels are recorded in same frame, then the last one will be the output
+        }
+
+        public static BreakPoints MarkEnding(MethodBase method, string label, Action? afterRetAction = null) {
+            string ID = CreateUID(label);
+            IDetour detour;
+            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OOP_Core Ending" }) {
+                detour = new ILHook(method, il => {
+                    ILCursor cursor = new(il);
+                    while (cursor.TryGotoNext(MoveType.AfterLabel, i => i.OpCode == OpCodes.Ret)) {
+                        cursor.Emit(OpCodes.Ldstr, ID);
+                        cursor.EmitDelegate(RecordLabel);
+                        // don't know why but i fail to add a beforeRetAction here
+                        cursor.Emit(OpCodes.Ret);
+                        if (afterRetAction is not null) {
+                            cursor.EmitDelegate(afterRetAction);
+                        }
+                        cursor.Index++;
+                    }
+                }, manualConfig);
+            }
+            BreakPoints breakpoint = new BreakPoints(ID, detour);
+
+            if (!detoursOnThisMethod.ContainsKey(method)) {
+                detoursOnThisMethod[method] = new HashSet<BreakPoints>();
+            }
+            detoursOnThisMethod[method].Add(breakpoint);
+            dictionary[ID] = breakpoint;
+            return breakpoint;
         }
 
         public static void ApplyAll() {
@@ -314,46 +326,52 @@ internal static class OOP_Core {
         // jump if current BreakPoint is Finished; otherwise track current BreakPoint to passedBreakPoints, run codes, and return before next BreakPoint
         public static readonly Dictionary<MethodBase, IDetour> dictionary = new();
 
-        public static void Refresh(MethodBase methodBase) {
+        private static void Refresh(MethodBase methodBase) {
             if (dictionary.ContainsKey(methodBase)) {
-                dictionary[methodBase].Dispose();
+                dictionary[methodBase].Undo();
+                dictionary[methodBase].Apply();
+                return;
             }
+            Create(methodBase);
+        }
+
+        public static void Create(MethodBase methodBase) {
             IDetour detour;
-            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, Priority = 10000, ID = "TAS Helper OOP_Core" }) {
+            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OOP_Core BreakPoints", "TAS Helper OOP_Core Ending" }, ID = "TAS Helper OOP_Core SpringBoard" }) {
                 detour = new ILHook(methodBase, il => {
                     ILCursor cursor = new(il);
-                    List<Instruction> breakpoints = new();
-                    while (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && ((string)ins.Operand).StartsWith(BreakPoints.Prefix), ins => ins.OpCode == OpCodes.Pop)) {
-                        if (breakpoints.Count > 0) {
-                            cursor.Emit(OpCodes.Ret);
+                    if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && BreakPoints.passedBreakPoints.Contains((string)ins.Operand))) {
+                        // for EndingBreakpoints, there maybe several different matching results, but jump to one is enough
+                        Instruction target = cursor.Next;
+                        string label = (string)cursor.Next.Operand;
+                        BreakPoints point = BreakPoints.dictionary[label];
+                        if (point.SubMethodPassed is bool b && !b) {
+                            // do nothing
                         }
-                        breakpoints.Add(cursor.Next);
-                        cursor.Index++;
-                        cursor.Remove(); // remove the pop
+                        else {
+                            cursor.Index++;
+                            cursor.MoveAfterLabels();
+                            cursor.Emit(OpCodes.Pop); // in next run, we will jump to this label, pop (so it's not recorded), and run till next label
+                            cursor.Remove(); // remove RecordLabel
+                            cursor.Index += point.RetShift;
+                            cursor.Remove(); // remove Ret
+                        }
+
+                        cursor.Goto(0);
+                        if (methodBase == EngineUpdate) {
+                            cursor.Goto(3, MoveType.AfterLabel);
+                        }
+                        cursor.Emit(OpCodes.Br, target);
                     }
 
-                    cursor.Goto(-1, MoveType.AfterLabel);
-                    if (methodBase == EngineUpdate) {
-                        cursor.EmitDelegate(OOP_Core.PrepareToUndoAll); // we assume OOP_Core only runs when Level.Update is reachable on this frame, so other early return are not possible
-                        cursor.Index--;
-                    }
-                    breakpoints.Add(cursor.Next);
-
-                    int count = breakpoints.Count;
-                    for (int i = 0; i < count - 1; i++) {
-                        cursor.Goto(breakpoints[i], MoveType.Before);
-                        cursor.Index++;
-                        cursor.EmitDelegate(BreakPoints.BreakPointIsFinished);
-                        cursor.Emit(OpCodes.Brtrue, breakpoints[i+1]);
-                    }
                 }, manualConfig);
             }
             dictionary[methodBase] = detour;
         }
 
-        public static void ApplyAll() {
-            foreach (IDetour detour in dictionary.Values) {
-                detour.Apply();
+        public static void RefreshAll() {
+            foreach (MethodBase method in dictionary.Keys) {
+                Refresh(method);
             }
         }
 
@@ -368,6 +386,30 @@ internal static class OOP_Core {
             foreach (IDetour detour in dictionary.Values) {
                 detour.Dispose();
             }
+        }
+    }
+
+
+    [Load]
+    public static void Load() {
+        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper"}, ID = "TAS Helper OOP_Core OnLevelRender" }){
+            On.Celeste.Level.Render += OnLevelRender;
+        }
+    }
+
+    [Unload]
+    public static void Unload() {
+        On.Celeste.Level.Render -= OnLevelRender;
+    }
+    private static void OnLevelRender(On.Celeste.Level.orig_Render orig, Level self) {
+        orig(self);
+        if (Applied) {
+            if (prepareToUndoAll) {
+                UndoAll();
+            }
+
+            Hotkeys.Update(); // TH_Hotkeys relies on Hotkeys, so it needs update
+            TAS.GameInfo.Update();
         }
     }
 }

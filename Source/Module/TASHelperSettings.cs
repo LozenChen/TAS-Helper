@@ -6,7 +6,6 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
-using TAS;
 using TAS.EverestInterop;
 using YamlDotNet.Serialization;
 
@@ -623,6 +622,10 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.G)]
     public ButtonBinding keyOOP { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.G);
 
+    [SettingName("TAS_HELPER_OOP_CLEAR_HOTKEY")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.Y)]
+    public ButtonBinding keyOOP_Clear { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.Y);
+
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
     public bool SettingsHotkeysPressed() {
@@ -641,18 +644,7 @@ public class TASHelperSettings : EverestModuleSettings {
             updateButton = false;
         }
 
-        if (OOP_Core.Applied) {
-            Hotkeys.Update();
-            GameInfo.Update();
-        }
-
-        TH_Hotkeys.MainSwitchHotkey.Update(updateKey, updateButton);
-        TH_Hotkeys.CountDownHotkey.Update(updateKey, updateButton);
-        TH_Hotkeys.LoadRangeHotkey.Update(updateKey, updateButton);
-        TH_Hotkeys.PixelGridWidthHotkey.Update(updateKey, updateButton);
-        TH_Hotkeys.PredictEnableHotkey.Update(updateKey, updateButton);
-        TH_Hotkeys.PredictFutureHotkey.Update(updateKey, updateButton);
-        TH_Hotkeys.OOPHotkey.Update(updateKey, updateButton);
+        TH_Hotkeys.Update(updateKey, updateButton);
 
         bool changed = false; // if settings need to be saved
 
@@ -751,13 +743,17 @@ public class TASHelperSettings : EverestModuleSettings {
 
         }
         if (TH_Hotkeys.OOPHotkey.Pressed) {
-            if (Manager.Running && !FrameStep) {
+            if (TAS.Manager.Running && !FrameStep) {
                 Refresh("TAS is running, refuse to OOP step");
             }
             else {
                 OOP_Core.Step();
             }
         }
+        if (TH_Hotkeys.OOP_Clear_Hotkey.Pressed) {
+            OOP_Core.UndoAll();
+        }
+
         return changed;
 
         void Refresh(string text) {

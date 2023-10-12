@@ -36,10 +36,9 @@ public static class CustomInfoHelper {
             // even works when you use CenterCamera
             if (Engine.Scene is not Level level || !TasSettings.CenterCamera || typeof(CenterCamera).GetFieldInfo("savedCameraPosition").GetValue(null) is null) return TASMouseCursorPosNaive;
             Vector2 mouseWorldPosition = level.MouseToWorld(MouseState);
-            object[] Parameterless = { };
-            typeof(CenterCamera).GetMethodInfo("RestoreTheCamera").Invoke(null, Parameterless);
+            typeof(CenterCamera).GetMethodInfo("RestoreTheCamera").Invoke(null, parameterless);
             Vector2 mouseScreenPosition = level.WorldToScreen(mouseWorldPosition);
-            typeof(CenterCamera).GetMethodInfo("CenterTheCamera").Invoke(null, Parameterless);
+            typeof(CenterCamera).GetMethodInfo("CenterTheCamera").Invoke(null, parameterless);
             return mouseScreenPosition / 6f;
         }
     }

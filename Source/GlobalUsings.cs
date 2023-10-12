@@ -35,7 +35,7 @@ internal static class GlobalVariables {
     // i haven't check how these states are set, but this just works well
     public static Player? player => Engine.Scene.Tracker.GetEntity<Player>();
 
-    public static object[] parameterless = new object[] { };
+    public static readonly object[] parameterless = { };
 }
 
 

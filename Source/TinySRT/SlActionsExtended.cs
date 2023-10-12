@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
 using System.Reflection;
@@ -155,6 +156,7 @@ internal static class TasHelperSL {
             GameInfo.Frozen = Frozen;
             GameInfo.TransitionFrames = TransitionFrames;
             Predictor.Core.FreezeTimerBeforeUpdate = TH_freezeTimerBeforeUpdateBeforePredictLoops;
+            TH_Hotkeys.HotkeyInitialize();
         };
         Action clear = () => {
             TH_pauseUpdaterEntities = null;
@@ -170,6 +172,7 @@ internal static class TasHelperSL {
         SRT.SlAction load = (_, _) => {
             PauseUpdater.entities = SRT_pauseUpdaterEntities.DeepCloneShared();
             Predictor.Core.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
+            TH_Hotkeys.HotkeyInitialize();
         };
         Action clear = () => {
             SRT_pauseUpdaterEntities = null;

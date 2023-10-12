@@ -24,6 +24,10 @@ public static class TH_Hotkeys {
 
     public static Hotkey OOPHotkey { get; set; }
 
+    public static Hotkey OOP_Clear_Hotkey { get; set; }
+
+    public static List<Hotkey> Hotkeys = new();
+
     [Load]
     public static void Load() {
         On.Celeste.Level.Render += HotkeysPressed;
@@ -46,12 +50,20 @@ public static class TH_Hotkeys {
         PredictEnableHotkey = BindingToHotkey(TasHelperSettings.keyPredictEnable);
         PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
         OOPHotkey = BindingToHotkey(TasHelperSettings.keyOOP);
+        OOP_Clear_Hotkey = BindingToHotkey(TasHelperSettings.keyOOP_Clear);
+        Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OOPHotkey, OOP_Clear_Hotkey };
     }
 
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
         orig(self);
         if (TasHelperSettings.SettingsHotkeysPressed()) {
             TASHelperModule.Instance.SaveSettings();
+        }
+    }
+
+    public static void Update(bool updateKey, bool updateButton) {
+        foreach (Hotkey hotkey in Hotkeys) {
+            hotkey.Update(updateKey, updateButton);
         }
     }
 

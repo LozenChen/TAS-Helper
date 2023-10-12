@@ -95,10 +95,20 @@ internal static class HookHelper {
             }
         }
     }
+}
 
+public static class CILCodeHelper {
     public static void CILCodeLogger(this ILCursor ilCursor, int logCount = 19) {
         // remember, Commands.Log can only work in Initialize()
         Celeste.Commands.Log("------------------------------");
+        if (Apply) {
+            if (AsShift) {
+                ilCursor.Index += Position;
+            }
+            else {
+                ilCursor.Index = Position;
+            }
+        }
         while (logCount > 0 && ilCursor.Next is not null) {
             if (ilCursor.Next.Operand is ILLabel label) {
                 Celeste.Commands.Log($"{ilCursor.Next.Offset}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand} | {label.Target.Offset}, {label.Target.OpCode}");
@@ -110,5 +120,11 @@ internal static class HookHelper {
             ilCursor.Index++;
         }
     }
+
+    public static int Position = 0; // i'm not sure if CelesteTAS supports nullable value, so i just use int
+
+    public static bool Apply = false;
+
+    public static bool AsShift = false;
 }
 
