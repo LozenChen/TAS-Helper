@@ -11,9 +11,12 @@ internal static class OOP_Core {
 
     private static MethodInfo EngineUpdate = typeof(Engine).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
     private static MethodInfo LevelUpdate = typeof(Level).GetMethod("Update");
+    private static MethodInfo SceneUpdate = typeof(Scene).GetMethod("Update");
     private static MethodInfo EntityListUpdate = typeof(EntityList).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
     private static MethodInfo PlayerUpdate = typeof(Player).GetMethod("Update");
     private static MethodInfo PlayerOrigUpdate = typeof(Player).GetMethod("orig_Update");
+    // if we add a breakpoint to A, which is called by B, then we must add breakpoints to B
+    // so that any hook given by other mods are handled properly
 
     public static bool Applied = false;
 
@@ -55,9 +58,9 @@ internal static class OOP_Core {
 
         BreakPoints.MarkEnding(LevelUpdate, "LevelUpdate end", () => LevelUpdate_Entry.SubMethodPassed = true);
 
-       // BreakPoints.MarkEnding(EntityListUpdate, "EntityListUpdate end", null);
+        BreakPoints.MarkEnding(SceneUpdate, "SceneUpdate end", () => SceneUpdate_Entry.SubMethodPassed = true);
 
-        BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", () => SceneUpdate_Entry.SubMethodPassed = true);
+        BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", () => EntityListUpdate_Entry.SubMethodPassed = true);
 
         BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => PlayerOrigUpdate_Entry.SubMethodPassed = true);
 
@@ -86,6 +89,13 @@ internal static class OOP_Core {
         );
 
         SceneUpdate_Entry = BreakPoints.CreateFull(LevelUpdate, "LevelUpdate_SceneUpdate_End", 2, NullAction, NullAction , ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt<Scene>("Update"));
+
+        EntityListUpdate_Entry = BreakPoints.CreateFull(SceneUpdate, "SceneUpdate_EntityListUpdate_End", 3, NullAction, NullAction,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchCallOrCallvirt<Scene>("get_Entities"),
+            ins => ins.MatchCallOrCallvirt<EntityList>("Update")
+        );
+
 
         PlayerOrigUpdate_Entry = BreakPoints.CreateFull(PlayerUpdate, "PlayerUpdate_PlayerOrigUpdate_End", 2, NullAction, NullAction) ;
 
@@ -141,8 +151,9 @@ internal static class OOP_Core {
         );
 
 
-        SpringBoard.Create(EngineUpdate);// this is based on breakpoints, so it must be refreshed after breakpoints hooks applied
+        SpringBoard.Create(EngineUpdate);
         SpringBoard.Create(LevelUpdate);
+        SpringBoard.Create(SceneUpdate);
         SpringBoard.Create(EntityListUpdate);
         SpringBoard.Create(PlayerUpdate);
         SpringBoard.Create(PlayerOrigUpdate);
@@ -185,11 +196,13 @@ internal static class OOP_Core {
         prepareToUndoAll = false;
         LevelUpdate_Entry.SubMethodPassed = false;
         SceneUpdate_Entry.SubMethodPassed = false;
+        EntityListUpdate_Entry.SubMethodPassed = false;
         PlayerOrigUpdate_Entry.SubMethodPassed = false;
     }
 
     private static BreakPoints LevelUpdate_Entry;
     private static BreakPoints SceneUpdate_Entry;
+    private static BreakPoints EntityListUpdate_Entry;
     private static BreakPoints PlayerOrigUpdate_Entry;
 
     private class BreakPoints {
