@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.TASHelper.Utils;
+﻿using Celeste.Mod.TASHelper.OrderOfOperation;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
@@ -37,7 +38,7 @@ public static class Core {
             return;
         }
 
-        if (!TasHelperSettings.PredictFutureEnabled || InPredict) {
+        if (!TasHelperSettings.PredictFutureEnabled || InPredict || OOP_Core.Applied) {
             return;
         }
 

@@ -5,19 +5,19 @@ using MonoMod.RuntimeDetour;
 using System.Reflection;
 using Celeste.Mod.TASHelper.Entities;
 using TAS.EverestInterop;
-using Celeste.Mod.TASHelper.Utils;
+using TAS;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
 internal static class OOP_Core {
 
-    private static MethodInfo EngineUpdate = typeof(Engine).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
-    private static MethodInfo LevelUpdate = typeof(Level).GetMethod("Update");
-    private static MethodInfo SceneUpdate = typeof(Scene).GetMethod("Update");
-    private static MethodInfo EntityListUpdate = typeof(EntityList).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
-    private static MethodInfo PlayerUpdate = typeof(Player).GetMethod("Update");
-    private static MethodInfo PlayerOrigUpdate = typeof(Player).GetMethod("orig_Update");
-    private static MethodInfo EntityUpdateWithBreakPoints = typeof(BreakPoints.ForEachBreakPoints).GetMethod(BreakPoints.ForEachBreakPoints.entityUpdateWithBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
-    private static MethodInfo EntityUpdateWithoutBreakPoints = typeof(BreakPoints.ForEachBreakPoints).GetMethod(BreakPoints.ForEachBreakPoints.entityUpdateWithoutBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo EngineUpdate = typeof(Engine).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly MethodInfo LevelUpdate = typeof(Level).GetMethod("Update");
+    private static readonly MethodInfo SceneUpdate = typeof(Scene).GetMethod("Update");
+    private static readonly MethodInfo EntityListUpdate = typeof(EntityList).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
+    private static readonly MethodInfo PlayerUpdate = typeof(Player).GetMethod("Update");
+    private static readonly MethodInfo PlayerOrigUpdate = typeof(Player).GetMethod("orig_Update");
+    private static readonly MethodInfo EntityUpdateWithBreakPoints = typeof(BreakPoints.ForEachBreakPoints).GetMethod(BreakPoints.ForEachBreakPoints.entityUpdateWithBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo EntityUpdateWithoutBreakPoints = typeof(BreakPoints.ForEachBreakPoints).GetMethod(BreakPoints.ForEachBreakPoints.entityUpdateWithoutBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
     // if we add a breakpoint to A, which is called by B, then we must add breakpoints to B
     // so that any hook given by other mods are handled properly
 
@@ -32,7 +32,6 @@ internal static class OOP_Core {
             SpringBoard.RefreshAll(); // spring board relies on passed Breakpoints, so it must be cleared later
             ResetTempState();
             BreakPoints.passedBreakPoints.Clear();
-            EntityListUpdate.CILCodeLogger();
         }
     }
 
@@ -45,6 +44,7 @@ internal static class OOP_Core {
     }
 
     private static void SendText(string str) {
+        // Celeste.Commands.Log(str.Replace(BreakPoints.Prefix, ""));
         HotkeyWatcher.instance?.Refresh(str.Replace(BreakPoints.Prefix, ""));
     }
 
@@ -64,15 +64,15 @@ internal static class OOP_Core {
 
         BreakPoints.MarkEnding(SceneUpdate, "SceneUpdate end", () => SceneUpdate_Entry.SubMethodPassed = true);
 
-        BreakPoints.MarkEnding(EntityListUpdate, "EntityListUpdate end", () => EntityListUpdate_Entry.SubMethodPassed = true, false, MoveType.Before); // idk, it seems ILHook can't manipulate try-catch-finally very well? let's pray no body else would hook EntityListUpdate...
+       // BreakPoints.MarkEnding(EntityListUpdate, "EntityListUpdate end"); No, this has to be treated specially, see ForEachBreakPoints.MarkEndingSpecial 
 
         BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", () => EntityUpdate_withBreakPoints_Entry.SubMethodPassed = true);
 
         BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => PlayerOrigUpdate_Entry.SubMethodPassed = true);
         
-        BreakPoints.MarkEnding(EntityUpdateWithBreakPoints, "Entity(Pre/./Post)Update end", BreakPoints.ForEachBreakPoints.EntityUpdateWithBreakPointsDone);
+        BreakPoints.MarkEnding(EntityUpdateWithBreakPoints, "Entity(Pre/./Post)Update end (with BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithBreakPointsDone);
 
-        BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end", BreakPoints.ForEachBreakPoints.EntityUpdateWithoutBreakpointsDone);
+        BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end (without BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithoutBreakpointsDone);
         
         BreakPoints.CreateImpl(EngineUpdate, "EngineUpdate_Start", label => (cursor, _) => {
             cursor.Emit(OpCodes.Ldstr, label);
@@ -106,7 +106,7 @@ internal static class OOP_Core {
             ins => ins.MatchCallOrCallvirt<EntityList>("Update")
         );
 
-        BreakPoints.Create(EntityListUpdate, "EntityListUpdate_ForEach_Entry",
+        EntityListUpdate_ForEach_Entry = BreakPoints.CreateFull(EntityListUpdate, "EntityListUpdate_ForEach_Entry", BreakPoints.RetShiftDoNotEmit, NullAction, NullAction,
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchLdfld<EntityList>("entities"),
             ins => ins.MatchCallOrCallvirt<List<Entity>>("GetEnumerator"),
@@ -171,7 +171,12 @@ internal static class OOP_Core {
         );
         
         BreakPoints.ForEachBreakPoints.Create();
+        BreakPoints.ForEachBreakPoints.MarkEndingSpecial();
         BreakPoints.ForEachBreakPoints.AddToTarget("Player", true);
+        /*
+        BreakPoints.ForEachBreakPoints.AddToTarget("CrystalStaticSpinner[f-11:902]");
+        BreakPoints.ForEachBreakPoints.AddToTarget("BadelineBoost");
+        */
 
         SpringBoard.Create(EngineUpdate);
         SpringBoard.Create(LevelUpdate);
@@ -214,14 +219,17 @@ internal static class OOP_Core {
         ResetTempState();
 
         SendText("OOP Stepping end");
+
+        // todo: TAS does not sync after subframe-stepping a frame
     }
 
     private static void ResetTempState() {
         prepareToUndoAll = false;
         LevelUpdate_Entry.SubMethodPassed = false;
         SceneUpdate_Entry.SubMethodPassed = false;
-        EntityUpdate_withBreakPoints_Entry.SubMethodPassed = false;
         EntityListUpdate_Entry.SubMethodPassed = false;
+        EntityListUpdate_ForEach_Entry.SubMethodPassed = false;
+        EntityUpdate_withBreakPoints_Entry.SubMethodPassed = false;
         PlayerOrigUpdate_Entry.SubMethodPassed = false;
         BreakPoints.ForEachBreakPoints.ResetTemp();
     }
@@ -229,6 +237,7 @@ internal static class OOP_Core {
     private static BreakPoints LevelUpdate_Entry;
     private static BreakPoints SceneUpdate_Entry;
     private static BreakPoints EntityListUpdate_Entry;
+    private static BreakPoints EntityListUpdate_ForEach_Entry;
     private static BreakPoints EntityUpdate_withBreakPoints_Entry;
     private static BreakPoints EntityUpdate_withoutBreakPoints_Entry;
     private static BreakPoints PlayerOrigUpdate_Entry;
@@ -272,8 +281,10 @@ internal static class OOP_Core {
                     after(cursor);
                     cursor.Emit(OpCodes.Ldstr, label);
                     cursor.EmitDelegate(RecordLabel);
-                    cursor.Index += RetShift; // when there's a method, which internally has breakpoints, exactly after this breakpoint, then we Ret after this method call
-                    cursor.Emit(OpCodes.Ret);
+                    if (RetShift > RetShiftDoNotEmit) {
+                        cursor.Index += RetShift; // when there's a method, which internally has breakpoints, exactly after this breakpoint, then we Ret after this method call
+                        cursor.Emit(OpCodes.Ret);
+                    } 
                 }
             };
             return CreateImpl(from, label, manipulator, RetShift);
@@ -430,8 +441,28 @@ internal static class OOP_Core {
                 }
             }
 
+            internal static void MarkEndingSpecial() {
+                // instead of emit this at the Ret, we emit it at the Leave_S which points to Ret (which exits the try-block)
+                // cause it seems hard to emit before Ret (maybe some issue with try-catch-finally block, idk)
+                Func<string, Action<ILCursor, ILContext>> manipulator = (label) => (cursor, _) => {
+                    if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Leave_S, ins => ins.MatchLdloca(0), ins => ins.OpCode == OpCodes.Constrained, ins => ins.MatchCallOrCallvirt<IDisposable>("Dispose"), ins => ins.OpCode == OpCodes.Endfinally)) {
+                        cursor.Emit(OpCodes.Ldstr, label);
+                        cursor.EmitDelegate(RecordLabelWrap);
+                        cursor.EmitDelegate(()=> {
+                            EntityListUpdate_Entry.SubMethodPassed = true;
+                            BreakPoints.ForEachBreakPoints.Reset();
+                        });
+                    }
+                };
+                CreateImpl(EntityListUpdate, "EntityListUpdate end", manipulator, RetShiftDoNotEmit);
+            }
+
+            private static void RecordLabelWrap(string s) {
+                RecordLabel(s);
+            }
+
             public static void AddToTarget(Entity entity, bool hasBreakPoints = false) {
-                string str = GetUID(entity);
+                string str = GetID(entity);
                 targets.Add(str);
                 if (hasBreakPoints) {
                     targets_withBreakpoints.Add(str);
@@ -490,46 +521,65 @@ internal static class OOP_Core {
             }
 
             public static void EntityUpdateWithBreakPointsDone() {
+                SendText($"{curr_target_withBreakpoint} update end");
                 BreakPoints.passedBreakPoints.Remove(EntityUpdate_withBreakPoints_Entry.UID);
                 removed_targets.Add(curr_target_withBreakpoint);
             }
 
             public static void EntityUpdateWithoutBreakpointsDone() {
+                SendText($"{curr_target_withoutBreakpoint} update end");
                 BreakPoints.passedBreakPoints.Remove(EntityUpdate_withoutBreakPoints_Entry.UID);
                 removed_targets.Add(curr_target_withoutBreakpoint);
             }
 
-            public static string GetUID(Entity entity) {
+            public static string GetID(Entity entity) {
                 return entity.GetType().Name;
-                /*
+            }
+
+            public static string GetUID(Entity entity) {
                 if (entity.GetEntityData()?.ToEntityId().ToString() is { } id) {
                     return $"{entity.GetType().Name}[{id}]";
                 }
-                return $"{entity.GetType().Name}";*/
+                return $"{entity.GetType().Name}";
+            }
+
+            public static bool CheckContain(HashSet<string> target, Entity entity, out string id) {
+                string ID = GetID(entity);
+                if (target.Contains(ID)) {
+                    id = ID;
+                    return true;
+                }
+                if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
+                    id = $"{entity.GetType().Name}[{entityID}]";
+                    return target.Contains(id);
+                }
+                id = "";
+                return false;
             }
 
             private static bool IsGotoContinue(Entity entity) {
-                string str = GetUID(entity);
-                if (targets.Contains(str)) {
+                if (CheckContain(targets, entity, out string str)) {
                     passed_targets++;
+                    if (removed_targets.Contains(str)) {
+                        return true;
+                    }
                 }
                 return passed_targets < expected_passed_targets;
             }
 
             private static bool IsRunNormally(Entity entity) {
-                string str = GetUID(entity);
-                return passed_targets == expected_passed_targets && (!targets.Contains(str) || removed_targets.Contains(str));
+                return !CheckContain(targets, entity, out _);
             }
 
             private static bool IsTargetWithBreakPoints(Entity entity) {
-                string str = GetUID(entity);
+                CheckContain(targets, entity, out string str);
                 bool b = targets_withBreakpoints.Contains(str);
                 if (b) {
-                    SendText($"{str} | with BreakPoints");
+                    SendText($"{str} update start");
                     curr_target_withBreakpoint = str;
                 }
                 else {
-                    SendText($"{str} | without BreakPoints");
+                    SendText($"{str} update start");
                     curr_target_withoutBreakpoint = str;
                 }
                 return b;
