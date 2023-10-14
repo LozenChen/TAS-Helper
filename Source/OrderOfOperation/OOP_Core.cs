@@ -5,6 +5,7 @@ using MonoMod.RuntimeDetour;
 using System.Reflection;
 using Celeste.Mod.TASHelper.Entities;
 using TAS.EverestInterop;
+using Celeste.Mod.TASHelper.Utils;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
 internal static class OOP_Core {
@@ -31,6 +32,7 @@ internal static class OOP_Core {
             SpringBoard.RefreshAll(); // spring board relies on passed Breakpoints, so it must be cleared later
             ResetTempState();
             BreakPoints.passedBreakPoints.Clear();
+            EntityListUpdate.CILCodeLogger();
         }
     }
 
@@ -62,17 +64,16 @@ internal static class OOP_Core {
 
         BreakPoints.MarkEnding(SceneUpdate, "SceneUpdate end", () => SceneUpdate_Entry.SubMethodPassed = true);
 
-        BreakPoints.MarkEnding(EntityListUpdate, "EntityListUpdate end", () => EntityListUpdate_Entry.SubMethodPassed = true);
+        BreakPoints.MarkEnding(EntityListUpdate, "EntityListUpdate end", () => EntityListUpdate_Entry.SubMethodPassed = true, false, MoveType.Before); // idk, it seems ILHook can't manipulate try-catch-finally very well? let's pray no body else would hook EntityListUpdate...
 
-        BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end");
-        //BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", () => EntityUpdate_withBreakPoints_Entry.SubMethodPassed = true);
+        BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", () => EntityUpdate_withBreakPoints_Entry.SubMethodPassed = true);
 
         BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => PlayerOrigUpdate_Entry.SubMethodPassed = true);
-/*
+        
         BreakPoints.MarkEnding(EntityUpdateWithBreakPoints, "Entity(Pre/./Post)Update end", BreakPoints.ForEachBreakPoints.EntityUpdateWithBreakPointsDone);
 
         BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end", BreakPoints.ForEachBreakPoints.EntityUpdateWithoutBreakpointsDone);
-*/
+        
         BreakPoints.CreateImpl(EngineUpdate, "EngineUpdate_Start", label => (cursor, _) => {
             cursor.Emit(OpCodes.Ldstr, label);
             Instruction mark = cursor.Prev;
@@ -110,11 +111,12 @@ internal static class OOP_Core {
             ins => ins.MatchLdfld<EntityList>("entities"),
             ins => ins.MatchCallOrCallvirt<List<Entity>>("GetEnumerator"),
             ins => ins.OpCode == OpCodes.Stloc_0);
-        /*
+
+        
         EntityUpdate_withBreakPoints_Entry = BreakPoints.CreateFull(EntityUpdateWithBreakPoints, "EntityUpdate_Entry", 2, NullAction, NullAction, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt<Entity>("Update"));
 
         EntityUpdate_withoutBreakPoints_Entry = BreakPoints.Create(EntityUpdateWithoutBreakPoints, "EntityUpdate_Start");
-        */
+        
         PlayerOrigUpdate_Entry = BreakPoints.CreateFull(PlayerUpdate, "PlayerUpdate_PlayerOrigUpdate_End", 2, NullAction, NullAction) ;
 
         BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_Start");
@@ -167,7 +169,7 @@ internal static class OOP_Core {
             ins => ins.MatchLdfld<Engine>("scene"),
             ins => ins.MatchCallOrCallvirt<Scene>("AfterUpdate")
         );
-
+        
         BreakPoints.ForEachBreakPoints.Create();
         BreakPoints.ForEachBreakPoints.AddToTarget("Player", true);
 
@@ -195,6 +197,7 @@ internal static class OOP_Core {
     public static void ApplyAll() {
         BreakPoints.ApplyAll();
         SpringBoard.RefreshAll();
+        BreakPoints.ForEachBreakPoints.Apply();
         hookTASIsPaused.Apply();
         Applied = true;
         ResetTempState();
@@ -205,6 +208,7 @@ internal static class OOP_Core {
     public static void UndoAll() {
         SpringBoard.UndoAll();
         BreakPoints.UndoAll();
+        BreakPoints.ForEachBreakPoints.Undo();
         hookTASIsPaused.Undo();
         Applied = false;
         ResetTempState();
@@ -219,6 +223,7 @@ internal static class OOP_Core {
         EntityUpdate_withBreakPoints_Entry.SubMethodPassed = false;
         EntityListUpdate_Entry.SubMethodPassed = false;
         PlayerOrigUpdate_Entry.SubMethodPassed = false;
+        BreakPoints.ForEachBreakPoints.ResetTemp();
     }
 
     private static BreakPoints LevelUpdate_Entry;
@@ -248,6 +253,8 @@ internal static class OOP_Core {
         public IDetour labelEmitter;
 
         public bool? SubMethodPassed = null;
+
+        internal const int RetShiftDoNotEmit = -100;
 
         private BreakPoints(string ID, IDetour detour) {
             UID = ID;
@@ -308,17 +315,19 @@ internal static class OOP_Core {
             SendText(label); // if several labels are recorded in same frame, then the last one will be the output
         }
 
-        public static BreakPoints MarkEnding(MethodBase method, string label, Action? afterRetAction = null) {
+        public static BreakPoints MarkEnding(MethodBase method, string label, Action? afterRetAction = null, bool EmitRet = true, MoveType moveType = MoveType.AfterLabel) {
             string ID = CreateUID(label);
             IDetour detour;
             using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OOP_Core Ending" }) {
                 detour = new ILHook(method, il => {
                     ILCursor cursor = new(il);
-                    while (cursor.TryGotoNext(MoveType.AfterLabel, i => i.OpCode == OpCodes.Ret)) {
+                    while (cursor.TryGotoNext(moveType, i => i.OpCode == OpCodes.Ret)) {
                         cursor.Emit(OpCodes.Ldstr, ID);
                         cursor.EmitDelegate(RecordLabel);
                         // don't know why but i fail to add a beforeRetAction here
-                        cursor.Emit(OpCodes.Ret);
+                        if (EmitRet) {
+                            cursor.Emit(OpCodes.Ret);
+                        }
                         if (afterRetAction is not null) {
                             cursor.EmitDelegate(afterRetAction);
                         }
@@ -327,6 +336,9 @@ internal static class OOP_Core {
                 }, manualConfig);
             }
             BreakPoints breakpoint = new BreakPoints(ID, detour);
+           if (!EmitRet) {
+                breakpoint.RetShift = RetShiftDoNotEmit;
+            }
 
             if (!detoursOnThisMethod.ContainsKey(method)) {
                 detoursOnThisMethod[method] = new HashSet<BreakPoints>();
@@ -340,19 +352,13 @@ internal static class OOP_Core {
             foreach (BreakPoints breakPoints in dictionary.Values) {
                 breakPoints.labelEmitter.Apply();
             }
-            ForEachBreakPoints.Apply();
-            ForEachBreakPoints.Reset();
         }
 
         public static void UndoAll() {
             foreach (BreakPoints breakPoints in dictionary.Values) {
                 breakPoints.labelEmitter.Undo();
             }
-
             passedBreakPoints.Clear();
-
-            ForEachBreakPoints.Undo();
-            ForEachBreakPoints.Reset();
         }
 
         [Unload]
@@ -360,6 +366,7 @@ internal static class OOP_Core {
             foreach (BreakPoints breakPoints in dictionary.Values) {
                 breakPoints.labelEmitter.Dispose();
             }
+            ForEachBreakPoints.Dispose();
         }
 
         public static class ForEachBreakPoints {
@@ -378,17 +385,24 @@ internal static class OOP_Core {
             private static int expected_passed_targets => removed_targets.Count;
 
             private static IDetour detour;
+
             internal static void Create() {
                 using (new DetourContext { Before = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OOP_Core ForEachBreakPoints" }) {
                     detour = new ILHook(EntityListUpdate, il => {
                         ILCursor cursor = new ILCursor(il);
                         Instruction Ins_continue;
                         Instruction Ins_run_normally;
+                        Instruction Ins_ret;
                         ILLabel Loop_head;
-                        if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.MatchLdloca(0), ins => ins.MatchCallOrCallvirt<List<Entity>.Enumerator>("MoveNext"))) {
-                            Ins_continue = cursor.Next;
-                            cursor.Index += 2;
-                            if (cursor.Next.MatchBrtrue(out Loop_head)) {
+                        if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Leave_S)) {
+                            cursor.Next.MatchLeaveS(out ILLabel tmp);
+                            cursor.Goto(tmp.Target);
+                            Ins_ret = cursor.Next;
+                            cursor.Goto(0);
+                            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.MatchLdloca(0), ins => ins.MatchCallOrCallvirt<List<Entity>.Enumerator>("MoveNext"))) {
+                                Ins_continue = cursor.Next;
+                                cursor.Index += 2;
+                                cursor.Next.MatchBrtrue(out Loop_head);
                                 cursor.Goto(Loop_head.Target, MoveType.AfterLabel);
                                 cursor.Index += 3;
                                 Ins_run_normally = cursor.Next;
@@ -400,10 +414,10 @@ internal static class OOP_Core {
                                 cursor.Emit(OpCodes.Brtrue, Ins_run_normally);
                                 cursor.Emit(OpCodes.Ldloc_1);
                                 cursor.EmitDelegate(EntityUpdateWithBreakPoints);
-                                cursor.Emit(OpCodes.Ret);
+                                cursor.Emit(OpCodes.Leave_S, Ins_ret);
                                 cursor.Emit(OpCodes.Ldloc_1);
                                 cursor.EmitDelegate(EntityUpdateWithoutBreakPoints);
-                                cursor.Emit(OpCodes.Ret);
+                                cursor.Emit(OpCodes.Leave_S, Ins_ret);
                                 cursor.Index -= 3;
                                 Instruction Ins_TargetWithoutBreakpoints = cursor.Next;
                                 cursor.Index -= 3;
@@ -432,15 +446,26 @@ internal static class OOP_Core {
             }
 
             public static void Apply() {
-                //detour.Apply();
+                detour.Apply();
+                Reset();
             }
 
             public static void Undo() {
-                //detour.Undo();
+                detour.Undo();
+                Reset();
+            }
+
+            [Unload]
+            public static void Dispose() {
+                detour.Dispose();
             }
 
             public static void Reset() {
                 removed_targets.Clear();
+                passed_targets = 0;
+            }
+
+            public static void ResetTemp() {
                 passed_targets = 0;
             }
 
@@ -475,10 +500,12 @@ internal static class OOP_Core {
             }
 
             public static string GetUID(Entity entity) {
+                return entity.GetType().Name;
+                /*
                 if (entity.GetEntityData()?.ToEntityId().ToString() is { } id) {
                     return $"{entity.GetType().Name}[{id}]";
                 }
-                return $"{entity.GetType().Name}";
+                return $"{entity.GetType().Name}";*/
             }
 
             private static bool IsGotoContinue(Entity entity) {
@@ -486,21 +513,23 @@ internal static class OOP_Core {
                 if (targets.Contains(str)) {
                     passed_targets++;
                 }
-                return passed_targets > expected_passed_targets;
+                return passed_targets < expected_passed_targets;
             }
 
             private static bool IsRunNormally(Entity entity) {
                 string str = GetUID(entity);
-                return passed_targets >= expected_passed_targets && (!targets.Contains(str) || removed_targets.Contains(str));
+                return passed_targets == expected_passed_targets && (!targets.Contains(str) || removed_targets.Contains(str));
             }
 
             private static bool IsTargetWithBreakPoints(Entity entity) {
                 string str = GetUID(entity);
                 bool b = targets_withBreakpoints.Contains(str);
                 if (b) {
+                    SendText($"{str} | with BreakPoints");
                     curr_target_withBreakpoint = str;
                 }
                 else {
+                    SendText($"{str} | without BreakPoints");
                     curr_target_withoutBreakpoint = str;
                 }
                 return b;
@@ -541,8 +570,10 @@ internal static class OOP_Core {
                             cursor.MoveAfterLabels();
                             cursor.Emit(OpCodes.Pop); // in next run, we will jump to this label, pop (so it's not recorded), and run till next label
                             cursor.Remove(); // remove RecordLabel
-                            cursor.Index += point.RetShift;
-                            cursor.Remove(); // remove Ret
+                            if (point.RetShift > BreakPoints.RetShiftDoNotEmit) {
+                                cursor.Index += point.RetShift;
+                                cursor.Remove(); // remove Ret
+                            }
                         }
 
                         cursor.Goto(0);

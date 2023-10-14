@@ -146,11 +146,11 @@ internal class CountdownRenderer : THRenderer {
                 Vector2 pos = Position / 6f - new Vector2(1.5f, -0.5f);
                 if (index == SpinnerRenderHelper.ID_nocycle) {
                     numbers[0].DrawOutline(pos, Vector2.Zero, color);
-                    return;
+                    continue;
                 }
                 if (index == SpinnerRenderHelper.ID_infinity) {
                     numbers[9].DrawOutline(pos, Vector2.Zero, color);
-                    return;
+                    continue;
                 }
                 if (index > 9) {
                     numbers[index / 10].DrawOutline(pos + new Vector2(-4, 0), Vector2.Zero, color);

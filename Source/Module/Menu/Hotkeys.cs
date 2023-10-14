@@ -49,9 +49,12 @@ public static class TH_Hotkeys {
         PixelGridWidthHotkey = BindingToHotkey(TasHelperSettings.keyPixelGridWidth);
         PredictEnableHotkey = BindingToHotkey(TasHelperSettings.keyPredictEnable);
         PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
+        /*
         OOPHotkey = BindingToHotkey(TasHelperSettings.keyOOP);
         OOP_Clear_Hotkey = BindingToHotkey(TasHelperSettings.keyOOP_Clear);
         Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OOPHotkey, OOP_Clear_Hotkey };
+        */
+        Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey };
     }
 
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {

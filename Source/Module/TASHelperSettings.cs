@@ -741,7 +741,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 Refresh("Predictor Start");
             }
 
-        }
+        }/*
         if (TH_Hotkeys.OOPHotkey.Pressed) {
             if (TAS.Manager.Running && !FrameStep) {
                 Refresh("TAS is running, refuse to OOP step");
@@ -752,7 +752,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
         if (TH_Hotkeys.OOP_Clear_Hotkey.Pressed) {
             OOP_Core.UndoAll();
-        }
+        }*/
 
         return changed;
 

@@ -111,20 +111,30 @@ public static class CILCodeHelper {
         }
         while (logCount > 0 && ilCursor.Next is not null) {
             if (ilCursor.Next.Operand is ILLabel label) {
-                Celeste.Commands.Log($"{ilCursor.Next.Offset}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand} | {label.Target.Offset}, {label.Target.OpCode}");
+                Celeste.Commands.Log($"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand} | {label.Target.Offset.ToString("x4")}, {label.Target.OpCode}, {label.Target.Operand}");
+            }
+            else if (ilCursor.Next.Operand is Instruction ins) {
+                Celeste.Commands.Log($"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode} | {ins.Offset.ToString("x4")}, {ins.OpCode}, {ins.Operand}");
             }
             else {
-                Celeste.Commands.Log($"{ilCursor.Next.Offset}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand}");
+                Celeste.Commands.Log($"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand}");
             }
             logCount--;
             ilCursor.Index++;
         }
     }
 
+    public static void CILCodeLogger(this MethodBase methodBase, int logCount = 19) {
+        new ILHook(methodBase, il => {
+            ILCursor cursor = new ILCursor(il);
+            CILCodeLogger(cursor, logCount);
+        }).Dispose();
+    }
+
     public static int Position = 0; // i'm not sure if CelesteTAS supports nullable value, so i just use int
 
     public static bool Apply = false;
 
-    public static bool AsShift = false;
+    public static bool AsShift = true;
 }
 
