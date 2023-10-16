@@ -49,8 +49,13 @@ public static class TH_Hotkeys {
         PixelGridWidthHotkey = BindingToHotkey(TasHelperSettings.keyPixelGridWidth);
         PredictEnableHotkey = BindingToHotkey(TasHelperSettings.keyPredictEnable);
         PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
+        /*
         OOPHotkey = BindingToHotkey(TasHelperSettings.keyOOP);
         OOP_Clear_Hotkey = BindingToHotkey(TasHelperSettings.keyOOP_Clear);
+        */
+        OOPHotkey = new Hotkey(null ,null, true, false);
+        OOP_Clear_Hotkey = new Hotkey(null, null, true, false);
+
         Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OOPHotkey, OOP_Clear_Hotkey };
     }
 

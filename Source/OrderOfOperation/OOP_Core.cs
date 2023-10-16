@@ -172,10 +172,10 @@ internal static class OOP_Core {
         
         BreakPoints.ForEachBreakPoints.Create();
         BreakPoints.ForEachBreakPoints.MarkEndingSpecial();
-        BreakPoints.ForEachBreakPoints.AddToTarget("Player", true);
+        BreakPoints.ForEachBreakPoints.AddTarget("Player", true);
         /*
-        BreakPoints.ForEachBreakPoints.AddToTarget("CrystalStaticSpinner[f-11:902]");
-        BreakPoints.ForEachBreakPoints.AddToTarget("BadelineBoost");
+        BreakPoints.ForEachBreakPoints.AddTarget("CrystalStaticSpinner[f-11:902]");
+        BreakPoints.ForEachBreakPoints.AddTarget("BadelineBoost");
         */
 
         SpringBoard.Create(EngineUpdate);
@@ -461,7 +461,7 @@ internal static class OOP_Core {
                 RecordLabel(s);
             }
 
-            public static void AddToTarget(Entity entity, bool hasBreakPoints = false) {
+            public static void AddTarget(Entity entity, bool hasBreakPoints = false) {
                 string str = GetID(entity);
                 targets.Add(str);
                 if (hasBreakPoints) {
@@ -469,7 +469,7 @@ internal static class OOP_Core {
                 }
             }
 
-            public static void AddToTarget(string entityUID, bool hasBreakPoints = false) {
+            public static void AddTarget(string entityUID, bool hasBreakPoints = false) {
                 targets.Add(entityUID);
                 if (hasBreakPoints) {
                     targets_withBreakpoints.Add(entityUID);

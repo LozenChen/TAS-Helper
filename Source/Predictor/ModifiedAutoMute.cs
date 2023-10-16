@@ -129,7 +129,7 @@ public static class ModifiedAutoMute {
             result = orig(self, out instance);
         }
 
-        if (!ShouldBeMuted && instance != null && path.IsNotNullOrEmpty()) {
+        if (!inPredict && !settingMusic && instance != null && path.IsNotNullOrEmpty()) {
             int delayFrames = -1;
             if (LoopAudioPaths.Contains(path)) {
                 delayFrames = 10;
@@ -142,7 +142,7 @@ public static class ModifiedAutoMute {
             // no idea how "event:/game/general/touchswitch_last_oneshot" works
             // if i start predictor on same frame when this sfx is played, then every time i predict (in same frame), the sfx will play again
             // if (delayFrames >= 0) {
-            LoopAudioInstances.Add(new WeakReference<EventInstance>(instance), delayFrames);
+                LoopAudioInstances.Add(new WeakReference<EventInstance>(instance), delayFrames);
             // }
         }
 

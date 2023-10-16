@@ -38,7 +38,11 @@ public class TASHelperSettings : EverestModuleSettings {
         keyPixelGridWidth ??= new((Buttons)0, Keys.LeftControl, Keys.F);
         keyPredictEnable ??= new((Buttons)0, Keys.LeftControl, Keys.W);
         keyPredictFuture ??= new((Buttons)0, Keys.LeftControl, Keys.P);
+        /*
         keyOOP ??= new((Buttons)0, Keys.LeftControl, Keys.G);
+        keyOOP_Clear ??= new((Buttons)0, Keys.LeftControl, Keys.Y);
+        */
+
         // it seems some bug can happen with deserialization
     }
 
@@ -618,6 +622,7 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.P)]
     public ButtonBinding keyPredictFuture { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.P);
 
+    /*
     [SettingName("TAS_HELPER_OOP_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.G)]
     public ButtonBinding keyOOP { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.G);
@@ -625,7 +630,7 @@ public class TASHelperSettings : EverestModuleSettings {
     [SettingName("TAS_HELPER_OOP_CLEAR_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.Y)]
     public ButtonBinding keyOOP_Clear { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.Y);
-
+    */
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
     public bool SettingsHotkeysPressed() {

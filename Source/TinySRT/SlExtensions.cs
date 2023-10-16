@@ -174,6 +174,30 @@ internal static class TH_FrostHelperUtils {
     }
 }
 
+
+internal static class TH_EventInstanceUtils {
+    [Load]
+    private static void Load() {
+        On.FMOD.Studio.EventInstance.setParameterValue += EventInstanceOnsetParameterValue;
+    }
+
+    [Unload]
+    private static void OnUnhook() {
+        On.FMOD.Studio.EventInstance.setParameterValue -= EventInstanceOnsetParameterValue;
+    }
+
+    private static RESULT EventInstanceOnsetParameterValue(On.FMOD.Studio.EventInstance.orig_setParameterValue orig,
+        EventInstance self, string name, float value) {
+        RESULT result = orig(self, name, value);
+        if (result == RESULT.OK) {
+            self.SaveParameters(name, value);
+        }
+
+        return result;
+    }
+}
+
+
 internal static class TH_EventInstanceExtensions {
     public static readonly ConditionalWeakTable<EventInstance, ConcurrentDictionary<string, float>> CachedParameters = new ConditionalWeakTable<EventInstance, ConcurrentDictionary<string, float>>();
 

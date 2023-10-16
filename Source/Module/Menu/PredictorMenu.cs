@@ -41,8 +41,8 @@ public static class PredictorMenu {
             HeightExtra = 0f
         });
         page.Add(new TextMenu.OnOff("Predict On Frame Step".ToDialogText(), TasHelperSettings.PredictOnFrameStep).Change(value => TasHelperSettings.PredictOnFrameStep = value));
-        page.Add(new TextMenu.OnOff("Predict On Hotkey Pressed".ToDialogText(), TasHelperSettings.PredictOnHotkeyPressed).Change(value => TasHelperSettings.PredictOnHotkeyPressed = value));
         page.Add(new TextMenu.OnOff("Predict On File Change".ToDialogText(), TasHelperSettings.PredictOnFileChange).Change(value => TasHelperSettings.PredictOnFileChange = value));
+        page.Add(new TextMenu.OnOff("Predict On Hotkey Pressed".ToDialogText(), TasHelperSettings.PredictOnHotkeyPressed).Change(value => TasHelperSettings.PredictOnHotkeyPressed = value));
         return page;
     }
 

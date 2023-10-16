@@ -87,8 +87,9 @@ public static class Core {
                 break;
             }
         }
-        TinySRT.TH_StateManager.LoadState();
+
         ModifiedAutoMute.EndMute();
+        TinySRT.TH_StateManager.LoadState();
 
         HasCachedFutures = true;
         InPredict = false;
