@@ -752,6 +752,9 @@ public class TASHelperSettings : EverestModuleSettings {
                 OOP_Core.Step();
             }
         }
+        else if (OOP_Core.TryAutoSkip()) {
+            OOP_Core.Step();
+        }
         if (TH_Hotkeys.OOP_Clear_Hotkey.Pressed) {
             OOP_Core.UndoAll();
         }

@@ -131,7 +131,15 @@ public static class CILCodeHelper {
         }).Dispose();
     }
 
-    public static int Position = 0; // i'm not sure if CelesteTAS supports nullable value, so i just use int
+    private static int position = 0;
+
+    public static int Position {
+        get => position;
+        set {
+            position = value;
+            Apply = true;
+        }
+    }
 
     public static bool Apply = false;
 

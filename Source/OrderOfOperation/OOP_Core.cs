@@ -29,22 +29,58 @@ internal static class OOP_Core {
         }
         else {
             stepping = true;
+            BreakPoints.ReformHashPassedBreakPoints();
             SpringBoard.RefreshAll(); // spring board relies on passed Breakpoints, so it must be cleared later
             ResetTempState();
-            BreakPoints.passedBreakPoints.Clear();
         }
     }
 
     private static bool GetStepping() {
         if (stepping) {
+            needGameInfoUpdate = true;
             stepping = false;
             return true;
         }
         return false;
     }
 
+    internal static bool TryAutoSkip() {
+        if (AutoSkipBreakpoints.Contains(lastText)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static readonly HashSet<string> AutoSkipBreakpoints = new ();
+
+    [Command("oop_add_autoskip", "Autoskip a normal breakpoint (not a for-each breakpoint)(TAS Helper)")]
+    public static void AddAutoSkip(string uid) {
+        if (uid.StartsWith(BreakPoints.Prefix)) {
+            AutoSkipBreakpoints.Add(uid);
+        }
+        else {
+            AutoSkipBreakpoints.Add($"{BreakPoints.Prefix}{uid}");
+        }
+    }
+
+    [Command("oop_remove_autoskip", "Do not autoskip a normal breakpoint (TAS Helper)")]
+    public static void RemoveAutoSkip(string uid) {
+        if (!AutoSkipBreakpoints.Remove(uid)) {
+            AutoSkipBreakpoints.Remove(uid.Replace(BreakPoints.Prefix, ""));
+        }
+    }
+
+    [Command("oop_show_autoskip", "Show all autoskipped breakpoints (TAS Helper)")]
+    public static void ShowAutoSkip() {
+        foreach (string s in AutoSkipBreakpoints) {
+            Celeste.Commands.Log(s);
+        }
+    }
+
+    private static string lastText = "";
+
     private static void SendText(string str) {
-        // Celeste.Commands.Log(str.Replace(BreakPoints.Prefix, ""));
+        lastText = str;
         HotkeyWatcher.instance?.Refresh(str.Replace(BreakPoints.Prefix, ""));
     }
 
@@ -60,19 +96,25 @@ internal static class OOP_Core {
 
         BreakPoints.MarkEnding(EngineUpdate, "EngineUpdate end", () => prepareToUndoAll = true); // i should have configured detourcontext... don't know why, but MarkEnding must be called at first (at least before those breakpoints on same method)
 
-        BreakPoints.MarkEnding(LevelUpdate, "LevelUpdate end", () => LevelUpdate_Entry.SubMethodPassed = true);
+        BreakPoints.MarkEnding(LevelUpdate, "LevelUpdate end", () => LevelUpdate_Entry.SubMethodPassed = true).AddAutoSkip();
 
-        BreakPoints.MarkEnding(SceneUpdate, "SceneUpdate end", () => SceneUpdate_Entry.SubMethodPassed = true);
+        BreakPoints.MarkEnding(SceneUpdate, "SceneUpdate end", () => SceneUpdate_Entry.SubMethodPassed = true).AddAutoSkip();
 
-       // BreakPoints.MarkEnding(EntityListUpdate, "EntityListUpdate end"); No, this has to be treated specially, see ForEachBreakPoints.MarkEndingSpecial 
+        /*
+        BreakPoints.MarkEnding(EntityListUpdate, "EntityListUpdate end", () => {
+            EntityListUpdate_Entry.SubMethodPassed = true;
+            BreakPoints.ForEachBreakPoints.Reset();
+        }, false, MoveType.Before);
+        */
+        //No, this has to be treated specially, see ForEachBreakPoints.MarkEndingSpecial 
 
-        BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", () => EntityUpdate_withBreakPoints_Entry.SubMethodPassed = true);
+        BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", () => EntityUpdate_withBreakPoints_Entry.SubMethodPassed = true).AddAutoSkip();
 
         BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => PlayerOrigUpdate_Entry.SubMethodPassed = true);
         
-        BreakPoints.MarkEnding(EntityUpdateWithBreakPoints, "Entity(Pre/./Post)Update end (with BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithBreakPointsDone);
+        BreakPoints.MarkEnding(EntityUpdateWithBreakPoints, "Entity(Pre/./Post)Update end (with BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithBreakPointsDone).AddAutoSkip();
 
-        BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end (without BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithoutBreakpointsDone);
+        BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end (without BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithoutBreakpointsDone).AddAutoSkip();
         
         BreakPoints.CreateImpl(EngineUpdate, "EngineUpdate_Start", label => (cursor, _) => {
             cursor.Emit(OpCodes.Ldstr, label);
@@ -90,34 +132,39 @@ internal static class OOP_Core {
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchLdfld<Engine>("scene"),
             ins => ins.MatchCallOrCallvirt<Scene>("BeforeUpdate")
-        );
+        ).AddAutoSkip();
 
         LevelUpdate_Entry = BreakPoints.CreateFull(EngineUpdate, "EngineUpdate_LevelUpdate_End", 3, NullAction, NullAction,
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchLdfld<Engine>("scene"),
             ins => ins.MatchCallOrCallvirt<Scene>("Update")
-        );
+        ).AddAutoSkip();
 
-        SceneUpdate_Entry = BreakPoints.CreateFull(LevelUpdate, "LevelUpdate_SceneUpdate_End", 2, NullAction, NullAction , ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt<Scene>("Update"));
+        SceneUpdate_Entry = BreakPoints.CreateFull(LevelUpdate, "LevelUpdate_SceneUpdate_End", 2, NullAction, NullAction ,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchCallOrCallvirt<Scene>("Update"),
+            ins => ins.OpCode == OpCodes.Br,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchLdfld<Level>("RetryPlayerCorpse")).AddAutoSkip();
 
         EntityListUpdate_Entry = BreakPoints.CreateFull(SceneUpdate, "SceneUpdate_EntityListUpdate_End", 3, NullAction, NullAction,
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchCallOrCallvirt<Scene>("get_Entities"),
             ins => ins.MatchCallOrCallvirt<EntityList>("Update")
-        );
+        ).AddAutoSkip();
 
         EntityListUpdate_ForEach_Entry = BreakPoints.CreateFull(EntityListUpdate, "EntityListUpdate_ForEach_Entry", BreakPoints.RetShiftDoNotEmit, NullAction, NullAction,
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchLdfld<EntityList>("entities"),
             ins => ins.MatchCallOrCallvirt<List<Entity>>("GetEnumerator"),
-            ins => ins.OpCode == OpCodes.Stloc_0);
+            ins => ins.OpCode == OpCodes.Stloc_0).AddAutoSkip();
 
         
-        EntityUpdate_withBreakPoints_Entry = BreakPoints.CreateFull(EntityUpdateWithBreakPoints, "EntityUpdate_Entry", 2, NullAction, NullAction, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt<Entity>("Update"));
+        EntityUpdate_withBreakPoints_Entry = BreakPoints.CreateFull(EntityUpdateWithBreakPoints, "EntityUpdate_Entry", 2, NullAction, NullAction, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt<Entity>("Update")).AddAutoSkip();
 
-        EntityUpdate_withoutBreakPoints_Entry = BreakPoints.Create(EntityUpdateWithoutBreakPoints, "EntityUpdate_Start");
+        EntityUpdate_withoutBreakPoints_Entry = BreakPoints.Create(EntityUpdateWithoutBreakPoints, "EntityUpdate_Start").AddAutoSkip();
         
-        PlayerOrigUpdate_Entry = BreakPoints.CreateFull(PlayerUpdate, "PlayerUpdate_PlayerOrigUpdate_End", 2, NullAction, NullAction) ;
+        PlayerOrigUpdate_Entry = BreakPoints.CreateFull(PlayerUpdate, "PlayerUpdate_PlayerOrigUpdate_End", 2, NullAction, NullAction).AddAutoSkip();
 
         BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_Start");
 
@@ -168,7 +215,7 @@ internal static class OOP_Core {
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchLdfld<Engine>("scene"),
             ins => ins.MatchCallOrCallvirt<Scene>("AfterUpdate")
-        );
+        ).AddAutoSkip();
         
         BreakPoints.ForEachBreakPoints.Create();
         BreakPoints.ForEachBreakPoints.MarkEndingSpecial();
@@ -181,7 +228,7 @@ internal static class OOP_Core {
         SpringBoard.Create(EngineUpdate);
         SpringBoard.Create(LevelUpdate);
         SpringBoard.Create(SceneUpdate);
-        SpringBoard.Create(EntityListUpdate);
+        SpringBoard.CreateSpecial();
         SpringBoard.Create(EntityUpdateWithBreakPoints);
         SpringBoard.Create(EntityUpdateWithoutBreakPoints);
         SpringBoard.Create(PlayerUpdate);
@@ -193,9 +240,17 @@ internal static class OOP_Core {
             cursor.Emit(OpCodes.Ret);
         }, manualConfig);
 
+        hookManagerUpdate = new ILHook(typeof(Manager).GetMethod("Update", BindingFlags.Public | BindingFlags.Static), il => {
+            ILCursor cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.MatchCallOrCallvirt(typeof(Hotkeys).GetMethod("Update")))) {
+                cursor.EmitDelegate(PretendPressHotkey);
+            }
+        }, manualConfig);
     }
 
     private static ILHook hookTASIsPaused;
+
+    private static ILHook hookManagerUpdate;
 
     private static bool prepareToUndoAll = false;
 
@@ -204,7 +259,9 @@ internal static class OOP_Core {
         SpringBoard.RefreshAll();
         BreakPoints.ForEachBreakPoints.Apply();
         hookTASIsPaused.Apply();
+        hookManagerUpdate.Apply();
         Applied = true;
+        ResetLongtermState();
         ResetTempState();
 
         SendText("OOP Stepping start");
@@ -215,23 +272,30 @@ internal static class OOP_Core {
         BreakPoints.UndoAll();
         BreakPoints.ForEachBreakPoints.Undo();
         hookTASIsPaused.Undo();
+        hookManagerUpdate.Undo();
         Applied = false;
+        ResetLongtermState();
         ResetTempState();
-
         SendText("OOP Stepping end");
-
-        // todo: TAS does not sync after subframe-stepping a frame
     }
 
-    private static void ResetTempState() {
+    private static void PretendPressHotkey() {
+        Utils.ReflectionExtensions.SetFieldValue(Hotkeys.FrameAdvance, "Check", true);
+    }
+
+    private static void ResetLongtermState() {
         prepareToUndoAll = false;
         LevelUpdate_Entry.SubMethodPassed = false;
         SceneUpdate_Entry.SubMethodPassed = false;
         EntityListUpdate_Entry.SubMethodPassed = false;
         EntityListUpdate_ForEach_Entry.SubMethodPassed = false;
-        EntityUpdate_withBreakPoints_Entry.SubMethodPassed = false;
         PlayerOrigUpdate_Entry.SubMethodPassed = false;
+        BreakPoints.latestBreakpointBackup.Clear();
+    }
+    private static void ResetTempState() {
+        EntityUpdate_withBreakPoints_Entry.SubMethodPassed = false;
         BreakPoints.ForEachBreakPoints.ResetTemp();
+        BreakPoints.passedBreakpoints.Clear();
     }
 
     private static BreakPoints LevelUpdate_Entry;
@@ -247,11 +311,15 @@ internal static class OOP_Core {
         // if a BreakPoint has subBreakPoints, make sure it's exactly before the method call, and emit Ret exactly after the method call
         // also, make sure if we jump to a breakpoint from start, the stack behavior is ok (i.e. no temp variable lives from before a breakpoint to after it)
 
-        public const string Prefix = "TAS Helper OOP_Core";
+        public const string Prefix = "TAS Helper OOP_Core::";
 
         public static readonly Dictionary<string, BreakPoints> dictionary = new();
 
-        public static readonly HashSet<string> passedBreakPoints = new HashSet<string>();
+        public static readonly HashSet<string> HashPassedBreakPoints = new HashSet<string>();
+
+        public static readonly Dictionary<MethodBase, string> latestBreakpointBackup = new();
+
+        public static readonly List<string> passedBreakpoints = new();
 
         public static readonly Dictionary<MethodBase, HashSet<BreakPoints>> detoursOnThisMethod = new();
 
@@ -261,20 +329,23 @@ internal static class OOP_Core {
 
         public IDetour labelEmitter;
 
+        public MethodBase method;
+
         public bool? SubMethodPassed = null;
 
         internal const int RetShiftDoNotEmit = -100;
 
-        private BreakPoints(string ID, IDetour detour) {
+        private BreakPoints(string ID, IDetour detour, MethodBase method) {
             UID = ID;
             labelEmitter = detour;
+            this.method = method;
         }
 
-        public static BreakPoints Create(MethodBase from, string label, params Func<Instruction, bool>[] predicates) {
-            return CreateFull(from, label, 0, NullAction, NullAction, predicates);
+        public static BreakPoints Create(MethodBase method, string label, params Func<Instruction, bool>[] predicates) {
+            return CreateFull(method, label, 0, NullAction, NullAction, predicates);
         }
 
-        public static BreakPoints CreateFull(MethodBase from, string label, int RetShift, Action<ILCursor> before, Action<ILCursor> after, params Func<Instruction, bool>[] predicates) {
+        public static BreakPoints CreateFull(MethodBase method, string label, int RetShift, Action<ILCursor> before, Action<ILCursor> after, params Func<Instruction, bool>[] predicates) {
             Func<string, Action<ILCursor, ILContext>> manipulator = (label) => (cursor, _) => {
                 before(cursor);
                 if (cursor.TryGotoNext(MoveType.AfterLabel, predicates)) {
@@ -287,24 +358,24 @@ internal static class OOP_Core {
                     } 
                 }
             };
-            return CreateImpl(from, label, manipulator, RetShift);
+            return CreateImpl(method, label, manipulator, RetShift);
         }
 
-        internal static BreakPoints CreateImpl(MethodBase from, string label, Func<string, Action<ILCursor, ILContext>> manipulator, int RetShift = 0) {
+        internal static BreakPoints CreateImpl(MethodBase method, string label, Func<string, Action<ILCursor, ILContext>> manipulator, int RetShift = 0) {
             string ID = CreateUID(label);
             IDetour detour;
             using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OOP_Core Ending" }, ID = "TAS Helper OOP_Core BreakPoints" }) {
-                detour = new ILHook(from, il => {
+                detour = new ILHook(method, il => {
                     ILCursor cursor = new(il);
                     manipulator(ID)(cursor, il);
                 }, manualConfig);
             }
-            BreakPoints breakpoint = new BreakPoints(ID, detour);
+            BreakPoints breakpoint = new BreakPoints(ID, detour, method);
             breakpoint.RetShift = RetShift;
-            if (!detoursOnThisMethod.ContainsKey(from)) {
-                detoursOnThisMethod[from] = new HashSet<BreakPoints>();
+            if (!detoursOnThisMethod.ContainsKey(method)) {
+                detoursOnThisMethod[method] = new HashSet<BreakPoints>();
             }
-            detoursOnThisMethod[from].Add(breakpoint);
+            detoursOnThisMethod[method].Add(breakpoint);
             dictionary[ID] = breakpoint;
             return breakpoint;
         }
@@ -322,8 +393,18 @@ internal static class OOP_Core {
             return result;
         }
         internal static void RecordLabel(string label) {
-            passedBreakPoints.Add(label);
+            passedBreakpoints.Add(label);
             SendText(label); // if several labels are recorded in same frame, then the last one will be the output
+        }
+
+        public BreakPoints AddAutoSkip() {
+            AutoSkipBreakpoints.Add(this.UID);
+            return this;
+        }
+
+        public BreakPoints RemoveAutoSkip() {
+            AutoSkipBreakpoints.Remove(this.UID);
+            return this;
         }
 
         public static BreakPoints MarkEnding(MethodBase method, string label, Action? afterRetAction = null, bool EmitRet = true, MoveType moveType = MoveType.AfterLabel) {
@@ -346,7 +427,7 @@ internal static class OOP_Core {
                     }
                 }, manualConfig);
             }
-            BreakPoints breakpoint = new BreakPoints(ID, detour);
+            BreakPoints breakpoint = new BreakPoints(ID, detour, method);
            if (!EmitRet) {
                 breakpoint.RetShift = RetShiftDoNotEmit;
             }
@@ -359,17 +440,35 @@ internal static class OOP_Core {
             return breakpoint;
         }
 
+        public static void ReformHashPassedBreakPoints() {
+            // we should not clear latestBreakpointBackup here
+            foreach (string str in passedBreakpoints) {
+                latestBreakpointBackup[dictionary[str].method] = str;
+            }
+            
+            HashPassedBreakPoints.Clear();
+            foreach (string s in latestBreakpointBackup.Values) {
+                HashPassedBreakPoints.Add(s);
+            }
+
+        }
+
         public static void ApplyAll() {
             foreach (BreakPoints breakPoints in dictionary.Values) {
                 breakPoints.labelEmitter.Apply();
             }
+            HashPassedBreakPoints.Clear();
+            latestBreakpointBackup.Clear();
+            passedBreakpoints.Clear();
         }
 
         public static void UndoAll() {
             foreach (BreakPoints breakPoints in dictionary.Values) {
                 breakPoints.labelEmitter.Undo();
             }
-            passedBreakPoints.Clear();
+            HashPassedBreakPoints.Clear();
+            latestBreakpointBackup.Clear();
+            passedBreakpoints.Clear();
         }
 
         [Unload]
@@ -444,8 +543,9 @@ internal static class OOP_Core {
             internal static void MarkEndingSpecial() {
                 // instead of emit this at the Ret, we emit it at the Leave_S which points to Ret (which exits the try-block)
                 // cause it seems hard to emit before Ret (maybe some issue with try-catch-finally block, idk)
+
                 Func<string, Action<ILCursor, ILContext>> manipulator = (label) => (cursor, _) => {
-                    if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Leave_S, ins => ins.MatchLdloca(0), ins => ins.OpCode == OpCodes.Constrained, ins => ins.MatchCallOrCallvirt<IDisposable>("Dispose"), ins => ins.OpCode == OpCodes.Endfinally)) {
+                        if (cursor.TryGotoNext(MoveType.Before, ins => ins.OpCode == OpCodes.Leave_S, ins => ins.MatchLdloca(0), ins => ins.OpCode == OpCodes.Constrained, ins => ins.MatchCallOrCallvirt<IDisposable>("Dispose"), ins => ins.OpCode == OpCodes.Endfinally)) {
                         cursor.Emit(OpCodes.Ldstr, label);
                         cursor.EmitDelegate(RecordLabelWrap);
                         cursor.EmitDelegate(()=> {
@@ -454,11 +554,23 @@ internal static class OOP_Core {
                         });
                     }
                 };
-                CreateImpl(EntityListUpdate, "EntityListUpdate end", manipulator, RetShiftDoNotEmit);
+                endingLabel = CreateImpl(EntityListUpdate, "EntityListUpdate end", manipulator, RetShiftDoNotEmit).UID;
             }
+
+            internal static string endingLabel;
 
             private static void RecordLabelWrap(string s) {
                 RecordLabel(s);
+            }
+            public static string GetID(Entity entity) {
+                return entity.GetType().Name;
+            }
+
+            public static string GetUID(Entity entity) {
+                if (entity.GetEntityData()?.ToEntityId().ToString() is { } id) {
+                    return $"{entity.GetType().Name}[{id}]";
+                }
+                return $"{entity.GetType().Name}";
             }
 
             public static void AddTarget(Entity entity, bool hasBreakPoints = false) {
@@ -469,10 +581,25 @@ internal static class OOP_Core {
                 }
             }
 
+
+            [Command("oop_add_target", "Add the entity as a for-each breakpoint of the OOP stepping (TAS Helper)")]
             public static void AddTarget(string entityUID, bool hasBreakPoints = false) {
                 targets.Add(entityUID);
                 if (hasBreakPoints) {
                     targets_withBreakpoints.Add(entityUID);
+                }
+            }
+
+            [Command("oop_remove_target", "Remove a for-each breakpoint of the OOP stepping (TAS Helper)")]
+            public static void RemoveTarget(string entityUID) {
+                targets.Remove(entityUID);
+                targets_withBreakpoints.Remove(entityUID);
+            }
+
+            [Command("oop_show_target", "Show all for-each breakpoints of the OOP stepping (TAS Helper)")]
+            public static void ShowTarget() {
+                foreach (string s in targets) {
+                    Celeste.Commands.Log(s);
                 }
             }
 
@@ -522,25 +649,16 @@ internal static class OOP_Core {
 
             public static void EntityUpdateWithBreakPointsDone() {
                 SendText($"{curr_target_withBreakpoint} update end");
-                BreakPoints.passedBreakPoints.Remove(EntityUpdate_withBreakPoints_Entry.UID);
+                BreakPoints.passedBreakpoints.Remove(EntityUpdate_withBreakPoints_Entry.UID);
+                BreakPoints.latestBreakpointBackup.Remove(OOP_Core.EntityUpdateWithBreakPoints);
                 removed_targets.Add(curr_target_withBreakpoint);
             }
 
             public static void EntityUpdateWithoutBreakpointsDone() {
                 SendText($"{curr_target_withoutBreakpoint} update end");
-                BreakPoints.passedBreakPoints.Remove(EntityUpdate_withoutBreakPoints_Entry.UID);
+                BreakPoints.passedBreakpoints.Remove(EntityUpdate_withoutBreakPoints_Entry.UID);
+                BreakPoints.latestBreakpointBackup.Remove(OOP_Core.EntityUpdateWithoutBreakPoints);
                 removed_targets.Add(curr_target_withoutBreakpoint);
-            }
-
-            public static string GetID(Entity entity) {
-                return entity.GetType().Name;
-            }
-
-            public static string GetUID(Entity entity) {
-                if (entity.GetEntityData()?.ToEntityId().ToString() is { } id) {
-                    return $"{entity.GetType().Name}[{id}]";
-                }
-                return $"{entity.GetType().Name}";
             }
 
             public static bool CheckContain(HashSet<string> target, Entity entity, out string id) {
@@ -607,10 +725,13 @@ internal static class OOP_Core {
             using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OOP_Core BreakPoints", "TAS Helper OOP_Core Ending" }, ID = "TAS Helper OOP_Core SpringBoard" }) {
                 detour = new ILHook(methodBase, il => {
                     ILCursor cursor = new(il);
-                    if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && BreakPoints.passedBreakPoints.Contains((string)ins.Operand))) {
+                    if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && BreakPoints.HashPassedBreakPoints.Contains((string)ins.Operand))) {
                         // for EndingBreakpoints, there maybe several different matching results, but jump to one is enough
                         Instruction target = cursor.Next;
                         string label = (string)cursor.Next.Operand;
+
+                        bool recordRemoved = false;
+
                         BreakPoints point = BreakPoints.dictionary[label];
                         if (point.SubMethodPassed is bool b && !b) {
                             // do nothing
@@ -624,7 +745,12 @@ internal static class OOP_Core {
                                 cursor.Index += point.RetShift;
                                 cursor.Remove(); // remove Ret
                             }
+
+                            recordRemoved = true;
                         }
+
+
+                        jumpLog.Add($"\n {label.Replace(BreakPoints.Prefix, "")} | Finished: {recordRemoved}");
 
                         cursor.Goto(0);
                         if (methodBase == EngineUpdate) {
@@ -638,7 +764,58 @@ internal static class OOP_Core {
             dictionary[methodBase] = detour;
         }
 
+        public static void CreateSpecial() {
+            // i have no idea, but the try-catch block is so fucky
+            IDetour detour;
+            MethodBase methodBase = OOP_Core.EntityListUpdate;
+            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OOP_Core BreakPoints", "TAS Helper OOP_Core Ending" }, ID = "TAS Helper OOP_Core SpringBoard" }) {
+                detour = new ILHook(methodBase, il => {
+                    ILCursor cursor = new(il);
+                    if (BreakPoints.HashPassedBreakPoints.Contains(BreakPoints.ForEachBreakPoints.endingLabel)) {
+                        cursor.Emit(OpCodes.Ret);
+                        jumpLog.Add($"\n EntityListUpdate end | Finished: true");
+                        return;
+                    }
+                    if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && BreakPoints.HashPassedBreakPoints.Contains((string)ins.Operand))) {
+                        // for EndingBreakpoints, there maybe several different matching results, but jump to one is enough
+                        Instruction target = cursor.Next;
+                        string label = (string)cursor.Next.Operand;
+
+                        bool recordRemoved = false;
+
+                        BreakPoints point = BreakPoints.dictionary[label];
+                        if (point.SubMethodPassed is bool b && !b) {
+                            // do nothing
+                        }
+                        else {
+                            cursor.Index++;
+                            cursor.MoveAfterLabels();
+                            cursor.Emit(OpCodes.Pop); // in next run, we will jump to this label, pop (so it's not recorded), and run till next label
+                            cursor.Remove(); // remove RecordLabel
+                            if (point.RetShift > BreakPoints.RetShiftDoNotEmit) {
+                                cursor.Index += point.RetShift;
+                                cursor.Remove(); // remove Ret
+                            }
+
+                            recordRemoved = true;
+                        }
+
+
+                        jumpLog.Add($"\n {label.Replace(BreakPoints.Prefix, "")} | Finished: {recordRemoved}");
+
+                        cursor.Goto(0);
+                        cursor.Emit(OpCodes.Br, target);
+                    }
+
+                }, manualConfig);
+            }
+            dictionary[methodBase] = detour;
+        }
+
+        public static List<string> jumpLog = new();
+
         public static void RefreshAll() {
+            SpringBoard.jumpLog.Clear();
             foreach (MethodBase method in dictionary.Keys) {
                 Refresh(method);
             }
@@ -661,7 +838,7 @@ internal static class OOP_Core {
 
     [Load]
     public static void Load() {
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper"}, ID = "TAS Helper OOP_Core OnLevelRender" }){
+        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop"}, Before = new List<string> { "TASHelper" } , ID = "TAS Helper OOP_Core OnLevelRender" }){
             On.Celeste.Level.Render += OnLevelRender;
         }
     }
@@ -678,7 +855,12 @@ internal static class OOP_Core {
             }
 
             Hotkeys.Update(); // TH_Hotkeys relies on Hotkeys, so it needs update
-            TAS.GameInfo.Update();
+            if (needGameInfoUpdate) {
+                TAS.GameInfo.Update();
+                needGameInfoUpdate = false;
+            }
         }
     }
+
+    private static bool needGameInfoUpdate = false;
 }
