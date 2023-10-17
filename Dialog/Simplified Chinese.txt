@@ -137,6 +137,8 @@ TAS_HELPER_MAIN_SWITCH_PREVENT=                            通过快捷键启用
 TAS_HELPER_CONFIGURE_AT_STATE_ALL=                         配置其他设置时请在 全部 状态下进行.
 TAS_HELPER_PREDICT_ENABLE_HOTKEY=                          开关未来视
 TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          预测一次
+TAS_HELPER_OOO_STEP_HOTKEY=                                亚帧步进
+TAS_HELPER_OOO_FASTFORWARD_HOTKEY=                         亚帧快进
 
 # ============================================= Predictor =====================================================
 TAS_HELPER_PREDICTOR=                                      未来视
@@ -189,3 +191,7 @@ TAS_HELPER_PIXEL_GRID_OPACITY=                             像素网格不透明
 TAS_HELPER_FIREBALL_TRACK=                                 冰/火球轨迹
 TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   镜头-目标 连线的不透明度
+TAS_HELPER_ORDER_OF_OPERATION_STEPPING=                    亚帧步进
+TAS_HELPER_ORDER_OF_OPERATION_DESCRIPTION=                 正如同逐帧步进, 但是在亚于帧的时间尺度上进行, 从而将一帧以内的运算顺序视觉化.{n}
+                                                           使用快捷键来步进, 或快进至一帧的结尾.{n}
+                                                           使用以 "ooo" 开头的指令进行配置.

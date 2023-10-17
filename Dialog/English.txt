@@ -136,6 +136,8 @@ TAS_HELPER_MAIN_SWITCH_PREVENT=                            Allow Enabling this M
 TAS_HELPER_CONFIGURE_AT_STATE_ALL=                         Please configure other settings in State All.
 TAS_HELPER_PREDICT_ENABLE_HOTKEY=                          Enable/Disable Predictor
 TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          Make a Prediction
+TAS_HELPER_OOO_STEP_HOTKEY=                                Order-of-Operation Stepping
+TAS_HELPER_OOO_FASTFORWARD_HOTKEY=                         Order-of-Operation FastForward
 
 # ============================================= Predictor =====================================================
 TAS_HELPER_PREDICTOR=                                      Predictor
@@ -189,3 +191,7 @@ TAS_HELPER_PIXEL_GRID_OPACITY=                             Pixel Grid Opacity
 TAS_HELPER_FIREBALL_TRACK=                                 Ice/FireBall Track
 TAS_HELPER_CAMERA_TARGET=                                  Camera Target
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity
+TAS_HELPER_ORDER_OF_OPERATION_STEPPING=                    Order-of-Operation Stepping
+TAS_HELPER_ORDER_OF_OPERATION_DESCRIPTION=                 Just like Frame Advance, but in a subframe scale, thus visualize order of operations.{n}
+                                                           Use hotkeys to take a step / "fastforward" to end of frame.{n}
+                                                           Use commands starting with "ooo" to config.

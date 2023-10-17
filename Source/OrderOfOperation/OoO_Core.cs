@@ -526,12 +526,14 @@ internal static class OoO_Core {
 
             private static readonly HashSet<string> removed_targets = new();
 
+            private static readonly HashSet<string> partly_done_targets = new();
+
             internal static string curr_target_withBreakpoint;
 
             internal static string curr_target_withoutBreakpoint;
 
             private static int passed_targets = 0;
-            private static int expected_passed_targets => removed_targets.Count;
+            private static int expected_passed_targets => partly_done_targets.Count;
 
             private static IDetour detour;
 
@@ -668,6 +670,7 @@ internal static class OoO_Core {
 
             public static void Reset() {
                 removed_targets.Clear();
+                partly_done_targets.Clear();
                 passed_targets = 0;
             }
 
@@ -744,6 +747,7 @@ internal static class OoO_Core {
 
             private static bool IsTargetWithBreakPoints(Entity entity) {
                 CheckContain(targets, entity, out string str);
+                partly_done_targets.Add(str);
                 bool b = targets_withBreakpoints.Contains(str);
                 if (b) {
                    /*
@@ -928,13 +932,14 @@ internal static class OoO_Core {
         orig(self);
     }
 
+    private static bool allowHotkey => Applied || TasHelperSettings.EnableOoO;
     internal static void OnHotkeysPressed() {
         if (Applied && (Hotkeys.FrameAdvance.Pressed || Hotkeys.SlowForward.Pressed || Hotkeys.PauseResume.Pressed || Hotkeys.StartStop.Pressed)) {
             // in case the user uses OoO unconsciously, and do not know how to exit OoO, we allow user to exit using normal tas hotkeys, as if we were running a tas
             FastForwardToEnding();
         }
         else if (TH_Hotkeys.OoO_Fastforward_Hotkey.Pressed) {
-            if (!Applied && !TasHelperSettings.EnableOoO) {
+            if (!allowHotkey) {
                 SendTextImmediately("Order-of-Operation stepping NOT Enabled");
             }
             else if (!Applied && TAS.Manager.Running && !FrameStep) {
@@ -945,7 +950,10 @@ internal static class OoO_Core {
             }
         }
         else if (TH_Hotkeys.OoO_Step_Hotkey.Pressed) {
-            if (TAS.Manager.Running && !FrameStep) {
+            if (!allowHotkey) {
+                SendTextImmediately("Order-of-Operation stepping NOT Enabled");
+            }
+            else if (TAS.Manager.Running && !FrameStep) {
                 SendTextImmediately("TAS is running, refuse to OoO step");
             }
             else {
