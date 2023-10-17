@@ -1,7 +1,6 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
-using Celeste.Mod.TASHelper.OrderOfOperation;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
 using System.Reflection;

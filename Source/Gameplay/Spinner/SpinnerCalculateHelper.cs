@@ -17,7 +17,7 @@ public static class SpinnerCalculateHelper {
 
     [Load]
     public static void Load() {
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }}) {
+        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" } }) {
             On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         }
     }

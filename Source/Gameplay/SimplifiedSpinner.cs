@@ -63,7 +63,7 @@ internal static class SimplifiedSpinner {
         EOF(typeof(DustGraphic).GetConstructor(new Type[] { typeof(bool), typeof(bool), typeof(bool) }));
 
         if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType && ModUtils.GetType("FrostHelper", "FrostHelper.SpinnerConnectorRenderer") is { } rendererType1 && ModUtils.GetType("FrostHelper", "FrostHelper.SpinnerBorderRenderer") is { } rendererType2 && ModUtils.GetType("FrostHelper", "FrostHelper.SpinnerDecoRenderer") is { } rendererType3) {
-            ClearSpritesAction.Add(self => FrostBeforeRender(self, frostSpinnerType, new Type[] {rendererType1, rendererType2, rendererType3}));
+            ClearSpritesAction.Add(self => FrostBeforeRender(self, frostSpinnerType, new Type[] { rendererType1, rendererType2, rendererType3 }));
             OnCreateSprites(frostSpinnerType);
         }
 
@@ -72,7 +72,7 @@ internal static class SimplifiedSpinner {
                 vivSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
                 vivSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
             };
-            ClearSpritesAction.Add(self => VivBeforeRender(self, new Type[] { vivSpinnerType, vivAnimSpinnerType, vivMoveSpinnerType}));
+            ClearSpritesAction.Add(self => VivBeforeRender(self, new Type[] { vivSpinnerType, vivAnimSpinnerType, vivMoveSpinnerType }));
             OnCreateSprites(vivSpinnerType);
             OnCreateSprites(vivAnimSpinnerType);
         }

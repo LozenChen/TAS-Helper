@@ -79,7 +79,7 @@ internal static class ActualPosition {
             }
         });
 
-        
+
     }
 
     private static Type CassetteSpinnerType;
