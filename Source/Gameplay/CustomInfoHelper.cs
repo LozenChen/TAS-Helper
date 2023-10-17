@@ -62,7 +62,7 @@ public static class CustomInfoHelper {
             if (player is not null) { player.Y = value; }
         }
     }
-    // TAS mod somehow hides Player.Position, so we provide this
+    // TAS mod somehow redirects Player.Position, so we provide this
 
     [Initialize]
     private static void Initialize() {

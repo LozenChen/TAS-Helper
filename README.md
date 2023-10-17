@@ -24,11 +24,15 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Camera Target -> show which direction the camera moves towards. Basically *CameraTarget = Player's position + CameraOffset*, plus CameraTarget should be bounded in room and some other modification, then *CameraPosition = (1-r)\*PreviousCameraPosition + r\*CameraTarget*, where *r = 0.074*. We visualize this by drawing the points Position, PreviousPosition and CameraTarget, and drawing a link from PreviousPosition to CameraTarget.
 
+- CustomInfoHelper -> provide some fields / properties which are not easy to compute in CelesteTas's CustomInfo. Check https://github.com/LozenChen/TAS-Helper/blob/main/Source/Gameplay/CustomInfoHelper.cs
+
+- Order-of-Operation Stepping -> just like frame advance, but in a subframe scale, thus visualize order of operations in a frame.
+
 - Hotkeys -> you can change some of the settings using hotkeys.
 
 - Main Switch hotkey -> Settings are memorized in a way that, ActualSettings = MainSwitch state && MemorizedSettings (if both sides are boolean. Similar for other types). The Main Switch hotkey just modifies MainSwitch state, and will not modify MemorizedSettings. Editing settings in menu or using other hotkeys will modify MemorizedSettings.
 
-- Add some commands -> Currently only spinner_freeze cmd, nearest_timeactive cmd + some setting-related cmd.
+- Add some commands -> Currently we have, spinner_freeze cmd, nearest_timeactive cmd, setting-related cmd, OoO config cmd.
 
 - ... Check the menu in game!
 
@@ -40,23 +44,19 @@ A Celeste Mod designed to be a tool in TAS making.
 
 # Plans:
 
-  Here lists some ideas, which I may not work on recently. Feel free if you like that idea and want to implement that in your mod (tell me when you've implemented it so i needn't work on them').
+  Here lists some ideas, which I may not work on recently. Feel free if you like that idea and want to implement that in your mod (tell me when you've implemented it so i needn't work on them).
 
 - Slowdown indicator (note there's 1 frame delay between DeltaTime and TimeRate)
 
 - Key cycle indicator.
 
-- FlingBird indicator.
-
 - Scrollable console.
-
-- Better custom info. (not necessary due to the latest EvalLua command)
 
 - Push on XMinty's AutoWatch PR on CelesteTAS, to support more entities (e.g. for an entity with a re-awake timer, watch the timer if it's not zero).
 
-- Auto completion in Celeste Studio (when using something like "set invincible true"), and some other gadgets for Studio. (Update: relating codes already exist in Studio, but it seems they have not been used)
+- SpeedrunTool multi-saveslots PR (hard afaik, even though we've effectively created a 2-nd saveslot in Tas Helper)
 
-- Order of operations visualizer (probably as an individual mod), allows you to insert breakpoints in gameloops, so to observe sub-frame phenomenon.
+- Auto completion in Celeste Studio (when using something like "set invincible true"), and some other gadgets for Studio. (Update: relating codes already exist in Studio, but it seems they have not been used)
 
 # Known issues:
 
@@ -64,7 +64,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - VivHelper spinner isn't fully supported if its hitbox is not prestored -> maybe will add support for them.
 
-- Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7
+- Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7.
 
 - Hotkeys can't work after several savestates -> Should be totally fixed in v1.6.5.
 
