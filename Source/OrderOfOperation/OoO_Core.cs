@@ -9,7 +9,7 @@ using TAS;
 using Celeste.Mod.TASHelper.Module.Menu;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
-internal static class OOP_Core {
+internal static class OoO_Core {
 
     private static readonly MethodInfo EngineUpdate = typeof(Engine).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
     private static readonly MethodInfo LevelUpdate = typeof(Level).GetMethod("Update");
@@ -28,7 +28,7 @@ internal static class OOP_Core {
 
     public static int StepCount { get; private set; } = 0;
     public static void Step() {
-        // entry point of OOP
+        // entry point of OoO
         if (!Applied) {
             ApplyAll();
             StepCount = 0;
@@ -70,7 +70,7 @@ internal static class OOP_Core {
 
     public static readonly HashSet<string> AutoSkipBreakpoints = new ();
 
-    [Command("oop_add_autoskip", $"Autoskip a normal breakpoint (not a for-each breakpoint)(TAS Helper)")]
+    [Command("ooo_add_autoskip", $"Autoskip a normal breakpoint (not a for-each breakpoint)(TAS Helper)")]
     public static void AddAutoSkip(string uid) {
         if (uid.StartsWith(BreakPoints.Prefix)) {
             AutoSkipBreakpoints.Add(uid);
@@ -80,14 +80,14 @@ internal static class OOP_Core {
         }
     }
 
-    [Command("oop_remove_autoskip", "Do not autoskip a normal breakpoint (TAS Helper)")]
+    [Command("ooo_remove_autoskip", "Do not autoskip a normal breakpoint (TAS Helper)")]
     public static void RemoveAutoSkip(string uid) {
         if (!AutoSkipBreakpoints.Remove(uid)) {
             AutoSkipBreakpoints.Remove(uid.Replace(BreakPoints.Prefix, ""));
         }
     }
 
-    [Command("oop_show_autoskip", "Show all autoskipped breakpoints (TAS Helper)")]
+    [Command("ooo_show_autoskip", "Show all autoskipped breakpoints (TAS Helper)")]
     public static void ShowAutoSkip() {
         foreach (string s in AutoSkipBreakpoints) {
             Celeste.Commands.Log(s.Replace(BreakPoints.Prefix, ""));
@@ -276,7 +276,7 @@ internal static class OOP_Core {
                 cursor.EmitDelegate(PretendPressHotkey);
                 cursor.Goto(-1);
                 cursor.EmitDelegate(StopPretendPressHotkey);
-                // frame advance hotkey is also used to undo oop_core, so we restore its value
+                // frame advance hotkey is also used to undo OoO_Core, so we restore its value
             }
         }, manualConfig);
     }
@@ -296,7 +296,7 @@ internal static class OOP_Core {
         Applied = true;
         ResetLongtermState();
         ResetTempState();
-        SendTextImmediately("OOP Stepping begin");
+        SendTextImmediately("OoO Stepping begin");
     }
 
     [Unload]
@@ -310,7 +310,7 @@ internal static class OOP_Core {
         ResetLongtermState();
         ResetTempState();
         overrideStepping = false;
-        SendTextImmediately("OOP Stepping end");
+        SendTextImmediately("OoO Stepping end");
     }
 
     private static void PretendPressHotkey() {
@@ -350,7 +350,7 @@ internal static class OOP_Core {
         // if a BreakPoint has subBreakPoints, make sure it's exactly before the method call, and emit Ret exactly after the method call
         // also, make sure if we jump to a breakpoint from start, the stack behavior is ok (i.e. no temp variable lives from before a breakpoint to after it)
 
-        public const string Prefix = "TAS Helper OOP_Core::";
+        public const string Prefix = "TAS Helper OoO_Core::";
 
         public static readonly Dictionary<string, BreakPoints> dictionary = new();
 
@@ -403,7 +403,7 @@ internal static class OOP_Core {
         internal static BreakPoints CreateImpl(MethodBase method, string label, Func<string, Action<ILCursor, ILContext>> manipulator, int RetShift = 0) {
             string ID = CreateUID(label);
             IDetour detour;
-            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OOP_Core Ending" }, ID = "TAS Helper OOP_Core BreakPoints" }) {
+            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core Ending" }, ID = "TAS Helper OoO_Core BreakPoints" }) {
                 detour = new ILHook(method, il => {
                     ILCursor cursor = new(il);
                     manipulator(ID)(cursor, il);
@@ -449,7 +449,7 @@ internal static class OOP_Core {
         public static BreakPoints MarkEnding(MethodBase method, string label, Action? afterRetAction = null, bool EmitRet = true, MoveType moveType = MoveType.AfterLabel) {
             string ID = CreateUID(label);
             IDetour detour;
-            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OOP_Core Ending" }) {
+            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core Ending" }) {
                 detour = new ILHook(method, il => {
                     ILCursor cursor = new(il);
                     while (cursor.TryGotoNext(moveType, i => i.OpCode == OpCodes.Ret)) {
@@ -536,7 +536,7 @@ internal static class OOP_Core {
             private static IDetour detour;
 
             internal static void Create() {
-                using (new DetourContext { Before = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OOP_Core ForEachBreakPoints" }) {
+                using (new DetourContext { Before = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints" }) {
                     detour = new ILHook(EntityListUpdate, il => {
                         ILCursor cursor = new ILCursor(il);
                         Instruction Ins_continue;
@@ -627,19 +627,24 @@ internal static class OOP_Core {
                 }
             }
 
-            [Command("oop_add_target", "Add the entity as a for-each breakpoint of the OOP stepping (TAS Helper)")]
+            [Command("ooo_add_target", "Add the entity as a for-each breakpoint of the OoO stepping (TAS Helper)")]
             public static void CmdAddTarget(string entityUID) {
-                AddTarget(entityUID, false);
+                if (entityUID.StartsWith("Player") && (entityUID == "Player" || (player is not null && entityUID == GetUID(player)))) {
+                    AddTarget("Player", true);
+                }
+                else {
+                    AddTarget(entityUID, false);
+                }
                 // it's not easy to add a target with breakpoints via cmd (and unncessary), so i only provide this
             }
 
-            [Command("oop_remove_target", "Remove a for-each breakpoint of the OOP stepping (TAS Helper)")]
+            [Command("ooo_remove_target", "Remove a for-each breakpoint of the OoO stepping (TAS Helper)")]
             public static void RemoveTarget(string entityUID) {
                 targets.Remove(entityUID);
                 targets_withBreakpoints.Remove(entityUID);
             }
 
-            [Command("oop_show_target", "Show all for-each breakpoints of the OOP stepping (TAS Helper)")]
+            [Command("ooo_show_target", "Show all for-each breakpoints of the OoO stepping (TAS Helper)")]
             public static void ShowTarget() {
                 foreach (string s in targets) {
                     Celeste.Commands.Log(s);
@@ -698,14 +703,14 @@ internal static class OOP_Core {
                 */
 
                 BreakPoints.passedBreakpoints.Remove(EntityUpdate_withBreakPoints_Entry.UID);
-                BreakPoints.latestBreakpointBackup.Remove(OOP_Core.EntityUpdateWithBreakPoints);
+                BreakPoints.latestBreakpointBackup.Remove(OoO_Core.EntityUpdateWithBreakPoints);
                 removed_targets.Add(curr_target_withBreakpoint);
             }
 
             public static void EntityUpdateWithoutBreakpointsDone() {
                 SendText($"{curr_target_withoutBreakpoint} Update end");
                 BreakPoints.passedBreakpoints.Remove(EntityUpdate_withoutBreakPoints_Entry.UID);
-                BreakPoints.latestBreakpointBackup.Remove(OOP_Core.EntityUpdateWithoutBreakPoints);
+                BreakPoints.latestBreakpointBackup.Remove(OoO_Core.EntityUpdateWithoutBreakPoints);
                 removed_targets.Add(curr_target_withoutBreakpoint);
             }
 
@@ -773,7 +778,7 @@ internal static class OOP_Core {
 
         public static void Create(MethodBase methodBase) {
             IDetour detour;
-            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OOP_Core BreakPoints", "TAS Helper OOP_Core Ending" }, ID = "TAS Helper OOP_Core SpringBoard" }) {
+            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core BreakPoints", "TAS Helper OoO_Core Ending" }, ID = "TAS Helper OoO_Core SpringBoard" }) {
                 detour = new ILHook(methodBase, il => {
                     ILCursor cursor = new(il);
                     if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && BreakPoints.HashPassedBreakPoints.Contains((string)ins.Operand))) {
@@ -818,8 +823,8 @@ internal static class OOP_Core {
         internal static void CreateSpecial() {
             // i have no idea, but the try-catch block is so fucky
             IDetour detour;
-            MethodBase methodBase = OOP_Core.EntityListUpdate;
-            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OOP_Core BreakPoints", "TAS Helper OOP_Core Ending" }, ID = "TAS Helper OOP_Core SpringBoard" }) {
+            MethodBase methodBase = OoO_Core.EntityListUpdate;
+            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core BreakPoints", "TAS Helper OoO_Core Ending" }, ID = "TAS Helper OoO_Core SpringBoard" }) {
                 detour = new ILHook(methodBase, il => {
                     ILCursor cursor = new(il);
                     if (BreakPoints.HashPassedBreakPoints.Contains(BreakPoints.ForEachBreakPoints.endingLabel)) {
@@ -890,7 +895,7 @@ internal static class OOP_Core {
 
     [Load]
     public static void Load() {
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop"}, Before = new List<string> { "TASHelper" } , ID = "TAS Helper OOP_Core OnLevelRender" }){
+        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop"}, Before = new List<string> { "TASHelper" } , ID = "TAS Helper OoO_Core OnLevelRender" }){
             On.Celeste.Level.Render += OnLevelRender;
         }
     }
@@ -925,20 +930,23 @@ internal static class OOP_Core {
 
     internal static void OnHotkeysPressed() {
         if (Applied && (Hotkeys.FrameAdvance.Pressed || Hotkeys.SlowForward.Pressed || Hotkeys.PauseResume.Pressed || Hotkeys.StartStop.Pressed)) {
-            // in case the user uses OOP unconsciously, and do not know how to exit OOP, we allow user to exit using normal tas hotkeys, as if we were running a tas
+            // in case the user uses OoO unconsciously, and do not know how to exit OoO, we allow user to exit using normal tas hotkeys, as if we were running a tas
             FastForwardToEnding();
         }
-        else if (TH_Hotkeys.OOP_Fastforward_Hotkey.Pressed) {
-            if (!Applied && TAS.Manager.Running && !FrameStep) {
-                SendTextImmediately("TAS is running, refuse to OOP step");
+        else if (TH_Hotkeys.OoO_Fastforward_Hotkey.Pressed) {
+            if (!Applied && !TasHelperSettings.EnableOoO) {
+                SendTextImmediately("Order-of-Operation stepping NOT Enabled");
+            }
+            else if (!Applied && TAS.Manager.Running && !FrameStep) {
+                SendTextImmediately("TAS is running, refuse to OoO step");
             }
             else {
                 FastForwardToEnding();
             }
         }
-        else if (TH_Hotkeys.OOP_Step_Hotkey.Pressed) {
+        else if (TH_Hotkeys.OoO_Step_Hotkey.Pressed) {
             if (TAS.Manager.Running && !FrameStep) {
-                SendTextImmediately("TAS is running, refuse to OOP step");
+                SendTextImmediately("TAS is running, refuse to OoO step");
             }
             else {
                 StopFastForward();

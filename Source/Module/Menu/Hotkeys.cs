@@ -22,9 +22,9 @@ public static class TH_Hotkeys {
 
     public static Hotkey PredictFutureHotkey { get; set; }
 
-    public static Hotkey OOP_Step_Hotkey { get; set; }
+    public static Hotkey OoO_Step_Hotkey { get; set; }
 
-    public static Hotkey OOP_Fastforward_Hotkey { get; set; }
+    public static Hotkey OoO_Fastforward_Hotkey { get; set; }
 
     public static List<Hotkey> Hotkeys = new();
 
@@ -49,10 +49,10 @@ public static class TH_Hotkeys {
         PixelGridWidthHotkey = BindingToHotkey(TasHelperSettings.keyPixelGridWidth);
         PredictEnableHotkey = BindingToHotkey(TasHelperSettings.keyPredictEnable);
         PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
-        OOP_Step_Hotkey = BindingToHotkey(TasHelperSettings.keyOOP_Step);
-        OOP_Fastforward_Hotkey = BindingToHotkey(TasHelperSettings.keyOOP_Fastforward);
+        OoO_Step_Hotkey = BindingToHotkey(TasHelperSettings.keyOoO_Step);
+        OoO_Fastforward_Hotkey = BindingToHotkey(TasHelperSettings.keyOoO_Fastforward);
 
-        Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OOP_Step_Hotkey, OOP_Fastforward_Hotkey };
+        Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OoO_Step_Hotkey, OoO_Fastforward_Hotkey };
     }
 
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {

@@ -38,7 +38,7 @@ public static class Core {
             return;
         }
 
-        if (!TasHelperSettings.PredictFutureEnabled || InPredict || OOP_Core.Applied) {
+        if (!TasHelperSettings.PredictFutureEnabled || InPredict || OoO_Core.Applied) {
             return;
         }
 

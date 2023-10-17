@@ -38,8 +38,8 @@ public class TASHelperSettings : EverestModuleSettings {
         keyPixelGridWidth ??= new((Buttons)0, Keys.LeftControl, Keys.F);
         keyPredictEnable ??= new((Buttons)0, Keys.LeftControl, Keys.W);
         keyPredictFuture ??= new((Buttons)0, Keys.LeftControl, Keys.P);
-        keyOOP_Step ??= new((Buttons)0, Keys.LeftControl, Keys.G);
-        keyOOP_Fastforward ??= new((Buttons)0, Keys.LeftControl, Keys.Y);
+        keyOoO_Step ??= new((Buttons)0, Keys.LeftControl, Keys.G);
+        keyOoO_Fastforward ??= new((Buttons)0, Keys.LeftControl, Keys.Y);
 
         // it seems some bug can happen with deserialization
     }
@@ -93,6 +93,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_EntityActivatorReminder = false;
         Awake_FireBallTrack = false;
         Awake_PredictFuture = false;
+        Awake_EnableOoO = false;
     }
     internal void Awake(bool awakeAll) {
         MainSwitch = awakeAll ? MainSwitchModes.AllowAll : MainSwitchModes.OnlyDefault;
@@ -107,6 +108,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_EntityActivatorReminder = true;
         Awake_FireBallTrack = true;
         Awake_PredictFuture = true;
+        Awake_EnableOoO = true;
     }
 
     #endregion
@@ -587,6 +589,20 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    public bool enableOoO = false;
+
+    public bool Awake_EnableOoO = true;
+
+    [YamlIgnore]
+
+    public bool EnableOoO {
+        get => Enabled && Awake_EnableOoO && enableOoO;
+        set {
+            enableOoO = value;
+            Awake_EnableOoO = true;
+        }
+    }
+
     #endregion
 
     #region HotKey
@@ -620,13 +636,13 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.P)]
     public ButtonBinding keyPredictFuture { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.P);
 
-    [SettingName("TAS_HELPER_OOP_STEP_HOTKEY")]
+    [SettingName("TAS_HELPER_OOO_STEP_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.G)]
-    public ButtonBinding keyOOP_Step { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.G);
+    public ButtonBinding keyOoO_Step { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.G);
 
-    [SettingName("TAS_HELPER_OOP_FASTFORWARD_HOTKEY")]
+    [SettingName("TAS_HELPER_OOO_FASTFORWARD_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.Y)]
-    public ButtonBinding keyOOP_Fastforward { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.Y);
+    public ButtonBinding keyOoO_Fastforward { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.Y);
 
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
@@ -743,7 +759,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 Refresh("Predictor Start");
             }
         }
-        OOP_Core.OnHotkeysPressed();
+        OoO_Core.OnHotkeysPressed();
 
         return changed;
 

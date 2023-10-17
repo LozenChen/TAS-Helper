@@ -31,6 +31,12 @@ internal static class TASHelperMenu {
         return PredictorItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 
+    private static EaseInSubMenu CreateOoOSubMenu(TextMenu menu) {
+        return new EaseInSubMenu("OrderOfOperation".ToDialogText(), false).Apply(subMenu => {
+ 
+        });
+    }
+
 
     private static EaseInSubMenu CreateCountdownSubMenu(TextMenu menu) {
         return new EaseInSubMenu("Countdown".ToDialogText(), false).Apply(subMenu => {
