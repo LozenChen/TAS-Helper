@@ -38,8 +38,8 @@ public class TASHelperSettings : EverestModuleSettings {
         keyPixelGridWidth ??= new((Buttons)0, Keys.LeftControl, Keys.F);
         keyPredictEnable ??= new((Buttons)0, Keys.LeftControl, Keys.W);
         keyPredictFuture ??= new((Buttons)0, Keys.LeftControl, Keys.P);
-        keyOOP ??= new((Buttons)0, Keys.LeftControl, Keys.G);
-        keyOOP_Clear ??= new((Buttons)0, Keys.LeftControl, Keys.Y);
+        keyOOP_Step ??= new((Buttons)0, Keys.LeftControl, Keys.G);
+        keyOOP_Fastforward ??= new((Buttons)0, Keys.LeftControl, Keys.Y);
 
         // it seems some bug can happen with deserialization
     }
@@ -620,13 +620,13 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.P)]
     public ButtonBinding keyPredictFuture { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.P);
 
-    [SettingName("TAS_HELPER_OOP_HOTKEY")]
+    [SettingName("TAS_HELPER_OOP_STEP_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.G)]
-    public ButtonBinding keyOOP { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.G);
+    public ButtonBinding keyOOP_Step { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.G);
 
-    [SettingName("TAS_HELPER_OOP_CLEAR_HOTKEY")]
+    [SettingName("TAS_HELPER_OOP_FASTFORWARD_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.Y)]
-    public ButtonBinding keyOOP_Clear { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.Y);
+    public ButtonBinding keyOOP_Fastforward { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.Y);
 
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
@@ -742,22 +742,8 @@ public class TASHelperSettings : EverestModuleSettings {
                 Predictor.Core.PredictLater(false);
                 Refresh("Predictor Start");
             }
-
         }
-        if (TH_Hotkeys.OOPHotkey.Pressed) {
-            if (TAS.Manager.Running && !FrameStep) {
-                Refresh("TAS is running, refuse to OOP step");
-            }
-            else {
-                OOP_Core.Step();
-            }
-        }
-        else if (OOP_Core.TryAutoSkip()) {
-            OOP_Core.Step();
-        }
-        if (TH_Hotkeys.OOP_Clear_Hotkey.Pressed) {
-            OOP_Core.UndoAll();
-        }
+        OOP_Core.OnHotkeysPressed();
 
         return changed;
 
@@ -767,8 +753,6 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     #endregion
-
-
 }
 
 [AttributeUsage(AttributeTargets.Property)]

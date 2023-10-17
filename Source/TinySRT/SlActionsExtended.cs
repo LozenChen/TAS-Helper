@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.OrderOfOperation;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
 using System.Reflection;
@@ -142,6 +143,7 @@ internal static class TasHelperSL {
     private static int TransitionFrames;
     private static float TH_freezeTimerBeforeUpdateBeforePredictLoops;
     private static float SRT_freezeTimerBeforeUpdateBeforePredictLoops;
+    private static bool OOP_Core_Initialized;
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             TH_pauseUpdaterEntities = PauseUpdater.entities.TH_DeepCloneShared();

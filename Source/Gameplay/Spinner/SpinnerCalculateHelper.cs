@@ -1,6 +1,7 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.RuntimeDetour;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 // VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
@@ -16,15 +17,17 @@ public static class SpinnerCalculateHelper {
 
     [Load]
     public static void Load() {
-        On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
+        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }}) {
+            On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
+        }
     }
 
     [Unload]
     public static void Unload() {
-        On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
+        On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
     }
 
-    private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
+    private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         orig(self);
         PreSpinnerCalculate(self);
     }
@@ -32,7 +35,7 @@ public static class SpinnerCalculateHelper {
     // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
     [MethodImpl(MethodImplOptions.NoOptimization)]
     internal static void PreSpinnerCalculate(Scene self) {
-        if (!TasHelperSettings.Enabled) {
+        if (!TasHelperSettings.Enabled || self is not Level) {
             return;
         }
         float time = TimeActive = self.TimeActive;

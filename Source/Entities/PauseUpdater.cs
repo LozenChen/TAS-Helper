@@ -28,6 +28,10 @@ public static class PauseUpdater {
         toAdd.Add(entity);
     }
 
+    public static void Remove(Entity entity) {
+        entities.Remove(entity);
+    }
+
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         entities.Clear();
         orig(level, playerIntro, isFromLoader);
