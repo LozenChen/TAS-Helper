@@ -135,8 +135,8 @@ internal static class TasModSL {
 
 internal static class TasHelperSL {
 
-    private static HashSet<Entity> TH_pauseUpdaterEntities;
-    private static HashSet<Entity> SRT_pauseUpdaterEntities;
+    private static List<Entity> TH_pauseUpdaterEntities;
+    private static List<Entity> SRT_pauseUpdaterEntities;
     private static float DashTime;
     private static bool Frozen;
     private static int TransitionFrames;
