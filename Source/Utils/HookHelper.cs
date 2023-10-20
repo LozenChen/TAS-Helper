@@ -8,6 +8,12 @@ internal static class HookHelper {
     // taken from CelesteTAS
     private static readonly List<IDetour> Hooks = new();
 
+    public static ILHookConfig manualConfig = default;
+
+    internal static void InitializeAtFirst() {
+        manualConfig.ManualApply = true;
+    }
+
     public static void Unload() {
         foreach (IDetour detour in Hooks) {
             detour.Dispose();

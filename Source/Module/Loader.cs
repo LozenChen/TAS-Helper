@@ -16,6 +16,7 @@ internal static class Loader {
     }
 
     public static void Initialize() {
+        HookHelper.InitializeAtFirst();
         ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();
     }

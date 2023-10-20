@@ -102,14 +102,12 @@ internal static class OoO_Core {
 
     private static bool stepping = false;
 
-    private static ILHookConfig manualConfig = default;
+    private static ILHookConfig manualConfig => Utils.HookHelper.manualConfig;
 
     private static readonly Action<ILCursor> NullAction = (cursor) => { };
 
     [Initialize]
     public static void Initialize() {
-        manualConfig.ManualApply = true;
-
         BreakPoints.MarkEnding(EngineUpdate, "EngineUpdate end", () => prepareToUndoAll = true); // i should have configured detourcontext... don't know why, but MarkEnding must be called at first (at least before those breakpoints on same method)
 
         BreakPoints.MarkEnding(LevelUpdate, "LevelUpdate end", () => LevelUpdate_Entry.SubMethodPassed = true).AddAutoSkip();

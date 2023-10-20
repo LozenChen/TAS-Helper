@@ -64,7 +64,7 @@ public static class Core {
 
         futures.Clear();
 
-        ModifiedAutoMute.StartMute();
+        ModifiedAutoMute.Apply();
         InputManager.ReadInputs(frames);
 
         PlayerState PreviousState;
@@ -87,8 +87,9 @@ public static class Core {
                 break;
             }
         }
+        ModifiedAutoMute.OnPredictorUpdateEnd();
 
-        ModifiedAutoMute.EndMute();
+        ModifiedAutoMute.Undo();
         TinySRT.TH_StateManager.LoadState();
 
         HasCachedFutures = true;
@@ -135,7 +136,6 @@ public static class Core {
                 engine.scene.AfterUpdate();
             }
         }
-        ModifiedAutoMute.OnPredictorUpdate();
 
         /* dont do this, leave it to PreventSwitchScene
         if (engine.scene != engine.nextScene) {
