@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
@@ -7,7 +6,7 @@ using MonoMod.RuntimeDetour;
 using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
 
-namespace Celeste.Mod.TASHelper.Gameplay;
+namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 internal static class SimplifiedSpinner {
 
     // Tas mod's UnloadedRoomHitbox also draws spinner textures, but we do not plan to clear them

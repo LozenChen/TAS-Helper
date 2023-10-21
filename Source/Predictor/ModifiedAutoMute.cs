@@ -1,9 +1,9 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
+using FMOD.Studio;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using TAS.EverestInterop;
-using FMOD.Studio;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 
@@ -17,7 +17,7 @@ public static class ModifiedAutoMute {
     private static void Initialize() {
         detour = new ILHook(typeof(AutoMute).GetGetMethod("ShouldBeMuted"), il => {
             ILCursor cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(ins => ins.MatchLdcR4(2f))){
+            if (cursor.TryGotoNext(ins => ins.MatchLdcR4(2f))) {
                 cursor.Remove();
                 cursor.Emit(OpCodes.Ldc_R4, 0f);
             }

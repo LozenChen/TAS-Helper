@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -6,9 +5,8 @@ using System.Reflection;
 using TAS.EverestInterop;
 using TAS.EverestInterop.Hitboxes;
 
-namespace Celeste.Mod.TASHelper.Gameplay;
+namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 internal static class SimplifiedLightning {
-
 
     [Initialize]
     public static void Initialize() {
