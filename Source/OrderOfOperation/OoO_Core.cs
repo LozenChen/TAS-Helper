@@ -1,3 +1,5 @@
+#define OoO_Debug
+
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Mono.Cecil.Cil;
@@ -194,7 +196,12 @@ internal static class OoO_Core {
             ins => ins.OpCode == OpCodes.Call
         );
 
-        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_BaseUpdate",
+        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_BaseUpdate begin",
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchCallOrCallvirt<Actor>("Update")
+        );
+
+        BreakPoints.CreateFull(PlayerOrigUpdate, "PlayerOrigUpdate_BaseUpdate end", 0, NullAction, cursor => cursor.Index += 2,
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchCallOrCallvirt<Actor>("Update")
         );
@@ -227,6 +234,12 @@ internal static class OoO_Core {
             ins => ins.MatchLdcI4(9)
         );
 
+        BreakPoints.CreateFull(PlayerOrigUpdate, "PlayerOrigUpdate_CameraUpdate", 0, NullAction, cursor => { cursor.Index += 3; cursor.MoveAfterLabels(); },
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchLdfld<Player>("ForceCameraUpdate"),
+            ins => ins.OpCode == OpCodes.Brfalse
+        ).AddAutoSkip();
+
         BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_EntityCollide",
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchCallOrCallvirt<Player>("get_Dead"),
@@ -236,6 +249,13 @@ internal static class OoO_Core {
             ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
             ins => ins.MatchLdcI4(21)
         );
+
+        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_LevelEnforceBounds",
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchLdfld<Player>("level"),
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchCallOrCallvirt<Level>("EnforceBounds")
+        ).AddAutoSkip();
 
         BreakPoints.Create(EngineUpdate, "EngineUpdate_SceneAfterUpdate begin",
             ins => ins.OpCode == OpCodes.Ldarg_0,
@@ -360,6 +380,10 @@ internal static class OoO_Core {
 
         public static readonly Dictionary<MethodBase, HashSet<BreakPoints>> detoursOnThisMethod = new();
 
+#if OoO_Debug
+        public static readonly HashSet<string> successHooks = new();
+#endif
+
         public int RetShift = 0;
 
         public string UID;
@@ -393,6 +417,9 @@ internal static class OoO_Core {
                         cursor.Index += RetShift; // when there's a method, which internally has breakpoints, exactly after this breakpoint, then we Ret after this method call
                         cursor.Emit(OpCodes.Ret);
                     }
+#if OoO_Debug
+                    successHooks.Add($"\n {label}");
+#endif
                 }
             };
             return CreateImpl(method, label, manipulator, RetShift);
@@ -506,6 +533,9 @@ internal static class OoO_Core {
             HashPassedBreakPoints.Clear();
             latestBreakpointBackup.Clear();
             passedBreakpoints.Clear();
+#if OoO_Debug
+            successHooks.Clear();
+#endif
         }
 
         [Unload]
@@ -807,9 +837,9 @@ internal static class OoO_Core {
                             recordRemoved = true;
                         }
 
-
+#if OoO_Debug
                         jumpLog.Add($"\n {label.Replace(BreakPoints.Prefix, "")} | Finished: {recordRemoved}");
-
+#endif
                         cursor.Goto(0);
                         if (methodBase == EngineUpdate) {
                             cursor.Goto(3, MoveType.AfterLabel);
@@ -831,7 +861,9 @@ internal static class OoO_Core {
                     ILCursor cursor = new(il);
                     if (BreakPoints.HashPassedBreakPoints.Contains(BreakPoints.ForEachBreakPoints.endingLabel)) {
                         cursor.Emit(OpCodes.Ret);
+#if OoO_Debug
                         jumpLog.Add($"\n EntityListUpdate end | Finished: true");
+#endif
                         return;
                     }
                     if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && BreakPoints.HashPassedBreakPoints.Contains((string)ins.Operand))) {
@@ -858,9 +890,9 @@ internal static class OoO_Core {
                             recordRemoved = true;
                         }
 
-
+#if OoO_Debug
                         jumpLog.Add($"\n {label.Replace(BreakPoints.Prefix, "")} | Finished: {recordRemoved}");
-
+#endif
                         cursor.Goto(0);
                         cursor.Emit(OpCodes.Br, target);
                     }
@@ -870,11 +902,14 @@ internal static class OoO_Core {
             dictionary[methodBase] = detour;
         }
 
+#if OoO_Debug
         public static List<string> jumpLog = new();
-        // this field has no actual use, just for debugging
+#endif
 
         public static void RefreshAll() {
+#if OoO_Debug
             SpringBoard.jumpLog.Clear();
+#endif
             foreach (MethodBase method in dictionary.Keys) {
                 Refresh(method);
             }

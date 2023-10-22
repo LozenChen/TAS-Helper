@@ -172,6 +172,7 @@ public class TempTextRenderer : THRenderer {
     public string text;
     public Vector2 position;
     public string label;
+
     public TempTextRenderer(string text, Vector2 position, string label) {
         this.text = text;
         this.position = position;
