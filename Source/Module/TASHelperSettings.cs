@@ -92,6 +92,8 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_SpawnPoint = false;
         Awake_EntityActivatorReminder = false;
         Awake_FireBallTrack = false;
+        Awake_TrackSpinnerTrack = false;
+        Awake_RotateSpinnerTrack = false;
         Awake_PredictFuture = false;
         Awake_EnableOoO = false;
     }
@@ -107,6 +109,8 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_SpawnPoint = true;
         Awake_EntityActivatorReminder = true;
         Awake_FireBallTrack = true;
+        Awake_TrackSpinnerTrack = true;
+        Awake_RotateSpinnerTrack = true;
         Awake_PredictFuture = true;
         Awake_EnableOoO = true;
     }
@@ -558,6 +562,32 @@ public class TASHelperSettings : EverestModuleSettings {
         set {
             usingFireBallTrack = value;
             Awake_FireBallTrack = true;
+        }
+    }
+
+    public bool Awake_TrackSpinnerTrack = true;
+
+    public bool usingTrackSpinnerTrack = false;
+
+    [YamlIgnore]
+    public bool UsingTrackSpinnerTrack {
+        get => Enabled && Awake_TrackSpinnerTrack && usingTrackSpinnerTrack;
+        set {
+            usingTrackSpinnerTrack = value;
+            Awake_TrackSpinnerTrack = true;
+        }
+    }
+
+    public bool Awake_RotateSpinnerTrack = true;
+
+    public bool usingRotateSpinnerTrack = true;
+
+    [YamlIgnore]
+    public bool UsingRotateSpinnerTrack {
+        get => Enabled && Awake_RotateSpinnerTrack && usingRotateSpinnerTrack;
+        set {
+            usingRotateSpinnerTrack = value;
+            Awake_RotateSpinnerTrack = true;
         }
     }
 

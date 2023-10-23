@@ -30,6 +30,9 @@ public class SpawnPoint : Entity {
     public List<Vector2> spawns;
 
     public Level level;
+
+    // TAS.EverestInterop.Hitboxes.UnloadedRoomHitbox will render a red point if CelesteTAS is Debug ver. instead of Release ver.
+    // so it's not really an issue
     public SpawnPoint(Level level) {
         Depth = 1;
         this.level = level;

@@ -11,7 +11,7 @@ internal static class SpinnerRenderHelper {
     [Initialize]
     public static void Initialize() {
         if (ModUtils.VivHelperInstalled) {
-            typeof(SpinnerRenderHelper).GetMethod("DrawSpinnerCollider").IlHook((cursor, _) => {
+            typeof(SpinnerRenderHelper).GetMethod(nameof(DrawSpinnerCollider)).IlHook((cursor, _) => {
                 Instruction skipViv = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldarg_1);

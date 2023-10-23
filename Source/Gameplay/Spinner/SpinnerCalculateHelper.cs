@@ -55,7 +55,7 @@ public static class SpinnerCalculateHelper {
         OffsetGetters.Add(type, type.CreateGetDelegate<object, float>(offsetName));
     }
 
-    private static void DictionaryAdderSpecial(Type type, string offsetName, GetDelegate<object, int?> HazardTypeGetter) {
+    private static void DictionaryAdderSpecial(Type type, string offsetName, GetDelegate<Entity, int?> HazardTypeGetter) {
         HazardTypesTreatSpecial.Add(type, HazardTypeGetter);
         OffsetGetters.Add(type, type.CreateGetDelegate<object, float>(offsetName));
     }
@@ -91,16 +91,16 @@ public static class SpinnerCalculateHelper {
 
         if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType) {
             VivSpinnerType = vivSpinnerType;
-            DictionaryAdderSpecial(vivSpinnerType, "offset", e => e.GetFieldValue("Collider") is null ? null : spinner);
+            DictionaryAdderSpecial(vivSpinnerType, "offset", e => e.Collider is null ? null : spinner);
             VivHitboxStringGetter = vivSpinnerType.GetField("hitboxString", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         if (ModUtils.GetType("VivHelper", "VivHelper.Entities.AnimatedSpinner") is { } vivAnimSpinnerType) {
-            DictionaryAdderSpecial(vivAnimSpinnerType, "offset", e => e.GetFieldValue("Collider") is null ? null : spinner);
+            DictionaryAdderSpecial(vivAnimSpinnerType, "offset", e => e.Collider is null ? null : spinner);
         }
 
         if (ModUtils.GetType("VivHelper", "VivHelper.Entities.MovingSpinner") is { } vivMoveSpinnerType) {
-            DictionaryAdderSpecial(vivMoveSpinnerType, "offset", e => e.GetFieldValue("Collider") is null ? null : spinner);
+            DictionaryAdderSpecial(vivMoveSpinnerType, "offset", e => e.Collider is null ? null : spinner);
         }
 
         if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
@@ -155,7 +155,7 @@ public static class SpinnerCalculateHelper {
 
     private static Dictionary<Type, int> HazardTypesTreatNormal = new();
 
-    private static Dictionary<Type, GetDelegate<object, int?>> HazardTypesTreatSpecial = new();
+    private static Dictionary<Type, GetDelegate<Entity, int?>> HazardTypesTreatSpecial = new();
 
     private static Dictionary<Type, GetDelegate<object, float>> OffsetGetters = new();
 
@@ -210,7 +210,7 @@ public static class SpinnerCalculateHelper {
         if (HazardTypesTreatNormal.TryGetValue(type, out int value)) {
             return value;
         }
-        else if (HazardTypesTreatSpecial.TryGetValue(type, out GetDelegate<object, int?> getter)) {
+        else if (HazardTypesTreatSpecial.TryGetValue(type, out GetDelegate<Entity, int?> getter)) {
             return getter(self);
         }
         return null;

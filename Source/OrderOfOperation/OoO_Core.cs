@@ -550,9 +550,6 @@ internal static class OoO_Core {
             HashPassedBreakPoints.Clear();
             latestBreakpointBackup.Clear();
             passedBreakpoints.Clear();
-#if OoO_Debug
-            failedHooks.Clear();
-#endif
         }
 
         [Unload]

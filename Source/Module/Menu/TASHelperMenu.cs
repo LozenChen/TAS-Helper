@@ -141,6 +141,8 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.OnOff("Camera Target".ToDialogText(), TasHelperSettings.UsingCameraTarget).Change(value => TasHelperSettings.UsingCameraTarget = value));
             subMenu.Add(new TextMenuExt.IntSlider("Camera Target Vector Opacity".ToDialogText(), 1, 9, TasHelperSettings.CameraTargetLinkOpacity).Change(value => TasHelperSettings.CameraTargetLinkOpacity = value));
             subMenu.Add(new TextMenu.OnOff("FireBall Track".ToDialogText(), TasHelperSettings.UsingFireBallTrack).Change(value => TasHelperSettings.UsingFireBallTrack = value));
+            subMenu.Add(new TextMenu.OnOff("RotateSpinner Track".ToDialogText(), TasHelperSettings.UsingRotateSpinnerTrack).Change(value => TasHelperSettings.UsingRotateSpinnerTrack = value));
+            subMenu.Add(new TextMenu.OnOff("TrackSpinner Track".ToDialogText(), TasHelperSettings.UsingTrackSpinnerTrack).Change(value => TasHelperSettings.UsingTrackSpinnerTrack = value));
             TextMenu.Item OoOItem;
             subMenu.Add(OoOItem = new TextMenu.OnOff("Order of Operation Stepping".ToDialogText(), TasHelperSettings.EnableOoO).Change(value => TasHelperSettings.EnableOoO = value));
             subMenu.AddDescription(menu, OoOItem, "Order of Operation Description".ToDialogText());

@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
 using System.Reflection;
@@ -142,6 +143,12 @@ internal static class TasHelperSL {
     private static int TransitionFrames;
     private static float TH_freezeTimerBeforeUpdateBeforePredictLoops;
     private static float SRT_freezeTimerBeforeUpdateBeforePredictLoops;
+    private static List<Vector2[]> TH_CachedNodes;
+    private static HashSet<Gameplay.MovingEntityTrack.StartEnd> TH_CachedStartEnd;
+    private static Dictionary<Gameplay.MovingEntityTrack.RotateData, int> TH_CachedCircle;
+    private static List<Vector2[]> SRT_CachedNodes;
+    private static HashSet<Gameplay.MovingEntityTrack.StartEnd> SRT_CachedStartEnd;
+    private static Dictionary<Gameplay.MovingEntityTrack.RotateData, int> SRT_CachedCircle;
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             TH_pauseUpdaterEntities = PauseUpdater.entities.TH_DeepCloneShared();
@@ -149,6 +156,9 @@ internal static class TasHelperSL {
             Frozen = GameInfo.Frozen;
             TransitionFrames = GameInfo.TransitionFrames;
             TH_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
+            TH_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.TH_DeepCloneShared();
+            TH_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.TH_DeepCloneShared();
+            TH_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.TH_DeepCloneShared();
         };
         TH.SlAction load = (_, _) => {
             PauseUpdater.entities = TH_pauseUpdaterEntities.TH_DeepCloneShared();
@@ -157,9 +167,15 @@ internal static class TasHelperSL {
             GameInfo.TransitionFrames = TransitionFrames;
             Predictor.Core.FreezeTimerBeforeUpdate = TH_freezeTimerBeforeUpdateBeforePredictLoops;
             TH_Hotkeys.HotkeyInitialize();
+            Gameplay.MovingEntityTrack.CachedNodes = TH_CachedNodes.TH_DeepCloneShared();
+            Gameplay.MovingEntityTrack.CachedStartEnd = TH_CachedStartEnd.TH_DeepCloneShared();
+            Gameplay.MovingEntityTrack.CachedCircle = TH_CachedCircle.TH_DeepCloneShared();
         };
         Action clear = () => {
             TH_pauseUpdaterEntities = null;
+            TH_CachedNodes = null;
+            TH_CachedStartEnd = null;
+            TH_CachedCircle = null;
         };
         return new TH(save, load, clear, null, null);
     }
@@ -168,14 +184,23 @@ internal static class TasHelperSL {
         SRT.SlAction save = (_, _) => {
             SRT_pauseUpdaterEntities = PauseUpdater.entities.DeepCloneShared();
             SRT_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
+            SRT_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.DeepCloneShared();
+            SRT_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.DeepCloneShared();
+            SRT_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.DeepCloneShared();
         };
         SRT.SlAction load = (_, _) => {
             PauseUpdater.entities = SRT_pauseUpdaterEntities.DeepCloneShared();
             Predictor.Core.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
+            Gameplay.MovingEntityTrack.CachedNodes = SRT_CachedNodes.DeepCloneShared();
+            Gameplay.MovingEntityTrack.CachedStartEnd = SRT_CachedStartEnd.DeepCloneShared();
+            Gameplay.MovingEntityTrack.CachedCircle = SRT_CachedCircle.DeepCloneShared();
             TH_Hotkeys.HotkeyInitialize();
         };
         Action clear = () => {
             SRT_pauseUpdaterEntities = null;
+            SRT_CachedNodes = null;
+            SRT_CachedStartEnd = null;
+            SRT_CachedCircle = null;
         };
 
         ConstructorInfo constructor = typeof(SRT).GetConstructors()[0];
