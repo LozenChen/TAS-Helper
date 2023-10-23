@@ -1,7 +1,8 @@
-#define OoO_Debug
+//#define OoO_Debug
 
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -29,11 +30,23 @@ internal static class OoO_Core {
     public static bool AutoSkipBreakPoints = true;
 
     public static int StepCount { get; private set; } = 0;
+
+#if OoO_Debug
+    private static bool debugLogged = false;
+#endif
     public static void Step() {
         // entry point of OoO
         if (!Applied) {
             ApplyAll();
             StepCount = 0;
+#if OoO_Debug
+            if (!debugLogged) {
+                foreach (MethodBase method in BreakPoints.detoursOnThisMethod.Keys) {
+                    Utils.CILCodeHelper.CILCodeLogger(method, 9999);
+                }
+                debugLogged = true;
+            }
+#endif
         }
         else {
             stepping = true;
@@ -206,32 +219,34 @@ internal static class OoO_Core {
             ins => ins.MatchCallOrCallvirt<Actor>("Update")
         );
 
-        BreakPoints.CreateFull(PlayerOrigUpdate, "PlayerOrigUpdate_MoveH", 0, NullAction,
-            cursor => {
-                cursor.Index += 3;
-                cursor.MoveAfterLabels();
-            },
+        // CommunalHelper.CustomBooster has a hook nearby, which prevents player moving by herself if she is in certain CustomBoosters
+        // previously this breakpoint is outside the if-block, thus affected by this CommunalHelper hook
+        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_MoveH",
             ins => ins.OpCode == OpCodes.Ldarg_0,
-            ins => ins.OpCode == OpCodes.Ldc_I4_0,
-            ins => ins.MatchCallOrCallvirt<Player>("set_Ducking"),
             ins => ins.OpCode == OpCodes.Ldarg_0,
-            ins => ins.OpCode == OpCodes.Ldfld,
-            ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
-            ins => ins.MatchLdcI4(9)
-        );
-
-        BreakPoints.CreateFull(PlayerOrigUpdate, "PlayerOrigUpdate_MoveV", 0, NullAction,
-            cursor => {
-                cursor.Index += 3;
-                cursor.MoveAfterLabels();
-            },
+            ins => ins.MatchLdflda<Player>("Speed"),
+            ins => ins.MatchLdfld<Vector2>("X"),
+            ins => ins.MatchCallOrCallvirt<Engine>("get_DeltaTime"),
+            ins => ins.OpCode == OpCodes.Mul,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchLdfld<Player>("onCollideH"),
             ins => ins.OpCode == OpCodes.Ldnull,
             ins => ins.MatchCallOrCallvirt<Actor>("MoveH"),
-            ins => ins.OpCode == OpCodes.Pop,
+            ins => ins.OpCode == OpCodes.Pop
+        ) ;
+
+        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_MoveV",
             ins => ins.OpCode == OpCodes.Ldarg_0,
-            ins => ins.OpCode == OpCodes.Ldfld,
-            ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
-            ins => ins.MatchLdcI4(9)
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchLdflda<Player>("Speed"),
+            ins => ins.MatchLdfld<Vector2>("Y"),
+            ins => ins.MatchCallOrCallvirt<Engine>("get_DeltaTime"),
+            ins => ins.OpCode == OpCodes.Mul,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchLdfld<Player>("onCollideV"),
+            ins => ins.OpCode == OpCodes.Ldnull,
+            ins => ins.MatchCallOrCallvirt<Actor>("MoveV"),
+            ins => ins.OpCode == OpCodes.Pop
         );
 
         BreakPoints.CreateFull(PlayerOrigUpdate, "PlayerOrigUpdate_CameraUpdate", 0, NullAction, cursor => { cursor.Index += 3; cursor.MoveAfterLabels(); },
@@ -381,7 +396,7 @@ internal static class OoO_Core {
         public static readonly Dictionary<MethodBase, HashSet<BreakPoints>> detoursOnThisMethod = new();
 
 #if OoO_Debug
-        public static readonly HashSet<string> successHooks = new();
+        public static readonly HashSet<string> failedHooks = new();
 #endif
 
         public int RetShift = 0;
@@ -417,10 +432,12 @@ internal static class OoO_Core {
                         cursor.Index += RetShift; // when there's a method, which internally has breakpoints, exactly after this breakpoint, then we Ret after this method call
                         cursor.Emit(OpCodes.Ret);
                     }
-#if OoO_Debug
-                    successHooks.Add($"\n {label}");
-#endif
                 }
+#if OoO_Debug
+                else {
+                    failedHooks.Add($"\n {label}");
+                }
+#endif
             };
             return CreateImpl(method, label, manipulator, RetShift);
         }
@@ -534,7 +551,7 @@ internal static class OoO_Core {
             latestBreakpointBackup.Clear();
             passedBreakpoints.Clear();
 #if OoO_Debug
-            successHooks.Clear();
+            failedHooks.Clear();
 #endif
         }
 

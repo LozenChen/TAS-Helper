@@ -104,7 +104,7 @@ internal static class HookHelper {
 }
 
 public static class CILCodeHelper {
-    public static void CILCodeLogger(this ILCursor ilCursor, int logCount = 19) {
+    public static void CILCodeLogger(this ILCursor ilCursor, int logCount = 19, bool useCommand = true) {
         // remember, Commands.Log can only work in Initialize()
         Celeste.Commands.Log("------------------------------");
         if (Apply) {
@@ -116,24 +116,29 @@ public static class CILCodeHelper {
             }
         }
         while (logCount > 0 && ilCursor.Next is not null) {
+            string str;
             if (ilCursor.Next.Operand is ILLabel label) {
-                Celeste.Commands.Log($"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand} | {label.Target.Offset.ToString("x4")}, {label.Target.OpCode}, {label.Target.Operand}");
+                str = $"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand} | {label.Target.Offset.ToString("x4")}, {label.Target.OpCode}, {label.Target.Operand}";
             }
             else if (ilCursor.Next.Operand is Instruction ins) {
-                Celeste.Commands.Log($"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode} | {ins.Offset.ToString("x4")}, {ins.OpCode}, {ins.Operand}");
+                str = $"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode} | {ins.Offset.ToString("x4")}, {ins.OpCode}, {ins.Operand}";
             }
             else {
-                Celeste.Commands.Log($"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand}");
+                str = $"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand}";
+            }
+            Mod.Logger.Log(LogLevel.Debug, "TAS Helper", str);
+            if (useCommand) {
+                Celeste.Commands.Log(str);
             }
             logCount--;
             ilCursor.Index++;
         }
     }
 
-    public static void CILCodeLogger(this MethodBase methodBase, int logCount = 19) {
+    public static void CILCodeLogger(this MethodBase methodBase, int logCount = 19, bool useCommand = true) {
         new ILHook(methodBase, il => {
             ILCursor cursor = new ILCursor(il);
-            CILCodeLogger(cursor, logCount);
+            CILCodeLogger(cursor, logCount, useCommand);
         }).Dispose();
     }
 
