@@ -78,10 +78,15 @@ internal static class OoO_Core {
     }
 
     public static void FastForwardToEnding() {
+        if (overrideStepping) {
+            prepareToUltraFastForwarding = true;
+        }
         overrideStepping = true;
     }
 
     private static bool overrideStepping = false;
+
+    private static bool prepareToUltraFastForwarding = false;
 
     public static readonly HashSet<string> AutoSkipBreakpoints = new();
 
@@ -352,6 +357,7 @@ internal static class OoO_Core {
         ResetLongtermState();
         ResetTempState();
         overrideStepping = false;
+        prepareToUltraFastForwarding = false;
         SendTextImmediately("OoO Stepping end");
     }
 
@@ -588,6 +594,8 @@ internal static class OoO_Core {
             private static int passed_targets = 0;
             private static int expected_passed_targets => partly_done_targets.Count;
 
+            private static bool ultraFastForwarding = false;
+
             private const string anyUID_postfix = "[%]";
 
             private static IDetour detour;
@@ -740,6 +748,7 @@ internal static class OoO_Core {
                 removed_targets.Clear();
                 partly_done_targets.Clear();
                 passed_targets = 0;
+                ultraFastForwarding = false;
             }
 
             public static void ResetTemp() {
@@ -779,6 +788,9 @@ internal static class OoO_Core {
             }
 
             public static void EntityUpdateWithoutBreakpointsDone() {
+                if (prepareToUltraFastForwarding) {
+                    ultraFastForwarding = true;
+                }
                 SendText($"{curr_target_withoutBreakpoint} Update end");
                 BreakPoints.passedBreakpoints.Remove(EntityUpdate_withoutBreakPoints_Entry.UID);
                 BreakPoints.latestBreakpointBackup.Remove(OoO_Core.EntityUpdateWithoutBreakPoints);
@@ -818,7 +830,7 @@ internal static class OoO_Core {
             }
 
             private static bool IsRunNormally(Entity entity) {
-                return !CheckContain(entity, out _);
+                return ultraFastForwarding || !CheckContain(entity, out _);
             }
 
             private static bool IsTargetWithBreakPoints(Entity entity) {
@@ -1014,6 +1026,8 @@ internal static class OoO_Core {
     }
 
     private static bool allowHotkey => Applied || TasHelperSettings.EnableOoO;
+
+    public static bool TryHardExit = true;
     internal static void OnHotkeysPressed() {
         if (Applied && (Hotkeys.FrameAdvance.Pressed || Hotkeys.SlowForward.Pressed || Hotkeys.PauseResume.Pressed || Hotkeys.StartStop.Pressed)) {
             // in case the user uses OoO unconsciously, and do not know how to exit OoO, we allow user to exit using normal tas hotkeys, as if we were running a tas

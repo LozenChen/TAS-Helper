@@ -28,6 +28,8 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Order-of-Operation Stepping -> just like frame advance, but in a subframe scale, thus visualize order of operations in a frame. The bottom-left message indicates the next action of the game engine.
 
+- Allow opening console in TAS.
+
 - Hotkeys -> you can change some of the settings using hotkeys.
 
 - Main Switch hotkey -> Settings are memorized in a way that, ActualSettings = MainSwitch state && MemorizedSettings (if both sides are boolean. Similar for other types). The Main Switch hotkey just modifies MainSwitch state, and will not modify MemorizedSettings. Editing settings in menu or using other hotkeys will modify MemorizedSettings.

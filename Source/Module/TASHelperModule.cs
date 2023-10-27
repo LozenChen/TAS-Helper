@@ -6,6 +6,8 @@ namespace Celeste.Mod.TASHelper.Module;
 public class TASHelperModule : EverestModule {
 
     public static TASHelperModule Instance;
+
+    public static TASHelperSettings Settings => TASHelperSettings.Instance;
     public TASHelperModule() {
         Instance = this;
         AttributeUtils.CollectMethods<LoadAttribute>();
@@ -36,6 +38,11 @@ public class TASHelperModule : EverestModule {
     public override void LoadSettings() {
         base.LoadSettings();
         TasHelperSettings.OnLoadSettings();
+    }
+
+    public override void OnInputInitialize() {
+        base.OnInputInitialize();
+        TH_Hotkeys.HotkeyInitialize();
     }
 
     public override void CreateModMenuSection(TextMenu menu, bool inGame, EventInstance snapshot) {

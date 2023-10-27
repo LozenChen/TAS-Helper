@@ -193,6 +193,7 @@ TAS_HELPER_ROTATESPINNER_TRACK=                            旋转圆刺轨迹
 TAS_HELPER_TRACKSPINNER_TRACK=                             轨道圆刺轨迹
 TAS_HELPER_CAMERA_TARGET=                                  镜头移动目标
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   镜头-目标 连线的不透明度
+TAS_HELPER_OPEN_CONSOLE_IN_TAS=                            允许在 TAS 中打开控制台
 TAS_HELPER_ORDER_OF_OPERATION_STEPPING=                    亚帧步进
 TAS_HELPER_ORDER_OF_OPERATION_DESCRIPTION=                 正如同逐帧步进, 但是在亚于帧的时间尺度上进行, 从而将一帧以内的运算顺序视觉化.{n}
                                                            使用快捷键来步进, 或快进至一帧的结尾.{n}

@@ -96,6 +96,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_RotateSpinnerTrack = false;
         Awake_PredictFuture = false;
         Awake_EnableOoO = false;
+        Awake_OpenConsoleInTas = false;
     }
     internal void Awake(bool awakeAll) {
         MainSwitch = awakeAll ? MainSwitchModes.AllowAll : MainSwitchModes.OnlyDefault;
@@ -113,6 +114,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_RotateSpinnerTrack = true;
         Awake_PredictFuture = true;
         Awake_EnableOoO = true;
+        Awake_OpenConsoleInTas = true;
     }
 
     #endregion
@@ -633,6 +635,19 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    public bool enableOpenConsoleInTas { get; set; } = true;
+
+    public bool Awake_OpenConsoleInTas = true;
+
+    [YamlIgnore]
+    public bool EnableOpenConsoleInTas {
+        get => Enabled && Awake_OpenConsoleInTas && enableOpenConsoleInTas;
+        set {
+            enableOpenConsoleInTas = value;
+            Awake_OpenConsoleInTas = true;
+        }
+    }
+
     #endregion
 
     #region HotKey
@@ -788,6 +803,10 @@ public class TASHelperSettings : EverestModuleSettings {
                 Predictor.Core.PredictLater(false);
                 Refresh("Predictor Start");
             }
+        }
+        if (EnableOpenConsoleInTas && TH_Hotkeys.OpenConsole.Pressed) {
+            Gameplay.ConsoleEnhancement.SetOpenConsole();
+            // it's completely ok that this feature is not enabled and people press this key, so there's no warning
         }
         OoO_Core.OnHotkeysPressed();
 
