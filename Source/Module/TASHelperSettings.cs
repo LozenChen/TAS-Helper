@@ -582,7 +582,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool Awake_RotateSpinnerTrack = true;
 
-    public bool usingRotateSpinnerTrack = true;
+    public bool usingRotateSpinnerTrack = false;
 
     [YamlIgnore]
     public bool UsingRotateSpinnerTrack {

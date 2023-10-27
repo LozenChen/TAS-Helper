@@ -74,6 +74,10 @@ internal static class OoO_Core {
     }
 
     public static void StopFastForward() {
+        if (BreakPoints.ForEachBreakPoints.ultraFastForwarding) {
+            return;
+            // if we have already entered ultra fast forwarding, then we shouldn't not exit it in half way, so tas still sync
+        }
         overrideStepping = false;
     }
 
@@ -594,7 +598,7 @@ internal static class OoO_Core {
             private static int passed_targets = 0;
             private static int expected_passed_targets => partly_done_targets.Count;
 
-            private static bool ultraFastForwarding = false;
+            internal static bool ultraFastForwarding = false;
 
             private const string anyUID_postfix = "[%]";
 
