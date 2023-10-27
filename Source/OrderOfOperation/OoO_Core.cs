@@ -85,8 +85,9 @@ internal static class OoO_Core {
 
     public static readonly HashSet<string> AutoSkipBreakpoints = new();
 
-    [Command("ooo_add_autoskip", $"Autoskip a normal breakpoint (not a for-each breakpoint)(TAS Helper)")]
+    [Command("ooo_add_autoskip", $"Autoskip a normal breakpoint (not a for-each breakpoint)(use \"\\s\" when typing Space)(TAS Helper)")]
     public static void AddAutoSkip(string uid) {
+        uid = uid.Replace("\\s", " ");
         if (uid.StartsWith(BreakPoints.Prefix)) {
             AutoSkipBreakpoints.Add(uid);
         }
@@ -95,8 +96,9 @@ internal static class OoO_Core {
         }
     }
 
-    [Command("ooo_remove_autoskip", "Do not autoskip a normal breakpoint (TAS Helper)")]
+    [Command("ooo_remove_autoskip", "Stop autoskipping a normal breakpoint (use \"\\s\" when typing Space)(TAS Helper)")]
     public static void RemoveAutoSkip(string uid) {
+        uid = uid.Replace("\\s", " ");
         if (!AutoSkipBreakpoints.Remove(uid)) {
             AutoSkipBreakpoints.Remove(uid.Replace(BreakPoints.Prefix, ""));
         }
@@ -105,6 +107,13 @@ internal static class OoO_Core {
     [Command("ooo_show_autoskip", "Show all autoskipped breakpoints (TAS Helper)")]
     public static void ShowAutoSkip() {
         foreach (string s in AutoSkipBreakpoints) {
+            Celeste.Commands.Log(s.Replace(BreakPoints.Prefix, ""));
+        }
+    }
+
+    [Command("ooo_show_breakpoint", "Show all normal breakpoints (TAS Helper)")]
+    public static void ShowBreakpoint() {
+        foreach (string s in BreakPoints.dictionary.Keys) {
             Celeste.Commands.Log(s.Replace(BreakPoints.Prefix, ""));
         }
     }
@@ -255,7 +264,7 @@ internal static class OoO_Core {
             ins => ins.OpCode == OpCodes.Brfalse
         ).AddAutoSkip();
 
-        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_EntityCollide",
+        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_EntityCollision",
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchCallOrCallvirt<Player>("get_Dead"),
             ins => ins.OpCode == OpCodes.Brtrue,
@@ -566,6 +575,8 @@ internal static class OoO_Core {
 
             private static readonly HashSet<string> targets_withBreakpoints = new();
 
+            private static readonly HashSet<string> targets_anyUID = new();
+
             private static readonly HashSet<string> removed_targets = new();
 
             private static readonly HashSet<string> partly_done_targets = new();
@@ -576,6 +587,8 @@ internal static class OoO_Core {
 
             private static int passed_targets = 0;
             private static int expected_passed_targets => partly_done_targets.Count;
+
+            private const string anyUID_postfix = "[%]";
 
             private static IDetour detour;
 
@@ -665,6 +678,11 @@ internal static class OoO_Core {
             }
 
             public static void AddTarget(string entityUID, bool hasBreakPoints = false) {
+                if (entityUID.EndsWith(anyUID_postfix)) {
+                    targets_anyUID.Add(entityUID.Remove(entityUID.Length - anyUID_postfix.Length));
+                    return;
+                }
+
                 targets.Add(entityUID);
                 if (hasBreakPoints) {
                     targets_withBreakpoints.Add(entityUID);
@@ -672,26 +690,34 @@ internal static class OoO_Core {
             }
 
             [Command("ooo_add_target", "Add the entity as a for-each breakpoint of the OoO stepping (TAS Helper)")]
-            public static void CmdAddTarget(string entityUID) {
-                if (entityUID.StartsWith("Player") && (entityUID == "Player" || (player is not null && entityUID == GetUID(player)))) {
+            public static void CmdAddTarget(string UID) {
+                UID = UID.Replace("\\s", " ");
+                if (UID.StartsWith("Player") && (UID == "Player" || (player is not null && UID == GetUID(player)))) {
                     AddTarget("Player", true);
                 }
                 else {
-                    AddTarget(entityUID, false);
+                    AddTarget(UID, false);
                 }
                 // it's not easy to add a target with breakpoints via cmd (and unncessary), so i only provide this
             }
 
             [Command("ooo_remove_target", "Remove a for-each breakpoint of the OoO stepping (TAS Helper)")]
-            public static void RemoveTarget(string entityUID) {
-                targets.Remove(entityUID);
-                targets_withBreakpoints.Remove(entityUID);
+            public static void RemoveTarget(string UID) {
+                UID = UID.Replace("\\s", " ");
+                targets.Remove(UID);
+                targets_withBreakpoints.Remove(UID);
+                if (UID.EndsWith(anyUID_postfix)) {
+                    targets_anyUID.Remove(UID.Remove(UID.Length - anyUID_postfix.Length));
+                }
             }
 
             [Command("ooo_show_target", "Show all for-each breakpoints of the OoO stepping (TAS Helper)")]
             public static void ShowTarget() {
                 foreach (string s in targets) {
                     Celeste.Commands.Log(s);
+                }
+                foreach (string s in targets_anyUID) {
+                    Celeste.Commands.Log(s + anyUID_postfix);
                 }
             }
 
@@ -759,22 +785,30 @@ internal static class OoO_Core {
                 removed_targets.Add(curr_target_withoutBreakpoint);
             }
 
-            public static bool CheckContain(HashSet<string> target, Entity entity, out string id) {
+            public static bool CheckContain(Entity entity, out string id) {
+                return CheckContain(targets, targets_anyUID, entity, out id);
+            }
+
+            public static bool CheckContain(HashSet<string> targets, HashSet<string> targets_anyUID, Entity entity, out string id) {
                 string ID = GetID(entity);
-                if (target.Contains(ID)) {
+                if (targets.Contains(ID)) {
                     id = ID;
                     return true;
                 }
                 if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
                     id = $"{entity.GetType().Name}[{entityID}]";
-                    return target.Contains(id);
+                    if (targets.Contains(id)) {
+                        return true;
+                    }else if (targets_anyUID.Contains(ID)) {
+                        return true;
+                    }
                 }
                 id = "";
                 return false;
             }
 
             private static bool IsGotoContinue(Entity entity) {
-                if (CheckContain(targets, entity, out string str)) {
+                if (CheckContain(entity, out string str)) {
                     passed_targets++;
                     if (removed_targets.Contains(str)) {
                         return true;
@@ -784,11 +818,11 @@ internal static class OoO_Core {
             }
 
             private static bool IsRunNormally(Entity entity) {
-                return !CheckContain(targets, entity, out _);
+                return !CheckContain(entity, out _);
             }
 
             private static bool IsTargetWithBreakPoints(Entity entity) {
-                CheckContain(targets, entity, out string str);
+                CheckContain(entity, out string str);
                 partly_done_targets.Add(str);
                 bool b = targets_withBreakpoints.Contains(str);
                 if (b) {
@@ -962,9 +996,9 @@ internal static class OoO_Core {
             }
             else {
                 if (lastText == EntityUpdate_withoutBreakPoints_UID) {
-                    SendText($"{BreakPoints.ForEachBreakPoints.curr_target_withoutBreakpoint} Update begin");
+                    SendTextImmediately($"{BreakPoints.ForEachBreakPoints.curr_target_withoutBreakpoint} Update begin");
                 }
-                if (lastText != "") {
+                else if (lastText != "") {
                     SendTextImmediately(lastText.Replace(BreakPoints.Prefix, ""));
                 }
             }
