@@ -105,7 +105,7 @@ TAS_HELPER_LRC_DESCRIPTION=                                If a hazard's load ra
 
 # ============================================= Simplified Graphics =====================================================
 TAS_HELPER_SIMPLIFIED_GRAPHICS=                            Simplified Graphics
-TAS_HELPER_SIMPLIFIED_SPINNERS=                            Simplified Spinners
+TAS_HELPER_SIMPLIFIED_SPINNERS=                            Redraw Spinner
 TAS_HELPER_CLEAR_SPINNER_SPRITES=                          Clear Spinner Sprites
 TAS_HELPER_SIMPLIFIED_GRAPHICS_MODE_OFF=                   Off
 TAS_HELPER_SIMPLIFIED_GRAPHICS_MODE_WHEN_SIMPLIFIED_GRAPHICS=When Simplified Graphics
@@ -114,10 +114,14 @@ TAS_HELPER_SPINNER_FILLER_OPACITY=                         Spinner Filler Opacit
 TAS_HELPER_SPINNER_FILLER_OPACITY_EXTRA=                   Spinner Filler Opacity (Uncollidable)
 TAS_HELPER_SPINNER_DASHED_BORDER=                          Apply Dashed Border when Uncollidable
 TAS_HELPER_SPINNER_IGNORE_TAS_UNCOLLIDABLEALPHA=           Ignore TAS mod's Uncollidable Hitboxes Opacity
-TAS_HELPER_SIMPLIFIED_LIGHTNING=                           Lightning Enhancement
+TAS_HELPER_SIMPLIFIED_LIGHTNING=                           Redraw Lightning
 TAS_HELPER_SIMPLIFIED_LIGHTNING_DESCRIPTION=               Collidable: high opacity with solid border | Uncollidable: low opacity with dashed border.
 TAS_HELPER_HIGHLIGHT_LOAD_UNLOAD=                          Highlight Loading/Unloading Lightning
 TAS_HELPER_HIGHLIGHT_DESCRIPTION=                          White: loading | Black: unloading.
+TAS_HELPER_ACH_FOR_SPINNER=                                Apply Actual Collide Hitbox to Redrawn Spinner
+TAS_HELPER_ACH_FOR_LIGHTNING=                              Apply Actual Collide Hitbox to Redrawn Lightning
+TAS_HELPER_ACH_WARN_LIGHTNING=                             Not recommended to apply this while "Actual Collide Hitboxes: Append" mode is on.{n}
+                                                           That makes the screen messy.
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        Hotkeys

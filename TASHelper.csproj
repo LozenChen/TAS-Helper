@@ -72,6 +72,8 @@
 		<Publicize Include="SpeedrunTool" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Utils.SpeedrunToolUtils.saveLoadAction" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.UsedFiles" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.LoadActualCollidePosition" />
 		<Publicize Include="MonoMod.Utils" />
 		<Publicize Include="MonoMod.Utils:MonoMod.Utils.DynamicData._DataMap" />
 		<Publicize Include="MonoMod.Utils:MonoMod.Utils.DynamicData._Data_" />

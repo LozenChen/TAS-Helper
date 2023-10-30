@@ -238,9 +238,7 @@ internal static class SimplifiedSpinner {
 
         SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.GetSpinnerColorIndex(self, true);
         Color color = SpinnerRenderHelper.GetSpinnerColor(index);
-        // camera.Position is a bit different from CameraPosition, if you use CelesteTAS's center camera
         bool collidable = SpinnerCalculateHelper.GetCollidable(self);
-
 
         int width = camera.Viewport.Width;
         int height = camera.Viewport.Height;
@@ -250,26 +248,17 @@ internal static class SimplifiedSpinner {
             // skip part of render
         }
         else {
-            if (TasHelperSettings.EnableSimplifiedSpinner) {
-                if (!self.isLightning()) {
-                    SpinnerRenderHelper.DrawSpinnerCollider(self, color);
-                }
-                else {
-                    if (TasHelperSettings.EnableSimplifiedLightning && !collidable) {
-                        DashedLine.DrawRect(self.Position + Vector2.One, self.Width, self.Height, color * 0.8f);
-                    }
-                    else {
-                        self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
-                    }
-                }
+            if (TasHelperSettings.EnableSimplifiedSpinner && !self.isLightning()) {
+                ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForSpinner ,self, camera, color, collidable, SpinnerRenderHelper.DrawSpinnerCollider);
+            }
+            else if (TasHelperSettings.EnableSimplifiedLightning && self.isLightning()) {
+                ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForLightning, self, camera, color, collidable, SimplifiedLightning.DrawOutline);
             }
             else {
                 self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
             }
         }
-
         LoadRangeCollider.Draw(self);
         Countdown.Draw(self, index, collidable);
     }
-
 }

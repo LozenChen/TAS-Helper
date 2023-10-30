@@ -141,12 +141,22 @@ public class HotkeyWatcher : Message {
         PauseUpdater.Register(this);
     }
 
-    public void RefreshHotkeyDisabled() {
+    public void RefreshHotkeyDisabledImpl() {
         RestoreAlpha(this.text.Equals(text));
         text = "TAS Helper Disabled!";
         lifetimer = lifetime;
         Active = true;
         Visible = TasHelperSettings.HotkeyStateVisualize;
+    }
+
+    public static void RefreshHotkeyDisabled() {
+        if (instance is not null) {
+            instance.RefreshHotkeyDisabledImpl();
+        }
+        else {
+            instance = new();
+            instance.RefreshHotkeyDisabledImpl();
+        }
     }
 
     public void RefreshMainSwitch() {
@@ -159,12 +169,22 @@ public class HotkeyWatcher : Message {
         Visible = TasHelperSettings.HotkeyStateVisualize;
     }
 
-    public void Refresh(string text) {
+    public void RefreshImpl(string text) {
         RestoreAlpha(this.text.Equals(text));
         this.text = text;
         lifetimer = lifetime;
         Active = true;
         Visible = TasHelperSettings.HotkeyStateVisualize;
+    }
+
+    public static void Refresh(string text) {
+        if (instance is not null) {
+            instance.RefreshImpl(text);
+        }
+        else {
+            instance = new();
+            instance.RefreshImpl(text);
+        }
     }
 
     private void RestoreAlpha(bool sameText) {

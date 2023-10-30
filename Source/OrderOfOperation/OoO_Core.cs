@@ -1068,7 +1068,7 @@ internal static class OoO_Core {
     }
 
     private static void SendTextImmediately(string str) {
-        HotkeyWatcher.instance?.Refresh(str);
+        HotkeyWatcher.Refresh(str);
     }
 
     private static string EntityUpdate_withoutBreakPoints_UID;

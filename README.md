@@ -10,7 +10,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Cycle Hitbox Colors -> basically same as that in CelesteTAS mod, plus a bit modification when hazards are not in view or when spinner freezes.
 
-- Hazard Countdown -> show how many frames later, the Spinner/Lightning/DustBunny will be (un)collidable if condition is satisified.
+- Hazard Countdown -> show how many frames later, the Spinner/Lightning/DustBunny will be (un)collidable if condition is satisified. Being gray or not indicates the hazard's collidability.
 
 - Load Range -> including InView Range and NearPlayer Range. Hazards are considered to satisfy some condition in their updates (turn on/off collision etc.) if they are inside/outside corresponding ranges. When using Load Range, will also draw a Load Range Collider of hazards. A hazard is considered to be inside a range, if its Load Range Collider collides with the range. For spinners/dust bunnies, the collider is their center point. For lighting, the Load Range Collider is a rectangle a bit larger than its hitbox. The purple box is Actual Near Player Range, which appears when player's position changed during different NearPlayer checks, just like actual collide hitboxes.
 
@@ -34,7 +34,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Main Switch hotkey -> Settings are memorized in a way that, ActualSettings = MainSwitch state && MemorizedSettings (if both sides are boolean. Similar for other types). The Main Switch hotkey just modifies MainSwitch state, and will not modify MemorizedSettings. Editing settings in menu or using other hotkeys will modify MemorizedSettings.
 
-- Add some commands -> Currently we have, spinner_freeze cmd, nearest_timeactive cmd, setting-related cmd, OoO config cmd. Check https://github.com/LozenChen/TAS-Helper/blob/main/Docs/Command.md
+- Add some commands -> Currently we have, spinner_freeze cmd, nearest_timeactive cmd, setting-related cmd, OoO config cmd. Check https://github.com/LozenChen/TAS-Helper/blob/main/Docs/Commands.md
 
 - ... Check the menu in game!
 
@@ -62,7 +62,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 # Known issues:
 
-- Actual Collide Hitboxes are overridden -> it's actually bad to use actual collide hitboxes when doing a spinner stun, you really need the exact frame the hazard becomes collidable (opaque). So personnally i do not suggest using actual collide hitboxes in this case. Appended hitbox sounds good but current implement relies on opacity to show information. I have no good idea about it so it's set aside.
+- Actual Collide Hitboxes are overridden -> it's actually bad to use actual collide hitboxes when doing a spinner stun, you really need the exact frame the hazard becomes collidable (opaque). So personnally i do not suggest using actual collide hitboxes in this case. Appended hitbox sounds good but current implement relies on opacity to show information. Anyway, this is implemented in v1.8.4 now. Solved.
 
 - VivHelper spinner isn't fully supported if its hitbox is not prestored -> maybe will add support for them.
 

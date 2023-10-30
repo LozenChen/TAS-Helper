@@ -15,6 +15,8 @@ internal static class SpinnerRenderHelper {
                 Instruction skipViv = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldarg_1);
+                cursor.Emit(OpCodes.Ldarg_2);
+                cursor.Emit(OpCodes.Ldarg_3);
                 cursor.EmitDelegate(DrawVivCollider);
                 cursor.Emit(OpCodes.Brfalse, skipViv);
                 cursor.Emit(OpCodes.Ret);
@@ -112,28 +114,28 @@ internal static class SpinnerRenderHelper {
 #pragma warning restore CS8509
     }
 
-    public static void DrawSpinnerCollider(Entity self, Color color) {
+    public static void DrawSpinnerCollider(Entity self, Camera camera, Color color, bool collidable) {
         if (OnGrid(self)) {
-            DrawVanillaCollider(self.Position, color, self.Collidable);
+            DrawVanillaCollider(self.Position, color, collidable);
         }
         else {
-            DrawComplexSpinnerCollider(self, color);
+            DrawComplexSpinnerCollider(self, camera, color, collidable);
         }
     }
 
-    public static bool DrawVivCollider(Entity self, Color color) {
+    public static bool DrawVivCollider(Entity self, Camera camera, Color color, bool collidable) {
         if (SpinnerCalculateHelper.IsVivSpinner(self)) {
             if (OnGrid(self)) {
 #pragma warning disable CS8600, CS8604
                 string[] hitboxString = SpinnerCalculateHelper.VivHitboxStringGetter.GetValue(self) as string[];
                 float scale = self.GetFieldValue<float>("scale");
                 if (SpinnerColliderHelper.TryGetValue(hitboxString, scale, out SpinnerColliderHelper.SpinnerColliderValue value)) {
-                    value.DrawOutlineAndInside(self.Position, color, self.Collidable);
+                    value.DrawOutlineAndInside(self.Position, color, collidable);
                     return true;
                 }
 #pragma warning restore CS8600, CS8604
             }
-            DrawComplexSpinnerCollider(self, color);
+            DrawComplexSpinnerCollider(self, camera, color, collidable);
             return true;
         }
         return false;
@@ -142,21 +144,15 @@ internal static class SpinnerRenderHelper {
         return self.Position.X == Math.Floor(self.Position.X) && self.Position.Y == Math.Floor(self.Position.Y);
     }
 
-    public static void DrawComplexSpinnerCollider(Entity spinner, Color color) {
+    public static void DrawComplexSpinnerCollider(Entity spinner, Camera camera, Color color, bool collidable) {
         if (spinner.Collider is not ColliderList clist) {
             return;
         }
-        color *= TasHelperSettings.Ignore_TAS_UnCollidableAlpha || spinner.Collidable ? 1f : HitboxColor.UnCollidableAlpha;
+        color *= TasHelperSettings.Ignore_TAS_UnCollidableAlpha || collidable ? 1f : HitboxColor.UnCollidableAlpha;
         Collider[] list = clist.colliders;
+
         foreach (Collider collider in list) {
-            if (collider is Hitbox hitbox) {
-                Draw.HollowRect(hitbox, color);
-            }
-        }
-        foreach (Collider collider in list) {
-            if (collider is Circle circle) {
-                Draw.Circle(circle.AbsolutePosition, circle.Radius, color, 4);
-            }
+            collider.Render(camera, color);
         }
     }
 
@@ -176,5 +172,4 @@ internal static class SpinnerRenderHelper {
         }
         value.Inside.DrawCentered(Position, Color.Lerp(color, Color.Black, 0.6f).SetAlpha(alpha * inner_mult));
     }
-
 }

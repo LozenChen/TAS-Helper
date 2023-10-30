@@ -321,9 +321,13 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public SimplifiedGraphicsMode EnableSimplifiedLightningMode = SimplifiedGraphicsMode.WhenSimplifyGraphics;
 
-    public bool EnableSimplifiedLightning => Enabled && SGModeToBool(EnableSimplifiedLightningMode);
+    public bool EnableSimplifiedLightning => Enabled && SGModeToBool(EnableSimplifiedLightningMode); // both inner and outline
 
     public bool HighlightLoadUnload = false;
+
+    public bool ApplyActualCollideHitboxForSpinner = false;
+
+    public bool ApplyActualCollideHitboxForLightning = false;
 
     #endregion
 
@@ -740,7 +744,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
             }
             else {
-                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
+                HotkeyWatcher.RefreshHotkeyDisabled();
             }
         }
         if (TH_Hotkeys.LoadRangeHotkey.Pressed) {
@@ -754,7 +758,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 }
             }
             else {
-                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
+                HotkeyWatcher.RefreshHotkeyDisabled();
             }
         }
         if (TH_Hotkeys.PixelGridWidthHotkey.Pressed) {
@@ -773,7 +777,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 }
             }
             else {
-                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
+                HotkeyWatcher.RefreshHotkeyDisabled();
             }
         }
         if (TH_Hotkeys.PredictEnableHotkey.Pressed) {
@@ -783,12 +787,12 @@ public class TASHelperSettings : EverestModuleSettings {
                 Refresh("Predictor " + (predictFutureEnabled ? "Enabled" : "Disabled"));
             }
             else {
-                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
+                HotkeyWatcher.RefreshHotkeyDisabled();
             }
         }
         if (TH_Hotkeys.PredictFutureHotkey.Pressed) {
             if (!Enabled) {
-                HotkeyWatcher.instance?.RefreshHotkeyDisabled();
+                HotkeyWatcher.RefreshHotkeyDisabled();
             }
             else if (!TasHelperSettings.PredictFutureEnabled) {
                 Refresh("Predictor NOT enabled");
@@ -813,7 +817,7 @@ public class TASHelperSettings : EverestModuleSettings {
         return changed;
 
         void Refresh(string text) {
-            HotkeyWatcher.instance?.Refresh(text);
+            HotkeyWatcher.Refresh(text);
         }
     }
 

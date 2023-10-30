@@ -63,7 +63,8 @@ public static class SpinnerCalculateHelper {
     [Initialize]
     public static void Initialize() {
         Assembly Vanilla = ModUtils.VanillaAssembly;
-        DictionaryAdderNormal(Vanilla.GetType("Celeste.CrystalStaticSpinner"), "offset", spinner);
+        Type vanillaCrysSpinnerType;
+        DictionaryAdderNormal(vanillaCrysSpinnerType = Vanilla.GetType("Celeste.CrystalStaticSpinner"), "offset", spinner);
         DictionaryAdderNormal(Vanilla.GetType("Celeste.Lightning"), "toggleOffset", lightning);
         DictionaryAdderNormal(Vanilla.GetType("Celeste.DustStaticSpinner"), "offset", dust);
         // for some reasons mentioned below, subclass should be considered different, so we add these three types into dictionary, instead of manually check "if (entity is CrystalStaticSpinner) ..."
@@ -119,7 +120,7 @@ public static class SpinnerCalculateHelper {
 
         if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) {
             HazardTypesTreatNormal.Add(cassetteSpinnerType, spinner);
-            OffsetGetters.Add(cassetteSpinnerType, OffsetGetters[typeof(CrystalStaticSpinner)]);
+            OffsetGetters.Add(cassetteSpinnerType, OffsetGetters[vanillaCrysSpinnerType]);
             NoPeriodicInViewCheckTypes.Add(cassetteSpinnerType);
             NoCycleTypes.Add(cassetteSpinnerType, _ => true);
             // CassetteSpinner also has a MethodInfo field called offset
