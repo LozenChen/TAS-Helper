@@ -4,8 +4,8 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System.Reflection;
 using TAS.EverestInterop;
-using Hotkey = TAS.EverestInterop.Hotkeys.Hotkey;
 using CMCore = Celeste.Mod.Core;
+using Hotkey = TAS.EverestInterop.Hotkeys.Hotkey;
 
 namespace Celeste.Mod.TASHelper.Module.Menu;
 
@@ -61,7 +61,7 @@ public static class TH_Hotkeys {
             // https://github.com/EverestAPI/Everest/commit/4efe4d1adc95e07e242eb597e390727d3ce90593
             List<Keys> keys;
             List<Buttons> buttons;
-            ButtonBinding debugConsole = (ButtonBinding) getDebugConsole.GetValue(CMCore.CoreModule.Settings);
+            ButtonBinding debugConsole = (ButtonBinding)getDebugConsole.GetValue(CMCore.CoreModule.Settings);
             if (typeof(CMCore.CoreModuleSettings).GetProperty("ToggleDebugConsole") is { } getToggleDebugConsole) {
                 ButtonBinding toggleDebugConsole = (ButtonBinding)getToggleDebugConsole.GetValue(CMCore.CoreModule.Settings);
                 keys = debugConsole.Keys.Union(toggleDebugConsole.Keys).ToList();
@@ -76,7 +76,7 @@ public static class TH_Hotkeys {
         else {
             OpenConsole = new Hotkey(null, null, false, false);
         }
-        
+
 
         Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OoO_Step_Hotkey, OoO_Fastforward_Hotkey, OpenConsole };
     }

@@ -249,7 +249,7 @@ internal static class SimplifiedSpinner {
         }
         else {
             if (TasHelperSettings.EnableSimplifiedSpinner && !self.isLightning()) {
-                ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForSpinner ,self, camera, color, collidable, SpinnerRenderHelper.DrawSpinnerCollider);
+                ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForSpinner, self, camera, color, collidable, SpinnerRenderHelper.DrawSpinnerCollider);
             }
             else if (TasHelperSettings.EnableSimplifiedLightning && self.isLightning()) {
                 ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForLightning, self, camera, color, collidable, SimplifiedLightning.DrawOutline);

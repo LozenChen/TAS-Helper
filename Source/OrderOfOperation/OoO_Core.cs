@@ -251,7 +251,7 @@ internal static class OoO_Core {
             ins => ins.OpCode == OpCodes.Ldnull,
             ins => ins.MatchCallOrCallvirt<Actor>("MoveH"),
             ins => ins.OpCode == OpCodes.Pop
-        ) ;
+        );
 
         BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_MoveV",
             ins => ins.OpCode == OpCodes.Ldarg_0,
@@ -815,7 +815,8 @@ internal static class OoO_Core {
                     id = $"{entity.GetType().Name}[{entityID}]";
                     if (targets.Contains(id)) {
                         return true;
-                    }else if (targets_anyUID.Contains(ID)) {
+                    }
+                    else if (targets_anyUID.Contains(ID)) {
                         return true;
                     }
                 }

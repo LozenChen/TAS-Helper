@@ -15,12 +15,12 @@ internal static class SimplifiedLightning {
 
     private static bool DrawInner(Func<bool, Lightning, bool> orig, bool visible, Lightning item) {
         if (TasHelperSettings.EnableSimplifiedLightning) {
-            
+
             bool collidable = SpinnerCalculateHelper.GetCollidable(item);
             bool inView = SpinnerCalculateHelper.InView(item, ActualPosition.CameraPosition);
 
-            ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForLightning, item, null, Color.White, collidable , DrawInnerWrapper);
-            
+            ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForLightning, item, null, Color.White, collidable, DrawInnerWrapper);
+
             //Draw.SpriteBatch.Draw(GameplayBuffers.Lightning, item.Position + Vector2.One, rectangle, Color.Yellow);
 
             if (!DebugRendered && visible) {

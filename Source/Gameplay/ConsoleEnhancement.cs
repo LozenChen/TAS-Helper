@@ -62,7 +62,7 @@ public static class ConsoleEnhancement {
             if (cursor.Next.Next.Next.Next.OpCode == OpCodes.Brtrue_S) { // depends on version of Everest
                 target = (ILLabel)cursor.Next.Next.Next.Next.Operand;
             }
-            else if (cursor.Prev.OpCode == OpCodes.Brtrue_S){
+            else if (cursor.Prev.OpCode == OpCodes.Brtrue_S) {
                 target = (ILLabel)cursor.Prev.Operand;
             }
             else {
