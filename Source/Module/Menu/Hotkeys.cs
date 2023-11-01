@@ -77,7 +77,6 @@ public static class TH_Hotkeys {
             OpenConsole = new Hotkey(null, null, false, false);
         }
 
-
         Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OoO_Step_Hotkey, OoO_Fastforward_Hotkey, OpenConsole };
     }
 

@@ -50,13 +50,3 @@ public class TASHelperModule : EverestModule {
         TASHelperMenu.CreateMenu(this, menu, inGame);
     }
 }
-
-
-
-
-
-
-
-
-
-

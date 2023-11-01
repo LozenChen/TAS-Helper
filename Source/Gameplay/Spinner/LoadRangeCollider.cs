@@ -42,7 +42,7 @@ internal static class LoadRangeColliderRenderer {
 
     [Unload]
     public static void Unload() {
-        On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
+        On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
         On.Monocle.Scene.BeforeUpdate -= OnSceneBeforeUpdate;
     }
 
@@ -50,7 +50,6 @@ internal static class LoadRangeColliderRenderer {
     public static void Initialize() {
         starShape = GFX.Game["TASHelper/SpinnerCenter/spinner_center"];
     }
-
 
     public struct LightningData {
         public Vector2 Position;

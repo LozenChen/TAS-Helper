@@ -8,7 +8,13 @@ internal static class AttributeUtils {
 
 #if AttributeDebug
     public static string exceptionClass = "";
+    public static Dictionary<MethodInfo, Type> debugDict = new();
     public static void CollectMethods<T>() where T : Attribute {
+        typeof(AttributeUtils).Assembly.GetTypesSafe().ToList().ForEach(type => type
+            .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<T>() != null)
+            .ToList().ForEach(method => debugDict[method] = type));
+
         if (exceptionClass.IsNullOrEmpty()) {
             MethodInfos[typeof(T)] = typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
@@ -20,13 +26,26 @@ internal static class AttributeUtils {
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
             .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<T>() != null));
     }
+
+    public static void Invoke<T>() where T : Attribute {
+        if (MethodInfos.TryGetValue(typeof(T), out var methodInfos)) {
+            foreach (MethodInfo methodInfo in methodInfos) {
+                try {
+                    methodInfo.Invoke(null, Parameterless);
+                }
+                catch {
+                    Celeste.Commands.Log($"AttributeUtils Invoke {debugDict[methodInfo]}.{methodInfo} failed");
+                }
+            }
+        }
+    }
 #else
      public static void CollectMethods<T>() where T : Attribute {
         MethodInfos[typeof(T)] = typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
             .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<T>() != null));
     }
-#endif
+
     public static void Invoke<T>() where T : Attribute {
         if (MethodInfos.TryGetValue(typeof(T), out var methodInfos)) {
             foreach (MethodInfo methodInfo in methodInfos) {
@@ -34,8 +53,10 @@ internal static class AttributeUtils {
             }
         }
     }
+#endif
 
 }
+
 
 [AttributeUsage(AttributeTargets.Method)]
 internal class LoadAttribute : Attribute { }
