@@ -1,7 +1,9 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using TAS;
 using TAS.EverestInterop;
+using CelesteInput = Celeste.Input;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 
@@ -27,6 +29,12 @@ public static class CustomInfoHelper {
             return cachedCS = "";
         }
     }
+
+    public static MInput.GamePadData GamePadData => MInput.GamePads[CelesteInput.Gamepad];
+
+    public static Microsoft.Xna.Framework.Input.Buttons GamePadPreviousState => GamePadData.PreviousState.Buttons.buttons;
+
+    public static Microsoft.Xna.Framework.Input.Buttons GamePadCurrentState => GamePadData.CurrentState.Buttons.buttons;
     public static Vector2 MouseState => MouseButtons.Position;
     public static Vector2 MouseCursorPos => Vector2.Transform(new Vector2(MouseState.X, MouseState.Y), Matrix.Invert(Engine.ScreenMatrix));
 

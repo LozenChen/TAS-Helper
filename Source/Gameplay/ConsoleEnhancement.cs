@@ -17,22 +17,20 @@ public static class ConsoleEnhancement {
             openConsole = true;
         }
     }
-    public static bool GetOpenConsole() {
-        if (openConsole) {
-            openConsole = false;
-            return true;
-        }
-        return false;
+    public static bool GetOpenConsole() { // openConsole.getter may not be called (e.g. when there's a shortcut), so we can't modify its value here
+        return openConsole;
     }
 
     [Load]
     public static void Load() {
         IL.Monocle.Commands.UpdateClosed += ILCommandUpdateClosed;
+        On.Celeste.Level.BeforeRender += OnLevelBeforeRender;
     }
 
     [Unload]
     public static void Unload() {
         IL.Monocle.Commands.UpdateClosed -= ILCommandUpdateClosed;
+        On.Celeste.Level.BeforeRender -= OnLevelBeforeRender;
     }
 
     [Initialize]
@@ -40,6 +38,10 @@ public static class ConsoleEnhancement {
         typeof(Manager).GetMethod("Update").HookAfter(UpdateCommands);
     }
 
+    private static void OnLevelBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level level) {
+        openConsole = false;
+        orig(level);
+    }
     private static void UpdateCommands() {
         if (Manager.Running && TasHelperSettings.EnableOpenConsoleInTas) {
             lastOpen = Engine.Commands.Open;

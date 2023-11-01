@@ -44,7 +44,15 @@ internal static class ActualCollideHitboxDelegatee {
     public static void DrawLastFrameHitbox(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool> invokeOrig) {
         DrawLastFrameHitbox(skipCondition, entity, camera, color, collidable, (a, b, c, d, isNow) => invokeOrig(a, b, c, d));
     }
+
     public static void DrawLastFrameHitbox(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig) {
+        DrawLastFrameHitboxImpl(skipCondition, entity, camera, color, collidable, (a,b,c,d,e) => {
+            protectOrig = true;
+            invokeOrig(a,b,c,d,e);
+            protectOrig = false;
+        });
+    }
+    private static void DrawLastFrameHitboxImpl(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig) {
         // currently we don't need an actualCamera...?
 
         if (Manager.UltraFastForwarding
@@ -62,8 +70,6 @@ internal static class ActualCollideHitboxDelegatee {
             return;
         }
 
-        protectOrig = true;
-
         Color lastFrameColor =
             TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Append && entity.Position != actualCollidePosition
         ? color.Invert()
@@ -72,8 +78,6 @@ internal static class ActualCollideHitboxDelegatee {
         if (TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Append) {
             if (entity.Position == actualCollidePosition) {
                 invokeOrig(entity, camera, lastFrameColor, actualCollidable, false);
-
-                protectOrig = false;
                 return;
             }
 
@@ -86,8 +90,6 @@ internal static class ActualCollideHitboxDelegatee {
         entity.Position = actualCollidePosition;
         invokeOrig(entity, camera, lastFrameColor, actualCollidable, false);
         entity.Position = currentPosition;
-
-        protectOrig = false;
     }
 
     public static bool? LoadActualCollidable_TH(this Entity entity) {
