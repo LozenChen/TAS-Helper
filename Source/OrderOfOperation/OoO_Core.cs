@@ -27,7 +27,7 @@ internal static class OoO_Core {
 
     public static bool Applied = false;
 
-    public static bool AutoSkipBreakPoints = true;
+    public static bool AutoSkippingBreakPoints = true;
 
     public static int StepCount { get; private set; } = 0;
 
@@ -67,7 +67,7 @@ internal static class OoO_Core {
     }
 
     internal static bool TryAutoSkip() {
-        if (overrideStepping || AutoSkipBreakPoints && AutoSkipBreakpoints.Contains(lastText)) {
+        if (overrideStepping || AutoSkippingBreakPoints && AutoSkippedBreakpoints.Contains(lastText)) {
             return true;
         }
         return false;
@@ -92,30 +92,32 @@ internal static class OoO_Core {
 
     private static bool prepareToUltraFastForwarding = false;
 
-    public static readonly HashSet<string> AutoSkipBreakpoints = new();
+    public static readonly HashSet<string> AutoSkippedBreakpoints = new();
 
     [Command("ooo_add_autoskip", $"Autoskip a normal breakpoint (not a for-each breakpoint)(use \"\\s\" when typing Space)(TAS Helper)")]
     public static void AddAutoSkip(string uid) {
         uid = uid.Replace("\\s", " ");
         if (uid.StartsWith(BreakPoints.Prefix)) {
-            AutoSkipBreakpoints.Add(uid);
+            AutoSkippedBreakpoints.Add(uid);
         }
         else {
-            AutoSkipBreakpoints.Add($"{BreakPoints.Prefix}{uid}");
+            AutoSkippedBreakpoints.Add($"{BreakPoints.Prefix}{uid}");
         }
+        EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip = AutoSkippedBreakpoints.Contains(BreakPoints.Prefix + EntityUpdateWithoutBreakPoints_PrePostUpdate_UID);
     }
 
     [Command("ooo_remove_autoskip", "Stop autoskipping a normal breakpoint (use \"\\s\" when typing Space)(TAS Helper)")]
     public static void RemoveAutoSkip(string uid) {
         uid = uid.Replace("\\s", " ");
-        if (!AutoSkipBreakpoints.Remove(uid)) {
-            AutoSkipBreakpoints.Remove(uid.Replace(BreakPoints.Prefix, ""));
+        if (!AutoSkippedBreakpoints.Remove(uid)) {
+            AutoSkippedBreakpoints.Remove($"{BreakPoints.Prefix}{uid}");
         }
+        EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip = AutoSkippedBreakpoints.Contains(BreakPoints.Prefix + EntityUpdateWithoutBreakPoints_PrePostUpdate_UID);
     }
 
     [Command("ooo_show_autoskip", "Show all autoskipped breakpoints (TAS Helper)")]
     public static void ShowAutoSkip() {
-        foreach (string s in AutoSkipBreakpoints) {
+        foreach (string s in AutoSkippedBreakpoints) {
             Celeste.Commands.Log(s.Replace(BreakPoints.Prefix, ""));
         }
     }
@@ -161,7 +163,7 @@ internal static class OoO_Core {
 
         BreakPoints.MarkEnding(EntityUpdateWithBreakPoints, "Entity(Pre/./Post)Update end (with BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithBreakPointsDone).AddAutoSkip();
 
-        BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end (without BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithoutBreakpointsDone).AddAutoSkip();
+        EntityUpdateWithoutBreakPoints_PrePostUpdate_UID = BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end (without BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithoutBreakpointsDone).AddAutoSkip().UID.Replace(BreakPoints.Prefix, "");
 
         BreakPoints.CreateImpl(EngineUpdate, "EngineUpdate begin", label => (cursor, _) => {
             cursor.Emit(OpCodes.Ldstr, label);
@@ -330,6 +332,8 @@ internal static class OoO_Core {
                 // frame advance hotkey is also used to undo OoO_Core, so we restore its value
             }
         }, manualConfig);
+
+        EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip = AutoSkippedBreakpoints.Contains(BreakPoints.Prefix + EntityUpdateWithoutBreakPoints_PrePostUpdate_UID);
     }
 
     private static ILHook hookTASIsPaused;
@@ -498,12 +502,12 @@ internal static class OoO_Core {
         }
 
         public BreakPoints AddAutoSkip() {
-            AutoSkipBreakpoints.Add(this.UID);
+            AutoSkippedBreakpoints.Add(this.UID);
             return this;
         }
 
         public BreakPoints RemoveAutoSkip() {
-            AutoSkipBreakpoints.Remove(this.UID);
+            AutoSkippedBreakpoints.Remove(this.UID);
             return this;
         }
 
@@ -601,6 +605,8 @@ internal static class OoO_Core {
             internal static bool ultraFastForwarding = false;
 
             private const string anyUID_postfix = "[%]";
+
+            private const string indeedAny = "EachEntity";
 
             private static IDetour detour;
 
@@ -816,7 +822,7 @@ internal static class OoO_Core {
                     if (targets.Contains(id)) {
                         return true;
                     }
-                    else if (targets_anyUID.Contains(ID)) {
+                    else if (targets_anyUID.Contains(ID) || targets_anyUID.Contains(indeedAny)) {
                         return true;
                     }
                 }
@@ -1069,10 +1075,17 @@ internal static class OoO_Core {
     }
 
     private static void SendTextImmediately(string str) {
+        if (overrideStepping && EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip && str == EntityUpdateWithoutBreakPoints_PrePostUpdate_UID) {
+            return;
+        }
         HotkeyWatcher.Refresh(str);
     }
 
     private static string EntityUpdate_withoutBreakPoints_UID;
+
+    private static string EntityUpdateWithoutBreakPoints_PrePostUpdate_UID;
+
+    private static bool EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip = false;
 
     private static bool needGameInfoUpdate = false;
 }

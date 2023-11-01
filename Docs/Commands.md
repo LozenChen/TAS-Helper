@@ -4,7 +4,8 @@
 - This command add the entity as a for-each breakpoint of the OoO stepping
 - e.g. ooo_add_target WindController
 - e.g. ooo_add_target CrystalStaticSpinner[c1:02]
-- e.g. ooo_add_target DustStaticSpinner[%], which automatically replaces "%" with all entityIDs of DustStaticSpinner in current room
+- e.g. ooo_add_target DustStaticSpinner[%], which automatically replaces "%" with entityIDs of all DustStaticSpinner in current room
+- e.g. ooo_add_target EachEntity[%], which automatically replaces this with entityIDs of all entities in current room
 - Use "\s" when typing space
 
 ### ooo_remove_target
