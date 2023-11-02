@@ -158,22 +158,15 @@ public class PredictorRenderer : Entity {
     [Load]
     public static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
-        On.Monocle.Scene.AfterUpdate += OnSceneAfterUpdate;
     }
 
     [Unload]
     public static void Unload() {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
-        On.Monocle.Scene.AfterUpdate -= OnSceneAfterUpdate;
     }
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes introTypes, bool isFromLoader) {
         orig(self, introTypes, isFromLoader);
         self.Add(new PredictorRenderer());
-    }
-
-    private static void OnSceneAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
-        orig(self);
-        ClearCachedMessage();
     }
 }

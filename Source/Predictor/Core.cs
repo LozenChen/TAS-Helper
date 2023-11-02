@@ -155,9 +155,7 @@ public static class Core {
 
     [Load]
     public static void Load() {
-        // CelesteTAS.Core uses DetourContext {After = new List<string> {"*"}} ""in Load"", so our hooks are "inside" TAS.Core hooks
-        // how tas frame is paused: early return in MInput. So our hooks should be after this
-        // not sure how the hook order works. to be safe i use same type of hook
+        // CelesteTAS.Core uses DetourContext {After = new List<string> {"*"}} ""in Load"", so our hooks are "inside" ( = after) TAS.Core hooks
         IL.Monocle.Engine.Update += ILEngineUpdate;
     }
 
@@ -190,12 +188,12 @@ public static class Core {
     }
 
     private static void AfterMInputUpdate() {
+        PredictorRenderer.ClearCachedMessage();
         FreezeTimerBeforeUpdate = Engine.FreezeTimer;
         neverClearStateThisFrame = true;
         if (!Manager.Running) {
             HasCachedFutures = false;
             futures.Clear();
-            // PredictorRenderer.ClearCachedMessage(); it will be cleared in PredictorRenderer.SceneAfterUpdate, so no need here
             TinySRT.TH_StateManager.ClearState();
             return;
         }
@@ -204,7 +202,6 @@ public static class Core {
         if (!FutureMoveLeft()) {
             HasCachedFutures = false;
             futures.Clear();
-            // PredictorRenderer.ClearCachedMessage();
             TinySRT.TH_StateManager.ClearState();
             return;
         }

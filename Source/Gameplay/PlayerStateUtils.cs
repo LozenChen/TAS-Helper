@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using MonoMod.Utils;
 using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
@@ -29,7 +30,7 @@ public static class PlayerStateUtils {
         typeof(Player).GetMethod("ReflectBounce").HookBefore(() => ReflectBounce = true);
         typeof(Player).GetMethod("PointBounce").HookBefore(() => PointBounce = true);
         typeof(Player).GetMethod("OnCollideV", BindingFlags.NonPublic | BindingFlags.Instance).IlHook(ILUltra);
-        typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).IlHook(ILUltra);
+        typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget().IlHook(ILUltra);
         if (ModUtils.GetType("ExtendedVariantMode", "ExtendedVariants.Variants.EveryJumpIsUltra") is { } ultraVariantType) {
             ultraVariantType.GetMethod("forceUltra", BindingFlags.NonPublic | BindingFlags.Instance).IlHook((cursor, _) => {
                 if (cursor.TryGotoNext(MoveType.After, ins => ins.OpCode == OpCodes.Brfalse_S)) {

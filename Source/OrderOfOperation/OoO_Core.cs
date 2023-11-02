@@ -4,6 +4,7 @@ using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -633,7 +634,6 @@ internal static class OoO_Core {
                                 cursor.Emit(OpCodes.Ldloc_1);
                                 cursor.EmitDelegate(IsGotoContinue);
                                 cursor.Emit(OpCodes.Brtrue, Ins_continue);
-                                cursor.Emit(OpCodes.Ldloc_1);
                                 cursor.EmitDelegate(IsRunNormally);
                                 cursor.Emit(OpCodes.Brtrue, Ins_run_normally);
                                 cursor.Emit(OpCodes.Ldloc_1);
@@ -645,14 +645,18 @@ internal static class OoO_Core {
                                 cursor.Index -= 3;
                                 Instruction Ins_TargetWithoutBreakpoints = cursor.Next;
                                 cursor.Index -= 3;
-                                cursor.Emit(OpCodes.Ldloc_1);
                                 cursor.EmitDelegate(IsTargetWithBreakPoints);
                                 cursor.Emit(OpCodes.Brfalse, Ins_TargetWithoutBreakpoints);
                             }
                         }
+                        il.Body.OptimizeMacros();
                     }, manualConfig);
                 }
             }
+
+            private static string localvar_entityId;
+
+            private static bool localvar_contain;
 
             internal static void MarkEndingSpecial() {
                 // instead of emit this at the Ret, we emit it at the Leave_S which points to Ret (which exits the try-block)
@@ -831,33 +835,32 @@ internal static class OoO_Core {
             }
 
             private static bool IsGotoContinue(Entity entity) {
-                if (CheckContain(entity, out string str)) {
+                if (localvar_contain = CheckContain(entity, out localvar_entityId)) {
                     passed_targets++;
-                    if (removed_targets.Contains(str)) {
+                    if (removed_targets.Contains(localvar_entityId)) {
                         return true;
                     }
                 }
                 return passed_targets < expected_passed_targets;
             }
 
-            private static bool IsRunNormally(Entity entity) {
-                return ultraFastForwarding || !CheckContain(entity, out _);
+            private static bool IsRunNormally() {
+                return ultraFastForwarding || !localvar_contain;
             }
 
-            private static bool IsTargetWithBreakPoints(Entity entity) {
-                CheckContain(entity, out string str);
-                partly_done_targets.Add(str);
-                bool b = targets_withBreakpoints.Contains(str);
+            private static bool IsTargetWithBreakPoints() {
+                partly_done_targets.Add(localvar_entityId);
+                bool b = targets_withBreakpoints.Contains(localvar_entityId);
                 if (b) {
                     /*
                      * EntityUpdate with BreakPoints are added manually, and will usually mark the beginning
                      * so we don't need to send text here
                      */
-                    curr_target_withBreakpoint = str;
+                    curr_target_withBreakpoint = localvar_entityId;
                 }
                 else {
-                    SendText($"{str} Update begin");
-                    curr_target_withoutBreakpoint = str;
+                    SendText($"{localvar_entityId} Update begin");
+                    curr_target_withoutBreakpoint = localvar_entityId;
                 }
                 return b;
             }
