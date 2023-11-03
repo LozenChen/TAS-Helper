@@ -16,7 +16,7 @@ using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
-public static class SlActionsExtended {
+public static class ExtraSlActions {
 
     // if there's mod which add SlAction by itself, instead of by SRT, then we also add it to our SaveLoadActions
 
@@ -149,6 +149,9 @@ internal static class TasHelperSL {
     private static List<Vector2[]> SRT_CachedNodes;
     private static HashSet<Gameplay.MovingEntityTrack.StartEnd> SRT_CachedStartEnd;
     private static Dictionary<Gameplay.MovingEntityTrack.RotateData, int> SRT_CachedCircle;
+
+    private static Dictionary<Entity, Vector2> LastPositions = new();
+    private static Dictionary<Entity, bool> LastCollidables = new();
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             TH_pauseUpdaterEntities = PauseUpdater.entities.TH_DeepCloneShared();

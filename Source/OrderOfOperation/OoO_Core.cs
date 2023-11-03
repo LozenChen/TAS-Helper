@@ -4,7 +4,6 @@ using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
 using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -21,8 +20,8 @@ internal static class OoO_Core {
     private static readonly MethodInfo EntityListUpdate = typeof(EntityList).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
     private static readonly MethodInfo PlayerUpdate = typeof(Player).GetMethod("Update");
     private static readonly MethodInfo PlayerOrigUpdate = typeof(Player).GetMethod("orig_Update");
-    private static readonly MethodInfo EntityUpdateWithBreakPoints = typeof(BreakPoints.ForEachBreakPoints).GetMethod(BreakPoints.ForEachBreakPoints.entityUpdateWithBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
-    private static readonly MethodInfo EntityUpdateWithoutBreakPoints = typeof(BreakPoints.ForEachBreakPoints).GetMethod(BreakPoints.ForEachBreakPoints.entityUpdateWithoutBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo EntityUpdateWithBreakPoints = typeof(BreakPoints.ForEachBreakPoints_EntityList).GetMethod(BreakPoints.ForEachBreakPoints_EntityList.entityUpdateWithBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo EntityUpdateWithoutBreakPoints = typeof(BreakPoints.ForEachBreakPoints_EntityList).GetMethod(BreakPoints.ForEachBreakPoints_EntityList.entityUpdateWithoutBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
     // if we add a breakpoint to A, which is called by B, then we must add breakpoints to B
     // so that any hook given by other mods are handled properly
 
@@ -75,7 +74,7 @@ internal static class OoO_Core {
     }
 
     public static void StopFastForward() {
-        if (BreakPoints.ForEachBreakPoints.ultraFastForwarding) {
+        if (BreakPoints.ForEachBreakPoints_EntityList.ultraFastForwarding) {
             return;
             // if we have already entered ultra fast forwarding, then we shouldn't not exit it in half way, so tas still sync
         }
@@ -95,9 +94,8 @@ internal static class OoO_Core {
 
     public static readonly HashSet<string> AutoSkippedBreakpoints = new();
 
-    [Command("ooo_add_autoskip", $"Autoskip a normal breakpoint (not a for-each breakpoint)(use \"\\s\" when typing Space)(TAS Helper)")]
+    [Command_StringParameter("ooo_add_autoskip", $"Autoskip a normal breakpoint (not a for-each breakpoint)(TAS Helper)")]
     public static void AddAutoSkip(string uid) {
-        uid = uid.Replace("\\s", " ");
         if (uid.StartsWith(BreakPoints.Prefix)) {
             AutoSkippedBreakpoints.Add(uid);
         }
@@ -107,9 +105,8 @@ internal static class OoO_Core {
         EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip = AutoSkippedBreakpoints.Contains(BreakPoints.Prefix + EntityUpdateWithoutBreakPoints_PrePostUpdate_UID);
     }
 
-    [Command("ooo_remove_autoskip", "Stop autoskipping a normal breakpoint (use \"\\s\" when typing Space)(TAS Helper)")]
+    [Command_StringParameter("ooo_remove_autoskip", "Stop autoskipping a normal breakpoint (TAS Helper)")]
     public static void RemoveAutoSkip(string uid) {
-        uid = uid.Replace("\\s", " ");
         if (!AutoSkippedBreakpoints.Remove(uid)) {
             AutoSkippedBreakpoints.Remove($"{BreakPoints.Prefix}{uid}");
         }
@@ -162,9 +159,9 @@ internal static class OoO_Core {
 
         BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => PlayerOrigUpdate_Entry.SubMethodPassed = true);
 
-        BreakPoints.MarkEnding(EntityUpdateWithBreakPoints, "Entity(Pre/./Post)Update end (with BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithBreakPointsDone).AddAutoSkip();
+        BreakPoints.MarkEnding(EntityUpdateWithBreakPoints, "Entity(Pre/./Post)Update end (with BreakPoints)", BreakPoints.ForEachBreakPoints_EntityList.EntityUpdateWithBreakPointsDone).AddAutoSkip();
 
-        EntityUpdateWithoutBreakPoints_PrePostUpdate_UID = BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end (without BreakPoints)", BreakPoints.ForEachBreakPoints.EntityUpdateWithoutBreakpointsDone).AddAutoSkip().UID.Replace(BreakPoints.Prefix, "");
+        EntityUpdateWithoutBreakPoints_PrePostUpdate_UID = BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end (without BreakPoints)", BreakPoints.ForEachBreakPoints_EntityList.EntityUpdateWithoutBreakpointsDone).AddAutoSkip().UID.Replace(BreakPoints.Prefix, "");
 
         BreakPoints.CreateImpl(EngineUpdate, "EngineUpdate begin", label => (cursor, _) => {
             cursor.Emit(OpCodes.Ldstr, label);
@@ -299,9 +296,9 @@ internal static class OoO_Core {
             ins => ins.MatchCallOrCallvirt<Scene>("AfterUpdate")
         ).AddAutoSkip();
 
-        BreakPoints.ForEachBreakPoints.Create();
-        BreakPoints.ForEachBreakPoints.MarkEndingSpecial();
-        BreakPoints.ForEachBreakPoints.AddTarget("Player", true);
+        BreakPoints.ForEachBreakPoints_EntityList.Create();
+        BreakPoints.ForEachBreakPoints_EntityList.MarkEndingSpecial();
+        BreakPoints.ForEachBreakPoints_EntityList.AddTarget("Player", true);
         /*
          * examples:
         BreakPoints.ForEachBreakPoints.AddTarget("CrystalStaticSpinner[f-11:902]");
@@ -346,7 +343,7 @@ internal static class OoO_Core {
     public static void ApplyAll() {
         BreakPoints.ApplyAll();
         SpringBoard.RefreshAll();
-        BreakPoints.ForEachBreakPoints.Apply();
+        BreakPoints.ForEachBreakPoints_EntityList.Apply();
         hookTASIsPaused.Apply();
         hookManagerUpdate.Apply();
         Applied = true;
@@ -359,7 +356,7 @@ internal static class OoO_Core {
     public static void UndoAll() {
         SpringBoard.UndoAll();
         BreakPoints.UndoAll();
-        BreakPoints.ForEachBreakPoints.Undo();
+        BreakPoints.ForEachBreakPoints_EntityList.Undo();
         hookTASIsPaused.Undo();
         hookManagerUpdate.Undo();
         Applied = false;
@@ -390,7 +387,7 @@ internal static class OoO_Core {
     }
     private static void ResetTempState() {
         EntityUpdate_withBreakPoints_Entry.SubMethodPassed = false;
-        BreakPoints.ForEachBreakPoints.ResetTemp();
+        BreakPoints.ForEachBreakPoints_EntityList.ResetTemp();
         BreakPoints.passedBreakpoints.Clear();
     }
 
@@ -581,10 +578,10 @@ internal static class OoO_Core {
             foreach (BreakPoints breakPoints in dictionary.Values) {
                 breakPoints.labelEmitter.Dispose();
             }
-            ForEachBreakPoints.Dispose();
+            ForEachBreakPoints_EntityList.Dispose();
         }
 
-        public static class ForEachBreakPoints {
+        public static class ForEachBreakPoints_EntityList {
 
             private static readonly HashSet<string> targets = new();
 
@@ -607,12 +604,12 @@ internal static class OoO_Core {
 
             private const string anyUID_postfix = "[%]";
 
-            private const string indeedAny = "EachEntity";
+            private const string indeedAny = "Each";
 
             private static IDetour detour;
 
             internal static void Create() {
-                using (new DetourContext { Before = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints" }) {
+                using (new DetourContext { Before = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_EntityList" }) {
                     detour = new ILHook(EntityListUpdate, il => {
                         ILCursor cursor = new ILCursor(il);
                         Instruction Ins_continue;
@@ -649,7 +646,6 @@ internal static class OoO_Core {
                                 cursor.Emit(OpCodes.Brfalse, Ins_TargetWithoutBreakpoints);
                             }
                         }
-                        il.Body.OptimizeMacros();
                     }, manualConfig);
                 }
             }
@@ -668,7 +664,7 @@ internal static class OoO_Core {
                         cursor.EmitDelegate(RecordLabelWrap);
                         cursor.EmitDelegate(() => {
                             EntityListUpdate_Entry.SubMethodPassed = true;
-                            BreakPoints.ForEachBreakPoints.Reset();
+                            BreakPoints.ForEachBreakPoints_EntityList.Reset();
                         });
                     }
                 };
@@ -711,9 +707,8 @@ internal static class OoO_Core {
                 }
             }
 
-            [Command("ooo_add_target", "Add the entity as a for-each breakpoint of the OoO stepping (TAS Helper)")]
+            [Command_StringParameter("ooo_add_target", "Add the entity as a for-each breakpoint of the OoO stepping (TAS Helper)")]
             public static void CmdAddTarget(string UID) {
-                UID = UID.Replace("\\s", " ");
                 if (UID.StartsWith("Player") && (UID == "Player" || (player is not null && UID == GetUID(player)))) {
                     AddTarget("Player", true);
                 }
@@ -723,9 +718,8 @@ internal static class OoO_Core {
                 // it's not easy to add a target with breakpoints via cmd (and unncessary), so i only provide this
             }
 
-            [Command("ooo_remove_target", "Remove a for-each breakpoint of the OoO stepping (TAS Helper)")]
+            [Command_StringParameter("ooo_remove_target", "Remove a for-each breakpoint of the OoO stepping (TAS Helper)")]
             public static void RemoveTarget(string UID) {
-                UID = UID.Replace("\\s", " ");
                 targets.Remove(UID);
                 targets_withBreakpoints.Remove(UID);
                 if (UID.EndsWith(anyUID_postfix)) {
@@ -866,6 +860,76 @@ internal static class OoO_Core {
             }
 
         }
+
+
+
+
+        /*
+        public static class ForEachBreakPoints_PC {
+
+            private static readonly HashSet<string> targets = new();
+
+            private static readonly HashSet<string> targets_anyUID = new();
+
+            private static readonly HashSet<string> removed_targets = new();
+
+            private static readonly HashSet<string> partly_done_targets = new();
+
+            internal static string curr_target_withoutBreakpoint;
+
+            private static int passed_targets = 0;
+            private static int expected_passed_targets => partly_done_targets.Count;
+
+            internal static bool ultraFastForwarding = false;
+
+            private const string anyUID_postfix = "[%]";
+
+            private const string indeedAny = "Each";
+
+            private static IDetour detour;
+
+            internal static void Create() {
+                using (new DetourContext { Before = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_PlayerCollider" }) {
+                    detour = new ILHook(PlayerOrigUpdate, il => {
+                        ILCursor cursor = new ILCursor(il);
+                        if (!cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchLdfld<Player>("Hurtbox"), ins => ins.MatchCallOrCallvirt<Entity>("set_Collider"))) {
+                            return;
+                        }
+                        cursor.Index += 4;
+                        int curr = cursor.Index;
+                        Instruction Ins_continue;
+                        Instruction Ins_run_normally;
+                        Instruction Ins_ret;
+                        ILLabel Loop_head;
+                        if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Leave)) {
+                            cursor.Next.MatchLeave(out ILLabel tmp);
+                            cursor.Goto(tmp.Target);
+                            Ins_ret = cursor.Next;
+                            cursor.Goto(curr);
+                            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.MatchLdloca(0), ins => ins.MatchCallOrCallvirt<List<Component>.Enumerator>("MoveNext"))) {
+                                Ins_continue = cursor.Next;
+                                cursor.Index += 2;
+                                cursor.Next.MatchBrtrue(out Loop_head);
+                                cursor.Goto(Loop_head.Target, MoveType.AfterLabel);
+                                cursor.Index += 3;
+                                Ins_run_normally = cursor.Next;
+                                cursor.Emit(OpCodes.Ldloc_1);
+                                cursor.EmitDelegate(IsGotoContinue);
+                                cursor.Emit(OpCodes.Brtrue, Ins_continue);
+                                cursor.EmitDelegate(IsRunNormally);
+                                cursor.Emit(OpCodes.Brtrue, Ins_run_normally);
+                                cursor.Emit(OpCodes.Ldloc_1);
+                                cursor.EmitDelegate(ComponentCheckThis);
+                                cursor.Emit(OpCodes.Leave_S, Ins_ret);
+                            }
+                        }
+                    }, manualConfig);
+                }
+            }
+
+
+        }
+        */
     }
 
     private class SpringBoard {
@@ -933,7 +997,7 @@ internal static class OoO_Core {
             using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core BreakPoints", "TAS Helper OoO_Core Ending" }, ID = "TAS Helper OoO_Core SpringBoard" }) {
                 detour = new ILHook(methodBase, il => {
                     ILCursor cursor = new(il);
-                    if (BreakPoints.HashPassedBreakPoints.Contains(BreakPoints.ForEachBreakPoints.endingLabel)) {
+                    if (BreakPoints.HashPassedBreakPoints.Contains(BreakPoints.ForEachBreakPoints_EntityList.endingLabel)) {
                         cursor.Emit(OpCodes.Ret);
 #if OoO_Debug
                         jumpLog.Add($"\n EntityListUpdate end | Finished: true");
@@ -1022,7 +1086,7 @@ internal static class OoO_Core {
             }
             else {
                 if (lastText == EntityUpdate_withoutBreakPoints_UID) {
-                    SendTextImmediately($"{BreakPoints.ForEachBreakPoints.curr_target_withoutBreakpoint} Update begin");
+                    SendTextImmediately($"{BreakPoints.ForEachBreakPoints_EntityList.curr_target_withoutBreakpoint} Update begin");
                 }
                 else if (lastText != "") {
                     SendTextImmediately(lastText.Replace(BreakPoints.Prefix, ""));

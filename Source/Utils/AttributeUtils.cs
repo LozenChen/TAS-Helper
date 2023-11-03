@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Celeste.Mod.TASHelper.Utils.Attributes;
 internal static class AttributeUtils {
     private static readonly object[] Parameterless = { };
-    private static readonly IDictionary<Type, IEnumerable<MethodInfo>> MethodInfos = new Dictionary<Type, IEnumerable<MethodInfo>>();
+    internal static readonly IDictionary<Type, IEnumerable<MethodInfo>> MethodInfos = new Dictionary<Type, IEnumerable<MethodInfo>>();
 
 #if AttributeDebug
     public static string exceptionClass = "";
