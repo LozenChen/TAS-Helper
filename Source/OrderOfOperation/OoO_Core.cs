@@ -2,6 +2,7 @@
 
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -344,6 +345,7 @@ internal static class OoO_Core {
         BreakPoints.ApplyAll();
         SpringBoard.RefreshAll();
         BreakPoints.ForEachBreakPoints_EntityList.Apply();
+        BreakPoints.ForEachBreakPoints_PlayerCollider.Apply();
         hookTASIsPaused.Apply();
         hookManagerUpdate.Apply();
         Applied = true;
@@ -357,6 +359,7 @@ internal static class OoO_Core {
         SpringBoard.UndoAll();
         BreakPoints.UndoAll();
         BreakPoints.ForEachBreakPoints_EntityList.Undo();
+        BreakPoints.ForEachBreakPoints_PlayerCollider.Undo();
         hookTASIsPaused.Undo();
         hookManagerUpdate.Undo();
         Applied = false;
@@ -388,6 +391,7 @@ internal static class OoO_Core {
     private static void ResetTempState() {
         EntityUpdate_withBreakPoints_Entry.SubMethodPassed = false;
         BreakPoints.ForEachBreakPoints_EntityList.ResetTemp();
+        BreakPoints.ForEachBreakPoints_PlayerCollider.ResetTemp();
         BreakPoints.passedBreakpoints.Clear();
     }
 
@@ -645,6 +649,12 @@ internal static class OoO_Core {
                                 cursor.EmitDelegate(IsTargetWithBreakPoints);
                                 cursor.Emit(OpCodes.Brfalse, Ins_TargetWithoutBreakpoints);
                             }
+#if OoO_Debug
+                        else {
+                            failedHooks.Add($"\n ForEachBreakPoints_EntityList");
+                        }
+#endif
+
                         }
                     }, manualConfig);
                 }
@@ -862,10 +872,8 @@ internal static class OoO_Core {
         }
 
 
-
-
-        /*
-        public static class ForEachBreakPoints_PC {
+        
+        public static class ForEachBreakPoints_PlayerCollider {
 
             private static readonly HashSet<string> targets = new();
 
@@ -892,44 +900,211 @@ internal static class OoO_Core {
                 using (new DetourContext { Before = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_PlayerCollider" }) {
                     detour = new ILHook(PlayerOrigUpdate, il => {
                         ILCursor cursor = new ILCursor(il);
-                        if (!cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchLdfld<Player>("Hurtbox"), ins => ins.MatchCallOrCallvirt<Entity>("set_Collider"))) {
-                            return;
+                        if (cursor.TryGotoNext(ins => ins.MatchLdcI4(21), ins => ins.OpCode == OpCodes.Beq, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt<Entity>("get_Collider"), ins => ins.OpCode == OpCodes.Stloc_S, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchLdfld<Player>("Hurtbox"), ins => ins.MatchCallOrCallvirt<Entity>("set_Collider"))) {
+                            cursor.Index++;
+                            cursor.Next.MatchBeq(out ILLabel lateReturnTarget);
+                            cursor.Index++;
+                            cursor.MoveAfterLabels();
+                            cursor.Emit(OpCodes.Ldarg_0);
+                            cursor.EmitDelegate(PCCheck);
+                            cursor.Emit(OpCodes.Brtrue, lateReturnTarget);
+                            cursor.Emit(OpCodes.Ret);
                         }
-                        cursor.Index += 4;
-                        int curr = cursor.Index;
-                        Instruction Ins_continue;
-                        Instruction Ins_run_normally;
-                        Instruction Ins_ret;
-                        ILLabel Loop_head;
-                        if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Leave)) {
-                            cursor.Next.MatchLeave(out ILLabel tmp);
-                            cursor.Goto(tmp.Target);
-                            Ins_ret = cursor.Next;
-                            cursor.Goto(curr);
-                            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.MatchLdloca(0), ins => ins.MatchCallOrCallvirt<List<Component>.Enumerator>("MoveNext"))) {
-                                Ins_continue = cursor.Next;
-                                cursor.Index += 2;
-                                cursor.Next.MatchBrtrue(out Loop_head);
-                                cursor.Goto(Loop_head.Target, MoveType.AfterLabel);
-                                cursor.Index += 3;
-                                Ins_run_normally = cursor.Next;
-                                cursor.Emit(OpCodes.Ldloc_1);
-                                cursor.EmitDelegate(IsGotoContinue);
-                                cursor.Emit(OpCodes.Brtrue, Ins_continue);
-                                cursor.EmitDelegate(IsRunNormally);
-                                cursor.Emit(OpCodes.Brtrue, Ins_run_normally);
-                                cursor.Emit(OpCodes.Ldloc_1);
-                                cursor.EmitDelegate(ComponentCheckThis);
-                                cursor.Emit(OpCodes.Leave_S, Ins_ret);
-                            }
+#if OoO_Debug
+                        else {
+                            failedHooks.Add($"\n ForEachBreakPoints_PlayerCollider");
                         }
+#endif
                     }, manualConfig);
                 }
             }
 
+            private static bool PCCheck(Player player) {
+                switch (PCCheckCore(player)) {
+                    case ReturnType.EarlyReturn: {
+                        return false;
+                    }
+                    case ReturnType.DeathReturn: {
+                        Reset();
+                        return false;
+                    }
+                    case ReturnType.LateReturn: {
+                        Reset();
+                        return true;
+                    }
+                }
+                return true;
+            }
 
+
+            private enum ReturnType { EarlyReturn, LateReturn, DeathReturn };
+            private static ReturnType PCCheckCore(Player player) {
+                stored_Collider = player.Collider;
+                player.Collider = player.hurtbox;
+                foreach (PlayerCollider pc in player.Scene.Tracker.GetComponents<PlayerCollider>()) {
+                    if (IsGotoContinue(pc, out string entityId, out bool contain)) {
+                        continue;
+                    }
+                    if (ultraFastForwarding || !contain) {
+                        if (pc.Check(player) && player.Dead) {
+                            player.Collider = stored_Collider;
+                            return ReturnType.DeathReturn;
+                        }
+                    }
+                    else {
+                        partly_done_targets.Add(entityId);
+                        SendText($"{entityId} Update begin");
+                        curr_target_withoutBreakpoint = entityId;
+                        if (waitForNextLoop) {
+                            waitForNextLoop = false;
+                            return ReturnType.EarlyReturn;
+                        }
+                        else {
+                            waitForNextLoop = true;
+                            if (pc.Check(player) && player.Dead) {
+                                player.Collider = stored_Collider;
+                                return ReturnType.DeathReturn;
+                            }
+                            else {
+                                removed_targets.Add(curr_target_withoutBreakpoint);
+                                if (prepareToUltraFastForwarding) {
+                                    ultraFastForwarding = true;
+                                }
+                                return ReturnType.EarlyReturn;
+                            }
+                        }
+                    }
+                }
+                if (player.Collider == player.hurtbox) {
+                    player.Collider = stored_Collider;
+                }
+                return ReturnType.LateReturn;
+            }
+
+            private static Collider stored_Collider;
+
+            private static bool waitForNextLoop = true;
+
+
+            public static string GetID(Entity entity) {
+                return entity.GetType().Name;
+            }
+            public static bool CheckContain(Entity entity, out string id) {
+                return CheckContain(targets, targets_anyUID, entity, out id);
+            }
+
+            public static bool CheckContain(HashSet<string> targets, HashSet<string> targets_anyUID, Entity entity, out string id) {
+                string ID = GetID(entity);
+                if (targets.Contains(ID)) {
+                    id = ID;
+                    return true;
+                }
+                if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
+                    id = $"{entity.GetType().Name}[{entityID}]";
+                    if (targets.Contains(id)) {
+                        return true;
+                    }
+                    else if (targets_anyUID.Contains(ID) || targets_anyUID.Contains(indeedAny)) {
+                        return true;
+                    }
+                }
+                id = "";
+                return false;
+            }
+
+            private static bool IsGotoContinue(PlayerCollider pc, out string entityId, out bool contain) {
+                if (pc.Entity is not Entity entity) {
+                    entityId = "";
+                    contain = false;
+                    return false;
+                }
+                if (contain = CheckContain(entity, out entityId)) {
+                    passed_targets++;
+                    if (removed_targets.Contains(entityId)) {
+                        return true;
+                    }
+                }
+                return passed_targets < expected_passed_targets;
+            }
+
+
+            [Command_StringParameter("ooo_add_target_pc", "Add the entity as a for-each breakpoint (pc) of the OoO stepping (TAS Helper)")]
+            public static void AddTarget(string UID) {
+                if (UID.EndsWith(anyUID_postfix)) {
+                    targets_anyUID.Add(UID.Remove(UID.Length - anyUID_postfix.Length));
+                    return;
+                }
+
+                targets.Add(UID);
+
+                if (haveTryToApply && !applied) {
+                    detour.Apply();
+                    Reset();
+                    applied = true;
+                }
+            }
+
+            [Command_StringParameter("ooo_remove_target_pc", "Remove a for-each breakpoint (pc) of the OoO stepping (TAS Helper)")]
+            public static void RemoveTarget(string UID) {
+                targets.Remove(UID);
+                if (UID.EndsWith(anyUID_postfix)) {
+                    targets_anyUID.Remove(UID.Remove(UID.Length - anyUID_postfix.Length));
+                }
+
+                if (targets.IsNullOrEmpty() && applied) {
+                    detour.Undo();
+                    Reset();
+                    applied = false;
+                }
+            }
+
+            [Command("ooo_show_target_pc", "Show all for-each breakpoints (pc) of the OoO stepping (TAS Helper)")]
+            public static void ShowTarget() {
+                foreach (string s in targets) {
+                    Celeste.Commands.Log(s);
+                }
+                foreach (string s in targets_anyUID) {
+                    Celeste.Commands.Log(s + anyUID_postfix);
+                }
+            }
+
+            private static bool haveTryToApply = false;
+            private static bool applied = false;
+            public static void Apply() {
+                if (targets.IsNotNullOrEmpty()) {
+                    detour.Apply();
+                    applied = true;
+                }
+                haveTryToApply = true;
+                Reset();
+            }
+
+            public static void Undo() {
+                haveTryToApply = false;
+                applied = false;
+                detour.Undo();
+                Reset();
+            }
+
+            [Unload]
+            public static void Dispose() {
+                detour?.Dispose();
+            }
+
+            public static void Reset() {
+                removed_targets.Clear();
+                partly_done_targets.Clear();
+                passed_targets = 0;
+                ultraFastForwarding = false;
+                stored_Collider = null;
+                waitForNextLoop = true;
+            }
+
+            public static void ResetTemp() {
+                passed_targets = 0;
+            }
         }
-        */
+        
     }
 
     private class SpringBoard {
