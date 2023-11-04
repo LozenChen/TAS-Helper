@@ -26,7 +26,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - CustomInfoHelper -> provide some fields / properties which are not easy to compute in CelesteTas's CustomInfo. Check https://github.com/LozenChen/TAS-Helper/blob/main/Source/Gameplay/CustomInfoHelper.cs
 
-- Order-of-Operation Stepping -> just like frame advance, but in a subframe scale, thus visualize order of operations in a frame. The bottom-left message indicates the next action of the game engine.
+- Order-of-Operation Stepping -> just like frame advance, but in a subframe scale, thus visualize order of operations in a frame. The bottom-left message indicates the next action (if there's no a "begin/end" postfix) / current action (if there is) of the game engine.
 
 - Allow opening console in TAS.
 

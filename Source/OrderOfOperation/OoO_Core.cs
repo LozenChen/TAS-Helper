@@ -586,6 +586,8 @@ internal static class OoO_Core {
 
             private static readonly HashSet<string> targets_withBreakpoints = new();
 
+            private static readonly HashSet<string> targets_removed_from_each = new();
+
             private static readonly HashSet<Entity> removed_targets = new();
 
             internal static string curr_target_withBreakpoint;
@@ -627,6 +629,7 @@ internal static class OoO_Core {
                                 cursor.Emit(OpCodes.Ldloc_1);
                                 cursor.EmitDelegate(IsGotoContinue);
                                 cursor.Emit(OpCodes.Brtrue, Ins_continue);
+                                cursor.Emit(OpCodes.Ldloc_1);
                                 cursor.EmitDelegate(IsRunNormally);
                                 cursor.Emit(OpCodes.Brtrue, Ins_run_normally);
                                 cursor.Emit(OpCodes.Ldloc_1);
@@ -645,6 +648,8 @@ internal static class OoO_Core {
             }
 
             private static string localvar_entityId;
+
+            private static string localvar_entityType;
 
             private static bool localvar_contain;
 
@@ -687,6 +692,11 @@ internal static class OoO_Core {
                     return;
                 }
 
+                if (targets_removed_from_each.Contains(entityUID)) {
+                    targets_removed_from_each.Remove(entityUID);
+                    return;
+                }
+
                 targets.Add(entityUID);
                 if (hasBreakPoints) {
                     targets_withBreakpoints.Add(entityUID);
@@ -708,10 +718,14 @@ internal static class OoO_Core {
             public static void RemoveTarget(string UID) {
                 if (UID == eachString) {
                     checkEach = false;
+                    targets_removed_from_each.Clear();
                     return;
                 }
-                targets.Remove(UID);
+                bool b = targets.Remove(UID);
                 targets_withBreakpoints.Remove(UID);
+                if (!b && checkEach) {
+                    targets_removed_from_each.Add(UID);
+                }
             }
 
             [Command("ooo_show_target", "Show all for-each breakpoints in EntityList.Update() (TAS Helper OoO Stepping)")]
@@ -720,7 +734,15 @@ internal static class OoO_Core {
                     Celeste.Commands.Log(s);
                 }
                 if (checkEach) {
-                    Celeste.Commands.Log(eachString);
+                    if (targets_removed_from_each.IsNullOrEmpty()) {
+                        Celeste.Commands.Log(eachString);
+                    }
+                    else {
+                        Celeste.Commands.Log(eachString + ", except:");
+                        foreach (string str in targets_removed_from_each) {
+                            Celeste.Commands.Log($"  {str}");
+                        }
+                    }
                 }
             }
 
@@ -814,17 +836,18 @@ internal static class OoO_Core {
                 removed_targets.Add(entity);
             }
 
-            public static bool CheckContain(Entity entity, out string id) {
-                string ID = GetID(entity);
-                id = ID;
+            public static bool CheckContain(Entity entity, out bool contain, out string shortID, out string longID) {
+                shortID = GetID(entity);
+                longID = shortID;
                 if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
-                    id = $"{entity.GetType().Name}[{entityID}]";
+                    longID = $"{entity.GetType().Name}[{entityID}]";
                 }
-                return checkEach || targets.Contains(id) || targets.Contains(ID);
+                contain = targets.Contains(longID) || targets.Contains(shortID);
+                return checkEach || contain;
             }
 
             private static bool IsGotoContinue(Entity entity) {
-                if (localvar_contain = CheckContain(entity, out localvar_entityId)) {
+                if (CheckContain(entity, out localvar_contain, out localvar_entityType, out localvar_entityId)) {
                     passed_targets++;
                     if (removed_targets.Contains(entity)) {
                         return true;
@@ -833,12 +856,23 @@ internal static class OoO_Core {
                 return passed_targets < expected_passed_targets;
             }
 
-            private static bool IsRunNormally() {
-                return ultraFastForwarding || !localvar_contain;
+            private static bool IsRunNormally(Entity entity) {
+                if (ultraFastForwarding) {
+                    return true;
+                }
+                if (checkEach) {
+                    if (targets_removed_from_each.Contains(localvar_entityType) || targets_removed_from_each.Contains(localvar_entityId)) {
+                        expected_passed_targets++;
+                        removed_targets.Add(entity);
+                        return true;
+                    }
+                    return false;
+                }
+                return !localvar_contain;
             }
 
             private static void TargetEntityUpdate(Entity entity) {
-                if (targets_withBreakpoints.Contains(GetID(entity)) || targets_withBreakpoints.Contains(localvar_entityId)) {
+                if (localvar_contain) {
                     /*
                      * EntityUpdate with BreakPoints are added manually, and will usually mark the beginning
                      * so we don't need to send text here
@@ -1053,6 +1087,7 @@ internal static class OoO_Core {
                     contain = false;
                     return false;
                 }
+                
                 if (contain = CheckContain(entity, out entityId)) {
                     passed_targets++;
                 }
@@ -1408,11 +1443,14 @@ internal static class OoO_Core {
         public static Color HighLightColor => Color.Lerp(Color.Cyan, Color.Red, oscillator);
 
         public static void DebugRender(Camera camera) {
-            // originally, i debugrender this via an entity, whose depth is the trackedEntity/PC's depth -1
+            // originally, i debugrender this via an entity, whose depth = trackedEntity/PC's depth - 1
             // however, if we do so, then we need to call EntityList.UpdateList()
             // in some worst cases, this will lead to Entities removed from scene
             // thus interfere the for-each breakpoints running
             // e.g. an entity which updates before Player, and become removed, will make Player's update only called once
+            // .....
+            // oh wait, we can just sort EntityList but don't remove/add entities
+            // but rendering this above everything else is not so bad imo....
             if (trackedPC?.Entity is { } entity) {
                 Collider collider = trackedPC.Collider;
                 if (trackedPC.FeatherCollider != null && player is not null && player.StateMachine.state == 19) {

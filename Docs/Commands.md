@@ -10,6 +10,9 @@
 ### ooo_remove_target
 - `ooo_remove_target entityID`
 - Remove a for-each breakpoint in EntityList.Update()
+- When entityID is not added, but 'Each' is added, then it works like 'Each except entityID'
+- When we have a 'Each except entityID', and use 'ooo_add_target entityID', then we get 'Each' back.
+- e.g. ooo_add_target Each, ooo_remove_target Decal. Then all entities except Decal will be breakpoints.
 
 ### ooo_show_target
 - `ooo_show_target`
@@ -18,10 +21,11 @@
 ### ooo_add_target_pc
 - `ooo_add_target_pc entityID`
 - This command adds all PlayerCollider belonging to this entity as for-each breakpoints in PlayerCollider checks
-- The grammar is almost same as ooo_add_target
 - e.g. ooo_add_target_pc Spring
 - e.g. ooo_add_target_pc Spikes[a1:09]
-- Besides, we have ooo_add_target_pc Auto, which makes the game automatically stop if a PlayerCollider collides with player
+- e.g. ooo_add_target_pc Auto
+- The grammar is almost same as ooo_add_target, but without the 'except' grammar
+- Instead, we have 'ooo_add_target_pc Auto', which makes the game automatically stop if a PlayerCollider collides with player
 
 ### ooo_remove_target_pc
 - `ooo_remove_target_pc entityID`
@@ -30,7 +34,6 @@
 ### ooo_show_target_pc
 - `ooo_show_target_pc`
 - Show all for-each breakpoints in PlayerCollider checks
-
 
 ### ooo_add_autoskip
 - `ooo_add_autoskip breakpointUID`
