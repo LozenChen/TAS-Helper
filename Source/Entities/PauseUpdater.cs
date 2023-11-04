@@ -66,6 +66,7 @@ public static class PauseUpdater {
         public Detector() {
             base.Tag = levelPauseTags | Tags.Persistent;
             instance = this;
+            Depth = -100;
         }
 
         public override void Update() {

@@ -6,7 +6,6 @@ namespace Celeste.Mod.TASHelper.Utils.CommandUtils;
 public static class CommandUtils {
 
     [Load]
-
     private static void Load() {
         On.Monocle.Commands.BuildCommandsList += OnBuildCommandsList;
     }

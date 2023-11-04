@@ -1,19 +1,36 @@
 ### ooo_add_target
 - `ooo_add_target entityID`
 - Order-of-Operation stepping has two types of breakpoints, normal breakpoint and for-each breakpoint. A for-each breakpoint, is a breakpoint which sits inside a for-each block.
-- This command add the entity as a for-each breakpoint of the OoO stepping
+- This command adds the entity as a for-each breakpoint in EntityList.Update()
 - e.g. ooo_add_target WindController
 - e.g. ooo_add_target CrystalStaticSpinner[c1:02]
-- e.g. ooo_add_target DustStaticSpinner[%], which automatically replaces "%" with entityIDs of all DustStaticSpinner in current room
-- e.g. ooo_add_target Each[%], which automatically replaces this with entityIDs of all entities in current room
+- e.g. ooo_add_target DustStaticSpinner, which automatically adds all DustStaticSpinner in current room
+- e.g. ooo_add_target Each, which automatically adds all entities in current room
 
 ### ooo_remove_target
 - `ooo_remove_target entityID`
-- Remove a for-each breakpoint of the OoO stepping
+- Remove a for-each breakpoint in EntityList.Update()
 
 ### ooo_show_target
 - `ooo_show_target`
-- Show all for-each breakpoints of the OoO stepping
+- Show all for-each breakpoints in EntityList.Update()
+
+### ooo_add_target_pc
+- `ooo_add_target_pc entityID`
+- This command adds all PlayerCollider belonging to this entity as for-each breakpoints in PlayerCollider checks
+- The grammar is almost same as ooo_add_target
+- e.g. ooo_add_target_pc Spring
+- e.g. ooo_add_target_pc Spikes[a1:09]
+- Besides, we have ooo_add_target_pc Auto, which makes the game automatically stop if a PlayerCollider collides with player
+
+### ooo_remove_target_pc
+- `ooo_remove_target_pc entityID`
+- Remove a for-each breakpoint in PlayerCollider checks
+
+### ooo_show_target_pc
+- `ooo_show_target_pc`
+- Show all for-each breakpoints in PlayerCollider checks
+
 
 ### ooo_add_autoskip
 - `ooo_add_autoskip breakpointUID`

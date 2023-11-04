@@ -1,6 +1,7 @@
 //#define OoO_Debug
 
 using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
@@ -9,6 +10,8 @@ using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Security.Policy;
 using TAS;
 using TAS.EverestInterop;
 
@@ -21,8 +24,6 @@ internal static class OoO_Core {
     private static readonly MethodInfo EntityListUpdate = typeof(EntityList).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
     private static readonly MethodInfo PlayerUpdate = typeof(Player).GetMethod("Update");
     private static readonly MethodInfo PlayerOrigUpdate = typeof(Player).GetMethod("orig_Update");
-    private static readonly MethodInfo EntityUpdateWithBreakPoints = typeof(BreakPoints.ForEachBreakPoints_EntityList).GetMethod(BreakPoints.ForEachBreakPoints_EntityList.entityUpdateWithBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
-    private static readonly MethodInfo EntityUpdateWithoutBreakPoints = typeof(BreakPoints.ForEachBreakPoints_EntityList).GetMethod(BreakPoints.ForEachBreakPoints_EntityList.entityUpdateWithoutBreakPoints, BindingFlags.NonPublic | BindingFlags.Static);
     // if we add a breakpoint to A, which is called by B, then we must add breakpoints to B
     // so that any hook given by other mods are handled properly
 
@@ -43,7 +44,7 @@ internal static class OoO_Core {
 #if OoO_Debug
             if (!debugLogged) {
                 foreach (MethodBase method in BreakPoints.detoursOnThisMethod.Keys) {
-                    Utils.CILCodeHelper.CILCodeLogger(method, 9999);
+                    //CILCodeHelper.CILCodeLogger(method, 9999);
                 }
                 debugLogged = true;
             }
@@ -103,7 +104,6 @@ internal static class OoO_Core {
         else {
             AutoSkippedBreakpoints.Add($"{BreakPoints.Prefix}{uid}");
         }
-        EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip = AutoSkippedBreakpoints.Contains(BreakPoints.Prefix + EntityUpdateWithoutBreakPoints_PrePostUpdate_UID);
     }
 
     [Command_StringParameter("ooo_remove_autoskip", "Stop autoskipping a normal breakpoint (TAS Helper)")]
@@ -111,7 +111,6 @@ internal static class OoO_Core {
         if (!AutoSkippedBreakpoints.Remove(uid)) {
             AutoSkippedBreakpoints.Remove($"{BreakPoints.Prefix}{uid}");
         }
-        EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip = AutoSkippedBreakpoints.Contains(BreakPoints.Prefix + EntityUpdateWithoutBreakPoints_PrePostUpdate_UID);
     }
 
     [Command("ooo_show_autoskip", "Show all autoskipped breakpoints (TAS Helper)")]
@@ -156,13 +155,9 @@ internal static class OoO_Core {
         */
         //No, this has to be treated specially, see ForEachBreakPoints.MarkEndingSpecial 
 
-        BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", () => EntityUpdate_withBreakPoints_Entry.SubMethodPassed = true).AddAutoSkip();
+        BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", BreakPoints.ForEachBreakPoints_EntityList.MarkSubMethodPassed).AddAutoSkip();
 
         BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => PlayerOrigUpdate_Entry.SubMethodPassed = true);
-
-        BreakPoints.MarkEnding(EntityUpdateWithBreakPoints, "Entity(Pre/./Post)Update end (with BreakPoints)", BreakPoints.ForEachBreakPoints_EntityList.EntityUpdateWithBreakPointsDone).AddAutoSkip();
-
-        EntityUpdateWithoutBreakPoints_PrePostUpdate_UID = BreakPoints.MarkEnding(EntityUpdateWithoutBreakPoints, "Entity(Pre/./Post)Update end (without BreakPoints)", BreakPoints.ForEachBreakPoints_EntityList.EntityUpdateWithoutBreakpointsDone).AddAutoSkip().UID.Replace(BreakPoints.Prefix, "");
 
         BreakPoints.CreateImpl(EngineUpdate, "EngineUpdate begin", label => (cursor, _) => {
             cursor.Emit(OpCodes.Ldstr, label);
@@ -207,13 +202,6 @@ internal static class OoO_Core {
             ins => ins.MatchCallOrCallvirt<List<Entity>>("GetEnumerator"),
             ins => ins.OpCode == OpCodes.Stloc_0).AddAutoSkip();
 
-
-        EntityUpdate_withBreakPoints_Entry = BreakPoints.CreateFull(EntityUpdateWithBreakPoints, "EntityUpdate entry", 2, NullAction, NullAction, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt<Entity>("Update")).AddAutoSkip();
-
-        EntityUpdate_withoutBreakPoints_Entry = BreakPoints.Create(EntityUpdateWithoutBreakPoints, "EntityUpdate_withoutBreakPoints begin");
-        // we need to stop here, but our message should be detailed, so we try to override it with $"{ForEachBreakPoints.curr_target_withoutBreakpoint}"
-
-        EntityUpdate_withoutBreakPoints_UID = EntityUpdate_withoutBreakPoints_Entry.UID;
 
         PlayerOrigUpdate_Entry = BreakPoints.CreateFull(PlayerUpdate, "PlayerUpdate_PlayerOrigUpdate end", 2, NullAction, NullAction).AddAutoSkip();
 
@@ -274,7 +262,7 @@ internal static class OoO_Core {
             ins => ins.OpCode == OpCodes.Brfalse
         ).AddAutoSkip();
 
-        BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_EntityCollision",
+        PlayerOrigUpdate_PlayerCollideCheckBegin_UID = BreakPoints.CreateFull(PlayerOrigUpdate, "PlayerOrigUpdate_PlayerColliderCheck begin", 0, NullAction, cursor => { cursor.Index += 8; cursor.MoveAfterLabels(); },
             ins => ins.OpCode == OpCodes.Ldarg_0,
             ins => ins.MatchCallOrCallvirt<Player>("get_Dead"),
             ins => ins.OpCode == OpCodes.Brtrue,
@@ -282,7 +270,7 @@ internal static class OoO_Core {
             ins => ins.OpCode == OpCodes.Ldfld,
             ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
             ins => ins.MatchLdcI4(21)
-        );
+        ).UID;
 
         BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate_LevelEnforceBounds",
             ins => ins.OpCode == OpCodes.Ldarg_0,
@@ -300,18 +288,25 @@ internal static class OoO_Core {
         BreakPoints.ForEachBreakPoints_EntityList.Create();
         BreakPoints.ForEachBreakPoints_EntityList.MarkEndingSpecial();
         BreakPoints.ForEachBreakPoints_EntityList.AddTarget("Player", true);
+
         /*
          * examples:
         BreakPoints.ForEachBreakPoints.AddTarget("CrystalStaticSpinner[f-11:902]");
         BreakPoints.ForEachBreakPoints.AddTarget("BadelineBoost");
+        BreakPoints.ForEachBreakPoints_EntityList.AddTarget("Each");
+        */
+
+        BreakPoints.ForEachBreakPoints_PlayerCollider.Create();
+        BreakPoints.ForEachBreakPoints_PlayerCollider.AddTarget(BreakPoints.ForEachBreakPoints_PlayerCollider.autoStopString);
+        /*
+         * examples:
+        BreakPoints.ForEachBreakPoints_PlayerCollider.AddTarget("Spring");
         */
 
         SpringBoard.Create(EngineUpdate);
         SpringBoard.Create(LevelUpdate);
         SpringBoard.Create(SceneUpdate);
         SpringBoard.CreateSpecial();
-        SpringBoard.Create(EntityUpdateWithBreakPoints);
-        SpringBoard.Create(EntityUpdateWithoutBreakPoints);
         SpringBoard.Create(PlayerUpdate);
         SpringBoard.Create(PlayerOrigUpdate);
 
@@ -332,7 +327,6 @@ internal static class OoO_Core {
             }
         }, manualConfig);
 
-        EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip = AutoSkippedBreakpoints.Contains(BreakPoints.Prefix + EntityUpdateWithoutBreakPoints_PrePostUpdate_UID);
     }
 
     private static ILHook hookTASIsPaused;
@@ -351,6 +345,7 @@ internal static class OoO_Core {
         Applied = true;
         ResetLongtermState();
         ResetTempState();
+        ActualCollideHitboxDelegatee.StopActualCollideHitbox();
         SendTextImmediately("OoO Stepping begin");
     }
 
@@ -367,6 +362,7 @@ internal static class OoO_Core {
         ResetTempState();
         overrideStepping = false;
         prepareToUltraFastForwarding = false;
+        ActualCollideHitboxDelegatee.RecoverActualCollideHitbox();
         SendTextImmediately("OoO Stepping end");
     }
 
@@ -387,9 +383,10 @@ internal static class OoO_Core {
         EntityListUpdate_ForEach_Entry.SubMethodPassed = false;
         PlayerOrigUpdate_Entry.SubMethodPassed = false;
         BreakPoints.latestBreakpointBackup.Clear();
+        BreakPoints.ForEachBreakPoints_EntityList.Reset();
+        BreakPoints.ForEachBreakPoints_PlayerCollider.Reset();
     }
     private static void ResetTempState() {
-        EntityUpdate_withBreakPoints_Entry.SubMethodPassed = false;
         BreakPoints.ForEachBreakPoints_EntityList.ResetTemp();
         BreakPoints.ForEachBreakPoints_PlayerCollider.ResetTemp();
         BreakPoints.passedBreakpoints.Clear();
@@ -399,8 +396,6 @@ internal static class OoO_Core {
     private static BreakPoints SceneUpdate_Entry;
     private static BreakPoints EntityListUpdate_Entry;
     private static BreakPoints EntityListUpdate_ForEach_Entry;
-    private static BreakPoints EntityUpdate_withBreakPoints_Entry;
-    private static BreakPoints EntityUpdate_withoutBreakPoints_Entry;
     private static BreakPoints PlayerOrigUpdate_Entry;
 
     private class BreakPoints {
@@ -591,24 +586,21 @@ internal static class OoO_Core {
 
             private static readonly HashSet<string> targets_withBreakpoints = new();
 
-            private static readonly HashSet<string> targets_anyUID = new();
-
-            private static readonly HashSet<string> removed_targets = new();
-
-            private static readonly HashSet<string> partly_done_targets = new();
+            private static readonly HashSet<Entity> removed_targets = new();
 
             internal static string curr_target_withBreakpoint;
 
             internal static string curr_target_withoutBreakpoint;
 
             private static int passed_targets = 0;
-            private static int expected_passed_targets => partly_done_targets.Count;
+
+            private static int expected_passed_targets = 0;
 
             internal static bool ultraFastForwarding = false;
 
-            private const string anyUID_postfix = "[%]";
+            public const string eachString = "Each";
 
-            private const string indeedAny = "Each";
+            private static bool checkEach = false;
 
             private static IDetour detour;
 
@@ -638,21 +630,13 @@ internal static class OoO_Core {
                                 cursor.EmitDelegate(IsRunNormally);
                                 cursor.Emit(OpCodes.Brtrue, Ins_run_normally);
                                 cursor.Emit(OpCodes.Ldloc_1);
-                                cursor.EmitDelegate(EntityUpdateWithBreakPoints);
+                                cursor.EmitDelegate(TargetEntityUpdate);
                                 cursor.Emit(OpCodes.Leave_S, Ins_ret);
-                                cursor.Emit(OpCodes.Ldloc_1);
-                                cursor.EmitDelegate(EntityUpdateWithoutBreakPoints);
-                                cursor.Emit(OpCodes.Leave_S, Ins_ret);
-                                cursor.Index -= 3;
-                                Instruction Ins_TargetWithoutBreakpoints = cursor.Next;
-                                cursor.Index -= 3;
-                                cursor.EmitDelegate(IsTargetWithBreakPoints);
-                                cursor.Emit(OpCodes.Brfalse, Ins_TargetWithoutBreakpoints);
                             }
 #if OoO_Debug
-                        else {
-                            failedHooks.Add($"\n ForEachBreakPoints_EntityList");
-                        }
+                            else {
+                                failedHooks.Add($"\n ForEachBreakPoints_EntityList");
+                            }
 #endif
 
                         }
@@ -671,7 +655,7 @@ internal static class OoO_Core {
                 Func<string, Action<ILCursor, ILContext>> manipulator = (label) => (cursor, _) => {
                     if (cursor.TryGotoNext(MoveType.Before, ins => ins.OpCode == OpCodes.Leave_S, ins => ins.MatchLdloca(0), ins => ins.OpCode == OpCodes.Constrained, ins => ins.MatchCallOrCallvirt<IDisposable>("Dispose"), ins => ins.OpCode == OpCodes.Endfinally)) {
                         cursor.Emit(OpCodes.Ldstr, label);
-                        cursor.EmitDelegate(RecordLabelWrap);
+                        cursor.EmitDelegate(RecordLabelWrapper);
                         cursor.EmitDelegate(() => {
                             EntityListUpdate_Entry.SubMethodPassed = true;
                             BreakPoints.ForEachBreakPoints_EntityList.Reset();
@@ -683,8 +667,8 @@ internal static class OoO_Core {
 
             internal static string endingLabel;
 
-            private static void RecordLabelWrap(string s) {
-                RecordLabel(s);
+            private static void RecordLabelWrapper(string str) {
+                RecordLabel(str);
             }
             public static string GetID(Entity entity) {
                 return entity.GetType().Name;
@@ -697,17 +681,9 @@ internal static class OoO_Core {
                 return $"{entity.GetType().Name}";
             }
 
-            public static void AddTarget(Entity entity, bool hasBreakPoints = false) {
-                string str = GetID(entity);
-                targets.Add(str);
-                if (hasBreakPoints) {
-                    targets_withBreakpoints.Add(str);
-                }
-            }
-
             public static void AddTarget(string entityUID, bool hasBreakPoints = false) {
-                if (entityUID.EndsWith(anyUID_postfix)) {
-                    targets_anyUID.Add(entityUID.Remove(entityUID.Length - anyUID_postfix.Length));
+                if (entityUID == eachString) {
+                    checkEach = true;
                     return;
                 }
 
@@ -717,7 +693,7 @@ internal static class OoO_Core {
                 }
             }
 
-            [Command_StringParameter("ooo_add_target", "Add the entity as a for-each breakpoint of the OoO stepping (TAS Helper)")]
+            [Command_StringParameter("ooo_add_target", "Add the entity as a for-each breakpoint in EntityList.Update() (TAS Helper OoO Stepping)")]
             public static void CmdAddTarget(string UID) {
                 if (UID.StartsWith("Player") && (UID == "Player" || (player is not null && UID == GetUID(player)))) {
                     AddTarget("Player", true);
@@ -728,22 +704,23 @@ internal static class OoO_Core {
                 // it's not easy to add a target with breakpoints via cmd (and unncessary), so i only provide this
             }
 
-            [Command_StringParameter("ooo_remove_target", "Remove a for-each breakpoint of the OoO stepping (TAS Helper)")]
+            [Command_StringParameter("ooo_remove_target", "Remove a for-each breakpoint in EntityList.Update() (TAS Helper OoO Stepping)")]
             public static void RemoveTarget(string UID) {
+                if (UID == eachString) {
+                    checkEach = false;
+                    return;
+                }
                 targets.Remove(UID);
                 targets_withBreakpoints.Remove(UID);
-                if (UID.EndsWith(anyUID_postfix)) {
-                    targets_anyUID.Remove(UID.Remove(UID.Length - anyUID_postfix.Length));
-                }
             }
 
-            [Command("ooo_show_target", "Show all for-each breakpoints of the OoO stepping (TAS Helper)")]
+            [Command("ooo_show_target", "Show all for-each breakpoints in EntityList.Update() (TAS Helper OoO Stepping)")]
             public static void ShowTarget() {
                 foreach (string s in targets) {
                     Celeste.Commands.Log(s);
                 }
-                foreach (string s in targets_anyUID) {
-                    Celeste.Commands.Log(s + anyUID_postfix);
+                if (checkEach) {
+                    Celeste.Commands.Log(eachString);
                 }
             }
 
@@ -764,84 +741,92 @@ internal static class OoO_Core {
 
             public static void Reset() {
                 removed_targets.Clear();
-                partly_done_targets.Clear();
+                expected_passed_targets = 0;
                 passed_targets = 0;
                 ultraFastForwarding = false;
+                firstLoop = true;
+                flag1 = flag2 = true;
             }
 
             public static void ResetTemp() {
                 passed_targets = 0;
+                trackedEntity = null;
             }
 
             private static void EntityUpdateWithBreakPoints(Entity entity) {
-                entity._PreUpdate();
+                if (flag1) {
+                    trackedEntity = entity;
+                    expected_passed_targets++;
+                    entity._PreUpdate();
+                    flag1 = false;
+                }
                 if (entity.Active) {
                     entity.Update();
+                    if (flag2) {
+                        return;
+                    }
                 }
                 entity._PostUpdate();
-            }
-
-            public static string entityUpdateWithBreakPoints => nameof(EntityUpdateWithBreakPoints);
-
-            public static string entityUpdateWithoutBreakPoints => nameof(EntityUpdateWithoutBreakPoints);
-
-            private static void EntityUpdateWithoutBreakPoints(Entity entity) {
-                entity._PreUpdate();
-                if (entity.Active) {
-                    entity.Update();
-                }
-                entity._PostUpdate();
-            }
-
-            public static void EntityUpdateWithBreakPointsDone() {
                 /*
-                 * EntityUpdate with BreakPoints are added manually, and will have a MarkEnding to make
-                 *     EntityUpdate_withBreakPoints_Entry.SubMethodPassed = true
+                 * EntityUpdate with BreakPoints are added manually, and will have a MarkEnding to call MarkSubMethodPassed()
                  * So there's already a SendText call
                 */
-
-                BreakPoints.passedBreakpoints.Remove(EntityUpdate_withBreakPoints_Entry.UID);
-                BreakPoints.latestBreakpointBackup.Remove(OoO_Core.EntityUpdateWithBreakPoints);
-                removed_targets.Add(curr_target_withBreakpoint);
+                flag1 = flag2 = true;
+                removed_targets.Add(entity);
             }
 
-            public static void EntityUpdateWithoutBreakpointsDone() {
+            private static bool flag1 = true;
+            private static bool flag2 = true;
+
+            public static void MarkSubMethodPassed() {
+                flag2 = false;
+            }
+
+            private static bool firstLoop = true;
+            private static void EntityUpdateWithoutBreakPoints(Entity entity) {
+                if (firstLoop) {
+                    expected_passed_targets++;
+                    if (!checkEach) { 
+                        SendText($"{curr_target_withoutBreakpoint} Update begin");
+                        firstLoop = false;
+                        return;
+                    }
+                }
+
+
+                entity._PreUpdate();
+                if (entity.Active) {
+                    entity.Update();
+                }
+                entity._PostUpdate();
+
+
+                firstLoop = true;
                 if (prepareToUltraFastForwarding) {
                     ultraFastForwarding = true;
                 }
-                SendText($"{curr_target_withoutBreakpoint} Update end");
-                BreakPoints.passedBreakpoints.Remove(EntityUpdate_withoutBreakPoints_Entry.UID);
-                BreakPoints.latestBreakpointBackup.Remove(OoO_Core.EntityUpdateWithoutBreakPoints);
-                removed_targets.Add(curr_target_withoutBreakpoint);
+                if (checkEach) {
+                    SendText($"{curr_target_withoutBreakpoint} Update");
+                }
+                else{
+                    SendText($"{curr_target_withoutBreakpoint} Update end");
+                }
+                removed_targets.Add(entity);
             }
 
             public static bool CheckContain(Entity entity, out string id) {
-                return CheckContain(targets, targets_anyUID, entity, out id);
-            }
-
-            public static bool CheckContain(HashSet<string> targets, HashSet<string> targets_anyUID, Entity entity, out string id) {
                 string ID = GetID(entity);
-                if (targets.Contains(ID)) {
-                    id = ID;
-                    return true;
-                }
+                id = ID;
                 if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
                     id = $"{entity.GetType().Name}[{entityID}]";
-                    if (targets.Contains(id)) {
-                        return true;
-                    }
-                    else if (targets_anyUID.Contains(ID) || targets_anyUID.Contains(indeedAny)) {
-                        return true;
-                    }
                 }
-                id = "";
-                return false;
+                return checkEach || targets.Contains(id) || targets.Contains(ID);
             }
 
             private static bool IsGotoContinue(Entity entity) {
                 if (localvar_contain = CheckContain(entity, out localvar_entityId)) {
                     passed_targets++;
-                    if (removed_targets.Contains(localvar_entityId)) {
+                    if (removed_targets.Contains(entity)) {
                         return true;
                     }
                 }
@@ -852,62 +837,73 @@ internal static class OoO_Core {
                 return ultraFastForwarding || !localvar_contain;
             }
 
-            private static bool IsTargetWithBreakPoints() {
-                partly_done_targets.Add(localvar_entityId);
-                bool b = targets_withBreakpoints.Contains(localvar_entityId);
-                if (b) {
+            private static void TargetEntityUpdate(Entity entity) {
+                if (targets_withBreakpoints.Contains(GetID(entity)) || targets_withBreakpoints.Contains(localvar_entityId)) {
                     /*
                      * EntityUpdate with BreakPoints are added manually, and will usually mark the beginning
                      * so we don't need to send text here
                      */
                     curr_target_withBreakpoint = localvar_entityId;
+                    EntityUpdateWithBreakPoints(entity);
                 }
                 else {
-                    SendText($"{localvar_entityId} Update begin");
+                    trackedEntity = entity;
                     curr_target_withoutBreakpoint = localvar_entityId;
+                    EntityUpdateWithoutBreakPoints(entity);
                 }
-                return b;
             }
 
+            internal static Entity trackedEntity;
         }
 
 
-        
         public static class ForEachBreakPoints_PlayerCollider {
 
             private static readonly HashSet<string> targets = new();
 
-            private static readonly HashSet<string> targets_anyUID = new();
+            private static readonly HashSet<PlayerCollider> removed_targets = new();
 
-            private static readonly HashSet<string> removed_targets = new();
-
-            private static readonly HashSet<string> partly_done_targets = new();
-
-            internal static string curr_target_withoutBreakpoint;
+            internal static string curr_target;
 
             private static int passed_targets = 0;
-            private static int expected_passed_targets => partly_done_targets.Count;
+
+            private static int expected_passed_targets = 0;
 
             internal static bool ultraFastForwarding = false;
 
-            private const string anyUID_postfix = "[%]";
+            public const string eachString = "Each";
 
-            private const string indeedAny = "Each";
+            public const string autoStopString = "Auto";
 
             private static IDetour detour;
 
             internal static void Create() {
                 using (new DetourContext { Before = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_PlayerCollider" }) {
                     detour = new ILHook(PlayerOrigUpdate, il => {
-                        ILCursor cursor = new ILCursor(il);
-                        if (cursor.TryGotoNext(ins => ins.MatchLdcI4(21), ins => ins.OpCode == OpCodes.Beq, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallOrCallvirt<Entity>("get_Collider"), ins => ins.OpCode == OpCodes.Stloc_S, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchLdfld<Player>("Hurtbox"), ins => ins.MatchCallOrCallvirt<Entity>("set_Collider"))) {
-                            cursor.Index++;
-                            cursor.Next.MatchBeq(out ILLabel lateReturnTarget);
-                            cursor.Index++;
-                            cursor.MoveAfterLabels();
+                    ILCursor cursor = new ILCursor(il);
+                        cursor.TryGotoNext(
+                        ins => ins.OpCode == OpCodes.Ldarg_0,
+                        ins => ins.MatchCallOrCallvirt<Player>("get_Dead"),
+                        ins => ins.OpCode == OpCodes.Brtrue,
+                        ins => ins.OpCode == OpCodes.Ldarg_0,
+                        ins => ins.OpCode == OpCodes.Ldfld,
+                        ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
+                        ins => ins.MatchLdcI4(21));
+                        cursor.Index += 7;
+                        cursor.Next.MatchBeq(out ILLabel normalExitTarget);
+                        
+                        if (cursor.TryGotoNext(MoveType.AfterLabel,
+                            ins => ins.OpCode == OpCodes.Ldarg_0,
+                            ins => ins.MatchCallOrCallvirt<Entity>("get_Collider"),
+                            ins => ins.OpCode == OpCodes.Stloc_S,
+                            ins => ins.OpCode == OpCodes.Ldarg_0,
+                            ins => ins.OpCode == OpCodes.Ldarg_0,
+                            ins => ins.MatchLdfld<Player>("hurtbox"),
+                            ins => ins.MatchCallOrCallvirt<Entity>("set_Collider")
+                        )) {
                             cursor.Emit(OpCodes.Ldarg_0);
                             cursor.EmitDelegate(PCCheck);
-                            cursor.Emit(OpCodes.Brtrue, lateReturnTarget);
+                            cursor.Emit(OpCodes.Brtrue, normalExitTarget);
                             cursor.Emit(OpCodes.Ret);
                         }
 #if OoO_Debug
@@ -919,54 +915,105 @@ internal static class OoO_Core {
                 }
             }
 
+            [MethodImpl(MethodImplOptions.NoInlining)]
             private static bool PCCheck(Player player) {
+                if (leaveInNextLoop) {
+                    leaveInNextLoop = false;
+                    return true;
+                }
                 switch (PCCheckCore(player)) {
                     case ReturnType.EarlyReturn: {
+                        RecoverHitbox(player);
                         return false;
                     }
                     case ReturnType.DeathReturn: {
-                        Reset();
+                        CompleteEvent();
                         return false;
                     }
                     case ReturnType.LateReturn: {
-                        Reset();
-                        return true;
+                        CompleteEvent();
+                        return false;
                     }
                 }
                 return true;
             }
 
+            private static bool leaveInNextLoop = false;
+
+            private static bool firstEnter = true;
+            private static void CompleteEvent() {
+                SendText("PlayerOrigUpdate_PlayerColliderCheck end");
+                Reset();
+                leaveInNextLoop = true;
+            }
+
+            private static void RecoverHitbox(Player player) {
+                if (player.Collider == player.hurtbox) {
+                    player.Collider = stored_Hitbox;
+                    recoverHurtbox = true;
+                }
+            }
+
+            private static bool recoverHurtbox = false;
 
             private enum ReturnType { EarlyReturn, LateReturn, DeathReturn };
             private static ReturnType PCCheckCore(Player player) {
-                stored_Collider = player.Collider;
-                player.Collider = player.hurtbox;
+                if (firstEnter) {
+                    firstEnter = false;
+                    stored_Hitbox = player.Collider;
+                    player.Collider = player.hurtbox;
+                }
+                else if (recoverHurtbox) {
+                    player.Collider = player.hurtbox;
+                    recoverHurtbox = false;
+                }
+
                 foreach (PlayerCollider pc in player.Scene.Tracker.GetComponents<PlayerCollider>()) {
                     if (IsGotoContinue(pc, out string entityId, out bool contain)) {
                         continue;
                     }
-                    if (ultraFastForwarding || !contain) {
+                    if (ultraFastForwarding) {
                         if (pc.Check(player) && player.Dead) {
-                            player.Collider = stored_Collider;
+                            player.Collider = stored_Hitbox;
+                            trackedPC = pc;
                             return ReturnType.DeathReturn;
                         }
                     }
+                    else if (!contain) {
+                        if (pc.Check(player)) {
+                            trackedPC = pc;
+                            if (player.Dead) {
+                                player.Collider = stored_Hitbox;
+                                return ReturnType.DeathReturn;
+                            }
+                            else if (autoStop) {
+                                SendText($"{entityId}'s PlayerCollider check");
+                                removed_targets.Add(pc);
+                                if (prepareToUltraFastForwarding) {
+                                    ultraFastForwarding = true;
+                                }
+                                return ReturnType.EarlyReturn;
+                            }
+                        }
+                    }
                     else {
-                        partly_done_targets.Add(entityId);
-                        SendText($"{entityId} Update begin");
-                        curr_target_withoutBreakpoint = entityId;
+                        curr_target = entityId;
+                        trackedPC = pc;
                         if (waitForNextLoop) {
+                            expected_passed_targets++;
+                            SendText($"{entityId}'s PlayerCollider check begin");
                             waitForNextLoop = false;
                             return ReturnType.EarlyReturn;
                         }
                         else {
                             waitForNextLoop = true;
                             if (pc.Check(player) && player.Dead) {
-                                player.Collider = stored_Collider;
+                                player.Collider = stored_Hitbox;
                                 return ReturnType.DeathReturn;
                             }
                             else {
-                                removed_targets.Add(curr_target_withoutBreakpoint);
+                                SendText($"{entityId}'s PlayerCollider check end");
+                                removed_targets.Add(pc);
                                 if (prepareToUltraFastForwarding) {
                                     ultraFastForwarding = true;
                                 }
@@ -976,40 +1023,28 @@ internal static class OoO_Core {
                     }
                 }
                 if (player.Collider == player.hurtbox) {
-                    player.Collider = stored_Collider;
+                    player.Collider = stored_Hitbox;
                 }
                 return ReturnType.LateReturn;
             }
 
-            private static Collider stored_Collider;
+            private static Collider stored_Hitbox = new Hitbox(8f, 11f, -4f, -11f);
 
             private static bool waitForNextLoop = true;
 
+            private static bool autoStop = false;
 
-            public static string GetID(Entity entity) {
-                return entity.GetType().Name;
-            }
+            private static bool checkEach = false;
+
+            internal static PlayerCollider trackedPC;
+
             public static bool CheckContain(Entity entity, out string id) {
-                return CheckContain(targets, targets_anyUID, entity, out id);
-            }
-
-            public static bool CheckContain(HashSet<string> targets, HashSet<string> targets_anyUID, Entity entity, out string id) {
-                string ID = GetID(entity);
-                if (targets.Contains(ID)) {
-                    id = ID;
-                    return true;
-                }
+                string ID = entity.GetType().Name;
+                id = ID;
                 if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
                     id = $"{entity.GetType().Name}[{entityID}]";
-                    if (targets.Contains(id)) {
-                        return true;
-                    }
-                    else if (targets_anyUID.Contains(ID) || targets_anyUID.Contains(indeedAny)) {
-                        return true;
-                    }
                 }
-                id = "";
-                return false;
+                return checkEach || targets.Contains(id) || targets.Contains(ID);
             }
 
             private static bool IsGotoContinue(PlayerCollider pc, out string entityId, out bool contain) {
@@ -1020,22 +1055,25 @@ internal static class OoO_Core {
                 }
                 if (contain = CheckContain(entity, out entityId)) {
                     passed_targets++;
-                    if (removed_targets.Contains(entityId)) {
-                        return true;
-                    }
+                }
+                if (removed_targets.Contains(pc)) { // removed_targets may be added by autostop (thus may not pass CheckContain), so we move it out here
+                    return true;
                 }
                 return passed_targets < expected_passed_targets;
             }
 
 
-            [Command_StringParameter("ooo_add_target_pc", "Add the entity as a for-each breakpoint (pc) of the OoO stepping (TAS Helper)")]
+            [Command_StringParameter("ooo_add_target_pc", "Add the entity as a for-each breakpoint in PlayerCollider checks (TAS Helper OoO Stepping)")]
             public static void AddTarget(string UID) {
-                if (UID.EndsWith(anyUID_postfix)) {
-                    targets_anyUID.Add(UID.Remove(UID.Length - anyUID_postfix.Length));
-                    return;
+                if (UID == autoStopString) {
+                    autoStop = true;
                 }
-
-                targets.Add(UID);
+                else if (UID == eachString) {
+                    checkEach = true;
+                }
+                else {
+                    targets.Add(UID);
+                }
 
                 if (haveTryToApply && !applied) {
                     detour.Apply();
@@ -1044,34 +1082,45 @@ internal static class OoO_Core {
                 }
             }
 
-            [Command_StringParameter("ooo_remove_target_pc", "Remove a for-each breakpoint (pc) of the OoO stepping (TAS Helper)")]
+            [Command_StringParameter("ooo_remove_target_pc", "Remove a for-each breakpoint in PlayerCollider checks (TAS Helper OoO Stepping)")]
             public static void RemoveTarget(string UID) {
-                targets.Remove(UID);
-                if (UID.EndsWith(anyUID_postfix)) {
-                    targets_anyUID.Remove(UID.Remove(UID.Length - anyUID_postfix.Length));
+                if (UID == autoStopString) {
+                    autoStop = false;
+                }
+                else if (UID == eachString) {
+                    checkEach = false;
+                }
+                else { 
+                    targets.Remove(UID);
                 }
 
-                if (targets.IsNullOrEmpty() && applied) {
+                if (!ShouldApply && applied) {
                     detour.Undo();
                     Reset();
                     applied = false;
                 }
             }
 
-            [Command("ooo_show_target_pc", "Show all for-each breakpoints (pc) of the OoO stepping (TAS Helper)")]
+            [Command("ooo_show_target_pc", "Show all for-each breakpoints in PlayerCollider checks (TAS Helper OoO Stepping)")]
             public static void ShowTarget() {
                 foreach (string s in targets) {
                     Celeste.Commands.Log(s);
                 }
-                foreach (string s in targets_anyUID) {
-                    Celeste.Commands.Log(s + anyUID_postfix);
+                if (checkEach) {
+                    Celeste.Commands.Log(eachString) ;
+                }
+                if (autoStop) {
+                    Celeste.Commands.Log(autoStopString);
                 }
             }
 
             private static bool haveTryToApply = false;
-            private static bool applied = false;
+            internal static bool applied = false;
+
+            public static bool ShouldApply => targets.IsNotNullOrEmpty() || checkEach || autoStop;
+    
             public static void Apply() {
-                if (targets.IsNotNullOrEmpty()) {
+                if (ShouldApply) {
                     detour.Apply();
                     applied = true;
                 }
@@ -1093,15 +1142,19 @@ internal static class OoO_Core {
 
             public static void Reset() {
                 removed_targets.Clear();
-                partly_done_targets.Clear();
+                expected_passed_targets = 0;
                 passed_targets = 0;
                 ultraFastForwarding = false;
-                stored_Collider = null;
+                stored_Hitbox = null;
                 waitForNextLoop = true;
+                leaveInNextLoop = false;
+                firstEnter = true;
+                recoverHurtbox = false;
             }
 
             public static void ResetTemp() {
                 passed_targets = 0;
+                trackedPC = null;
             }
         }
         
@@ -1175,7 +1228,7 @@ internal static class OoO_Core {
                     if (BreakPoints.HashPassedBreakPoints.Contains(BreakPoints.ForEachBreakPoints_EntityList.endingLabel)) {
                         cursor.Emit(OpCodes.Ret);
 #if OoO_Debug
-                        jumpLog.Add($"\n EntityListUpdate end | Finished: true");
+                        jumpLog.Add($"\n EntityListUpdate end | Finished: True");
 #endif
                         return;
                     }
@@ -1248,11 +1301,13 @@ internal static class OoO_Core {
         using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }, Before = new List<string> { "TASHelper" }, ID = "TAS Helper OoO_Core OnLevelRender" }) {
             On.Celeste.Level.Render += OnLevelRender;
         }
+        On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
     }
 
     [Unload]
     public static void Unload() {
         On.Celeste.Level.Render -= OnLevelRender;
+        On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
     }
     private static void OnLevelRender(On.Celeste.Level.orig_Render orig, Level self) {
         if (Applied) {
@@ -1260,8 +1315,8 @@ internal static class OoO_Core {
                 UndoAll();
             }
             else {
-                if (lastText == EntityUpdate_withoutBreakPoints_UID) {
-                    SendTextImmediately($"{BreakPoints.ForEachBreakPoints_EntityList.curr_target_withoutBreakpoint} Update begin");
+                if (lastText == PlayerOrigUpdate_PlayerCollideCheckBegin_UID && !BreakPoints.ForEachBreakPoints_PlayerCollider.applied) {
+                    SendTextImmediately("PlayerOrigUpdate_PlayerColliderCheck");
                 }
                 else if (lastText != "") {
                     SendTextImmediately(lastText.Replace(BreakPoints.Prefix, ""));
@@ -1317,17 +1372,63 @@ internal static class OoO_Core {
     }
 
     private static void SendTextImmediately(string str) {
-        if (overrideStepping && EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip && str == EntityUpdateWithoutBreakPoints_PrePostUpdate_UID) {
-            return;
-        }
         HotkeyWatcher.Refresh(str);
     }
 
-    private static string EntityUpdate_withoutBreakPoints_UID;
-
-    private static string EntityUpdateWithoutBreakPoints_PrePostUpdate_UID;
-
-    private static bool EntityUpdateWithoutBreakPoints_PrePostUpdate_UltraAutoSkip = false;
-
     private static bool needGameInfoUpdate = false;
+
+    private static string PlayerOrigUpdate_PlayerCollideCheckBegin_UID;
+
+    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
+        orig(self, camera);
+        if (Applied) {
+            OoO_Highlighter.UpdateTime();
+            OoO_Highlighter.DebugRender(camera);
+        }
+    }
+    private static class OoO_Highlighter{
+
+        public static float oscillator => Monocle.Calc.YoYo(time);
+
+        public static float time = 0f;
+
+        public static float speed = 0.033f;
+
+        public static void UpdateTime() {
+            time += speed;
+            if (time > 1f) {
+                time -= 1f;
+            }
+        }
+
+        public static Entity trackedEntity => BreakPoints.ForEachBreakPoints_EntityList.trackedEntity;
+
+        public static PlayerCollider trackedPC => BreakPoints.ForEachBreakPoints_PlayerCollider.trackedPC;
+
+        public static Color HighLightColor => Color.Lerp(Color.Cyan, Color.Red, oscillator);
+
+        public static void DebugRender(Camera camera) {
+            // originally, i debugrender this via an entity, whose depth is the trackedEntity/PC's depth -1
+            // however, if we do so, then we need to call EntityList.UpdateList()
+            // in some worst cases, this will lead to Entities removed from scene
+            // thus interfere the for-each breakpoints running
+            // e.g. an entity which updates before Player, and become removed, will make Player's update only called once
+            if (trackedPC?.Entity is { } entity) {
+                Collider collider = trackedPC.Collider;
+                if (trackedPC.FeatherCollider != null && player is not null && player.StateMachine.state == 19) {
+                    collider = trackedPC.FeatherCollider;
+                }
+                collider ??= entity.Collider;
+                collider?.Render(camera, HighLightColor);
+            }
+            else if (trackedEntity is not null) {
+                if (trackedEntity.Collider is not null) {
+                    trackedEntity.Collider.Render(camera, HighLightColor);
+                }
+                else {
+                    Monocle.Draw.Point(trackedEntity.Position, HighLightColor);
+                }
+            }
+        }
+    }
 }

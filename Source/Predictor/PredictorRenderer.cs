@@ -25,6 +25,9 @@ public class PredictorRenderer : Entity {
 
     private const string textRendererLabel = "PredictorKeyframe";
 
+    public PredictorRenderer() {
+        Depth = 1;
+    }
     public static void ClearCachedMessage() {
         if (keyframeMessageCached) {
             TempTextRenderer.Clear(textRendererLabel);

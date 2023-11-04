@@ -34,10 +34,20 @@ internal static class ActualCollideHitboxDelegatee {
     }
 
     public static bool IfGotoLoadNull() {
-        return protectOrig;
+        return protectOrig || protectOrig_2;
+    }
+
+    public static void StopActualCollideHitbox() {
+        protectOrig_2 = true;
+    }
+
+    public static void RecoverActualCollideHitbox() {
+        protectOrig_2 = false;
     }
 
     internal static bool protectOrig = false;
+
+    private static bool protectOrig_2 = false;
 
     private static readonly Dictionary<Entity, bool> LastCollidables = new();
 
