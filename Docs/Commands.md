@@ -10,8 +10,8 @@
 ### ooo_remove_target
 - `ooo_remove_target entityID`
 - Remove a for-each breakpoint in EntityList.Update()
-- When entityID is not added, but 'Each' is added, then it works like 'Each except entityID'
-- When we have a 'Each except entityID', and use 'ooo_add_target entityID', then we get 'Each' back.
+- When entityID is not added, but "Each" is added, then it works like "Each except entityID"
+- When we have a "Each except entityID", and use "ooo_add_target entityID", then we get "Each" back.
 - e.g. ooo_add_target Each, ooo_remove_target Decal. Then all entities except Decal will be breakpoints.
 
 ### ooo_show_target
@@ -24,8 +24,8 @@
 - e.g. ooo_add_target_pc Spring
 - e.g. ooo_add_target_pc Spikes[a1:09]
 - e.g. ooo_add_target_pc Auto
-- The grammar is almost same as ooo_add_target, but without the 'except' grammar
-- Instead, we have 'ooo_add_target_pc Auto', which makes the game automatically stop if a PlayerCollider collides with player
+- The grammar is almost same as ooo_add_target, but without the "except" grammar
+- Instead, we have "ooo_add_target_pc Auto", which makes the game automatically stop if a PlayerCollider collides with player
 
 ### ooo_remove_target_pc
 - `ooo_remove_target_pc entityID`
@@ -37,7 +37,7 @@
 
 ### ooo_add_autoskip
 - `ooo_add_autoskip breakpointUID`
-- e.g. ooo_add_autoskip EngineUpdate\sbegin
+- e.g. ooo_add_autoskip EngineUpdate begin
 - breakpointUID can contain arbitrarily many single spaces
 - if you need to type consecutive spaces, type "\s" instead
 - can't autoskip for-each breakpoints. Use ooo_remove_target instead
