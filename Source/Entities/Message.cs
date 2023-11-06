@@ -108,6 +108,7 @@ public class EntityActivatorWarner : Message {
         Visible = TasHelperSettings.EntityActivatorReminder;
         lifetimer -= Engine.RawDeltaTime;
         if (lifetimer < 0) {
+            Visible = false;
             RemoveSelf();
             return;
         }

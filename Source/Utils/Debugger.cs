@@ -101,7 +101,7 @@ public static class DebugHelper {
     }
     public static bool StartToLog = false;
 }
-#endif
+
 
 public static class Logger {
     public static int stringLength = 0;
@@ -109,18 +109,13 @@ public static class Logger {
     public static StringBuilder StringBuilder = new StringBuilder();
     public const string sep = ", ";
 
-#if usingDebug
-    public static void Log(this object? obj, string? after = null, string? before = null, bool onlyDebug = true) {
-        orig_Log(obj, after, before);
-    }
-#else
     public static void Log(this object? obj, string? after = null, string? before = null, bool onlyDebug = true) {
         if (onlyDebug) {
             return;
         }
         orig_Log(obj, after, before);
     }
-#endif
+
     public static void orig_Log(this object? obj, string? after = null, string? before = null) {
         if (before != null || after != null) {
             orig_Log(before);
@@ -218,3 +213,4 @@ public static class Logger {
     }
 
 }
+#endif

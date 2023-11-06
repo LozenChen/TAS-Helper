@@ -1007,33 +1007,19 @@ internal static class OoO_Core {
                     if (IsGotoContinue(pc, out string entityId, out bool contain)) {
                         continue;
                     }
-                    if (ultraFastForwarding) {
-                        if (pc.Check(player) && player.Dead) {
-                            player.Collider = stored_Hitbox;
-                            trackedPC = pc;
-                            return ReturnType.DeathReturn;
+
+                    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                    ReturnType AfterCheckInOneStep() {
+                        SendText($"{entityId}'s PlayerCollider check");
+                        removed_targets.Add(pc);
+                        if (prepareToUltraFastForwarding) {
+                            ultraFastForwarding = true;
                         }
+                        return ReturnType.EarlyReturn;
                     }
-                    else if (!contain) {
-                        if (pc.Check(player)) {
-                            trackedPC = pc;
-                            if (player.Dead) {
-                                player.Collider = stored_Hitbox;
-                                return ReturnType.DeathReturn;
-                            }
-                            else if (autoStop) {
-                                SendText($"{entityId}'s PlayerCollider check");
-                                removed_targets.Add(pc);
-                                if (prepareToUltraFastForwarding) {
-                                    ultraFastForwarding = true;
-                                }
-                                return ReturnType.EarlyReturn;
-                            }
-                        }
-                    }
-                    else {
-                        curr_target = entityId;
-                        trackedPC = pc;
+
+                    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                    ReturnType CheckInTwoSteps() {
                         if (waitForNextLoop) {
                             expected_passed_targets++;
                             SendText($"{entityId}'s PlayerCollider check begin");
@@ -1054,6 +1040,45 @@ internal static class OoO_Core {
                                 }
                                 return ReturnType.EarlyReturn;
                             }
+                        }
+                    }
+
+
+
+                    if (ultraFastForwarding) {
+                        if (pc.Check(player) && player.Dead) {
+                            player.Collider = stored_Hitbox;
+                            trackedPC = pc;
+                            return ReturnType.DeathReturn;
+                        }
+                    }
+                    else if (!checkEach && !contain) {
+                        if (pc.Check(player)) {
+                            trackedPC = pc;
+                            if (player.Dead) {
+                                player.Collider = stored_Hitbox;
+                                return ReturnType.DeathReturn;
+                            }
+                            else if (autoStop) {
+                                return AfterCheckInOneStep();
+                            }
+                        }
+                    }
+                    else {
+                        curr_target = entityId;
+                        trackedPC = pc;
+                        if (checkEach) {
+                            expected_passed_targets++;
+                            if (pc.Check(player) && player.Dead) {
+                                player.Collider = stored_Hitbox;
+                                return ReturnType.DeathReturn;
+                            }
+                            else {
+                                return AfterCheckInOneStep();
+                            }
+                        }
+                        else {
+                            return CheckInTwoSteps();
                         }
                     }
                 }
@@ -1079,17 +1104,17 @@ internal static class OoO_Core {
                 if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
                     id = $"{entity.GetType().Name}[{entityID}]";
                 }
-                return checkEach || targets.Contains(id) || targets.Contains(ID);
+                return targets.Contains(id) || targets.Contains(ID);
             }
 
             private static bool IsGotoContinue(PlayerCollider pc, out string entityId, out bool contain) {
                 if (pc.Entity is not Entity entity) {
                     entityId = "";
                     contain = false;
-                    return false;
+                    return true;
                 }
-                
-                if (contain = CheckContain(entity, out entityId)) {
+                contain = CheckContain(entity, out entityId);
+                if (checkEach || contain) {
                     passed_targets++;
                 }
                 if (removed_targets.Contains(pc)) { // removed_targets may be added by autostop (thus may not pass CheckContain), so we move it out here
