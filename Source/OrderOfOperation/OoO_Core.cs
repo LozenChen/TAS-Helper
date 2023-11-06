@@ -11,7 +11,6 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Security.Policy;
 using TAS;
 using TAS.EverestInterop;
 
@@ -42,12 +41,14 @@ internal static class OoO_Core {
             ApplyAll();
             StepCount = 0;
 #if OoO_Debug
+            /*
             if (!debugLogged) {
                 foreach (MethodBase method in BreakPoints.detoursOnThisMethod.Keys) {
-                    //CILCodeHelper.CILCodeLogger(method, 9999);
+                    CILCodeHelper.CILCodeLogger(method, 9999);
                 }
                 debugLogged = true;
             }
+            */
 #endif
         }
         else {
@@ -663,6 +664,7 @@ internal static class OoO_Core {
                         cursor.EmitDelegate(RecordLabelWrapper);
                         cursor.EmitDelegate(() => {
                             EntityListUpdate_Entry.SubMethodPassed = true;
+                            EntityListUpdate_ForEach_Entry.SubMethodPassed = true;
                             BreakPoints.ForEachBreakPoints_EntityList.Reset();
                         });
                     }
@@ -808,13 +810,12 @@ internal static class OoO_Core {
             private static void EntityUpdateWithoutBreakPoints(Entity entity) {
                 if (firstLoop) {
                     expected_passed_targets++;
-                    if (!checkEach) { 
+                    if (!checkEach) {
                         SendText($"{curr_target_withoutBreakpoint} Update begin");
                         firstLoop = false;
                         return;
                     }
                 }
-
 
                 entity._PreUpdate();
                 if (entity.Active) {
@@ -872,7 +873,7 @@ internal static class OoO_Core {
             }
 
             private static void TargetEntityUpdate(Entity entity) {
-                if (localvar_contain) {
+                if (targets_withBreakpoints.Contains(localvar_entityId) || targets_withBreakpoints.Contains(localvar_entityType)) {
                     /*
                      * EntityUpdate with BreakPoints are added manually, and will usually mark the beginning
                      * so we don't need to send text here
