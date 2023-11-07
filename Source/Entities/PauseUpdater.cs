@@ -5,7 +5,7 @@ namespace Celeste.Mod.TASHelper.Entities;
 public static class PauseUpdater {
     // call entities updates when it's not called, e.g. by CelesteTAS pause, SkippingCutscene... which can not be set via Entity Tags like Tag.FrozenUpdater
     internal static List<Entity> entities = new();
-    private static readonly List<Entity> toRemove = new();
+    private static List<Entity> toRemove = new();
     private static bool updated = false;
     private static int levelPauseTags = Tags.FrozenUpdate | Tags.PauseUpdate | Tags.TransitionUpdate;
 
@@ -14,6 +14,7 @@ public static class PauseUpdater {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
         On.Celeste.Level.BeforeRender += OnBeforeRender;
     }
+
 
     [Unload]
 

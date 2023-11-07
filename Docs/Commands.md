@@ -6,6 +6,7 @@
 - e.g. ooo_add_target CrystalStaticSpinner[c1:02]
 - e.g. ooo_add_target DustStaticSpinner, which automatically adds all DustStaticSpinner in current room
 - e.g. ooo_add_target Each, which automatically adds all entities in current room
+- e.g. ooo_add_target Auto, which makes the game automatically stop if current entity's update changes player's Position/Speed/State/...
 
 ### ooo_remove_target
 - `ooo_remove_target entityID`
@@ -23,9 +24,9 @@
 - This command adds all PlayerCollider belonging to this entity as for-each breakpoints in PlayerCollider checks
 - e.g. ooo_add_target_pc Spring
 - e.g. ooo_add_target_pc Spikes[a1:09]
-- e.g. ooo_add_target_pc Auto
-- The grammar is almost same as ooo_add_target, but without the "except" grammar
-- Instead, we have "ooo_add_target_pc Auto", which makes the game automatically stop if a PlayerCollider collides with player
+- e.g. ooo_add_target_pc Each
+- e.g. ooo_add_target_pc Auto, which makes the game automatically stop if a PlayerCollider collides with player
+- The grammar is same as that of ooo_add_target
 
 ### ooo_remove_target_pc
 - `ooo_remove_target_pc entityID`

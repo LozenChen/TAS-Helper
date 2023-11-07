@@ -79,3 +79,5 @@ A Celeste Mod designed to be a tool in TAS making.
 - Celeste TAS hotkeys randomly work improperly -> Not sure if it's caused by TAS Helper.
 
 - Actual Collide Hitboxes (of this frame) get lost after SL by predictor.
+
+- Use SRT save, then reload asset, then SRT load. This causes crash -> I guess it's a general issue and only happens for mod developers, so just ignore it. 
