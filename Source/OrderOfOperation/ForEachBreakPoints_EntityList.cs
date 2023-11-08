@@ -2,11 +2,8 @@
 
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
-using Mono.Cecil.Cil;
 using Monocle;
-using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using System.Reflection;
 using TAS.EverestInterop;
 using TAS.EverestInterop.Hitboxes;
 using static Celeste.Mod.TASHelper.OrderOfOperation.OoO_Core;
@@ -42,25 +39,19 @@ internal static class ForEachBreakPoints_EntityList {
 
     private static bool autoStop = true;
 
-    private static IDetour detour;
-
-    private static readonly MethodInfo EntityListUpdate = typeof(EntityList).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
-
-    internal static void Create() {
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_EntityList" }) {
-            detour = new ILHook(EntityListUpdate, il => {
-                ILCursor cursor = new ILCursor(il);
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate(MainBody);
-                cursor.Emit(OpCodes.Ret);
-            }, manualConfig);
+    private static void OnEntityListUpdate(On.Monocle.EntityList.orig_Update orig, EntityList self) {
+        if (OoO_Core.Applied) {
+            MainBody(self); // we assume no other mod hooks here (except CelesteTAS)
+            return;
         }
+        orig(self);
     }
 
-    private static bool firstEnter = true;
+    internal static bool firstEnter = true;
 
     private static void MainBody(EntityList entityList) {
         if (firstEnter) {
+            ActualEntityCollideHitbox.Clear();
             firstEnter = false;
             return;
         }
@@ -211,18 +202,28 @@ internal static class ForEachBreakPoints_EntityList {
     }
 
     public static void Apply() {
-        detour.Apply();
         Reset();
     }
 
     public static void Undo() {
-        detour.Undo();
         Reset();
     }
 
+    private static bool applied = false;
+
+    [Load]
+    private static void Load() {
+        // it seems OnHook and ILHook works on different levels? OnHook (refers to On/IL.Celeste....+= ...) will always be after ILHook?
+        // OnHook works via MonoMod.RuntimeDetour.HookGen.HookEndpointManager
+        // ILHook works in MonoMod.RuntimeDetour namespace
+        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_EntityList" }) {
+            On.Monocle.EntityList.Update += OnEntityListUpdate;
+        }
+    }
+
     [Unload]
-    public static void Dispose() {
-        detour?.Dispose();
+    private static void Unload() {
+        On.Monocle.EntityList.Update -= OnEntityListUpdate;
     }
 
     public static void Reset() {

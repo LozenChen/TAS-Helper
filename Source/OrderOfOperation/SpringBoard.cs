@@ -8,6 +8,8 @@ using static Celeste.Mod.TASHelper.OrderOfOperation.OoO_Core;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
 
+// i guess it would be better if we use IL.Monocle/Celeste.XXX += ...;
+// coz in that case, we can ensure our springboard are the most outer hook, and all codes (including hooks from other mods!) will only run once
 internal class SpringBoard {
     // mainly used to jump from one breakpoint to the next (sometimes not actually jump, e.g. we can't jump from a breakpoint in Engine.Update to a breakpoint in Level.Update, we have to use at least two springBoards)
     // jump if current BreakPoint is Finished; otherwise track current BreakPoint to passedBreakPoints, run codes, and return before next BreakPoint

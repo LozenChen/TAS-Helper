@@ -94,7 +94,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
 
     private static bool leaveInNextLoop = false;
 
-    private static bool firstEnter = true;
+    internal static bool firstEnter = true;
 
     private static string killerID = "";
 

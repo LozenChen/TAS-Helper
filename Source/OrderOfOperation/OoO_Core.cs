@@ -1,7 +1,6 @@
 //#define OoO_Debug
 
 using Celeste.Mod.TASHelper.Entities;
-using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
@@ -18,7 +17,7 @@ internal static class OoO_Core {
     internal static readonly MethodInfo EngineUpdate = typeof(Engine).GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
     private static readonly MethodInfo LevelUpdate = typeof(Level).GetMethod("Update");
     private static readonly MethodInfo SceneUpdate = typeof(Scene).GetMethod("Update");
-    private static readonly MethodInfo PlayerUpdate = typeof(Player).GetMethod("Update");
+    internal static readonly MethodInfo PlayerUpdate = typeof(Player).GetMethod("Update");
     internal static readonly MethodInfo PlayerOrigUpdate = typeof(Player).GetMethod("orig_Update");
     // if we add a breakpoint to A, which is called by B, then we must add breakpoints to B
     // so that any hook given by other mods are handled properly
@@ -38,14 +37,14 @@ internal static class OoO_Core {
             ApplyAll();
             StepCount = 0;
 #if OoO_Debug
-            /*
             if (!debugLogged) {
+                /*
                 foreach (MethodBase method in BreakPoints.detoursOnThisMethod.Keys) {
-                    CILCodeHelper.CILCodeLogger(method, 9999);
+                    Utils.CILCodeHelper.CILCodeLogger(method, 9999);
                 }
+                */
                 debugLogged = true;
             }
-            */
 #endif
         }
         else {
@@ -57,7 +56,7 @@ internal static class OoO_Core {
         }
     }
 
-    private static bool GetStepping() {
+    internal static bool GetStepping() {
         if (stepping) {
             needGameInfoUpdate = true;
             stepping = false;
@@ -139,6 +138,7 @@ internal static class OoO_Core {
 
     [Initialize]
     public static void Initialize() {
+
         BreakPoints.MarkEnding(EngineUpdate, "EngineUpdate end", () => prepareToUndoAll = true); // i should have configured detourcontext... don't know why, but MarkEnding must be called at first (at least before those breakpoints on same method)
 
         BreakPoints.MarkEnding(LevelUpdate, "LevelUpdate end", () => LevelUpdate_Entry.SubMethodPassed = true).AddAutoSkip();
@@ -148,7 +148,7 @@ internal static class OoO_Core {
 
         BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", ForEachBreakPoints_EntityList.MarkSubMethodPassed).AddAutoSkip();
 
-        BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => PlayerOrigUpdate_Entry.SubMethodPassed = true);
+        BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => { PlayerOrigUpdate_Entry.SubMethodPassed = true; playerUpdated = true; });
 
         BreakPoints.CreateImpl(EngineUpdate, "EngineUpdate begin", label => (cursor, _) => {
             cursor.Emit(OpCodes.Ldstr, label);
@@ -269,7 +269,6 @@ internal static class OoO_Core {
             ins => ins.MatchCallOrCallvirt<Scene>("AfterUpdate")
         ).AddAutoSkip();
 
-        ForEachBreakPoints_EntityList.Create();
         ForEachBreakPoints_EntityList.AddTarget("Player", true);
         ForEachBreakPoints_EntityList.AddTarget(ForEachBreakPoints_EntityList.autoStopString);
 
@@ -328,7 +327,7 @@ internal static class OoO_Core {
         Applied = true;
         ResetLongtermState();
         ResetTempState();
-        ActualCollideHitboxDelegatee.StopActualCollideHitbox();
+        //Gameplay.Spinner.ActualCollideHitboxDelegatee.StopActualCollideHitbox();
         SendTextImmediately("OoO Stepping begin");
     }
 
@@ -344,7 +343,7 @@ internal static class OoO_Core {
         ResetTempState();
         overrideStepping = false;
         prepareToUltraFastForwarding = false;
-        ActualCollideHitboxDelegatee.RecoverActualCollideHitbox();
+        //Gameplay.Spinner.ActualCollideHitboxDelegatee.RecoverActualCollideHitbox();
         SendTextImmediately("OoO Stepping end");
     }
 
@@ -363,6 +362,7 @@ internal static class OoO_Core {
         SceneUpdate_Entry.SubMethodPassed = false;
         EntityListUpdate_Entry.SubMethodPassed = false;
         PlayerOrigUpdate_Entry.SubMethodPassed = false;
+        playerUpdated = false;
         BreakPoints.latestBreakpointBackup.Clear();
         ForEachBreakPoints_EntityList.Reset();
         ForEachBreakPoints_PlayerCollider.Reset();
@@ -394,6 +394,7 @@ internal static class OoO_Core {
     }
     private static void OnLevelRender(On.Celeste.Level.orig_Render orig, Level self) {
         if (Applied) {
+            TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.playerUpdated = playerUpdated; // may remove it if we change SpringBoard to IL.Monocle/Celeste hooks
             if (prepareToUndoAll) {
                 UndoAll();
             }
@@ -416,6 +417,7 @@ internal static class OoO_Core {
         orig(self);
     }
 
+    private static bool playerUpdated = false;
     private static bool allowHotkey => Applied || TasHelperSettings.EnableOoO;
 
     public static bool TryHardExit = true;

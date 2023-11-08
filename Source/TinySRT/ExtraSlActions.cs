@@ -150,8 +150,8 @@ internal static class TasHelperSL {
     private static HashSet<Gameplay.MovingEntityTrack.StartEnd> SRT_CachedStartEnd;
     private static Dictionary<Gameplay.MovingEntityTrack.RotateData, int> SRT_CachedCircle;
 
-    private static Dictionary<Entity, Vector2> LastPositions = new();
-    private static Dictionary<Entity, bool> LastCollidables = new();
+    private static Dictionary<Entity, Vector2> TH_LastPositions = new();
+    private static Dictionary<Entity, bool> TH_LastCollidables = new();
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             TH_pauseUpdaterEntities = PauseUpdater.entities.TH_DeepCloneShared();
@@ -162,6 +162,8 @@ internal static class TasHelperSL {
             TH_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.TH_DeepCloneShared();
             TH_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.TH_DeepCloneShared();
             TH_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.TH_DeepCloneShared();
+            TH_LastPositions = ActualEntityCollideHitbox.LastPositions.TH_DeepCloneShared();
+            TH_LastCollidables = ActualEntityCollideHitbox.LastColldables.TH_DeepCloneShared();
         };
         TH.SlAction load = (_, _) => {
             PauseUpdater.entities = TH_pauseUpdaterEntities.TH_DeepCloneShared();
@@ -173,12 +175,24 @@ internal static class TasHelperSL {
             Gameplay.MovingEntityTrack.CachedNodes = TH_CachedNodes.TH_DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedStartEnd = TH_CachedStartEnd.TH_DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedCircle = TH_CachedCircle.TH_DeepCloneShared();
+            Dictionary<Entity, Vector2> lastPos = TH_LastPositions.TH_DeepCloneShared();
+            Dictionary<Entity, bool> lastCollide = TH_LastCollidables.TH_DeepCloneShared();
+            ActualEntityCollideHitbox.LastPositions.Clear();
+            ActualEntityCollideHitbox.LastColldables.Clear();
+            foreach (Entity key in lastPos.Keys) {
+                ActualEntityCollideHitbox.LastPositions[key] = lastPos[key]; // AECH.LastPositions is readonly... so it has to work like this
+            }
+            foreach (Entity key in lastCollide.Keys) {
+                ActualEntityCollideHitbox.LastColldables[key] = lastCollide[key];
+            }
         };
         Action clear = () => {
             TH_pauseUpdaterEntities = null;
             TH_CachedNodes = null;
             TH_CachedStartEnd = null;
             TH_CachedCircle = null;
+            TH_LastPositions.Clear();
+            TH_LastCollidables.Clear();
         };
         return new TH(save, load, clear, null, null);
     }

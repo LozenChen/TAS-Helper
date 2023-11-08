@@ -62,22 +62,14 @@ A Celeste Mod designed to be a tool in TAS making.
 
 # Known issues:
 
-- Actual Collide Hitboxes are overridden -> it's actually bad to use actual collide hitboxes when doing a spinner stun, you really need the exact frame the hazard becomes collidable (opaque). So personnally i do not suggest using actual collide hitboxes in this case. Appended hitbox sounds good but current implement relies on opacity to show information. Anyway, this is implemented in v1.8.4 now. Solved.
-
 - VivHelper spinner isn't fully supported if its hitbox is not prestored -> maybe will add support for them.
 
 - Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7.
 
-- Hotkeys can't work after several savestates -> Should be totally fixed in v1.6.5.
-
 - TAS Helper does not save settings (change settings in the menu) when closing game with the X instead of the exit button in game -> Can't reproduce. It's said that turning off and on tashelper after changing settings will work. After several changes on settings system, i guess this bug should be addressed after v1.6.5.
-
-- YamlException in Log.txt. -> fixed in v1.6.5.
 
 - Predictor can't handle commands like StunPause Simulate (StunPause Input is ok), SetCommands, InvokeCommands and so on. -> Currently don't plan to support them. Tell me if you need this feature.
 
 - Celeste TAS hotkeys randomly work improperly -> Not sure if it's caused by TAS Helper.
-
-- Actual Collide Hitboxes (of this frame) get lost after SL by predictor.
 
 - Use SRT save, then reload asset, then SRT load. This causes crash -> I guess it's a general issue and only happens for mod developers, so just ignore it. 
