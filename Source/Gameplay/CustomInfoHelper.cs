@@ -1,7 +1,6 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using TAS;
 using TAS.EverestInterop;
 using CelesteInput = Celeste.Input;
 

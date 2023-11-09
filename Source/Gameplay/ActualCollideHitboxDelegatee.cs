@@ -9,28 +9,23 @@ using TAS.EverestInterop.Hitboxes;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 
-internal static class ActualCollideHitboxDelegatee{
+internal static class ActualCollideHitboxDelegatee {
 
     [Initialize]
-    private static void Initiailize()
-    {
+    private static void Initiailize() {
         typeof(ActualEntityCollideHitbox).GetMethod("SaveActualCollidable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter<Entity>(
-            e =>
-            {
-                if (TasHelperSettings.Enabled && SpinnerCalculateHelper.HazardType(e) != null)
-                {
+            e => {
+                if (TasHelperSettings.Enabled && SpinnerCalculateHelper.HazardType(e) != null) {
                     LastCollidables[e] = SpinnerCalculateHelper.GetCollidable(e);
                 }
             }
         );
 
-        typeof(ActualEntityCollideHitbox).GetMethod("Clear", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter(() =>
-        {
+        typeof(ActualEntityCollideHitbox).GetMethod("Clear", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter(() => {
             LastCollidables.Clear();
         });
 
-        typeof(ActualEntityCollideHitbox).GetMethod("LoadActualCollidePosition", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(il =>
-        {
+        typeof(ActualEntityCollideHitbox).GetMethod("LoadActualCollidePosition", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(il => {
             ILCursor cursor = new(il);
             Instruction start = cursor.Next;
             cursor.EmitDelegate(IfGotoLoadNull);
@@ -39,18 +34,15 @@ internal static class ActualCollideHitboxDelegatee{
         });
     }
 
-    public static bool IfGotoLoadNull()
-    {
+    public static bool IfGotoLoadNull() {
         return protectOrig || protectOrig_2;
     }
 
-    public static void StopActualCollideHitbox()
-    {
+    public static void StopActualCollideHitbox() {
         protectOrig_2 = true;
     }
 
-    public static void RecoverActualCollideHitbox()
-    {
+    public static void RecoverActualCollideHitbox() {
         protectOrig_2 = false;
     }
 
@@ -60,22 +52,18 @@ internal static class ActualCollideHitboxDelegatee{
 
     private static readonly Dictionary<Entity, bool> LastCollidables = new();
 
-    public static void DrawLastFrameHitbox(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool> invokeOrig)
-    {
+    public static void DrawLastFrameHitbox(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool> invokeOrig) {
         DrawLastFrameHitbox(skipCondition, entity, camera, color, collidable, (a, b, c, d, isNow) => invokeOrig(a, b, c, d));
     }
 
-    public static void DrawLastFrameHitbox(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig)
-    {
-        DrawLastFrameHitboxImpl(skipCondition, entity, camera, color, collidable, (a, b, c, d, e) =>
-        {
+    public static void DrawLastFrameHitbox(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig) {
+        DrawLastFrameHitboxImpl(skipCondition, entity, camera, color, collidable, (a, b, c, d, e) => {
             protectOrig = true;
             invokeOrig(a, b, c, d, e);
             protectOrig = false;
         });
     }
-    private static void DrawLastFrameHitboxImpl(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig)
-    {
+    private static void DrawLastFrameHitboxImpl(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig) {
         // currently we don't need an actualCamera...?
 
         if (Manager.UltraFastForwarding
@@ -88,8 +76,7 @@ internal static class ActualCollideHitboxDelegatee{
             || entity.LoadActualCollidable_TH() is not { } actualCollidable
             || TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Append && entity.Position == actualCollidePosition &&
             collidable == actualCollidable
-           )
-        {
+           ) {
             invokeOrig(entity, camera, color, collidable, true);
             return;
         }
@@ -99,10 +86,8 @@ internal static class ActualCollideHitboxDelegatee{
         ? color.Invert()
                 : color;
 
-        if (TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Append)
-        {
-            if (entity.Position == actualCollidePosition)
-            {
+        if (TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Append) {
+            if (entity.Position == actualCollidePosition) {
                 invokeOrig(entity, camera, lastFrameColor, actualCollidable, false);
                 return;
             }
@@ -118,8 +103,7 @@ internal static class ActualCollideHitboxDelegatee{
         entity.Position = currentPosition;
     }
 
-    public static bool? LoadActualCollidable_TH(this Entity entity)
-    {
+    public static bool? LoadActualCollidable_TH(this Entity entity) {
         return LastCollidables.TryGetValue(entity, out bool result) ? result : null;
     }
 }

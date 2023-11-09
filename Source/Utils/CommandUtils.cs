@@ -43,7 +43,7 @@ public static class CommandUtils {
                 };
             }
             else {
-                string defaultPara = (string) parameterInfo.DefaultValue;
+                string defaultPara = (string)parameterInfo.DefaultValue;
                 dictionaryValue.Action = [MethodImpl(MethodImplOptions.NoInlining)] (string[] args) => {
                     string str = string.Join(" ", args).Replace("\\s", " ");
                     if (defaultPara.IsNullOrEmpty()) {
