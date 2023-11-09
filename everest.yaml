@@ -1,9 +1,9 @@
 - Name: TASHelper
-  Version: 1.8.6
+  Version: 1.8.7
   DLL: bin/Release/net4.5.2/TASHelper.dll
   Dependencies:
     - Name: Everest
-      Version: 1.3471.0
+      Version: 1.4351.0
     - Name: CelesteTAS
       Version: 3.22.0
     - Name: SpeedrunTool
