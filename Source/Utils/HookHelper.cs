@@ -22,6 +22,8 @@ internal static class HookHelper {
         Hooks.Clear();
     }
 
+    // check https://jatheplayer.github.io/celeste/ilhookview/ before creating a hook, to avoid conflict
+
     public static void OnHook(this MethodBase from, Delegate to) {
         Hooks.Add(new Hook(from, to));
     }

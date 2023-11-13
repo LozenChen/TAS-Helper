@@ -13,6 +13,7 @@ internal static class ActualCollideHitboxDelegatee {
 
     [Initialize]
     private static void Initiailize() {
+        
         typeof(ActualEntityCollideHitbox).GetMethod("SaveActualCollidable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter<Entity>(
             e => {
                 if (TasHelperSettings.Enabled && SpinnerCalculateHelper.HazardType(e) != null) {
@@ -24,18 +25,26 @@ internal static class ActualCollideHitboxDelegatee {
         typeof(ActualEntityCollideHitbox).GetMethod("Clear", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter(() => {
             LastCollidables.Clear();
         });
-
+        
         typeof(ActualEntityCollideHitbox).GetMethod("LoadActualCollidePosition", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(il => {
             ILCursor cursor = new(il);
             Instruction start = cursor.Next;
             cursor.EmitDelegate(IfGotoLoadNull);
             cursor.Emit(OpCodes.Brfalse, start);
-            cursor.Emit(OpCodes.Ldnull).Emit(OpCodes.Ret);
+            cursor.EmitDelegate(LoadNull);
+            // in Everest stable 4335, cursor.Emit(OpCodes.Ldnull) will make Everest don't open
+            // while in stable 4351, it's ok
+            // i guess Ldnull is also not technically correct
+            cursor.Emit(OpCodes.Ret);
         });
     }
 
     public static bool IfGotoLoadNull() {
         return protectOrig || protectOrig_2;
+    }
+
+    private static Vector2? LoadNull() {
+        return null;
     }
 
     public static void StopActualCollideHitbox() {

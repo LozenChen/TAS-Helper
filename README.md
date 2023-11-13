@@ -73,5 +73,3 @@ A Celeste Mod designed to be a tool in TAS making.
 - Celeste TAS hotkeys randomly work improperly -> Not sure if it's caused by TAS Helper.
 
 - Use SRT save, then reload asset, then SRT load. This causes crash -> I guess it's a general issue and only happens for mod developers, so just ignore it.
-
-- Everest doesn't open on low versions (e.g. ver 1.4000)-> idk, maybe the issue of relinker.
