@@ -135,7 +135,6 @@ public class HotkeyWatcher : Message {
         this.Visible = TasHelperSettings.HotkeyStateVisualize;
         base.Tag |= Tags.Global;
         if (instance is not null) {
-            PauseUpdater.Remove(instance);
             Engine.Scene.Remove(instance);
         }
         instance = this;

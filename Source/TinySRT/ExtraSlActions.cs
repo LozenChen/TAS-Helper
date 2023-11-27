@@ -136,8 +136,7 @@ internal static class TasModSL {
 
 internal static class TasHelperSL {
 
-    private static List<Entity> TH_pauseUpdaterEntities;
-    private static List<Entity> SRT_pauseUpdaterEntities;
+
     private static float DashTime;
     private static bool Frozen;
     private static int TransitionFrames;
@@ -154,7 +153,7 @@ internal static class TasHelperSL {
     private static Dictionary<Entity, bool> TH_LastCollidables = new();
     public static TH Create() {
         TH.SlAction save = (_, _) => {
-            TH_pauseUpdaterEntities = PauseUpdater.entities.TH_DeepCloneShared();
+
             DashTime = GameInfo.DashTime;
             Frozen = GameInfo.Frozen;
             TransitionFrames = GameInfo.TransitionFrames;
@@ -166,7 +165,7 @@ internal static class TasHelperSL {
             TH_LastCollidables = ActualEntityCollideHitbox.LastColldables.TH_DeepCloneShared();
         };
         TH.SlAction load = (_, _) => {
-            PauseUpdater.entities = TH_pauseUpdaterEntities.TH_DeepCloneShared();
+
             GameInfo.DashTime = DashTime;
             GameInfo.Frozen = Frozen;
             GameInfo.TransitionFrames = TransitionFrames;
@@ -187,7 +186,6 @@ internal static class TasHelperSL {
             }
         };
         Action clear = () => {
-            TH_pauseUpdaterEntities = null;
             TH_CachedNodes = null;
             TH_CachedStartEnd = null;
             TH_CachedCircle = null;
@@ -199,14 +197,14 @@ internal static class TasHelperSL {
 
     public static SRT CreateSRT() {
         SRT.SlAction save = (_, _) => {
-            SRT_pauseUpdaterEntities = PauseUpdater.entities.DeepCloneShared();
+
             SRT_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
             SRT_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.DeepCloneShared();
             SRT_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.DeepCloneShared();
             SRT_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.DeepCloneShared();
         };
         SRT.SlAction load = (_, _) => {
-            PauseUpdater.entities = SRT_pauseUpdaterEntities.DeepCloneShared();
+
             Predictor.Core.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
             Gameplay.MovingEntityTrack.CachedNodes = SRT_CachedNodes.DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedStartEnd = SRT_CachedStartEnd.DeepCloneShared();
@@ -214,7 +212,6 @@ internal static class TasHelperSL {
             TH_Hotkeys.HotkeyInitialize();
         };
         Action clear = () => {
-            SRT_pauseUpdaterEntities = null;
             SRT_CachedNodes = null;
             SRT_CachedStartEnd = null;
             SRT_CachedCircle = null;

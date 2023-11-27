@@ -4,10 +4,22 @@ namespace Celeste.Mod.TASHelper.Entities;
 
 public static class PauseUpdater {
     // call entities updates when it's not called, e.g. by CelesteTAS pause, SkippingCutscene... which can not be set via Entity Tags like Tag.FrozenUpdater
-    internal static List<Entity> entities = new();
-    private static List<Entity> toRemove = new();
+
     private static bool updated = false;
-    private static int levelPauseTags = Tags.FrozenUpdate | Tags.PauseUpdate | Tags.TransitionUpdate;
+    private static int levelPauseTags;
+
+    [Tracked]
+    public class PauseUpdateComponent :Component{ 
+        public PauseUpdateComponent() : base(true, false){
+
+        }
+    }
+
+    [Initialize]
+
+    public static void Initialize() {
+       levelPauseTags = (int)Tags.FrozenUpdate | (int)Tags.PauseUpdate | (int)Tags.TransitionUpdate;
+    }
 
     [Load]
     public static void Load() {
@@ -25,34 +37,22 @@ public static class PauseUpdater {
 
     public static void Register(Entity entity) {
         entity.Tag |= levelPauseTags;
-        entities.Add(entity);
-    }
-
-    public static void Remove(Entity entity) {
-        entities.Remove(entity);
+        entity.Add(new PauseUpdateComponent());
     }
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        entities.Clear();
         orig(level, playerIntro, isFromLoader);
         Detector.AddIfNecessary(level);
     }
 
     private static void OnBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level level) {
         if (!updated) {
-            foreach (Entity entity in entities) {
-                if (entity.Scene != level) {
-                    toRemove.Add(entity);
-                }
-            }
-            foreach (Entity entity in toRemove) {
-                entities.Remove(entity);
-            }
-            toRemove.Clear();
-            foreach (Entity entity in entities) {
+            foreach (Entity entity in level.Tracker.GetComponents<PauseUpdateComponent>().Select(comp => comp.Entity)) {
+                entity._PreUpdate();
                 if (entity.Active) {
                     entity.Update();
                 }
+                entity._PostUpdate();
             }
         }
         else {
