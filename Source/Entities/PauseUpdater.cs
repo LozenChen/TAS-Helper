@@ -18,7 +18,14 @@ public static class PauseUpdater {
     [Initialize]
 
     public static void Initialize() {
-       levelPauseTags = (int)Tags.FrozenUpdate | (int)Tags.PauseUpdate | (int)Tags.TransitionUpdate;
+        try {
+            levelPauseTags = (int)Tags.FrozenUpdate | (int)Tags.PauseUpdate | (int)Tags.TransitionUpdate;
+        }
+        catch {
+            // idk, but there's such bug report 
+            levelPauseTags = 0;
+            Logger.Log(LogLevel.Info, "TAS Helper", "An error occurred when PauseUpdater initializes!");
+        }
     }
 
     [Load]

@@ -59,56 +59,6 @@ internal static class TH_MuteAudioUtils {
     }
 }
 
-internal static class TH_StrawberryJamUtils {
-    public static float currentOldFreezeTimer;
-
-    public static float? savedOldFreezeTimer;
-
-    public static float? loadOldFreezeTimer;
-
-    public static readonly Lazy<MethodInfo> EngineUpdate = new Lazy<MethodInfo>(() => ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlockController")?.GetMethodInfo("Engine_Update"));
-
-    public static bool hooked;
-
-    [Initialize]
-    public static void Initialize() {
-        EngineUpdate.Value?.IlHook((cursor, _) => {
-            int localIndex = 0;
-            if (cursor.TryGotoNext(MoveType.Before, (Instruction i) => i.MatchLdsfld<Engine>("FreezeTimer"), (Instruction i) => i.MatchStloc(out localIndex))) {
-                cursor.Index++;
-                cursor.Emit(OpCodes.Dup).Emit(OpCodes.Stsfld, typeof(TH_StrawberryJamUtils).GetFieldInfo(nameof(currentOldFreezeTimer)));
-                if (cursor.TryGotoNext(MoveType.After, (Instruction i) => i.MatchLdloc(localIndex))) {
-                    cursor.EmitDelegate<Func<float, float>>(RestoreOldFreezeTimer);
-                    hooked = true;
-                }
-            }
-        });
-    }
-
-    public static float RestoreOldFreezeTimer(float oldFreezeTimer) {
-        float? num = loadOldFreezeTimer;
-        if (num.HasValue) {
-            float valueOrDefault = num.GetValueOrDefault();
-            loadOldFreezeTimer = null;
-            return valueOrDefault;
-        }
-
-        return oldFreezeTimer;
-    }
-
-    public static void AddSupport() {
-        if (hooked) {
-            TH.SafeAdd(delegate {
-                savedOldFreezeTimer = currentOldFreezeTimer;
-            }, delegate {
-                loadOldFreezeTimer = savedOldFreezeTimer;
-            }, delegate {
-                savedOldFreezeTimer = null;
-            });
-        }
-    }
-}
-
 internal static class TH_FrostHelperUtils {
     public static readonly Lazy<Type> AttachedDataHelperType = new Lazy<Type>(() => ModUtils.GetType("FrostHelper", "FrostHelper.Helpers.AttachedDataHelper"));
 

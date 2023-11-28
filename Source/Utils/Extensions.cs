@@ -304,7 +304,7 @@ internal static class ReflectionExtensions {
         }
     }
 
-    public static T GetPropertyValue<T>(Type type, string name) {
+    public static T GetPropertyValue<T>(this Type type, string name) {
         object result = type.GetPropertyInfo(name)?.GetValue(null, null);
         if (result == null) {
             return default;

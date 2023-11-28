@@ -225,7 +225,6 @@ public sealed class TH_SaveLoadAction {
 
         SupportCommunalHelper();
         SupportBrokemiaHelper();
-        TH_StrawberryJamUtils.AddSupport();
         TH_FrostHelperUtils.SupportFrostHelper();
         SupportVivHelper();
 

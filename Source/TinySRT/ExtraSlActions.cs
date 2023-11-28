@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
@@ -30,6 +31,9 @@ public static class ExtraSlActions {
         TH_Actions.Add(TasModSL.Create());
         // tas mod already adds to SRT itself
         TH_Actions.Add(TasHelperSL.Create());
+
+        //TH_Actions.Add(GravityHelperSL.Create());
+
         SRT_Actions.Add(TasHelperSL.CreateSRT());
         foreach (TH action in TH_Actions) {
             TH.Add(action);
@@ -228,5 +232,29 @@ internal static class TasHelperSL {
                 null
             }
         );
+    }
+}
+
+internal static class GravityHelperSL {
+
+    public static bool Installed = false;
+
+    public static object PlayerGravityComponent;
+    public static TH Create() {
+        Installed = ModUtils.GetType("GravityHelper", "Celeste.Mod.GravityHelper.GravityHelperModule")?.GetPropertyInfo("PlayerComponent") is not null;
+        TH.SlAction save = (_, _) => {
+            if (Installed) {
+                PlayerGravityComponent = ModUtils.GetType("GravityHelper", "Celeste.Mod.GravityHelper.GravityHelperModule").GetPropertyValue<object>("PlayerComponent").TH_DeepCloneShared();
+            }
+        };
+        TH.SlAction load = (_, _) => {
+            if (Installed) {
+                ModUtils.GetType("GravityHelper", "Celeste.Mod.GravityHelper.GravityHelperModule").SetPropertyValue("PlayerComponent", PlayerGravityComponent);
+            }
+        };
+        Action clear = () => {
+            PlayerGravityComponent = null;
+        };
+        return new TH(save, load, clear, null, null);
     }
 }
