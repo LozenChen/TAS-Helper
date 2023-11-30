@@ -13,7 +13,6 @@ using TAS.Input.Commands;
 using SRT = Celeste.Mod.SpeedrunTool.SaveLoad.SaveLoadAction;
 using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
 
-
 namespace Celeste.Mod.TASHelper.TinySRT;
 
 public static class ExtraSlActions {
