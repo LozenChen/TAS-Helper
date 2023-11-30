@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
-using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
@@ -26,20 +25,22 @@ public static class ExtraSlActions {
     public static List<SRT> SRT_Actions = new();
 
     // we want to ensure these actions are added lastly
+
     [Initialize]
-    public static void Load() {
+    public static void LoadSRT() {
+        SRT_Actions.Add(TasHelperSL.CreateSRT());
+        foreach (SRT action in SRT_Actions) {
+            SRT.Add(action);
+        }
+    }
+
+    public static void LoadTH() {
         TH_Actions.Add(TasModSL.Create());
         // tas mod already adds to SRT itself
         TH_Actions.Add(TasHelperSL.Create());
-
-        //TH_Actions.Add(GravityHelperSL.Create());
-
-        SRT_Actions.Add(TasHelperSL.CreateSRT());
+        TH_Actions.Add(GravityHelperSL.Create());
         foreach (TH action in TH_Actions) {
             TH.Add(action);
-        }
-        foreach (SRT action in SRT_Actions) {
-            SRT.Add(action);
         }
     }
 
@@ -140,7 +141,6 @@ internal static class TasModSL {
 
 internal static class TasHelperSL {
 
-
     private static float DashTime;
     private static bool Frozen;
     private static int TransitionFrames;
@@ -157,7 +157,6 @@ internal static class TasHelperSL {
     private static Dictionary<Entity, bool> TH_LastCollidables = new();
     public static TH Create() {
         TH.SlAction save = (_, _) => {
-
             DashTime = GameInfo.DashTime;
             Frozen = GameInfo.Frozen;
             TransitionFrames = GameInfo.TransitionFrames;
@@ -169,7 +168,6 @@ internal static class TasHelperSL {
             TH_LastCollidables = ActualEntityCollideHitbox.LastColldables.TH_DeepCloneShared();
         };
         TH.SlAction load = (_, _) => {
-
             GameInfo.DashTime = DashTime;
             GameInfo.Frozen = Frozen;
             GameInfo.TransitionFrames = TransitionFrames;
@@ -201,14 +199,12 @@ internal static class TasHelperSL {
 
     public static SRT CreateSRT() {
         SRT.SlAction save = (_, _) => {
-
             SRT_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
             SRT_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.DeepCloneShared();
             SRT_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.DeepCloneShared();
             SRT_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.DeepCloneShared();
         };
         SRT.SlAction load = (_, _) => {
-
             Predictor.Core.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
             Gameplay.MovingEntityTrack.CachedNodes = SRT_CachedNodes.DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedStartEnd = SRT_CachedStartEnd.DeepCloneShared();
@@ -240,6 +236,8 @@ internal static class GravityHelperSL {
     public static bool Installed = false;
 
     public static object PlayerGravityComponent;
+    // dont know why, this become null after SL, so I have to manually clone it
+    // while the original SRT doesn't have this issue
     public static TH Create() {
         Installed = ModUtils.GetType("GravityHelper", "Celeste.Mod.GravityHelper.GravityHelperModule")?.GetPropertyInfo("PlayerComponent") is not null;
         TH.SlAction save = (_, _) => {
@@ -249,7 +247,7 @@ internal static class GravityHelperSL {
         };
         TH.SlAction load = (_, _) => {
             if (Installed) {
-                ModUtils.GetType("GravityHelper", "Celeste.Mod.GravityHelper.GravityHelperModule").SetPropertyValue("PlayerComponent", PlayerGravityComponent);
+                ModUtils.GetType("GravityHelper", "Celeste.Mod.GravityHelper.GravityHelperModule").SetPropertyValue("PlayerComponent", PlayerGravityComponent.TH_DeepCloneShared());
             }
         };
         Action clear = () => {

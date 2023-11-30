@@ -13,7 +13,7 @@ internal static class ActualCollideHitboxDelegatee {
 
     [Initialize]
     private static void Initiailize() {
-        
+
         typeof(ActualEntityCollideHitbox).GetMethod("SaveActualCollidable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter<Entity>(
             e => {
                 if (TasHelperSettings.Enabled && SpinnerCalculateHelper.HazardType(e) != null) {
@@ -25,7 +25,7 @@ internal static class ActualCollideHitboxDelegatee {
         typeof(ActualEntityCollideHitbox).GetMethod("Clear", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter(() => {
             LastCollidables.Clear();
         });
-        
+
         typeof(ActualEntityCollideHitbox).GetMethod("LoadActualCollidePosition", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(il => {
             ILCursor cursor = new(il);
             Instruction start = cursor.Next;

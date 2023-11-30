@@ -228,6 +228,8 @@ public sealed class TH_SaveLoadAction {
         TH_FrostHelperUtils.SupportFrostHelper();
         SupportVivHelper();
 
+        ExtraSlActions.LoadTH();
+
         // 放最后，确保收集了所有克隆的 VirtualAssets 与 EventInstance
         ReloadVirtualAssets();
         ReleaseEventInstances();

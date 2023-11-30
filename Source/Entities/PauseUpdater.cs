@@ -9,8 +9,8 @@ public static class PauseUpdater {
     private static int levelPauseTags;
 
     [Tracked]
-    public class PauseUpdateComponent :Component{ 
-        public PauseUpdateComponent() : base(true, false){
+    public class PauseUpdateComponent : Component {
+        public PauseUpdateComponent() : base(true, false) {
 
         }
     }
@@ -23,6 +23,7 @@ public static class PauseUpdater {
         }
         catch {
             // idk, but there's such bug report 
+            // https://discord.com/channels/403698615446536203/1175568290303725669
             levelPauseTags = 0;
             Logger.Log(LogLevel.Info, "TAS Helper", "An error occurred when PauseUpdater initializes!");
         }
