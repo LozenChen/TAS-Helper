@@ -97,6 +97,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_PredictFuture = false;
         Awake_EnableOoO = false;
         Awake_OpenConsoleInTas = false;
+        Awake_ScrollableHistoryLog = false;
     }
     internal void Awake(bool awakeAll) {
         MainSwitch = awakeAll ? MainSwitchModes.AllowAll : MainSwitchModes.OnlyDefault;
@@ -115,6 +116,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_PredictFuture = true;
         Awake_EnableOoO = true;
         Awake_OpenConsoleInTas = true;
+        Awake_ScrollableHistoryLog = true;
     }
 
     #endregion
@@ -649,6 +651,19 @@ public class TASHelperSettings : EverestModuleSettings {
         set {
             enableOpenConsoleInTas = value;
             Awake_OpenConsoleInTas = true;
+        }
+    }
+
+    public bool enableScrollableHistoryLog { get; set; } = true;
+
+    public bool Awake_ScrollableHistoryLog = true;
+
+    [YamlIgnore]
+    public bool EnableScrollableHistoryLog {
+        get => Enabled && Awake_ScrollableHistoryLog && enableScrollableHistoryLog;
+        set {
+            enableScrollableHistoryLog = value;
+            Awake_ScrollableHistoryLog = true;
         }
     }
 

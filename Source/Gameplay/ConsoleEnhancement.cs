@@ -1,5 +1,6 @@
 using Celeste.Mod.Core;
 using Celeste.Mod.TASHelper.Utils;
+using Microsoft.Xna.Framework.Input;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -14,7 +15,11 @@ public static class ConsoleEnhancement {
 
     private static bool lastOpen = false;
 
+    private static int historyLineShift = 0;
 
+    private static int origValue;
+
+    private static bool historyScrollEnabled => TasHelperSettings.EnableScrollableHistoryLog;
     public static void SetOpenConsole() {
         if (Manager.Running && !lastOpen) {
             openConsole = true;
@@ -24,22 +29,98 @@ public static class ConsoleEnhancement {
         return openConsole;
     }
 
+    public static void GoBackToBottom() {
+        historyLineShift = 0;
+    }
+
     [Load]
     public static void Load() {
         IL.Monocle.Commands.UpdateClosed += ILCommandUpdateClosed;
         On.Celeste.Level.BeforeRender += OnLevelBeforeRender;
+        IL.Monocle.Commands.Render += ILCommandsRender;
+        On.Monocle.Commands.UpdateOpen += OnCommandUpdateOpen;
     }
 
     [Unload]
     public static void Unload() {
         IL.Monocle.Commands.UpdateClosed -= ILCommandUpdateClosed;
         On.Celeste.Level.BeforeRender -= OnLevelBeforeRender;
+        IL.Monocle.Commands.Render -= ILCommandsRender;
+        On.Monocle.Commands.UpdateOpen -= OnCommandUpdateOpen;
     }
 
     [Initialize]
     public static void Initialize() {
         typeof(Manager).GetMethod("Update").HookAfter(UpdateCommands);
         typeof(Manager).GetMethod("DisableRun").HookAfter(MinorBugFixer);
+    }
+
+    private static void ILCommandsRender(ILContext context) {
+        ILCursor cursor = new ILCursor(context);
+        if (cursor.TryGotoNext(
+            ins => ins.MatchLdarg(0),
+            ins => ins.MatchLdfld<Monocle.Commands>("drawCommands"),
+            ins => ins.MatchCallOrCallvirt<List<Monocle.Commands.Line>>("get_Count"),
+            ins => ins.MatchLdcI4(0),
+            ins => ins.OpCode == OpCodes.Ble,
+            ins => ins.MatchLdloc(1))) {
+            cursor.Index += 5;
+            ILLabel end = (ILLabel) cursor.Prev.Operand;
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate(BeforeAction);
+            cursor.GotoLabel(end);
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate(AfterAction);
+        }
+    }
+
+    private static void BeforeAction(Monocle.Commands commands) {
+        origValue = commands.firstLineIndexToDraw;
+        commands.firstLineIndexToDraw = Calc.Clamp(commands.firstLineIndexToDraw + historyLineShift, 0, Math.Max(commands.drawCommands.Count - 1, 0));
+    }
+
+    private static void AfterAction(Monocle.Commands commands) {
+        if (commands.drawCommands.Count > 0) {
+            historyLineShift = commands.firstLineIndexToDraw - origValue; // this automatically bounds our shift
+            commands.firstLineIndexToDraw = origValue;
+        }
+    }
+
+    private static int repeatCounter = 0;
+
+    private static void OnCommandUpdateOpen(On.Monocle.Commands.orig_UpdateOpen orig, Monocle.Commands commands) {
+        orig(commands);
+        if (historyScrollEnabled) {
+            bool controlPressed = commands.currentState[Keys.LeftControl] == KeyState.Down || commands.currentState[Keys.RightControl] == KeyState.Down;
+            if (commands.currentState[Keys.PageUp] == KeyState.Down && commands.oldState[Keys.PageUp] == KeyState.Up) {
+                historyLineShift += (Engine.ViewHeight - 100) / 30;
+            }
+            else if (commands.currentState[Keys.PageDown] == KeyState.Down && commands.oldState[Keys.PageDown] == KeyState.Up) {
+                if (controlPressed) {
+                    historyLineShift = 0;
+                }
+                else {
+                    historyLineShift -= (Engine.ViewHeight - 100) / 30;
+                }
+            }
+            else if (commands.currentState[Keys.Up] == KeyState.Down && controlPressed) {
+                repeatCounter += 1;
+                while (repeatCounter >= 6) {
+                    repeatCounter -= 2;
+                    historyLineShift += 1;
+                }
+            }
+            else if (commands.currentState[Keys.Down] == KeyState.Down && controlPressed) {
+                repeatCounter += 1;
+                while (repeatCounter >= 6) {
+                    repeatCounter -= 2;
+                    historyLineShift -= 1;
+                }
+            }
+            else {
+                repeatCounter = 0;
+            }
+        }
     }
 
     private static void MinorBugFixer() {
