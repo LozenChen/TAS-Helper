@@ -43,8 +43,18 @@ public static class ConsoleEnhancement {
     }
 
     private static void MinorBugFixer() {
-        // if open debugconsole and close it when in tas, then exit tas (without running another frames), debugconsole will show up
-        if ((CoreModule.Settings.DebugConsole.Pressed || CoreModule.Settings.ToggleDebugConsole.Pressed) && !Engine.Commands.Open) {
+        // if open debugconsole and close it when in tas, then exit tas (without running any frame), debugconsole will show up
+
+        /* order of operation:
+         * MInput.Update, inside which is Manager.Update
+         * Manager.Update, which calls DisableRun
+         * stuff after MInput.Update, coz now Manager.Running == false
+         * including Commands.UpdateClosed(), which opens debugconsole
+         */
+
+        // don't know why these bindings get pressed... at least the bug is fixed
+
+        if (TasHelperSettings.EnableOpenConsoleInTas && (CoreModule.Settings.DebugConsole.Pressed || CoreModule.Settings.ToggleDebugConsole.Pressed) && !Engine.Commands.Open) {
             Engine.Commands.canOpen = false;
         }
     }
@@ -53,7 +63,7 @@ public static class ConsoleEnhancement {
         orig(level);
     }
     private static void UpdateCommands() {
-        if (TasHelperSettings.EnableOpenConsoleInTas) {
+        if (Manager.Running && TasHelperSettings.EnableOpenConsoleInTas) {
             lastOpen = Engine.Commands.Open;
             if (Engine.Commands.Open) {
                 Engine.Commands.UpdateOpen();
