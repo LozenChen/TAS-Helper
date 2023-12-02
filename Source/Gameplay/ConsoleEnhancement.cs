@@ -1,3 +1,4 @@
+using Celeste.Mod.Core;
 using Celeste.Mod.TASHelper.Utils;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -12,6 +13,8 @@ public static class ConsoleEnhancement {
     private static bool openConsole = false;
 
     private static bool lastOpen = false;
+
+
     public static void SetOpenConsole() {
         if (Manager.Running && !lastOpen) {
             openConsole = true;
@@ -36,14 +39,21 @@ public static class ConsoleEnhancement {
     [Initialize]
     public static void Initialize() {
         typeof(Manager).GetMethod("Update").HookAfter(UpdateCommands);
+        typeof(Manager).GetMethod("DisableRun").HookAfter(MinorBugFixer);
     }
 
+    private static void MinorBugFixer() {
+        // if open debugconsole and close it when in tas, then exit tas (without running another frames), debugconsole will show up
+        if ((CoreModule.Settings.DebugConsole.Pressed || CoreModule.Settings.ToggleDebugConsole.Pressed) && !Engine.Commands.Open) {
+            Engine.Commands.canOpen = false;
+        }
+    }
     private static void OnLevelBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level level) {
         openConsole = false;
         orig(level);
     }
     private static void UpdateCommands() {
-        if (Manager.Running && TasHelperSettings.EnableOpenConsoleInTas) {
+        if (TasHelperSettings.EnableOpenConsoleInTas) {
             lastOpen = Engine.Commands.Open;
             if (Engine.Commands.Open) {
                 Engine.Commands.UpdateOpen();

@@ -62,7 +62,7 @@ public static class TH_Hotkeys {
             List<Keys> keys;
             List<Buttons> buttons;
             ButtonBinding debugConsole = (ButtonBinding)getDebugConsole.GetValue(CMCore.CoreModule.Settings);
-            if (typeof(CMCore.CoreModuleSettings).GetProperty("ToggleDebugConsole") is { } getToggleDebugConsole) {
+            if (typeof(CMCore.CoreModuleSettings).GetProperty("ToggleDebugConsole") is { } getToggleDebugConsole) { // Everest >= 4351
                 ButtonBinding toggleDebugConsole = (ButtonBinding)getToggleDebugConsole.GetValue(CMCore.CoreModule.Settings);
                 keys = debugConsole.Keys.Union(toggleDebugConsole.Keys).ToList();
                 buttons = debugConsole.Buttons.Union(toggleDebugConsole.Buttons).ToList();
