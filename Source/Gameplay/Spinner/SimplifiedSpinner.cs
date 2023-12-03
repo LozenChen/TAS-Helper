@@ -98,6 +98,14 @@ internal static class SimplifiedSpinner {
         if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) { // we use this as a mod version check
             LevelExtensions.AddToTracker(cassetteSpinnerType);
             ClearSpritesAction.Add(self => {
+                if (!self.Tracker.Entities.ContainsKey(cassetteSpinnerType)) {
+                    // there's report that here's a KeyNotFoundException
+                    // https://discord.com/channels/403698615446536203/754495709872521287/1180852881369350295
+                    // though it never happens for me
+                    // don't know why this would happen
+                    // anyway, we add a redundant check
+                    self.Tracker.Entities.Add(cassetteSpinnerType, new List<Entity>());
+                }
                 foreach (Entity spinner in self.Tracker.Entities[cassetteSpinnerType]) {
                     spinner.UpdateComponentVisiblity();
                     foreach (FieldInfo getter in CrysExtraComponentGetter) {
@@ -114,6 +122,9 @@ internal static class SimplifiedSpinner {
         if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinnerRenderer") is { } dreamSpinnerRendererType) {
             LevelExtensions.AddToTracker(dreamSpinnerRendererType);
             ClearSpritesAction.Add(self => {
+                if (!self.Tracker.Entities.ContainsKey(dreamSpinnerRendererType)) {
+                    self.Tracker.Entities.Add(dreamSpinnerRendererType, new List<Entity>());
+                }
                 foreach (Entity renderer in self.Tracker.Entities[dreamSpinnerRendererType]) {
                     renderer.Visible = !SpritesCleared;
                 }

@@ -447,6 +447,8 @@ internal static class DictionaryExtensions {
 }
 
 internal static class LevelExtensions {
+
+    // this should always be called in Initialize, so when any tracker instance is created, these types are already stored
     public static void AddToTracker(Type entity, bool inherited = false) {
         if (!typeof(Entity).IsAssignableFrom(entity)) {
             return;
