@@ -30,6 +30,8 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Allow opening console in TAS.
 
+- Scrollable Console History Log -> Besides holding ctrl + up/down (provided by Everest), you can now use MouseWheel/PageUp/PageDown to scroll over the history logs. Press Ctrl+PageUp/Down to scroll to top/bottom.
+
 - Hotkeys -> you can change some of the settings using hotkeys.
 
 - Main Switch hotkey -> Settings are memorized in a way that, ActualSettings = MainSwitch state && MemorizedSettings (if both sides are boolean. Similar for other types). The Main Switch hotkey just modifies MainSwitch state, and will not modify MemorizedSettings. Editing settings in menu or using other hotkeys will modify MemorizedSettings.

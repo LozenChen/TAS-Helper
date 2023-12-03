@@ -198,6 +198,7 @@ TAS_HELPER_TRACKSPINNER_TRACK=                             TrackSpinner Track
 TAS_HELPER_CAMERA_TARGET=                                  Camera Target
 TAS_HELPER_CAMERA_TARGET_VECTOR_OPACITY=                   Camera-Target Link Opacity
 TAS_HELPER_OPEN_CONSOLE_IN_TAS=                            Allow Opening Console in TAS
+TAS_HELPER_SCROLLABLE_HISTORY_LOG=                         Scrollable Console History Log
 TAS_HELPER_ORDER_OF_OPERATION_STEPPING=                    Order-of-Operation Stepping
 TAS_HELPER_ORDER_OF_OPERATION_DESCRIPTION=                 Just like Frame Advance, but in a subframe scale, thus visualize order of operations.{n}
                                                            Use hotkeys to take a step / "fastforward" to end of frame.{n}
