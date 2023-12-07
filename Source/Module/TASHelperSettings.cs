@@ -786,10 +786,11 @@ public class TASHelperSettings : EverestModuleSettings {
                     < 8 => 8,
                     _ => 0,
                 };
-                Refresh($"Pixel Grid Width = {PixelGridWidth}");
                 if (PixelGridWidth == 0) {
                     EnablePixelGrid = false;
                 }
+                string str = !EnablePixelGrid || DebugRendered ? "" : ", but DebugRender is not turned on";
+                Refresh($"Pixel Grid Width = {PixelGridWidth}{str}");
             }
             else {
                 HotkeyWatcher.RefreshHotkeyDisabled();

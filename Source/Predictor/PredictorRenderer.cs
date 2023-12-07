@@ -34,12 +34,21 @@ public class PredictorRenderer : Entity {
             keyframeMessageCached = false;
         }
     }
+
+    public override void Render() {
+        if (!DebugRendered) {
+            RenderCore();
+        }
+    }
     public override void DebugRender(Camera camera) {
+        RenderCore();
+    }
+
+    private static void RenderCore() {
         if (!TasHelperSettings.PredictFutureEnabled || !FrameStep) {
             ClearCachedMessage();
             return;
         }
-
         int count = Math.Min(futures.Count, TasHelperSettings.TimelineLength);
 
         foreach (RenderData data in futures) {
