@@ -1,4 +1,6 @@
 using Celeste.Mod.TASHelper.Utils;
+using System.Reflection;
+using TAS;
 
 namespace Celeste.Mod.TASHelper.Module;
 
@@ -19,6 +21,7 @@ internal static class Loader {
         HookHelper.InitializeAtFirst();
         ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();
+        typeof(Manager).GetMethod("DisableRun").HookAfter(() => AttributeUtils.Invoke<TasDisableRunAttribute>());
     }
 
     public static void LoadContent() {

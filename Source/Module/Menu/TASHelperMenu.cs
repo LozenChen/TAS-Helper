@@ -149,6 +149,9 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.OnOff("TrackSpinner Track".ToDialogText(), TasHelperSettings.UsingTrackSpinnerTrack).Change(value => TasHelperSettings.UsingTrackSpinnerTrack = value));
             subMenu.Add(new TextMenu.OnOff("Open Console In Tas".ToDialogText(), TasHelperSettings.EnableOpenConsoleInTas).Change(value => TasHelperSettings.EnableOpenConsoleInTas = value));
             subMenu.Add(new TextMenu.OnOff("Scrollable History Log".ToDialogText(), TasHelperSettings.EnableScrollableHistoryLog).Change(value => TasHelperSettings.EnableScrollableHistoryLog = value));
+            TextMenu.Item betterInvincible;
+            subMenu.Add(betterInvincible = new TextMenu.OnOff("Better Invincibility".ToDialogText(), TasHelperSettings.BetterInvincible).Change(value => TasHelperSettings.BetterInvincible = value));
+            subMenu.AddDescription(menu, betterInvincible, "Better Invincible Description".ToDialogText());
             TextMenu.Item OoOItem;
             subMenu.Add(OoOItem = new TextMenu.OnOff("Order of Operation Stepping".ToDialogText(), TasHelperSettings.EnableOoO).Change(value => TasHelperSettings.EnableOoO = value));
             subMenu.AddDescription(menu, OoOItem, "Order of Operation Description".ToDialogText());

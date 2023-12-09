@@ -203,3 +203,8 @@ TAS_HELPER_ORDER_OF_OPERATION_STEPPING=                    Order-of-Operation St
 TAS_HELPER_ORDER_OF_OPERATION_DESCRIPTION=                 Just like Frame Advance, but in a subframe scale, thus visualize order of operations.{n}
                                                            Use hotkeys to take a step / "fastforward" to end of frame.{n}
                                                            Use commands starting with "ooo" to config.
+TAS_HELPER_BETTER_INVINCIBILITY=                           Better Invincibility
+TAS_HELPER_BETTER_INVINCIBLE_DESCRIPTION=                  Only applies to TAS.{n}
+                                                           Now "Set Invincible true" command makes you invincible only during this TAS,{n}
+                                                           and player will not bounce at the bottom of a level boundary,{n}
+                                                           or accidentally refill dash while Maddy shouldn't. So this avoids desync.

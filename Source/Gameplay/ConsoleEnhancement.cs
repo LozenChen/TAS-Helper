@@ -57,7 +57,6 @@ public static class ConsoleEnhancement {
     [Initialize]
     public static void Initialize() {
         typeof(Manager).GetMethod("Update").HookAfter(UpdateCommands);
-        typeof(Manager).GetMethod("DisableRun").HookAfter(MinorBugFixer);
         typeof(CenterCamera).GetMethod("ZoomCamera", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(il => {
             ILCursor cursor = new ILCursor(il);
             if (cursor.TryGotoNext(MoveType.After, ins => ins.MatchCallOrCallvirt(typeof(MouseButtons).FullName, "get_Wheel"))) {
@@ -182,6 +181,7 @@ public static class ConsoleEnhancement {
         }
     }
 
+    [TasDisableRun]
     private static void MinorBugFixer() {
         // if open debugconsole and close it when in tas, then exit tas (without running any frame), debugconsole will show up
 

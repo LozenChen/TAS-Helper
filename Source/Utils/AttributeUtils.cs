@@ -69,3 +69,6 @@ internal class LoadContentAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Method)]
 internal class InitializeAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Method)]
+internal class TasDisableRunAttribute : Attribute { }

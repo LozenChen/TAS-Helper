@@ -202,3 +202,7 @@ TAS_HELPER_ORDER_OF_OPERATION_STEPPING=                    亚帧步进
 TAS_HELPER_ORDER_OF_OPERATION_DESCRIPTION=                 正如同逐帧步进, 但是在亚于帧的时间尺度上进行, 从而将一帧以内的运算顺序视觉化.{n}
                                                            使用快捷键来步进, 或快进至一帧的结尾.{n}
                                                            使用以 "ooo" 开头的指令进行配置.
+TAS_HELPER_BETTER_INVINCIBILITY=                           更好的无敌
+TAS_HELPER_BETTER_INVINCIBLE_DESCRIPTION=                  仅在 TAS 中生效.{n}
+                                                           现在 "Set Invincible true" 指令会产生一个仅在 TAS 期间生效的无敌效果,{n}
+                                                           且这个无敌不会导致玩家在关卡底部弹跳, 意外恢复冲刺等, 从而避免了 TAS desync.
