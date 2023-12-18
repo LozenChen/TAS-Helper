@@ -147,6 +147,7 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.OnOff("FireBall Track".ToDialogText(), TasHelperSettings.UsingFireBallTrack).Change(value => TasHelperSettings.UsingFireBallTrack = value));
             subMenu.Add(new TextMenu.OnOff("RotateSpinner Track".ToDialogText(), TasHelperSettings.UsingRotateSpinnerTrack).Change(value => TasHelperSettings.UsingRotateSpinnerTrack = value));
             subMenu.Add(new TextMenu.OnOff("TrackSpinner Track".ToDialogText(), TasHelperSettings.UsingTrackSpinnerTrack).Change(value => TasHelperSettings.UsingTrackSpinnerTrack = value));
+            subMenu.Add(new TextMenu.OnOff("Show Wind Speed".ToDialogText(), TasHelperSettings.ShowWindSpeed).Change(value => TasHelperSettings.ShowWindSpeed = value));
             subMenu.Add(new TextMenu.OnOff("Open Console In Tas".ToDialogText(), TasHelperSettings.EnableOpenConsoleInTas).Change(value => TasHelperSettings.EnableOpenConsoleInTas = value));
             subMenu.Add(new TextMenu.OnOff("Scrollable History Log".ToDialogText(), TasHelperSettings.EnableScrollableHistoryLog).Change(value => TasHelperSettings.EnableScrollableHistoryLog = value));
             TextMenu.Item betterInvincible;

@@ -63,7 +63,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 return;
             }
             mainSwitch = value;
-            HotkeyWatcher.instance?.RefreshMainSwitch();
+            HotkeyWatcher.RefreshMainSwitch();
             switch (value) {
                 case MainSwitchModes.Off:
                     Enabled = false;
@@ -99,6 +99,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_OpenConsoleInTas = false;
         Awake_ScrollableHistoryLog = false;
         Awake_BetterInvincible = false;
+        Awake_ShowWindSpeed = false;
     }
     internal void Awake(bool awakeAll) {
         MainSwitch = awakeAll ? MainSwitchModes.AllowAll : MainSwitchModes.OnlyDefault;
@@ -119,6 +120,7 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_OpenConsoleInTas = true;
         Awake_ScrollableHistoryLog = true;
         Awake_BetterInvincible = true;
+        Awake_ShowWindSpeed = true;
     }
 
     #endregion
@@ -610,7 +612,7 @@ public class TASHelperSettings : EverestModuleSettings {
         get => hotKeyStateVisualize;
         set {
             hotKeyStateVisualize = value;
-            if (HotkeyWatcher.instance is HotkeyWatcher watcher) {
+            if (HotkeyWatcher.Instance is HotkeyWatcher watcher) {
                 watcher.Visible = hotKeyStateVisualize;
             }
         }
@@ -623,9 +625,7 @@ public class TASHelperSettings : EverestModuleSettings {
         get => mainSwitchThreeStates;
         set {
             mainSwitchThreeStates = value;
-            if (HotkeyWatcher.instance is HotkeyWatcher watcher) {
-                watcher.RefreshMainSwitch();
-            }
+            HotkeyWatcher.RefreshMainSwitch();
         }
     }
 
@@ -680,6 +680,20 @@ public class TASHelperSettings : EverestModuleSettings {
         set {
             betterInvincible = value;
             Awake_BetterInvincible = true;
+        }
+    }
+
+    public bool showWindSpeed = false;
+
+    public bool Awake_ShowWindSpeed = true;
+
+    [YamlIgnore]
+
+    public bool ShowWindSpeed {
+        get => Enabled && Awake_ShowWindSpeed && showWindSpeed;
+        set {
+            showWindSpeed = value;
+            Awake_ShowWindSpeed = true;
         }
     }
 

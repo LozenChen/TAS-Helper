@@ -208,3 +208,4 @@ TAS_HELPER_BETTER_INVINCIBLE_DESCRIPTION=                  Only applies to TAS.{
                                                            Now "Set Invincible true" command makes you invincible only during this TAS,{n}
                                                            and player will not bounce at the bottom of a level boundary,{n}
                                                            or accidentally refill dash while Maddy shouldn't. So this avoids desync.
+TAS_HELPER_SHOW_WIND_SPEED=                                Show Wind Speed

@@ -206,3 +206,4 @@ TAS_HELPER_BETTER_INVINCIBILITY=                           更好的无敌
 TAS_HELPER_BETTER_INVINCIBLE_DESCRIPTION=                  仅在 TAS 中生效.{n}
                                                            现在 "Set Invincible true" 指令会产生一个仅在 TAS 期间生效的无敌效果,{n}
                                                            且这个无敌不会导致玩家在关卡底部弹跳, 意外恢复冲刺等, 从而避免了 TAS desync.
+TAS_HELPER_SHOW_WIND_SPEED=                                显示风速

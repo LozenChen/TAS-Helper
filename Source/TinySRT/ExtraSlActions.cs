@@ -125,6 +125,7 @@ internal static class TasModSL {
             MetadataCommands.TasStartFileTime = tasStartFileTime;
             MouseCommand.CurrentState = mouseState;
             HitboxSimplified.Followers = followers.TH_DeepCloneShared();
+
         };
         Action clear = () => {
             savedEntityData = null;

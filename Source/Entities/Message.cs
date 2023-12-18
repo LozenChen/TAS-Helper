@@ -47,7 +47,7 @@ public static class Messenger {
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         EntityActivatorWarner.MessageCount = 0;
         orig(level, playerIntro, isFromLoader);
-        level.Add(new HotkeyWatcher());
+        WindSpeedRenderer.AddIfNecessary();
     }
 
     private static void WatchEntityActivator(EntityData data) {
@@ -57,6 +57,79 @@ public static class Messenger {
             level.Add(watcher);
             watcher.Watch(data);
         }
+    }
+
+}
+
+[Tracked(false)]
+
+public class WindSpeedRenderer : Message {
+
+    public static WindSpeedRenderer Instance;
+    public WindSpeedRenderer() : base("", new Vector2(10f, 10f)) {
+        this.Depth = -20000;
+        this.Visible = true;
+        this.Active = true;
+        base.Tag |= Tags.Global;
+    }
+
+    public static bool AddIfNecessary() {
+        if (Engine.Scene is not Level level) {
+            return false;
+        }
+        if (Instance is null || !level.Entities.Contains(Instance)) {
+            Instance = new();
+            level.Add(Instance);
+        }
+        return true;
+    }
+
+    public override void Update() {
+        if (Engine.Scene is Level level && level.Wind != Vector2.Zero) {
+            lifetimer = maxLifetimer;
+            alpha = 1f;
+        }
+        else if (lifetimer > 0){
+            lifetimer--;
+            if (lifetimer <= 0.5 * maxLifetimer) {
+                alpha = (float)lifetimer / (0.5f * (float)maxLifetimer);
+            }
+        }
+    }
+
+    public override void Render() {
+        if (TasHelperSettings.ShowWindSpeed && (DebugRendered || TasSettings.SimplifiedGraphics && TasSettings.SimplifiedBackdrop) && Engine.Scene is Level level && lifetimer > 0) {
+            // when level.Transitioning, WindController stops working, but we render its speed anyway
+            this.text = WindToString(level.Wind);
+
+            float scale = 0.6f;
+            Vector2 Size = FontSize.Measure(text) * scale;
+            Monocle.Draw.Rect(Position - 10f * Vector2.UnitX, Size.X + 15f + Size.Y, Size.Y, Color.Black * alpha * 0.5f);
+
+            RenderAtTopLeft(Position);
+
+            if (level.Wind != Vector2.Zero) {
+                Vector2 direction = level.Wind / level.Wind.Length();
+                float unitLength = Size.Y * 0.4f * MathHelper.Clamp(level.Wind.Length() / 400f, 0.7f, 1f);
+                Vector2 squareCenter = Position + (5f + Size.X) * Vector2.UnitX + Size.Y * 0.5f * Vector2.One;
+                Vector2 head = squareCenter - direction * unitLength;
+                Vector2 tail = squareCenter + direction * unitLength;
+                Monocle.Draw.Line(head, tail, Color.White, 3f);
+                Monocle.Draw.Line(tail, tail - direction.Rotate(ArrowAngle) * unitLength, Color.White, 2f);
+                Monocle.Draw.Line(tail, tail - direction.Rotate(-ArrowAngle) * unitLength, Color.White, 2f);
+                // alpha here must be 1, so no need to multiply it by alpha
+            }
+        }
+    }
+
+    private static float ArrowAngle = (float) Math.PI / 6f;
+
+    private static int lifetimer = 0;
+
+    private const int maxLifetimer = 10;
+
+    public static string WindToString(Vector2 windMove) {
+        return $"Wind Speed: {(windMove * 0.1f).ToDynamicFormattedString(2)} px/s";
     }
 
 }
@@ -117,15 +190,12 @@ public class EntityActivatorWarner : Message {
         }
         base.Update();
     }
-    public override void Render() {
-        RenderAt(Position);
-    }
 }
 
 [Tracked(false)]
 public class HotkeyWatcher : Message {
 
-    public static HotkeyWatcher instance;
+    public static HotkeyWatcher Instance;
 
     public static float lifetime = 3f;
 
@@ -134,14 +204,21 @@ public class HotkeyWatcher : Message {
         this.Depth = -20000;
         this.Visible = TasHelperSettings.HotkeyStateVisualize;
         base.Tag |= Tags.Global;
-        if (instance is not null) {
-            Engine.Scene.Remove(instance);
-        }
-        instance = this;
         PauseUpdater.Register(this);
     }
 
-    public void RefreshHotkeyDisabledImpl() {
+    public static bool AddIfNecessary() {
+        if (Engine.Scene is not Level level) {
+            return false;
+        }
+        if (Instance is null || !level.Entities.Contains(Instance)) {
+            Instance = new();
+            level.Add(Instance);
+        }
+        return true;
+    }
+
+    private void RefreshHotkeyDisabledImpl() {
         RestoreAlpha(this.text.Equals(text));
         text = "TAS Helper Disabled!";
         lifetimer = lifetime;
@@ -150,16 +227,12 @@ public class HotkeyWatcher : Message {
     }
 
     public static void RefreshHotkeyDisabled() {
-        if (instance is not null) {
-            instance.RefreshHotkeyDisabledImpl();
-        }
-        else {
-            instance = new();
-            instance.RefreshHotkeyDisabledImpl();
+        if (AddIfNecessary()) {
+            Instance.RefreshHotkeyDisabledImpl();
         }
     }
 
-    public void RefreshMainSwitch() {
+    private void RefreshMainSwitchImpl() {
         RestoreAlpha(false);
 #pragma warning disable CS8524
         text = "TAS Helper Main Switch Mode " + (TasHelperSettings.MainSwitchThreeStates ? "[Off - Default - All]" : "[Off - All]") + " = " + (TasHelperSettings.MainSwitch switch { MainSwitchModes.Off => "Off", MainSwitchModes.OnlyDefault => "Default", MainSwitchModes.AllowAll => "All" });
@@ -169,7 +242,13 @@ public class HotkeyWatcher : Message {
         Visible = TasHelperSettings.HotkeyStateVisualize;
     }
 
-    public void RefreshImpl(string text) {
+    public static void RefreshMainSwitch() {
+        if (AddIfNecessary()) {
+            Instance.RefreshMainSwitchImpl();
+        }
+    }
+
+    private void RefreshImpl(string text) {
         RestoreAlpha(this.text.Equals(text));
         this.text = text;
         lifetimer = lifetime;
@@ -178,12 +257,8 @@ public class HotkeyWatcher : Message {
     }
 
     public static void Refresh(string text) {
-        if (instance is not null) {
-            instance.RefreshImpl(text);
-        }
-        else {
-            instance = new();
-            instance.RefreshImpl(text);
+        if (AddIfNecessary()) {
+            Instance.RefreshImpl(text);
         }
     }
 
@@ -199,7 +274,7 @@ public class HotkeyWatcher : Message {
     private bool FallAndRise = false;
     public override void Update() {
         if (FallAndRise) {
-            alpha = alpha - 0.1f;
+            alpha -= 0.1f;
             if (alpha < 0f) {
                 alpha = 1f;
                 FallAndRise = false;
@@ -220,7 +295,10 @@ public class HotkeyWatcher : Message {
     }
 
     public override void Render() {
-        Font.Draw(BaseSize, text, Position, new Vector2(0f, 0.5f), Vector2.One * 0.5f, Color.White * alpha, 0f, Color.Transparent, 1f, Color.Black);
+        float scale = 0.6f;
+        Vector2 Size = FontSize.Measure(text) * scale;
+        Monocle.Draw.Rect(Position - 0.5f * Size.Y * Vector2.UnitY - 10f * Vector2.UnitX, Size.X + 20f , Size.Y + 10f, Color.Black * alpha * 0.5f);
+        Font.Draw(BaseSize, text, Position, new Vector2(0f, 0.5f), Vector2.One * scale, Color.White * alpha, 0f, Color.Transparent, 1f, Color.Black);
     }
 
 }
@@ -249,10 +327,14 @@ public class Message : Entity {
     }
 
     public override void Render() {
-        RenderAt(Position);
+        RenderAtCenter(Position);
     }
 
-    public void RenderAt(Vector2 Position) {
+    public void RenderAtTopLeft(Vector2 Position) {
+        Font.Draw(BaseSize, text, Position, new Vector2(0f, 0f), Vector2.One * 0.6f, Color.White * alpha, 0f, Color.Transparent, 1f, Color.Black);
+    }
+
+    public void RenderAtCenter(Vector2 Position) {
         Font.Draw(BaseSize, text, Position, new Vector2(0.5f, 0.5f), Vector2.One * 0.5f, Color.White * alpha, 0f, Color.Transparent, 1f, Color.Black);
     }
 

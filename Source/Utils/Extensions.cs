@@ -550,3 +550,87 @@ internal static class EnumExtensions {
         };
     }
 }
+
+internal static class Vector2Extensions {
+    public static string ToSimpleString(this Vector2 vector2, int decimals) {
+        return $"{vector2.X.ToFormattedString(decimals)}, {vector2.Y.ToFormattedString(decimals)}";
+    }
+
+    public static string ToDynamicFormattedString(this Vector2 vector2, int decimals) {
+        if (vector2 == Vector2.Zero) {
+            return "0";
+        }
+        else if (vector2.Y == 0f) {
+            return $"X = {vector2.X.ToDynamicDecimalsString(decimals)}";
+        }
+        else if (vector2.X == 0f) {
+            return $"Y = {vector2.Y.ToDynamicDecimalsString(decimals)}";
+        }
+        else {
+            int d1 = vector2.X.GetDecimals(decimals);
+            int d2 = vector2.Y.GetDecimals(decimals);
+            int d = Math.Max(d1, d2);
+            return $"X = {vector2.X.ToSignedString(d)} ; Y = {vector2.Y.ToSignedString(d)}";
+        }
+    }
+}
+
+internal static class NumberExtensions {
+    private static readonly string format = "0.".PadRight(339, '#');
+
+    private const double eps = 1E-6;
+
+    public static string ToDynamicDecimalsString(this float value, int decimals) {
+        string sign = value switch {
+            > 0 => "+",
+            < 0 => "-",
+            _ => ""
+        };
+        return sign + Math.Abs(value).ToString($"F{value.GetDecimals(decimals)}");
+    }
+
+    public static string ToSignedString(this float value, int decimals) {
+        string sign = value switch {
+            > 0 => "+",
+            < 0 => "-",
+            _ => ""
+        };
+        return sign + Math.Abs(value).ToFormattedString(decimals);
+    }
+    public static int GetDecimals(this float value, int decimals) {
+        int indeedDecimals = 0;
+        while (indeedDecimals < decimals) {
+            if (AlmostInteger(value, indeedDecimals)) {
+                break;
+            }
+            indeedDecimals++;
+        }
+        return indeedDecimals;
+    }
+
+    public static bool AlmostInteger(this float value, int decimals) {
+        return Math.Abs(value - Math.Round(value, decimals)) < eps;
+    }
+
+    public static bool AlmostInteger(this double value, int decimals) {
+        return Math.Abs(value - Math.Round(value, decimals)) < eps;
+    }
+
+    public static string ToFormattedString(this float value, int decimals) {
+        if (decimals == -1) {
+            return value.ToString(format);
+        }
+        else {
+            return ((double)value).ToFormattedString(decimals);
+        }
+    }
+
+    public static string ToFormattedString(this double value, int decimals) {
+        if (decimals == -1) {
+            return value.ToString(format); // unlimited precision
+        }
+        else {
+            return value.ToString($"F{decimals}");
+        }
+    }
+}
