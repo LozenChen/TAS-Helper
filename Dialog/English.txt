@@ -210,3 +210,5 @@ TAS_HELPER_BETTER_INVINCIBLE_DESCRIPTION=                  Only applies to TAS.{
                                                            or accidentally refill dash while Maddy shouldn't. So this avoids desync.
 TAS_HELPER_SHOW_WIND_SPEED=                                Show Wind Speed
 TAS_HELPER_WHATS_NEW=                                      What's New!
+TAS_HELPER_SUBSCRIBE_WHATS_NEW=                            Subscribe What's New!
+TAS_HELPER_SUBSCRIBE_WHATS_NEW_DESCRIPTION=                "Whats's New" will show new features / bugfixes when TAS Helper updates, and disappear after you read it.

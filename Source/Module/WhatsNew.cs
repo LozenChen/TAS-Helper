@@ -4,11 +4,11 @@ namespace Celeste.Mod.TASHelper.Module;
 
 public static class WhatsNew {
 
-    public static bool ShouldShowUpdateLog = false;
+    public static bool NewUpdateLogExist = false;
+
+    public static bool ShouldShow => NewUpdateLogExist && TasHelperSettings.SubscribeWhatsNew;
 
     public static Dictionary<string, List<string>> UpdateLogs = new();
-
-    public const string BrokenSaves = "0.0.1";
 
     public static Version CurrentVersion => TASHelperModule.Instance.Metadata.Version;
 
@@ -19,19 +19,14 @@ public static class WhatsNew {
 #endif
 
         if (TasHelperSettings.FirstInstall) {
-            ShouldShowUpdateLog = true;
+            NewUpdateLogExist = true;
             TasHelperSettings.LastVersion = new Version(1, 0).ToString();
         }
-        else if (TasHelperSettings.LastVersion == BrokenSaves) {
-            // the saved setting may be deleted / broken
-            ShouldShowUpdateLog = false;
-            TasHelperSettings.LastVersion = CurrentVersion.ToString();
-        }
         else {
-            ShouldShowUpdateLog = new Version(TasHelperSettings.LastVersion) < CurrentVersion;
+            NewUpdateLogExist = new Version(TasHelperSettings.LastVersion) < CurrentVersion;
         }
 
-        if (ShouldShowUpdateLog) {
+        if (NewUpdateLogExist) {
             CreateUpdateLog();
         }
     }
@@ -44,7 +39,7 @@ public static class WhatsNew {
         LastVersion = new Version(TasHelperSettings.LastVersion);
         AddLog("1.8.10", "\"More Options\" -> \"Scrollable Console History Log\"");
         AddLog("1.8.11", "\"More Options\" -> \"Better Invincibility\".");
-        AddLog("1.8.12", "Wind Speed Renderer. Enable it in \"More Options\" -> \"Show Wind Speed\".", "Add the \"What's New!\" page.");
+        AddLog("1.8.12", "Wind Speed Renderer. Enable it in \"More Options\" -> \"Show Wind Speed\".", "Add the \"What's New!\" page. You can unsubscribe it in \"More Options\" -> \"Subscribe What's New!\"");
     }
 
     private static Version LastVersion;

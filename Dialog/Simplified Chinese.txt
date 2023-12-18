@@ -208,3 +208,5 @@ TAS_HELPER_BETTER_INVINCIBLE_DESCRIPTION=                  仅在 TAS 中生效.
                                                            且这个无敌不会导致玩家在关卡底部弹跳, 意外恢复冲刺等, 从而避免了 TAS desync.
 TAS_HELPER_SHOW_WIND_SPEED=                                显示风速
 TAS_HELPER_WHATS_NEW=                                      What's New!
+TAS_HELPER_SUBSCRIBE_WHATS_NEW=                            订阅 What's New!
+TAS_HELPER_SUBSCRIBE_WHATS_NEW_DESCRIPTION=                每次更新时, "Whats's New" 会告诉你新增加的特性, 阅后消失.

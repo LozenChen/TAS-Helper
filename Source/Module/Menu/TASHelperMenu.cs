@@ -153,6 +153,9 @@ internal static class TASHelperMenu {
             TextMenu.Item betterInvincible;
             subMenu.Add(betterInvincible = new TextMenu.OnOff("Better Invincibility".ToDialogText(), TasHelperSettings.BetterInvincible).Change(value => TasHelperSettings.BetterInvincible = value));
             subMenu.AddDescription(menu, betterInvincible, "Better Invincible Description".ToDialogText());
+            TextMenu.Item subscribeWhatsNew;
+            subMenu.Add(subscribeWhatsNew = new TextMenu.OnOff("Subscribe Whats New".ToDialogText(), TasHelperSettings.SubscribeWhatsNew).Change(value => TasHelperSettings.SubscribeWhatsNew = value));
+            subMenu.AddDescription(menu, subscribeWhatsNew, "Subscribe Whats New Description".ToDialogText());
             TextMenu.Item OoOItem;
             subMenu.Add(OoOItem = new TextMenu.OnOff("Order of Operation Stepping".ToDialogText(), TasHelperSettings.EnableOoO).Change(value => TasHelperSettings.EnableOoO = value));
             subMenu.AddDescription(menu, OoOItem, "Order of Operation Description".ToDialogText());
@@ -265,7 +268,7 @@ internal static class TASHelperMenu {
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
             disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, moreoptionItem, hotkeysItem };
             int N = menu.IndexOf(mainItem);
-            if (WhatsNew.ShouldShowUpdateLog) {
+            if (WhatsNew.ShouldShow) {
                 EaseInSubMenu whatsnewItem = WhatsNew.CreateWhatsNewSubMenu(menu);
                 menu.Insert(N + 1, whatsnewItem);
                 disabledItems.Add(whatsnewItem);

@@ -48,7 +48,8 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool FirstInstall = true;
 
     // idk, it seems that Deserializer cant handle version well, so i use string instead
-    public string LastVersion = WhatsNew.BrokenSaves;
+    // last version of which the update log has been read
+    public string LastVersion = "0.0.1";
 
     #region MainSwitch
 
@@ -700,6 +701,8 @@ public class TASHelperSettings : EverestModuleSettings {
             Awake_ShowWindSpeed = true;
         }
     }
+
+    public bool SubscribeWhatsNew = true;
 
     #endregion
 
