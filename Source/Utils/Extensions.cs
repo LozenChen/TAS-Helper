@@ -448,6 +448,27 @@ internal static class DictionaryExtensions {
 
 internal static class LevelExtensions {
 
+    private static List<Entity> toAdd = new();
+    public static void AddImmediately(this Scene scene, Entity entity) {
+        // ensure entity is added even if the regular engine update loop is interrupted, e.g. TAS stop
+        toAdd.Add(entity);
+    }
+
+    [Initialize]
+    private static void Initialize() {
+        typeof(Scene).GetMethod("BeforeRender").HookBefore(AddEntities);
+    }
+
+    private static void AddEntities() {
+        if (toAdd.IsNotEmpty()) {
+            foreach (Entity entity in toAdd) {
+                Engine.Scene.Add(entity);
+            }
+            toAdd.Clear();
+            Engine.Scene.Entities.UpdateLists();
+        }
+    }
+
     // this should always be called in Initialize, so when any tracker instance is created, these types are already stored
     public static void AddToTracker(Type entity, bool inherited = false) {
         if (!typeof(Entity).IsAssignableFrom(entity)) {

@@ -79,7 +79,7 @@ public class WindSpeedRenderer : Message {
         }
         if (Instance is null || !level.Entities.Contains(Instance)) {
             Instance = new();
-            level.Add(Instance);
+            level.AddImmediately(Instance);
         }
         return true;
     }
@@ -213,7 +213,7 @@ public class HotkeyWatcher : Message {
         }
         if (Instance is null || !level.Entities.Contains(Instance)) {
             Instance = new();
-            level.Add(Instance);
+            level.AddImmediately(Instance);
         }
         return true;
     }

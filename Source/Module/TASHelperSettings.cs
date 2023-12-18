@@ -32,6 +32,7 @@ public class TASHelperSettings : EverestModuleSettings {
     internal void OnLoadSettings() {
         UpdateAuxiliaryVariable();
 
+        // it seems some bug can happen with deserialization
         keyMainSwitch ??= new((Buttons)0, Keys.LeftControl, Keys.E);
         keyCountDown ??= new((Buttons)0, Keys.LeftControl, Keys.R);
         keyLoadRange ??= new((Buttons)0, Keys.LeftControl, Keys.T);
@@ -40,16 +41,14 @@ public class TASHelperSettings : EverestModuleSettings {
         keyPredictFuture ??= new((Buttons)0, Keys.LeftControl, Keys.P);
         keyOoO_Step ??= new((Buttons)0, Keys.LeftControl, Keys.G);
         keyOoO_Fastforward ??= new((Buttons)0, Keys.LeftControl, Keys.Y);
-
-        // it seems some bug can happen with deserialization
-        WhatsNew.OnLoadSettings();
     }
 
     public bool Enabled = true;
 
-    public Version LastVersion = WhatsNew.BrokenSaves;
+    public bool FirstInstall = true;
 
-    public Version CurrentVersion => TASHelperModule.Instance.Metadata.Version;
+    // idk, it seems that Deserializer cant handle version well, so i use string instead
+    public string LastVersion = WhatsNew.BrokenSaves;
 
     #region MainSwitch
 

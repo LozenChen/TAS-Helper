@@ -22,6 +22,8 @@ internal static class Loader {
         ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();
         typeof(Manager).GetMethod("DisableRun").HookAfter(() => AttributeUtils.Invoke<TasDisableRunAttribute>());
+        TasHelperSettings.FirstInstall = false;
+        TASHelperModule.Instance.SaveSettings();
     }
 
     public static void LoadContent() {

@@ -280,8 +280,6 @@ internal static class TASHelperMenu {
             menu.Insert(N + 7, hotkeysItem);
             hotkeysItem.AddDescription(menu, "Hotkey Description".ToDialogText());
             
-
-
             foreach (IEaseInItem item in disabledItems) {
                 item.Initialize();
             }

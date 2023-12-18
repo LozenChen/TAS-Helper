@@ -1,4 +1,5 @@
 ﻿using Monocle;
+using Celeste.Mod.TASHelper.Utils;
 
 namespace Celeste.Mod.TASHelper.Entities;
 
@@ -86,7 +87,7 @@ public static class PauseUpdater {
 
         public static void AddIfNecessary(Scene scene) {
             if (instance is null || instance.Scene != scene) {
-                scene.Add(new Detector());
+                scene.AddImmediately(new Detector());
             }
         }
     }
