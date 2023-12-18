@@ -159,7 +159,6 @@ internal static class TASHelperMenu {
         });
     }
 
-
     /*
     private static IEnumerable<KeyValuePair<SpinnerMainSwitchModes, string>> CreateSpinnerMainSwitchOptions() {
         // no longer use this, now we use {on, off} two state in menu (SpinnerEnabled), but call it SpinnerMainSwitch as well
@@ -264,7 +263,14 @@ internal static class TASHelperMenu {
             EaseInOptionSubMenuCountExt predictItem = CreatePredictorSubMenu(menu, inGame);
             EaseInSubMenu moreoptionItem = CreateMoreOptionsSubMenu(menu);
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
+            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, moreoptionItem, hotkeysItem };
             int N = menu.IndexOf(mainItem);
+            if (WhatsNew.ShouldShowUpdateLog) {
+                EaseInSubMenu whatsnewItem = WhatsNew.CreateWhatsNewSubMenu(menu);
+                menu.Insert(N + 1, whatsnewItem);
+                disabledItems.Add(whatsnewItem);
+                N++;
+            }
             menu.Insert(N + 1, colorItem);
             menu.Insert(N + 2, countdownItem);
             menu.Insert(N + 3, loadrangeItem);
@@ -273,7 +279,9 @@ internal static class TASHelperMenu {
             menu.Insert(N + 6, moreoptionItem);
             menu.Insert(N + 7, hotkeysItem);
             hotkeysItem.AddDescription(menu, "Hotkey Description".ToDialogText());
-            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, moreoptionItem, hotkeysItem };
+            
+
+
             foreach (IEaseInItem item in disabledItems) {
                 item.Initialize();
             }

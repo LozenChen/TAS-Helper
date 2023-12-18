@@ -42,9 +42,14 @@ public class TASHelperSettings : EverestModuleSettings {
         keyOoO_Fastforward ??= new((Buttons)0, Keys.LeftControl, Keys.Y);
 
         // it seems some bug can happen with deserialization
+        WhatsNew.OnLoadSettings();
     }
 
     public bool Enabled = true;
+
+    public Version LastVersion = WhatsNew.BrokenSaves;
+
+    public Version CurrentVersion => TASHelperModule.Instance.Metadata.Version;
 
     #region MainSwitch
 
