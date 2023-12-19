@@ -2,6 +2,7 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.RuntimeDetour;
 using TAS.EverestInterop.Hitboxes;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
@@ -75,7 +76,7 @@ internal static class SpinnerRenderHelper {
         if (!collidable) {
             ID += ID_uncollidable_offset;
         }
-        CountdownRenderer.Add(ID, (Position + new Vector2(1.5f, -0.5f)) * 6f);
+        CountdownRenderer.Add(ID, Position);
         return;
     }
 
@@ -163,6 +164,7 @@ internal static class SpinnerRenderHelper {
     public static void DrawOutlineAndInside(this SpinnerColliderHelper.SpinnerColliderValue value, Vector2 Position, Color color, bool Collidable) {
         float alpha = TasHelperSettings.Ignore_TAS_UnCollidableAlpha || Collidable ? 1f : HitboxColor.UnCollidableAlpha;
         float inner_mult = Collidable ? TasHelperSettings.SpinnerFillerAlpha_Collidable : TasHelperSettings.SpinnerFillerAlpha_Uncollidable;
+
         if (Collidable || !TasHelperSettings.SimplifiedSpinnerDashedBorder) {
             value.Outline.DrawCentered(Position, color.SetAlpha(alpha));
         }

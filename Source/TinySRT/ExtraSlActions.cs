@@ -27,6 +27,10 @@ public static class ExtraSlActions {
 
     [Initialize]
     public static void LoadSRT() {
+        // game crash if you saved before, hot reload, and load state, (mostly crash for reason like some mod type does not exist in the tracker) so we need to clear state when game reload
+        StateManager.Instance.ClearState();
+        TH_StateManager.Instance.ClearStateInner();
+
         SRT_Actions.Add(TasHelperSL.CreateSRT());
         foreach (SRT action in SRT_Actions) {
             SRT.Add(action);

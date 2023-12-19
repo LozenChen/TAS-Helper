@@ -9,13 +9,6 @@ public static class PauseUpdater {
     private static bool updated = false;
     private static int levelPauseTags;
 
-    [Tracked]
-    public class PauseUpdateComponent : Component {
-        public PauseUpdateComponent() : base(true, false) {
-
-        }
-    }
-
     [Initialize]
 
     public static void Initialize() {
@@ -92,4 +85,11 @@ public static class PauseUpdater {
         }
     }
 
+}
+
+[Tracked]
+public class PauseUpdateComponent : Component {
+    public PauseUpdateComponent() : base(true, false) {
+
+    }
 }

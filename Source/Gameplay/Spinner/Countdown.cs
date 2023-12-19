@@ -35,7 +35,9 @@ internal static class Countdown {
 internal class CountdownRenderer : THRenderer {
     public static CountdownRenderer Instance;
 
-    public static Dictionary<int, List<Vector2>> ID2Positions = new Dictionary<int, List<Vector2>>();
+    public static Dictionary<int, List<Vector2>> HiresID2Positions = new Dictionary<int, List<Vector2>>();
+
+    public static Dictionary<int, List<Vector2>> NonHiresID2Positions = new Dictionary<int, List<Vector2>>();
 
     private static MTexture[] numbers;
 
@@ -43,7 +45,8 @@ internal class CountdownRenderer : THRenderer {
 
     public CountdownRenderer() {
         Instance = this;
-        ID2Positions = new Dictionary<int, List<Vector2>>();
+        HiresID2Positions = new Dictionary<int, List<Vector2>>();
+        NonHiresID2Positions = new Dictionary<int, List<Vector2>>();
     }
 
     [Load]
@@ -82,12 +85,38 @@ internal class CountdownRenderer : THRenderer {
         }
     }
 
+    private static Dictionary<Vector2, int> overlapDetector = new();
+
+    private static Dictionary<Vector2, List<int>> overlapResolver = new();
+
+    private static Vector2 unitOffset = Vector2.One * 2f;
     public static void Add(int ID, Vector2 Position) {
-        if (!ID2Positions.ContainsKey(ID)) {
-            ID2Positions.Add(ID, new List<Vector2>());
+        if (TasHelperSettings.UsingHiresFont) {
+            Vector2 pos = Position;
+            if (overlapDetector.TryGetValue(Position, out int id)) {
+                if (id == ID) {
+                    return;
+                }
+                if (!overlapResolver.ContainsKey(Position)) {
+                    HiresID2Positions[id].Remove((Position + new Vector2(1.5f, -0.5f)) * 6f);
+                    overlapResolver.Add(Position, new List<int>() { id});
+                }
+                overlapResolver[Position].Add(ID);
+                return;
+            }
+            else {
+                overlapDetector.Add(Position, ID);
+            }
+
+            pos = (pos + new Vector2(1.5f, -0.5f)) *6f;
+            HiresID2Positions.SafeAdd(ID, pos);
         }
-        ID2Positions[ID].Add(Position);
+        else {
+            NonHiresID2Positions.SafeAdd(ID, Position);
+        }
     }
+
+    private static Comparer<int> reverseComparer = Comparer<int>.Create((x, y) => - Comparer<int>.Default.Compare(x, y));
     public override void Render() {
         if (!TasHelperSettings.UsingHiresFont) {
             return;
@@ -100,9 +129,17 @@ internal class CountdownRenderer : THRenderer {
             return;
         }
 
+        foreach (Vector2 Position in overlapResolver.Keys) {
+            List<int> distinct = overlapResolver[Position].Distinct().ToList();
+            distinct.Sort();
+            for (int i = 0; i < distinct.Count; i++) {
+                HiresID2Positions.SafeAdd(distinct[i], (Position + unitOffset * i + new Vector2(1.5f, -0.5f)) * 6f);
+            }
+        }
+
         Vector2 scale = new Vector2(TasHelperSettings.HiresFontSize / 10f);
         float stroke = TasHelperSettings.HiresFontStroke * 0.4f;
-        foreach (int ID_inDict in ID2Positions.Keys) {
+        foreach (int ID_inDict in HiresID2Positions.Keys.ToList().Apply(list => list.Sort(reverseComparer))) { // make 0 render at top
             string str;
             int id = ID_inDict;
             bool uncollidable = id > 120;
@@ -122,7 +159,7 @@ internal class CountdownRenderer : THRenderer {
                 throw new Exception($"[Error] TASHelper: Unexpected ID ({ID_inDict}) in CountdownRenderer!");
             }
             Color colorInside = TasHelperSettings.DarkenWhenUncollidable && uncollidable ? Color.Gray : Color.White;
-            foreach (Vector2 Position in ID2Positions[ID_inDict]) {
+            foreach (Vector2 Position in HiresID2Positions[ID_inDict]) {
                 Message.RenderMessage(str, Position, new Vector2(0.5f, 0.2f), scale, stroke, colorInside, Color.Black);
             }
         }
@@ -135,28 +172,27 @@ internal class CountdownRenderer : THRenderer {
             return;
         }
 
-        foreach (int ID_inDict in ID2Positions.Keys) {
+        foreach (int ID_inDict in NonHiresID2Positions.Keys.ToList().Apply(list => list.Sort(reverseComparer))) {
             int index = ID_inDict;
             bool uncollidable = index > 120;
             if (uncollidable) {
                 index -= SpinnerRenderHelper.ID_uncollidable_offset;
             }
             Color color = TasHelperSettings.DarkenWhenUncollidable && uncollidable ? Color.Gray : Color.White;
-            foreach (Vector2 Position in ID2Positions[ID_inDict]) {
-                Vector2 pos = Position / 6f - new Vector2(1.5f, -0.5f);
+            foreach (Vector2 Position in NonHiresID2Positions[ID_inDict]) {
                 if (index == SpinnerRenderHelper.ID_nocycle) {
-                    numbers[0].DrawOutline(pos, Vector2.Zero, color);
+                    numbers[0].DrawOutline(Position, Vector2.Zero, color);
                     continue;
                 }
                 if (index == SpinnerRenderHelper.ID_infinity) {
-                    numbers[9].DrawOutline(pos, Vector2.Zero, color);
+                    numbers[9].DrawOutline(Position, Vector2.Zero, color);
                     continue;
                 }
                 if (index > 9) {
-                    numbers[index / 10].DrawOutline(pos + new Vector2(-4, 0), Vector2.Zero, color);
+                    numbers[index / 10].DrawOutline(Position + new Vector2(-4, 0), Vector2.Zero, color);
                     index %= 10;
                 }
-                numbers[index].DrawOutline(pos, Vector2.Zero, color);
+                numbers[index].DrawOutline(Position, Vector2.Zero, color);
             }
         }
 
@@ -171,14 +207,28 @@ internal class CountdownRenderer : THRenderer {
     }
 
     public static void ClearCache() {
-        foreach (int ID in ID2Positions.Keys) {
-            ID2Positions[ID].Clear();
+        foreach (int ID in HiresID2Positions.Keys) {
+            HiresID2Positions[ID].Clear();
         }
+        foreach (int ID in NonHiresID2Positions.Keys) {
+            NonHiresID2Positions[ID].Clear();
+        }
+        overlapDetector.Clear();
+        overlapResolver.Clear();
         Cached = false;
     }
 
     private static void OnSceneBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         orig(self);
         ClearCache();
+    }
+}
+
+internal static class DictionaryExtension {
+    internal static void SafeAdd(this Dictionary<int, List<Vector2>> dict, int id, Vector2 vec) {
+        if (!dict.ContainsKey(id)) {
+            dict.Add(id, new List<Vector2>());
+        }
+        dict[id].Add(vec);
     }
 }
