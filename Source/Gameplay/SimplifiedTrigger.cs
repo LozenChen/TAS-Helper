@@ -32,9 +32,25 @@ public static class SimplifiedTrigger {
     private static void Initialize() {
         HandleVanillaTrigger();
         HandleEverestTrigger();
+        HandleBerryTrigger();
         HandleCameraTrigger();
         HandleExtendedVariantTrigger();
+        HandleContortHelperTrigger();
         HandleOtherMods();
+        typeof(TAS.EverestInterop.Hitboxes.HitboxColor).SetFieldValue("colorChooser", GetCustomColor);
+    }
+
+    public static Microsoft.Xna.Framework.Color GetCustomColor(Entity entity) {
+        if (IsCameraTrigger(entity)) {
+            return TasHelperSettings.CameraTargetColor;
+        }
+        return entity switch {
+            ChangeRespawnTrigger => TAS.EverestInterop.Hitboxes.HitboxColor.RespawnTriggerColor,
+            Trigger => TasSettings.TriggerHitboxColor,
+            Platform => TasSettings.PlatformHitboxColor,
+            LookoutBlocker => Microsoft.Xna.Framework.Color.Green,
+            _ => TasSettings.EntityHitboxColor
+        };
     }
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
@@ -52,6 +68,10 @@ public static class SimplifiedTrigger {
 
     public static bool IsUnimportantTrigger(Entity entity) {
         return UnimportantTriggers.Contains(entity) && !TAS.EverestInterop.InfoHUD.InfoWatchEntity.WatchingEntities.Contains(entity);
+    }
+
+    public static bool IsCameraTrigger(Entity entity) {
+        return cameraTriggers.Contains(entity.GetType());
     }
 
     internal static HashSet<Entity> UnimportantTriggers = new();
@@ -96,37 +116,34 @@ public static class SimplifiedTrigger {
             if (Engine.Scene is not Level level) {
                 yield break;
             }
-            while (!lastInstanceRemoved) { // which is the same time when triggers in last room also get removed (e.g. in transition routine)
-                yield return null;
-            }
             UnimportantTriggers.Clear();
-            RemainingTriggersList.Clear();
             foreach (Entity entity in level.Tracker.GetEntities<Trigger>()) {
-                bool debugVisible = true;
                 foreach (Func<Entity, bool> checker in UnimportantCheckers) {
                     if (checker(entity)) {
                         UnimportantTriggers.Add(entity);
-                        debugVisible = false;
                         Logger.Log(LogLevel.Verbose, "TAS Helper", $"Hide Trigger: {entity.GetEntityId()}");
                         break;
                     }
                 }
-                if (debugVisible) {
-                    RemainingTriggersList.Add(GetTriggerInfo(entity));
-                }
+            }
+            while (!lastInstanceRemoved) { // which is the same time when triggers in last room also get removed (e.g. in transition routine)
+                yield return null;
+            }
+            RemainingTriggersList.Clear();
+            foreach (Entity entity in level.Tracker.GetEntities<Trigger>().Where(x => !IsUnimportantTrigger(x))) {
+                RemainingTriggersList.Add(GetTriggerInfo(entity));
             }
             Active = false;
         }
     }
 
     public static string GetTriggerInfo(Entity trigger) {
-        // todo: provide more info for e.g. FlagTrigger, CameraTriggers
+        // todo: provide more info for e.g. FlagTrigger, CameraTriggers, TriggerTrigger
         return trigger.GetEntityId();
     }
 
     private static void HandleVanillaTrigger() {
         AddCheck(entity => vanillaTriggers.Contains(entity.GetType()));
-        AddCheck(entity => HideGoldBerryCollectTrigger && entity.GetType() == typeof(GoldBerryCollectTrigger));
     }
 
     private static readonly HashSet<Type> vanillaTriggers = new() { typeof(BirdPathTrigger), typeof(BlackholeStrengthTrigger), typeof(AmbienceParamTrigger), typeof(MoonGlitchBackgroundTrigger), typeof(BloomFadeTrigger), typeof(LightFadeTrigger), typeof(AltMusicTrigger), typeof(MusicTrigger), typeof(MusicFadeTrigger) };
@@ -137,9 +154,29 @@ public static class SimplifiedTrigger {
 
     private static readonly HashSet<Type> everestTriggers = new() { typeof(AmbienceTrigger), typeof(AmbienceVolumeTrigger), typeof(CustomBirdTutorialTrigger), typeof(MusicLayerTrigger) };
 
+    private static void HandleBerryTrigger() {
+        AddCheck(entity => HideGoldBerryCollectTrigger && goldBerryTriggers.Contains(entity.GetType()));
+        GetTypes("CollabUtils2", "Celeste.Mod.CollabUtils2.Triggers.SpeedBerryCollectTrigger", "Celeste.Mod.CollabUtils2.Triggers.SilverBerryCollectTrigger").ForEach(x => goldBerryTriggers.Add(x));
+    }
+
+    private static readonly HashSet<Type> goldBerryTriggers = new() { typeof(GoldBerryCollectTrigger) };
+
     private static void HandleCameraTrigger() {
         AddCheck(entity => HideCameraTriggers && cameraTriggers.Contains(entity.GetType()));
+        AddTypes("ContortHelper", "ContortHelper.PatchedCameraAdvanceTargetTrigger", "ContortHelper.PatchedCameraOffsetTrigger", "ContortHelper.PatchedCameraTargetTrigger", "ContortHelper.PatchedSmoothCameraOffsetTrigger");
+        AddTypes("FrostHelper", "FrostHelper.EasedCameraZoomTrigger");
+        AddTypes("FurryHelper", "Celeste.Mod.FurryHelper.MomentumCameraOffsetTrigger");
+        AddTypes("HonlyHelper", "Celeste.Mod.HonlyHelper.CameraTargetCornerTrigger", "Celeste.Mod.HonlyHelper.CameraTargetCrossfadeTrigger");
+        AddTypes("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Triggers.CameraCatchupSpeedTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.CameraOffsetBorder", "Celeste.Mod.MaxHelpingHand.Triggers.OneWayCameraTrigger");
+        AddTypes("Sardine7", "Celeste.Mod.Sardine7.Triggers.SmoothieCameraTargetTrigger");
+        AddTypes("VivHelper", "VivHelper.Triggers.InstantLockingCameraTrigger", "VivHelper.Triggers.MultiflagCameraTargetTrigger");
+        AddTypes("XaphanHelper", "Celeste.Mod.XaphanHelper.Triggers.CameraBlocker");
+
+        void AddTypes(string modName, params string[] typeNames) {
+            AddTypesImpl(cameraTriggers, modName, typeNames);
+        }
     }
+
     private static readonly HashSet<Type> cameraTriggers = new() { typeof(CameraOffsetTrigger), typeof(CameraTargetTrigger), typeof(CameraAdvanceTargetTrigger), typeof(SmoothCameraOffsetTrigger) };
 
     private static void HandleExtendedVariantTrigger() {
@@ -150,11 +187,11 @@ public static class SimplifiedTrigger {
             List<string> ignoreVariantString = new() { "RoomLighting", "RoomBloom", "GlitchEffect", "ColorGrading", "ScreenShakeIntensity", "AnxietyEffect", "BlurLevel", "ZoomLevel", "BackgroundBrightness", "DisableMadelineSpotlight", "ForegroundEffectOpacity", "MadelineIsSilhouette", "DashTrailAllTheTime", "FriendlyBadelineFollower", "MadelineHasPonytail", "MadelineBackpackMode", "BackgroundBlurLevel", "AlwaysInvisible", "DisplaySpeedometer", "DisableKeysSpotlight", "SpinnerColor", "InvisibleMotion", "PlayAsBadeline" };
             extendedVariants = ignoreVariantString.Select(x => GetEnum(variantEnumType, x)).Where(x => x is not null).ToList();
 
-            GetTypes("ExtendedVariantMode", new string[] { 
+            GetTypes("ExtendedVariantMode", 
                 "ExtendedVariants.Entities.Legacy.ExtendedVariantTrigger", 
                 "ExtendedVariants.Entities.Legacy.ExtendedVariantFadeTrigger",
                 "ExtendedVariants.Entities.ForMappers.FloatExtendedVariantFadeTrigger"
-            }).ForEach(type => {
+            ).ForEach(type => {
                 AddCheck(x =>
                        x.GetType() == type
                     && x.GetFieldValue("variantChange") is { } variantChange
@@ -176,14 +213,49 @@ public static class SimplifiedTrigger {
 
     private static List<object> extendedVariants = new();
 
-    private static void HandleOtherMods() {
-        if (ModUtils.GetType("SkinModHelper", "SkinModHelper.SkinSwapTrigger") is { } skinSwapTrigger) {
-            otherModsTypes.Add(skinSwapTrigger);
+    private static void HandleContortHelperTrigger() {
+        GetTypes("ContortHelper", "ContortHelper.AnxietyEffectTrigger", "ContortHelper.BloomRendererModifierTrigger", "ContortHelper.BurstEffectTrigger", "ContortHelper.BurstRemoverTrigger", "ContortHelper.ClearCustomEffectsTrigger", "ContortHelper.CustomConfettiTrigger", "ContortHelper.CustomEffectTrigger", "ContortHelper.EffectBooleanArrayParameterTrigger", "ContortHelper.EffectBooleanParameterTrigger", "ContortHelper.EffectColorParameterTrigger", "ContortHelper.EffectFloatArrayParameterTrigger", "ContortHelper.EffectFloatParameterTrigger", "ContortHelper.EffectIntegerArrayParameterTrigger", "ContortHelper.EffectIntegerParameterTrigger", "ContortHelper.EffectMatrixParameterTrigger", "ContortHelper.EffectQuaternionParameterTrigger", "ContortHelper.EffectStringParameterTrigger", "ContortHelper.EffectVector2ParameterTrigger", "ContortHelper.EffectVector3ParameterTrigger", "ContortHelper.EffectVector4ParameterTrigger", "ContortHelper.FlashTrigger", "ContortHelper.GlitchEffectTrigger", "ContortHelper.LightningStrikeTrigger", "ContortHelper.MadelineSpotlightModifierTrigger", "ContortHelper.RandomSoundTrigger", "ContortHelper.ReinstateParametersTrigger", "ContortHelper.RumbleTrigger", "ContortHelper.ScreenWipeModifierTrigger", "ContortHelper.ShakeTrigger", "ContortHelper.SpecificLightningStrikeTrigger").ForEach(x => contortTriggerTypes.Add(x));
+        if (contortTriggerTypes.IsNotNullOrEmpty()) {
+            AddCheck(entity => contortTriggerTypes.Contains(entity.GetType()));
         }
-        // TODO : Support more mods
+    }
+
+    private static readonly HashSet<Type> contortTriggerTypes = new();
+    private static void HandleOtherMods() {
+        // https://maddie480.ovh/celeste/custom-entity-catalog
+        // to reduce work, i will not check those mods which are used as dependency by less than 5 mods
+        // last update date: 2023.12.21, there are 426 triggers in the list
+
+        AddTypes("AurorasHelper", "Celeste.Mod.AurorasHelper.ResetMusicTrigger", "Celeste.Mod.AurorasHelper.PlayAudioTrigger", "Celeste.Mod.AurorasHelper.ShowSubtitlesTrigger");
+        AddTypes("AvBdayHelper2021", "Celeste.Mod.AvBdayHelper.Code.Triggers.ScreenShakeTrigger");
+        AddTypes("CherryHelper", "Celeste.Mod.CherryHelper.AudioPlayTrigger");
+        AddTypes("ColoredLights", "ColoredLights.FlashlightColorTrigger");
+        AddTypes("CommunalHelper", "Celeste.Mod.CommunalHelper.Triggers.AddVisualToPlayerTrigger", "Celeste.Mod.CommunalHelper.Triggers.CassetteMusicFadeTrigger", "Celeste.Mod.CommunalHelper.Triggers.CloudscapeColorTransitionTrigger", "Celeste.Mod.CommunalHelper.Triggers.CloudscapeLightningConfigurationTrigger", "Celeste.Mod.CommunalHelper.Triggers.MusicParamTrigger", "Celeste.Mod.CommunalHelper.Triggers.SoundAreaTrigger", "Celeste.Mod.CommunalHelper.Triggers.StopLightningControllerTrigger");
+        AddTypes("CrystallineHelper", "vitmod.BloomStrengthTrigger", "Celeste.Mod.Code.Entities.RoomNameTrigger");
+        AddTypes("CustomPoints", "Celeste.Mod.CustomPoints.PointsTrigger");
+        AddTypes("DJMapHelper", "Celeste.Mod.DJMapHelper.Triggers.ChangeSpinnerColorTrigger", "Celeste.Mod.DJMapHelper.Triggers.ColorGradeTrigger" );
+        AddTypes("FactoryHelper", "FactoryHelper.Triggers.SteamWallColorTrigger");
+        AddTypes("FemtoHelper", "ParticleRemoteEmit");
+        AddTypes("FlaglinesAndSuch", "FlaglinesAndSuch.FlagLightFade", "FlaglinesAndSuch.MusicIfFlag");
+        AddTypes("FrostHelper", "FrostHelper.AnxietyTrigger", "FrostHelper.BloomColorFadeTrigger", "FrostHelper.BloomColorPulseTrigger", "FrostHelper.BloomColorTrigger", "FrostHelper.DoorDisableTrigger", "FrostHelper.LightningColorTrigger", "FrostHelper.RainbowBloomTrigger", "FrostHelper.StylegroundMoveTrigger");
+        AddTypes("JungleHelper", "Celeste.Mod.JungleHelper.Triggers.GeckoTutorialTrigger", "Celeste.Mod.JungleHelper.Triggers.UIImageTrigger", "Celeste.Mod.JungleHelper.Triggers.UITextTrigger");
+        AddTypes("Long Name Helper by Helen, Helen's Helper, hELPER", "Celeste.Mod.hELPER.ColourChangeTrigger", "Celeste.Mod.hELPER.SpriteReplaceTrigger" );
+        AddTypes("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Triggers.AllBlackholesStrengthTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.FloatFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.ColorGradeFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.GradientDustTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.MadelinePonytailTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.MadelineSilhouetteTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.PersistentMusicFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.RainbowSpinnerColorFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.RainbowSpinnerColorTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.SetBloomBaseTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.SetBloomStrengthTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.SetDarknessAlphaTrigger");
+        AddTypes("MoreDasheline", "MoreDasheline.HairColorTrigger");
+        AddTypes("Sardine7", "Celeste.Mod.Sardine7.Triggers.AmbienceTrigger");
+        AddTypes("ShroomHelper", "Celeste.Mod.ShroomHelper.Triggers.GradualChangeColorGradeTrigger", "Celeste.Mod.ShroomHelper.Triggers.MultilayerMusicFadeTrigger");
+        AddTypes("SkinModHelper", "SkinModHelper.SkinSwapTrigger");
+        AddTypes("SkinModHelperPlus", "Celeste.Mod.SkinModHelper.EntityReskinTrigger", "Celeste.Mod.SkinModHelper.SkinSwapTrigger");
+        AddTypes("VivHelper", "VivHelper.Triggers.ActivateCPP", "VivHelper.Triggers.ConfettiTrigger", "VivHelper.Triggers.FlameLightSwitch", "VivHelper.Triggers.FlameTravelTrigger", "VivHelper.Triggers.FollowerDistanceModifierTrigger", "VivHelper.Triggers.RefillCancelParticleTrigger", "VivHelper.Triggers.SpriteEntityActor");
+        AddTypes("XaphanHelper", "Celeste.Mod.XaphanHelper.Triggers.FlagMusicFadeTrigger", "Celeste.Mod.XaphanHelper.Triggers.MultiLightFadeTrigger", "Celeste.Mod.XaphanHelper.Triggers.MultiMusicTrigger");
+        AddTypes("YetAnotherHelper", "Celeste.Mod.YetAnotherHelper.Triggers.LightningStrikeTrigger", "Celeste.Mod.YetAnotherHelper.Triggers.RemoveLightSourcesTrigger");
 
         if (otherModsTypes.IsNotEmpty()) {
             AddCheck(entity => otherModsTypes.Contains(entity.GetType()));
+        }
+
+        void AddTypes(string modName, params string[] typeNames) {
+            AddTypesImpl(otherModsTypes, modName, typeNames);
         }
     }
 
@@ -203,7 +275,7 @@ public static class SimplifiedTrigger {
         }
     }
 
-    private static List<Type> GetTypes(string modName, string[] typeNames) {
+    private static List<Type> GetTypes(string modName, params string[] typeNames) {
         List<Type> results = new();
         foreach (string name in typeNames) {
             if (ModUtils.GetType(modName, name) is { } type) {
@@ -211,5 +283,13 @@ public static class SimplifiedTrigger {
             }
         }
         return results;
+    }
+
+    private static void AddTypesImpl(HashSet<Type> set, string modName, params string[] typeNames) {
+        foreach (string name in typeNames) {
+            if (ModUtils.GetType(modName, name) is { } type) {
+                set.Add(type);
+            }
+        }
     }
 }

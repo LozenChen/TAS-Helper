@@ -209,8 +209,6 @@ internal static class ForEachBreakPoints_EntityList {
         Reset();
     }
 
-    private static bool applied = false;
-
     [Load]
     private static void Load() {
         // it seems OnHook and ILHook works on different levels? OnHook (refers to On/IL.Celeste....+= ...) will always be after ILHook?

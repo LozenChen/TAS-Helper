@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using TAS;
 using TAS.EverestInterop;
 using CMCore = Celeste.Mod.Core;
@@ -38,7 +39,6 @@ public static class ConsoleEnhancement {
 
     [Load]
     public static void Load() {
-        IL.Monocle.Commands.UpdateClosed += ILCommandUpdateClosed;
         On.Celeste.Level.BeforeRender += OnLevelBeforeRender;
         IL.Monocle.Commands.Render += ILCommandsRender;
         On.Monocle.Commands.UpdateOpen += OnCommandUpdateOpen;
@@ -47,7 +47,6 @@ public static class ConsoleEnhancement {
 
     [Unload]
     public static void Unload() {
-        IL.Monocle.Commands.UpdateClosed -= ILCommandUpdateClosed;
         On.Celeste.Level.BeforeRender -= OnLevelBeforeRender;
         IL.Monocle.Commands.Render -= ILCommandsRender;
         On.Monocle.Commands.UpdateOpen -= OnCommandUpdateOpen;
@@ -56,6 +55,10 @@ public static class ConsoleEnhancement {
 
     [Initialize]
     public static void Initialize() {
+        using (new DetourContext { Before = new List<string> { "*" }, ID = "TAS Helper ConsoleEnhancement"}) {
+            // vivhelper also hooks this method, so a IL.Monocle hook will fail after reloading
+            typeof(Monocle.Commands).GetMethod("UpdateClosed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).IlHook(ILCommandUpdateClosed);
+        }
         typeof(Manager).GetMethod("Update").HookAfter(UpdateCommands);
         typeof(CenterCamera).GetMethod("ZoomCamera", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(il => {
             ILCursor cursor = new ILCursor(il);
@@ -229,6 +232,7 @@ public static class ConsoleEnhancement {
                 target = (ILLabel)cursor.Prev.Operand;
             }
             else {
+                Logger.Log(LogLevel.Warn, "TAS Helper", "ConsoleEnhancement fails to hook Monocle.Commands.UpdateClosed!");
                 return;
             }
             cursor.EmitDelegate(GetOpenConsole);
