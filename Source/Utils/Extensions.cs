@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using TAS.EverestInterop;
 using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 
 namespace Celeste.Mod.TASHelper.Utils;
@@ -456,6 +457,7 @@ internal static class LevelExtensions {
 
     [Initialize]
     private static void Initialize() {
+        typeof(Scene).GetMethod("BeforeUpdate").HookBefore(AddEntities); // still add it so that if ultra fast forwarding (so render is skipped), there's no duplicate entity
         typeof(Scene).GetMethod("BeforeRender").HookBefore(AddEntities);
     }
 
@@ -653,5 +655,38 @@ internal static class NumberExtensions {
         else {
             return value.ToString($"F{decimals}");
         }
+    }
+}
+
+internal static class EntityIdExtension {
+    public static string GetEntityId(this Entity entity) {
+        if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
+            return $"{entity.GetType().Name}[{entityID}]";
+        }
+        else {
+            return entity.GetType().Name;
+        }
+    }
+}
+
+internal static class SceneExtensions {
+    public static Player GetPlayer(this Scene scene) => scene.Tracker.GetEntity<Player>();
+
+    public static Level GetLevel(this Scene scene) {
+        return scene switch {
+            Level level => level,
+            LevelLoader levelLoader => levelLoader.Level,
+            _ => null
+        };
+    }
+
+    public static Session GetSession(this Scene scene) {
+        return scene switch {
+            Level level => level.Session,
+            LevelLoader levelLoader => levelLoader.session,
+            LevelExit levelExit => levelExit.session,
+            AreaComplete areaComplete => areaComplete.Session,
+            _ => null
+        };
     }
 }

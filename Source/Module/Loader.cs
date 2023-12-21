@@ -1,6 +1,4 @@
 using Celeste.Mod.TASHelper.Utils;
-using System.Reflection;
-using TAS;
 
 namespace Celeste.Mod.TASHelper.Module;
 
@@ -9,6 +7,7 @@ internal static class Loader {
     // order: all mods load -> all mods initialize ~= all mods load content
 
     public static void Load() {
+        Reloading = GFX.Loaded;
         AttributeUtils.Invoke<LoadAttribute>();
     }
 
@@ -21,12 +20,22 @@ internal static class Loader {
         HookHelper.InitializeAtFirst();
         ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();
-        typeof(Manager).GetMethod("DisableRun").HookAfter(() => AttributeUtils.Invoke<TasDisableRunAttribute>());
+        typeof(TAS.Manager).GetMethod("DisableRun").HookAfter(() => AttributeUtils.Invoke<TasDisableRunAttribute>());
         TasHelperSettings.FirstInstall = false;
         TASHelperModule.Instance.SaveSettings();
+        if (Reloading) {
+            OnReload();
+            Reloading = false;
+        }
     }
 
     public static void LoadContent() {
         AttributeUtils.Invoke<LoadContentAttribute>();
     }
+
+    public static void OnReload() {
+        typeof(TAS.EverestInterop.InfoHUD.InfoCustom).InvokeMethod("CollectAllTypeInfo"); // InfoCustom loses some mod info after hot reload
+    }
+
+    public static bool Reloading;
 }

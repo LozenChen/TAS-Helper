@@ -215,6 +215,7 @@ public static class ConsoleEnhancement {
     }
 
     private static void ILCommandUpdateClosed(ILContext context) {
+        // it seems this feature may break after hot reload
         ILCursor cursor = new ILCursor(context);
         if (cursor.TryGotoNext(MoveType.AfterLabel,
             ins => ins.MatchCallOrCallvirt<CMCore.CoreModule>("get_Settings"),

@@ -12,6 +12,8 @@ internal static class ModUtils {
     public static Type GetType(string modName, string name, bool throwOnError = false, bool ignoreCase = false) {
         return GetAssembly(modName)?.GetType(name, throwOnError, ignoreCase);
     }
+    // check here if you dont know what's the correct name for a nested type / generic type
+    // https://learn.microsoft.com/zh-cn/dotnet/framework/reflection-and-codedom/specifying-fully-qualified-type-names
 
     public static Type GetType(string name, bool throwOnError = false, bool ignoreCase = false) {
         return FakeAssembly.GetFakeEntryAssembly().GetType(name, throwOnError, ignoreCase);

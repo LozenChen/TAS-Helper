@@ -1,4 +1,5 @@
 //#define ShowAllLog
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 namespace Celeste.Mod.TASHelper.Module;
 
@@ -6,7 +7,7 @@ public static class WhatsNew {
 
     public static bool NewUpdateLogExist = false;
 
-    public static bool ShouldShow => NewUpdateLogExist && TasHelperSettings.SubscribeWhatsNew;
+    public static bool ShouldShow => NewUpdateLogExist && TasHelperSettings.SubscribeWhatsNew && UpdateLogs.Keys.IsNotEmpty(); // in case i forget to write update logs lol
 
     public static Dictionary<string, List<string>> UpdateLogs = new();
 

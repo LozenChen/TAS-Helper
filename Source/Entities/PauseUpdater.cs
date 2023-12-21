@@ -63,6 +63,7 @@ public static class PauseUpdater {
         orig(level);
     }
 
+    [Tracked]
     private class Detector : Entity {
 
         public static Detector instance;

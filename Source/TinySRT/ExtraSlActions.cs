@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
+using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
@@ -159,6 +160,9 @@ internal static class TasHelperSL {
 
     private static Dictionary<Entity, Vector2> TH_LastPositions = new();
     private static Dictionary<Entity, bool> TH_LastCollidables = new();
+    private static HashSet<Entity> TH_UnimportantTriggers = new();
+    private static HashSet<Entity> SRT_UnimportantTriggers = new();
+
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             DashTime = GameInfo.DashTime;
@@ -170,6 +174,7 @@ internal static class TasHelperSL {
             TH_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.TH_DeepCloneShared();
             TH_LastPositions = ActualEntityCollideHitbox.LastPositions.TH_DeepCloneShared();
             TH_LastCollidables = ActualEntityCollideHitbox.LastColldables.TH_DeepCloneShared();
+            TH_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.TH_DeepCloneShared();
         };
         TH.SlAction load = (_, _) => {
             GameInfo.DashTime = DashTime;
@@ -190,6 +195,7 @@ internal static class TasHelperSL {
             foreach (Entity key in lastCollide.Keys) {
                 ActualEntityCollideHitbox.LastColldables[key] = lastCollide[key];
             }
+            SimplifiedTrigger.UnimportantTriggers = TH_UnimportantTriggers.TH_DeepCloneShared();
         };
         Action clear = () => {
             TH_CachedNodes = null;
@@ -197,6 +203,7 @@ internal static class TasHelperSL {
             TH_CachedCircle = null;
             TH_LastPositions.Clear();
             TH_LastCollidables.Clear();
+            TH_UnimportantTriggers.Clear();
         };
         return new TH(save, load, clear, null, null);
     }
@@ -207,6 +214,7 @@ internal static class TasHelperSL {
             SRT_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.DeepCloneShared();
             SRT_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.DeepCloneShared();
             SRT_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.DeepCloneShared();
+            SRT_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.DeepCloneShared();
         };
         SRT.SlAction load = (_, _) => {
             Predictor.Core.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
@@ -214,11 +222,13 @@ internal static class TasHelperSL {
             Gameplay.MovingEntityTrack.CachedStartEnd = SRT_CachedStartEnd.DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedCircle = SRT_CachedCircle.DeepCloneShared();
             TH_Hotkeys.HotkeyInitialize();
+            SimplifiedTrigger.UnimportantTriggers = SRT_UnimportantTriggers.DeepCloneShared();
         };
         Action clear = () => {
             SRT_CachedNodes = null;
             SRT_CachedStartEnd = null;
             SRT_CachedCircle = null;
+            SRT_UnimportantTriggers = null;
         };
 
         ConstructorInfo constructor = typeof(SRT).GetConstructors()[0];
