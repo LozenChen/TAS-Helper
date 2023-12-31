@@ -4,16 +4,22 @@ using Monocle;
 using Mono.Cecil.Cil;
 using MonoMod.RuntimeDetour;
 using Celeste.Mod.Entities;
+using Microsoft.Xna.Framework;
+using TAS.EverestInterop.Hitboxes;
+using Celeste.Mod.TASHelper.Module.Menu;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 public static class SimplifiedTrigger {
 
-    public static bool Enabled = true;
+    public static bool Enabled => TasHelperSettings.EnableSimplifiedTriggers;
 
-    public static bool HideCameraTriggers = true;
+    public static bool HideCameraTriggers => TasHelperSettings.HideCameraTriggers;
 
-    public static bool HideGoldBerryCollectTrigger = true;
+    public static bool HideGoldBerryCollectTrigger => TasHelperSettings.HideGoldBerryCollectTrigger;
 
+    public static Color CameraTriggerColor => CustomColors.CameraTriggerColor;
+
+    
     [Load]
     private static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
@@ -37,21 +43,9 @@ public static class SimplifiedTrigger {
         HandleExtendedVariantTrigger();
         HandleContortHelperTrigger();
         HandleOtherMods();
-        typeof(TAS.EverestInterop.Hitboxes.HitboxColor).SetFieldValue("colorChooser", GetCustomColor);
+        typeof(HitboxColor).GetMethodInfo("GetCustomColor", new Type[] { typeof(Color), typeof(Entity)}).IlHook(ModGetCustomColor);
     }
-
-    public static Microsoft.Xna.Framework.Color GetCustomColor(Entity entity) {
-        if (IsCameraTrigger(entity)) {
-            return TasHelperSettings.CameraTargetColor;
-        }
-        return entity switch {
-            ChangeRespawnTrigger => TAS.EverestInterop.Hitboxes.HitboxColor.RespawnTriggerColor,
-            Trigger => TasSettings.TriggerHitboxColor,
-            Platform => TasSettings.PlatformHitboxColor,
-            LookoutBlocker => Microsoft.Xna.Framework.Color.Green,
-            _ => TasSettings.EntityHitboxColor
-        };
-    }
+    
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         orig(level, playerIntro, isFromLoader);
@@ -66,6 +60,34 @@ public static class SimplifiedTrigger {
         ilCursor.Emit(OpCodes.Brfalse, start).Emit(OpCodes.Ret);
     }
 
+    private static void ModGetCustomColor(ILContext il) {
+        ILCursor cursor = new (il);
+        if (cursor.TryGotoNext(ins => ins.MatchLdsfld(typeof(HitboxColor), nameof(HitboxColor.RespawnTriggerColor)), ins => ins.OpCode == OpCodes.Stloc_1, ins => ins.OpCode == OpCodes.Br_S)) {
+            ILLabel label = (ILLabel)cursor.Next.Next.Next.Operand;
+            cursor.Goto(0);
+            if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldarg_1, ins => ins.MatchIsinst<ChangeRespawnTrigger>(), ins => ins.OpCode == OpCodes.Brtrue_S)) {
+                Instruction next = cursor.Next;
+                cursor.MoveAfterLabels();
+                cursor.EmitDelegate(CameraTriggerColorEnabled);
+                cursor.Emit(OpCodes.Brfalse, next);
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.EmitDelegate(IsCameraTrigger);
+                cursor.Emit(OpCodes.Brfalse, next);
+                cursor.EmitDelegate(GetCameraTriggerColor);
+                cursor.Emit(OpCodes.Stloc_1);
+                cursor.Emit(OpCodes.Br, label);
+            }
+        }
+    }
+
+    private static bool CameraTriggerColorEnabled() {
+        return TasHelperSettings.EnableCameraTriggerColor;
+    }
+
+    private static Color GetCameraTriggerColor() {
+        return CameraTriggerColor;
+    }
+
     public static bool IsUnimportantTrigger(Entity entity) {
         return UnimportantTriggers.Contains(entity) && !TAS.EverestInterop.InfoHUD.InfoWatchEntity.WatchingEntities.Contains(entity);
     }
@@ -76,10 +98,11 @@ public static class SimplifiedTrigger {
 
     internal static HashSet<Entity> UnimportantTriggers = new();
 
-    private static List<Func<Entity, bool>> UnimportantCheckers = new();
+    private static readonly List<Func<Entity, bool>> UnimportantCheckers = new();
 
     public static readonly List<string> RemainingTriggersList = new();
 
+    // we leave it to people who are curious about this
     public static string RemainingTriggers => "\n" + string.Join("\n", RemainingTriggersList);
 
     private static void AddCheck(Func<Entity, bool> condition) {

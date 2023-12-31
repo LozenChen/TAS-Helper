@@ -1,4 +1,5 @@
 using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -59,6 +60,8 @@ public static class HiresLevelRenderer {
 
     private static readonly List<THRenderer> toRemove = new();
 
+    internal static readonly Dictionary<Type, List<THRenderer>> tracker = new();
+
 
     public static void Add(THRenderer renderer) {
         toAdd.Add(renderer);
@@ -72,12 +75,33 @@ public static class HiresLevelRenderer {
         return list.Contains(renderer);
     }
 
+    public static List<T> GetRenderers<T>() where T : THRenderer {
+        if (tracker.TryGetValue(typeof(T), out List<THRenderer> list)) {
+            return list.Select(x => (T)x).ToList();
+        }
+        return new List<T>();
+    }
+
     public static void UpdateLists() {
         foreach (THRenderer renderer in toAdd) {
             list.Add(renderer);
+
+            if (tracker.TryGetValue(renderer.GetType(), out List<THRenderer> list_of_this_type)){
+                list_of_this_type.Add(renderer);
+            }
+            else {
+                tracker.Add(renderer.GetType(), new List<THRenderer>() { renderer });
+            }
         }
+
         foreach (THRenderer renderer in toRemove) {
             list.Remove(renderer);
+            if (tracker.TryGetValue(renderer.GetType(), out List<THRenderer> list_of_this_type)) {
+                list_of_this_type.Remove(renderer);
+            }
+            else {
+                // how
+            }
         }
         toAdd.Clear();
         toRemove.Clear();
@@ -184,10 +208,53 @@ public class TempTextRenderer : THRenderer {
     }
 
     public static void Clear(string label) {
-        foreach (THRenderer renderer in HiresLevelRenderer.list) {
-            if (renderer is TempTextRenderer tmp && tmp.label == label) {
+        foreach (TempTextRenderer tmp in HiresLevelRenderer.GetRenderers<TempTextRenderer>()) {
+            if (tmp.label == label) {
                 HiresLevelRenderer.Remove(tmp);
             }
         }
     }
+}
+
+public class PolygonalLineRenderer : THRenderer {
+    public Dictionary<int, List<Vector2>> lists = new();
+
+    public PolygonalLineRenderer(Dictionary<int, List<Vector2>> lists) {
+        this.lists = lists;
+    }
+
+    public override void Render() {
+        float lineWidth = TasHelperSettings.PredictorLineWidth;
+        float pointWidth = TasHelperSettings.PredictorPointSize;
+        if (lineWidth == 0f && pointWidth == 0f) {
+            return;
+        }
+        int count = lists.Keys.Count;
+        int index = 0;
+        Color colorLine = CustomColors.Predictor_PolygonalLineColor;
+        Color colorPoint = CustomColors.Predictor_DotColor;
+        bool drawPoint = pointWidth > 0 && TasHelperSettings.TimelineFinestScale == Module.TASHelperSettings.TimelineFinestStyle.DottedPolygonLine;
+        for (int i = 0; i < count; i++) {
+            List<Vector2> nodes = lists[i];
+            for (int j = 0; j < nodes.Count - 1; j++) {
+                if (drawPoint) {
+                    nodes[j].MonocleDrawPoint(colorPoint, pointWidth);
+                }
+                if (lineWidth > 0) {
+                    Monocle.Draw.Line(nodes[j], nodes[j + 1], colorLine, lineWidth);
+                }
+                index++;
+            }
+            if (drawPoint) {
+                nodes.Last().MonocleDrawPoint(colorPoint, pointWidth);
+            }
+        }
+    }
+
+    public static void Clear() {
+        foreach (PolygonalLineRenderer renderer in HiresLevelRenderer.GetRenderers<PolygonalLineRenderer>()) {
+            HiresLevelRenderer.Remove(renderer);
+        }
+    }
+
 }

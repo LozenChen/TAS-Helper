@@ -79,17 +79,16 @@ public static class PlayerStateUtils {
 
     private static void ILUltra(ILContext il) {
         ILCursor cursor = new ILCursor(il);
-
         if (cursor.TryGotoNext(MoveType.Before,
             ins => ins.OpCode == OpCodes.Stfld,
-            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.OpCode == OpCodes.Ldarg_0 || ins.OpCode == OpCodes.Ldloc_1,
             ins => ins.OpCode == OpCodes.Ldflda,
             ins => ins.OpCode == OpCodes.Ldflda,
             ins => ins.OpCode == OpCodes.Dup,
             ins => ins.OpCode == OpCodes.Ldind_R4,
             ins => ins.MatchLdcR4(1.2f)
             )) {
-            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.Emit(cursor.Next.Next.OpCode);
             cursor.EmitDelegate<Action<Player>>(player => { SpeedBeforeUltra = player.Speed; Ultra = true; });
         }
     }

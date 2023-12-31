@@ -105,20 +105,24 @@ public static class PredictorMenu {
         page.Add(new TextMenu.OnOff("Respawn Point Change", TasHelperSettings.UseFlagRespawnPointChange).Change(value => TasHelperSettings.UseFlagRespawnPointChange = value));
         page.Add(new TextMenu.OnOff("Dead", TasHelperSettings.UseFlagDead).Change(value => TasHelperSettings.UseFlagDead = value));
 
-
         return page;
     }
 
-
+    internal static List<TextMenu.Item> Create_PageStyle(TextMenu menu, bool inGame) {
+        List<TextMenu.Item> page = new List<TextMenu.Item>();
+        page.Add(new EnumerableSlider<TimelineFinestStyle>("Timeline Finest Scale".ToDialogText(), CreatePredictorScalesFinestOptions(), TasHelperSettings.TimelineFinestScale).Change(value => TasHelperSettings.TimelineFinestScale = value));
+        page.Add(new EnumerableSlider<TimelineScales>("Timeline Fine Scale".ToDialogText(), CreatePredictorScalesOptions(), TasHelperSettings.TimelineFineScale).Change(value => TasHelperSettings.TimelineFineScale = value));
+        page.Add(new EnumerableSlider<TimelineScales>("Timeline Coarse Scale".ToDialogText(), CreatePredictorScalesOptions(), TasHelperSettings.TimelineCoarseScale).Change(value => TasHelperSettings.TimelineCoarseScale = value));
+        TextMenu.Item fadeoutItem;
+        page.Add(fadeoutItem = new TextMenu.OnOff("Timeline FadeOut".ToDialogText(), TasHelperSettings.TimelineFadeOut).Change(value => TasHelperSettings.TimelineFadeOut = value));
+        page.AddDescriptionOnEnter(menu, fadeoutItem, "Only Apply To Hitbox".ToDialogText());
+        page.Add(new IntSlider("Predictor Line Width".ToDialogText(), 0, 20, TasHelperSettings.PredictorLineWidth).Change(value => TasHelperSettings.PredictorLineWidth = value));
+        page.Add(new IntSlider("Predictor Point Size".ToDialogText(), 0, 20, TasHelperSettings.PredictorPointSize).Change(value => TasHelperSettings.PredictorPointSize = value));
+        return page;
+    }
 
     internal static List<TextMenu.Item> Create_PageOther(TextMenu menu, bool inGame) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
-        page.Add(new EnumerableSlider<bool>("Timeline Finest Scale".ToDialogText(), CreateFinestScalesOptions(), TasHelperSettings.TimelineFinestScale).Change(value => TasHelperSettings.TimelineFinestScale = value));
-        page.Add(new EnumerableSlider<TimelineScales>("Timeline Fine Scale".ToDialogText(), CreatePredictorScalesOptions(), TasHelperSettings.TimelineFineScale).Change(value => TasHelperSettings.TimelineFineScale = value));
-        page.Add(new EnumerableSlider<TimelineScales>("Timeline Coarse Scale".ToDialogText(), CreatePredictorScalesOptions(), TasHelperSettings.TimelineCoarseScale).Change(value => TasHelperSettings.TimelineCoarseScale = value));
-
-        page.Add(new TextMenu.OnOff("Timeline FadeOut".ToDialogText(), TasHelperSettings.TimelineFadeOut).Change(value => TasHelperSettings.TimelineFadeOut = value));
-
         page.Add(new TextMenu.OnOff("Autodrop Prediction".ToDialogText(), TasHelperSettings.DropPredictionWhenTasFileChange).Change(value => TasHelperSettings.DropPredictionWhenTasFileChange = value));
 
         page.Add(new TextMenu.OnOff("Allow Start Predict When Transition".ToDialogText(), TasHelperSettings.StartPredictWhenTransition).Change(value => {
@@ -145,6 +149,14 @@ public static class PredictorMenu {
         return page;
     }
 
+    internal static IEnumerable<KeyValuePair<TimelineFinestStyle, string>> CreatePredictorScalesFinestOptions() {
+        return new List<KeyValuePair<TimelineFinestStyle, string>> {
+            new(TimelineFinestStyle.NotApplied, "Not Applied".ToDialogText()),
+            new(TimelineFinestStyle.HitboxPerFrame, "Hitbox per Frame".ToDialogText()),
+            new(TimelineFinestStyle.PolygonLine, "Polygon Line".ToDialogText()),
+            new(TimelineFinestStyle.DottedPolygonLine, "Dotted Polygon Line".ToDialogText())
+        };
+    }
     internal static IEnumerable<KeyValuePair<TimelineScales, string>> CreatePredictorScalesOptions() {
         return new List<KeyValuePair<TimelineScales, string>> {
             new(TimelineScales.NotApplied, "N/A"),

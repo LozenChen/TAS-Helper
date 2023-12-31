@@ -27,6 +27,7 @@ public class TASHelperSettings : EverestModuleSettings {
         loadRangeMode = LoadRangeModes.Neither;
         EnforceClearSprites = SimplifiedGraphicsMode.WhenSimplifyGraphics;
         LoadRangeColliderMode = LoadRangeColliderModes.Auto;
+        TimelineFinestScale = TimelineFinestStyle.PolygonLine;
     }
 
     internal void OnLoadSettings() {
@@ -105,6 +106,8 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_ScrollableHistoryLog = false;
         Awake_BetterInvincible = false;
         Awake_ShowWindSpeed = false;
+        Awake_SimplifiedTriggers = false;
+        Awake_EnableCameraTriggerColor = false;
     }
     internal void Awake(bool awakeAll) {
         MainSwitch = awakeAll ? MainSwitchModes.AllowAll : MainSwitchModes.OnlyDefault;
@@ -126,6 +129,8 @@ public class TASHelperSettings : EverestModuleSettings {
         Awake_ScrollableHistoryLog = true;
         Awake_BetterInvincible = true;
         Awake_ShowWindSpeed = true;
+        Awake_SimplifiedTriggers = true;
+        Awake_EnableCameraTriggerColor = true;
     }
 
     #endregion
@@ -340,6 +345,38 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ApplyActualCollideHitboxForLightning = false;
 
+    public bool simplifiedTriggers = true;
+
+    public bool Awake_SimplifiedTriggers = true;
+
+    [YamlIgnore]
+    public bool EnableSimplifiedTriggers {
+        get => Enabled && Awake_SimplifiedTriggers && simplifiedTriggers;
+        set {
+            simplifiedTriggers = value;
+            Awake_SimplifiedTriggers = true;
+        }
+    }
+
+    public bool HideCameraTriggers = false;
+
+    public bool HideGoldBerryCollectTrigger = true;
+
+    public bool enableCameraTriggerColor = true;
+
+    public bool Awake_EnableCameraTriggerColor = true;
+
+    [YamlIgnore]
+    public bool EnableCameraTriggerColor {
+        get => Enabled && Awake_EnableCameraTriggerColor && enableCameraTriggerColor;
+        set {
+            enableCameraTriggerColor = value;
+            Awake_EnableCameraTriggerColor = true;
+        }
+    }
+
+    public Color CameraTriggerColor = CustomColors.defaultCameraTriggerColor;
+
     #endregion
 
     #region Auxilary Variables
@@ -419,11 +456,17 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int UltraSpeedLowerLimit = 170;
 
-    public bool TimelineFinestScale = true;
+    public TimelineFinestStyle TimelineFinestScale = TimelineFinestStyle.HitboxPerFrame;
 
     public TimelineScales TimelineFineScale = TimelineScales._5;
 
     public TimelineScales TimelineCoarseScale = TimelineScales.NotApplied;
+
+    public int PredictorPointSize = 8;
+
+    public int PredictorLineWidth = 3;
+
+    public enum TimelineFinestStyle { NotApplied, HitboxPerFrame, PolygonLine, DottedPolygonLine};
 
     public enum TimelineScales { NotApplied, _2, _5, _10, _15, _20, _25, _30, _45, _60, _100 }
 
@@ -503,6 +546,10 @@ public class TASHelperSettings : EverestModuleSettings {
     public Color PredictorCoarseScaleColor = CustomColors.defaultPredictorCoarseScaleColor;
 
     public Color PredictorKeyframeColor = CustomColors.defaultPredictorKeyframeColor;
+
+    public Color PredictorPolygonalLineColor = CustomColors.defaultPredictorPolygonalLineColor;
+
+    public Color PredictorDotColor = CustomColors.defaultPredictorDotColor;
 
     #endregion
 

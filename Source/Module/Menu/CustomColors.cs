@@ -24,12 +24,16 @@ public static class CustomColors {
     public static readonly Color defaultPredictorFineScaleColor = Color.Gold * 0.5f;
     public static readonly Color defaultPredictorCoarseScaleColor = Color.Green * 0.7f;
     public static readonly Color defaultPredictorKeyframeColor = Color.White * 0.9f;
+    public static readonly Color defaultPredictorPolygonalLineColor = Color.Red;
+    public static readonly Color defaultPredictorDotColor = Color.LightBlue;
+    public static readonly Color defaultCameraTriggerColor = Color.DarkGoldenrod;
 
     public static void ResetOtherColor() {
         LoadRangeColliderColor = defaultLoadRangeColliderColor;
         InViewRangeColor = defaultInViewRangeColor;
         NearPlayerRangeColor = defaultNearPlayerRangeColor;
         CameraTargetColor = defaultCameraTargetColor;
+        CameraTriggerColor = defaultCameraTriggerColor;
     }
 
     public static void ResetSpinnerColor() {
@@ -49,6 +53,8 @@ public static class CustomColors {
         Predictor_FineScaleColor = defaultPredictorFineScaleColor;
         Predictor_FinestScaleColor = defaultPredictorFinestScaleColor;
         Predictor_KeyframeColor = defaultPredictorKeyframeColor;
+        Predictor_PolygonalLineColor = defaultPredictorPolygonalLineColor;
+        Predictor_DotColor = defaultPredictorDotColor;
     }
 
 
@@ -80,6 +86,12 @@ public static class CustomColors {
     public static Color Predictor_CoarseScaleColor { get => TasHelperSettings.PredictorCoarseScaleColor; set => TasHelperSettings.PredictorCoarseScaleColor = value; }
 
     public static Color Predictor_KeyframeColor { get => TasHelperSettings.PredictorKeyframeColor; set => TasHelperSettings.PredictorKeyframeColor = value; }
+
+    public static Color Predictor_PolygonalLineColor { get => TasHelperSettings.PredictorPolygonalLineColor; set => TasHelperSettings.PredictorPolygonalLineColor = value; }
+
+    public static Color Predictor_DotColor { get => TasHelperSettings.PredictorDotColor; set => TasHelperSettings.PredictorDotColor = value; }
+
+    public static Color CameraTriggerColor { get => TasHelperSettings.CameraTriggerColor; set => TasHelperSettings.CameraTriggerColor = value; }
 
     public static TextMenu.Item CreateChangeColorItem(Func<Color> getter, Action<Color> setter, string name, TextMenu textMenu, bool inGame) {
         TextMenu.Item item = new ButtonColorExt(name.ToDialogText(), getter).Pressed(
@@ -169,6 +181,8 @@ public static class CustomColors {
         };
         page.Add(formatText);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => Predictor_FinestScaleColor, value => Predictor_FinestScaleColor = value, nameof(Predictor_FinestScaleColor), defaultPredictorFinestScaleColor);
+        AddItemWithDescriptionAndCMD(menu, page, inGame, () => Predictor_PolygonalLineColor, value => Predictor_PolygonalLineColor = value, nameof(Predictor_PolygonalLineColor), defaultPredictorPolygonalLineColor);
+        AddItemWithDescriptionAndCMD(menu, page, inGame, () => Predictor_DotColor, value => Predictor_DotColor = value, nameof(Predictor_DotColor), defaultPredictorDotColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => Predictor_FineScaleColor, value => Predictor_FineScaleColor = value, nameof(Predictor_FineScaleColor), defaultPredictorFineScaleColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => Predictor_CoarseScaleColor, value => Predictor_CoarseScaleColor = value, nameof(Predictor_CoarseScaleColor), defaultPredictorCoarseScaleColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => Predictor_EndpointColor, value => Predictor_EndpointColor = value, nameof(Predictor_EndpointColor), defaultPredictorEndpointColor);
@@ -196,6 +210,7 @@ public static class CustomColors {
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => NearPlayerRangeColor, value => NearPlayerRangeColor = value, nameof(NearPlayerRangeColor), defaultNearPlayerRangeColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => LoadRangeColliderColor, value => LoadRangeColliderColor = value, nameof(LoadRangeColliderColor), defaultLoadRangeColliderColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => CameraTargetColor, value => CameraTargetColor = value, nameof(CameraTargetColor), defaultCameraTargetColor);
+        AddItemWithDescriptionAndCMD(menu, page, inGame, () => CameraTriggerColor, value => CameraTriggerColor = value, nameof(CameraTriggerColor), defaultCameraTriggerColor);
         return page;
     }
 
@@ -209,6 +224,7 @@ public static class CustomColors {
         TextMenu.Item UsingFreezeColorItem;
         page.Add(UsingFreezeColorItem = new TextMenu.OnOff("Using Freeze Color".ToDialogText(), TasHelperSettings.UsingFreezeColor).Change(value => TasHelperSettings.UsingFreezeColor = value));
         page.AddDescriptionOnEnter(menu, UsingFreezeColorItem, "Using Freeze Color Description".ToDialogText());
+        page.Add(new TextMenu.OnOff("Using Camera Trigger Color".ToDialogText(), TasHelperSettings.EnableCameraTriggerColor).Change(value => TasHelperSettings.EnableCameraTriggerColor = value));
         TextMenu.Item resetButton = new TextMenu.Button("Reset Custom Color".ToDialogText()).Pressed(
             () => {
                 Audio.Play("event:/ui/main/rename_entry_accept");
@@ -320,6 +336,21 @@ public static class CustomColors {
                 }
             case nameof(Predictor_EndpointColor): {
                     Predictor_EndpointColor = HexToColorWithLog(color, defaultPredictorEndpointColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+            case nameof(CameraTriggerColor): {
+                    CameraTriggerColor = HexToColorWithLog(color, defaultCameraTriggerColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+            case nameof(Predictor_PolygonalLineColor): {
+                    Predictor_PolygonalLineColor = HexToColorWithLog(color, defaultPredictorPolygonalLineColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+            case nameof(Predictor_DotColor): {
+                    Predictor_DotColor = HexToColorWithLog(color, defaultPredictorDotColor);
                     TASHelperModule.Instance.SaveSettings();
                     return;
                 }
@@ -738,6 +769,7 @@ public class OptionSubMenuCountExt : TextMenu.Item {
                 }
 
                 if (!Input.MenuConfirm.Pressed && (Input.MenuCancel.Pressed || Input.ESC.Pressed || Input.Pause.Pressed)) {
+                    MenuIndex = 0;
                     Current?.OnLeave?.Invoke();
                     Focused = false;
                     Audio.Play("event:/ui/main/button_back");
@@ -748,6 +780,12 @@ public class OptionSubMenuCountExt : TextMenu.Item {
         }
         else {
             wasFocused = false;
+            if (Input.MenuCancel.Pressed && MenuIndex != 0) {
+                MenuIndex = 0;
+                Audio.Play("event:/ui/main/button_back");
+                Container.Focused = true;
+                return;
+            }
         }
 
         foreach (Tuple<string, List<TextMenu.Item>> menu in Menus) {

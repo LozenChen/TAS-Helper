@@ -4,6 +4,7 @@ using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using TAS;
 using static Celeste.Mod.TASHelper.Predictor.Core;
 
 namespace Celeste.Mod.TASHelper.Predictor;
@@ -19,9 +20,15 @@ public class PredictorRenderer : Entity {
 
     public static Color ColorKeyframe => CustomColors.Predictor_KeyframeColor;
 
-    private static readonly List<Tuple<RenderData, Color>> keyframeRenderData = new List<Tuple<RenderData, Color>>();
+    private static readonly List<Tuple<RenderData, Color>> processedKeyframeRenderData = new List<Tuple<RenderData, Color>>();
 
-    public static bool keyframeMessageCached = false;
+    private static readonly List<Tuple<RenderData, Color>> processedNormalframeRenderData = new List<Tuple<RenderData, Color>>();
+
+    public static bool contentCached = false;
+
+    public static bool UsePolygonalLine => TasHelperSettings.TimelineFinestScale == TASHelperSettings.TimelineFinestStyle.PolygonLine;
+
+    public static bool UseDottedPolygonalLine => TasHelperSettings.TimelineFinestScale == TASHelperSettings.TimelineFinestStyle.DottedPolygonLine;
 
     private const string textRendererLabel = "PredictorKeyframe";
 
@@ -29,9 +36,12 @@ public class PredictorRenderer : Entity {
         Depth = 1;
     }
     public static void ClearCachedMessage() {
-        if (keyframeMessageCached) {
+        if (contentCached) {
             TempTextRenderer.Clear(textRendererLabel);
-            keyframeMessageCached = false;
+            PolygonalLineRenderer.Clear();
+            processedKeyframeRenderData.Clear();
+            processedNormalframeRenderData.Clear();
+            contentCached = false;
         }
     }
 
@@ -49,39 +59,66 @@ public class PredictorRenderer : Entity {
             ClearCachedMessage();
             return;
         }
-        int count = Math.Min(futures.Count, TasHelperSettings.TimelineLength);
 
-        foreach (RenderData data in futures) {
-            if (data.index > count) {
-                // those extra cached frames
-                continue;
-            }
-            if (data.visible) {
-                if (TasHelperSettings.UseKeyFrame && KeyframeColorGetter(data.Keyframe, out bool addTime) is Color colorKeyframe) {
-                    keyframeRenderData.Add(new Tuple<RenderData, Color>(data with { addTime = addTime }, colorKeyframe));
+        if (!contentCached) {
+            int count = Math.Min(futures.Count, TasHelperSettings.TimelineLength);
+            
+            if (UsePolygonalLine || UseDottedPolygonalLine) {
+                Dictionary<int, List<Vector2>> lists = new();
+                int curr_list = 0;
+                lists[0] = new List<Vector2>();
+                if (Engine.Scene.GetPlayer() is { } player) {
+                    lists[curr_list].Add(player.Center * 6f);
                 }
-                else {
-                    if (ColorSelector(data.index, count) is Color color) {
-                        Draw.HollowRect(data.x, data.y, data.width, data.height, color);
+                foreach (RenderData data in futures) {
+                    if (data.index > count) {
+                        continue;
+                    }
+                    if (data.visible) {
+                        lists[curr_list].Add(new Vector2(data.x + data.width / 2f, data.y + data.height / 2f) * 6f);
+                    }
+                    else if (lists[curr_list].IsNotNullOrEmpty()){
+                        curr_list++;
+                        lists[curr_list] = new List<Vector2>();
                     }
                 }
+                if (lists[curr_list].IsNullOrEmpty()) {
+                    lists.Remove(curr_list);
+                }
+                if (lists.IsNotNullOrEmpty()) {
+                    HiresLevelRenderer.Add(new PolygonalLineRenderer(lists));
+                }
             }
+
+            foreach (RenderData data in futures) {
+                if (data.index > count || !data.visible) {
+                    // those extra cached frames
+                    continue;
+                }
+                if (TasHelperSettings.UseKeyFrame && KeyframeColorGetter(data.Keyframe, out bool addTime) is Color colorKeyframe) {
+                    processedKeyframeRenderData.Add(new Tuple<RenderData, Color>(data with { addTime = addTime }, colorKeyframe));
+                }
+                else if (ColorSelector(data.index, count) is Color color) {
+                    processedNormalframeRenderData.Add(new Tuple<RenderData, Color>(data, color));
+                }
+            }
+        }
+        
+        foreach (Tuple<RenderData, Color> data in processedNormalframeRenderData) {
+            RenderData keyframeData = data.Item1;
+            Draw.HollowRect(keyframeData.x, keyframeData.y, keyframeData.width, keyframeData.height, data.Item2);
         }
 
         // todo: add descriptions to some keyframeData addTime
-        foreach (Tuple<RenderData, Color> data in keyframeRenderData) {
+        foreach (Tuple<RenderData, Color> data in processedKeyframeRenderData) {
             RenderData keyframeData = data.Item1;
             Draw.HollowRect(keyframeData.x, keyframeData.y, keyframeData.width, keyframeData.height, data.Item2);
-            if (!keyframeMessageCached) {
-                if (TasHelperSettings.UseKeyFrameTime && keyframeData.addTime) {
-                    HiresLevelRenderer.Add(new TempTextRenderer(keyframeData.index.ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f, textRendererLabel));
-                }
+            if (!contentCached && TasHelperSettings.UseKeyFrameTime && keyframeData.addTime) {
+                HiresLevelRenderer.Add(new TempTextRenderer(keyframeData.index.ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f, textRendererLabel));
             }
-            // render keyframes above normal frames
         }
-        keyframeMessageCached = true;
-
-        keyframeRenderData.Clear();
+        // render keyframes above normal frames
+        contentCached = true;
     }
 
     public static Color? KeyframeColorGetter(KeyframeType keyframe, out bool addTime) {
@@ -155,7 +192,7 @@ public class PredictorRenderer : Entity {
         if (TasHelperSettings.TimelineFineScale != TASHelperSettings.TimelineScales.NotApplied && index % TASHelperSettings.ToInt(TasHelperSettings.TimelineFineScale) == 0) {
             return ColorFineScale * (TasHelperSettings.TimelineFadeOut ? (1 - 0.3f * Math.Min((float)index / FadeOutFineTillThisFrame, 1f)) : 1f);
         }
-        if (TasHelperSettings.TimelineFinestScale) {
+        if (TasHelperSettings.TimelineFinestScale == TASHelperSettings.TimelineFinestStyle.HitboxPerFrame) {
             return ColorFinestScale * (TasHelperSettings.TimelineFadeOut ? (1 - 0.5f * Math.Min((float)index / FadeOutFinestTillThisFrame, 1f)) : 1f);
         }
         return null;

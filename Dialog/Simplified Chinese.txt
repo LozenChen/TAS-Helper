@@ -3,7 +3,6 @@
 # ============================================= TAS Helper =====================================================
 TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        开关
-TAS_HELPER_HLINE=                                          ---------------------------------------------
 
 # ============================================= Spinner Main Switch =====================================================
 TAS_HELPER_SPINNER_MAIN_SWITCH=                            主开关
@@ -21,6 +20,7 @@ TAS_HELPER_NOTINVIEW_COLOR_MODES_WHEN=                     仅当开启 InView �
 TAS_HELPER_NOTINVIEW_COLOR_MODES_ALWAYS=                   开
 TAS_HELPER_USING_NOTINVIEW_COLOR_DESCRIPTION=              对受到 InView 影响的实体 (圆刺, 闪电) 有效.
 TAS_HELPER_USING_FREEZE_COLOR=                             冻结色
+TAS_HELPER_USING_CAMERA_TRIGGER_COLOR=                     镜头相关 Trigger 的颜色
 TAS_HELPER_USING_FREEZE_COLOR_DESCRIPTION=                 当 TimeActive 达到 524288 后使用的颜色,{n}
                                                            包括永不激活的圆刺的颜色, 与每帧都激活的圆刺的颜色.{n}
                                                            一些 mod 中使用的无周期性的圆刺也被视为每帧都激活,{n}
@@ -47,10 +47,13 @@ TAS_HELPER_SPINNERCOLOR_TASMODOTHERCYCLESHITBOXCOLOR=      其它周期颜色
 TAS_HELPER_INVIEWRANGECOLOR=                               InView 范围颜色
 TAS_HELPER_NEARPLAYERRANGECOLOR=                           NearPlayer 范围颜色
 TAS_HELPER_CAMERATARGETCOLOR=                              镜头移动目标的连线颜色
+TAS_HELPER_CAMERATRIGGERCOLOR=                             镜头相关 Trigger 的颜色
 TAS_HELPER_LOADRANGECOLLIDERCOLOR=                         加载范围碰撞体颜色
 TAS_HELPER_LOAD_RANGE_COLLIDER_DESCRIPTION=                即圆刺中心的颜色.
 TAS_HELPER_RESET_CUSTOM_COLOR=                             重置颜色为默认配置
-TAS_HELPER_PREDICTOR_FINESTSCALECOLOR=                     时间线最细刻度的颜色
+TAS_HELPER_PREDICTOR_FINESTSCALECOLOR=                     时间线最细刻度的碰撞箱颜色
+TAS_HELPER_PREDICTOR_POLYGONALLINECOLOR=                   时间线的折线颜色
+TAS_HELPER_PREDICTOR_DOTCOLOR=                             时间线的点的颜色
 TAS_HELPER_PREDICTOR_FINESCALECOLOR=                       时间线细刻度的颜色
 TAS_HELPER_PREDICTOR_COARSESCALECOLOR=                     时间线粗刻度的颜色
 TAS_HELPER_PREDICTOR_ENDPOINTCOLOR=                        时间线末端的颜色
@@ -122,6 +125,10 @@ TAS_HELPER_HIGHLIGHT_DESCRIPTION=                          白: 加载中 | 黑:
 TAS_HELPER_ACH_FOR_SPINNER=                                为重绘圆刺启用实际碰撞箱功能
 TAS_HELPER_ACH_FOR_LIGHTNING=                              为重绘闪电启用实际碰撞箱功能
 TAS_HELPER_ACH_WARN_LIGHTNING=                             不建议与 实际碰撞箱:附加模式 同时使用, 这会使得画面很乱.
+TAS_HELPER_SIMPLIFIED_TRIGGERS=                            简化 Trigger
+TAS_HELPER_SIMPLIFIED_TRIGGERS_DESCRIPTION=                不重要的 Trigger 将被隐藏.
+TAS_HELPER_HIDE_CAMERA_TRIGGER=                            隐藏镜头相关的 Trigger
+TAS_HELPER_HIDE_GOLD_BERRY=                                隐藏收集金草莓的 Trigger
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        快捷键
@@ -158,11 +165,17 @@ TAS_HELPER_PREDICTOR_ONOFF=                                开关
 TAS_HELPER_PREDICTOR_KEYFRAME_1=                           关键帧/1
 TAS_HELPER_PREDICTOR_KEYFRAME_2=                           关键帧/2
 TAS_HELPER_KEYFRAME_DESCRIPTION=                           关键帧是以下选定的 flag 之一被满足的帧
+TAS_HELPER_PREDICTOR_STYLE=                                样式
 TAS_HELPER_PREDICTOR_OTHER=                                其他
 TAS_HELPER_TIMELINE_FINEST_SCALE=                          时间线最细刻度
 TAS_HELPER_TIMELINE_FINE_SCALE=                            时间线细刻度
 TAS_HELPER_TIMELINE_COARSE_SCALE=                          时间线粗刻度
 TAS_HELPER_TIMELINE_FADEOUT=                               时间线淡出
+TAS_HELPER_NOT_APPLIED=                                    N/A
+TAS_HELPER_HITBOX_PER_FRAME=                               每帧的碰撞箱
+TAS_HELPER_POLYGON_LINE=                                   折线
+TAS_HELPER_DOTTED_POLYGON_LINE=                            带点折线
+TAS_HELPER_ONLY_APPLY_TO_HITBOX=                           仅对碰撞箱样式生效.
 TAS_HELPER_ULTRA_SPEED_LOWER_LIMIT=                        Ultra 速度下限
 TAS_HELPER_ULTRA_SPEED_LOWER_LIMIT_DESCRIPTION=            若撞击地面前的水平速度低于此下限, 则不认为是 ultra.
 TAS_HELPER_PREDICTOR_LEVEL_CONTROL_DESCRIPTION=            Level not in control: level transitioning, paused,{n}
@@ -178,6 +191,8 @@ TAS_HELPER_STOP_PREDICT_WHEN_KEYFRAME=                     关键帧处终止预
 TAS_HELPER_USE_KEY_FRAME=                                  关键帧的主开关
 TAS_HELPER_USE_KEY_FRAME_TIME=                             显示关键帧对应的时间点
 TAS_HELPER_KEY_FRAME_FLAGS=                                ----------------------- Flags: -----------------------
+TAS_HELPER_PREDICTOR_LINE_WIDTH=                           折线宽度
+TAS_HELPER_PREDICTOR_POINT_SIZE=                           点的大小
 
 
 # ============================================= Other =====================================================

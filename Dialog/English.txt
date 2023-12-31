@@ -1,7 +1,6 @@
 ﻿# ============================================= TAS Helper =====================================================
 TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        Enabled
-TAS_HELPER_HLINE=                                          ---------------------------------------------
 
 # ============================================= Spinner Main Switch =====================================================
 TAS_HELPER_SPINNER_MAIN_SWITCH=                            Main Switch
@@ -19,6 +18,7 @@ TAS_HELPER_NOTINVIEW_COLOR_MODES_WHEN=                     When Using InView Ran
 TAS_HELPER_NOTINVIEW_COLOR_MODES_ALWAYS=                   On
 TAS_HELPER_USING_NOTINVIEW_COLOR_DESCRIPTION=              Available to entities affected by InView (Spinner and Lightning).
 TAS_HELPER_USING_FREEZE_COLOR=                             Freeze Colors
+TAS_HELPER_USING_CAMERA_TRIGGER_COLOR=                     Camera-Related Triggers Color
 TAS_HELPER_USING_FREEZE_COLOR_DESCRIPTION=                 Colors which appear when TimeActive is 524288,{n}
                                                            include SpinnerColor_NeverActivate and SpinnerColor_ActivateEveryFrame.{n}
                                                            Some NoCycle hazards in mods are also considered as ActivateEveryFrame,{n}
@@ -45,14 +45,17 @@ TAS_HELPER_SPINNERCOLOR_TASMODOTHERCYCLESHITBOXCOLOR=      Other Cycles Hitbox C
 TAS_HELPER_INVIEWRANGECOLOR=                               InView Range Color
 TAS_HELPER_NEARPLAYERRANGECOLOR=                           NearPlayer Range Color
 TAS_HELPER_CAMERATARGETCOLOR=                              CameraTarget Color
+TAS_HELPER_CAMERATRIGGERCOLOR=                             Camera-Related Triggers Color
 TAS_HELPER_LOADRANGECOLLIDERCOLOR=                         LoadRange Collider Color
 TAS_HELPER_LOAD_RANGE_COLLIDER_DESCRIPTION=                i.e. color of the center of spinners
 TAS_HELPER_RESET_CUSTOM_COLOR=                             Reset Custom Colors to Default
-TAS_HELPER_PREDICTOR_FINESTSCALECOLOR=                     Timeline Finest Scale Color
+TAS_HELPER_PREDICTOR_FINESTSCALECOLOR=                     Timeline Finest Scale Hitbox Color
 TAS_HELPER_PREDICTOR_FINESCALECOLOR=                       Timeline Fine Scale Color
 TAS_HELPER_PREDICTOR_COARSESCALECOLOR=                     Timeline Coarse Scale Color
 TAS_HELPER_PREDICTOR_ENDPOINTCOLOR=                        Timeline Endpoint Color
 TAS_HELPER_PREDICTOR_KEYFRAMECOLOR=                        Timeline Keyframe Color
+TAS_HELPER_PREDICTOR_POLYGONALLINECOLOR=                   Timeline Polygonal Line Color
+TAS_HELPER_PREDICTOR_DOTCOLOR=                             Timeline Dot Color
 
 # ============================================= Hazard Countdown =====================================================
 TAS_HELPER_COUNTDOWN=                                      Hazard Countdown
@@ -122,6 +125,10 @@ TAS_HELPER_ACH_FOR_SPINNER=                                Apply Actual Collide 
 TAS_HELPER_ACH_FOR_LIGHTNING=                              Apply Actual Collide Hitbox to Redrawn Lightning
 TAS_HELPER_ACH_WARN_LIGHTNING=                             Not recommended to apply this while "Actual Collide Hitboxes: Append" mode is on.{n}
                                                            That makes the screen messy.
+TAS_HELPER_SIMPLIFIED_TRIGGERS=                            Simplified Triggers
+TAS_HELPER_SIMPLIFIED_TRIGGERS_DESCRIPTION=                Unimportant triggers will be hidden.
+TAS_HELPER_HIDE_CAMERA_TRIGGER=                            Hide Camera-Related Triggers
+TAS_HELPER_HIDE_GOLD_BERRY=                                Hide Gold-Berry Collect Triggers
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        Hotkeys
@@ -158,11 +165,17 @@ TAS_HELPER_PREDICTOR_ONOFF=                                Switches
 TAS_HELPER_PREDICTOR_KEYFRAME_1=                           Keyframe/1
 TAS_HELPER_PREDICTOR_KEYFRAME_2=                           Keyframe/2
 TAS_HELPER_KEYFRAME_DESCRIPTION=                           A Keyframe is one frame with any selected flags true.
+TAS_HELPER_PREDICTOR_STYLE=                                Style
 TAS_HELPER_PREDICTOR_OTHER=                                Other
 TAS_HELPER_TIMELINE_FINEST_SCALE=                          Timeline Finest Scale
 TAS_HELPER_TIMELINE_FINE_SCALE=                            Timeline Fine Scale
 TAS_HELPER_TIMELINE_COARSE_SCALE=                          Timeline Coarse Scale
 TAS_HELPER_TIMELINE_FADEOUT=                               Timeline Fadeout
+TAS_HELPER_NOT_APPLIED=                                    N/A
+TAS_HELPER_HITBOX_PER_FRAME=                               Hitbox per Frame
+TAS_HELPER_POLYGON_LINE=                                   Polygonal Line
+TAS_HELPER_DOTTED_POLYGON_LINE=                            Dotted Polygonal Line
+TAS_HELPER_ONLY_APPLY_TO_HITBOX=                           Only Apply to Hitboxes.
 TAS_HELPER_ULTRA_SPEED_LOWER_LIMIT=                        Ultra Speed Lower Limit
 TAS_HELPER_ULTRA_SPEED_LOWER_LIMIT_DESCRIPTION=            An "ultra" is not considered as an ultra,{n}
                                                            if its horizontal speed before hitting ground is lower than this limit.
@@ -179,6 +192,8 @@ TAS_HELPER_STOP_PREDICT_WHEN_KEYFRAME=                     Stop Prediction when 
 TAS_HELPER_USE_KEY_FRAME=                                  Keyframe Main Switch
 TAS_HELPER_USE_KEY_FRAME_TIME=                             Show Index of Keyframe
 TAS_HELPER_KEY_FRAME_FLAGS=                                ----------------------- Flags: -----------------------
+TAS_HELPER_PREDICTOR_LINE_WIDTH=                           Polygonal Line Width
+TAS_HELPER_PREDICTOR_POINT_SIZE=                           Dot Size
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   More Options

@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Monocle;
 using System.Collections.Concurrent;
 using System.Reflection;
@@ -688,5 +689,11 @@ internal static class SceneExtensions {
             AreaComplete areaComplete => areaComplete.Session,
             _ => null
         };
+    }
+}
+
+internal static class DrawExtensions {
+    public static void MonocleDrawPoint(this Vector2 at, Color color, float scale) {
+        Monocle.Draw.SpriteBatch.Draw(Monocle.Draw.Pixel.Texture.Texture_Safe, at, Monocle.Draw.Pixel.ClipRect, color, 0f, Vector2.One * 0.5f, scale, SpriteEffects.None, 0f);
     }
 }
