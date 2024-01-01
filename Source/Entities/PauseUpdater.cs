@@ -19,7 +19,7 @@ public static class PauseUpdater {
             // idk, but there's such bug report 
             // https://discord.com/channels/403698615446536203/1175568290303725669
             levelPauseTags = 0;
-            Logger.Log(LogLevel.Info, "TAS Helper", "An error occurred when PauseUpdater initializes!");
+            Logger.Log(LogLevel.Warn, "TAS Helper", "An error occurred when PauseUpdater initializes!");
         }
     }
 
