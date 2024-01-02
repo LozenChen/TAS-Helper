@@ -34,6 +34,7 @@ public static class WhatsNew {
         }
     }
 
+
     public static void CreateUpdateLog() {
         // this feat appears in v1.8.12 and i dont plan to write those update logs several versions ago...
         // we only introduce new features / bugfixes here. Optimizations are not included unless that's a major one
