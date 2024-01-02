@@ -99,7 +99,7 @@ internal class CountdownRenderer : THRenderer {
                 }
                 if (!overlapResolver.ContainsKey(Position)) {
                     HiresID2Positions[id].Remove((Position + new Vector2(1.5f, -0.5f)) * 6f);
-                    overlapResolver.Add(Position, new List<int>() { id});
+                    overlapResolver.Add(Position, new List<int>() { id });
                 }
                 overlapResolver[Position].Add(ID);
                 return;
@@ -108,7 +108,7 @@ internal class CountdownRenderer : THRenderer {
                 overlapDetector.Add(Position, ID);
             }
 
-            pos = (pos + new Vector2(1.5f, -0.5f)) *6f;
+            pos = (pos + new Vector2(1.5f, -0.5f)) * 6f;
             HiresID2Positions.SafeAdd(ID, pos);
         }
         else {
@@ -116,7 +116,7 @@ internal class CountdownRenderer : THRenderer {
         }
     }
 
-    private static Comparer<int> reverseComparer = Comparer<int>.Create((x, y) => - Comparer<int>.Default.Compare(x, y));
+    private static Comparer<int> reverseComparer = Comparer<int>.Create((x, y) => -Comparer<int>.Default.Compare(x, y));
     public override void Render() {
         if (!TasHelperSettings.UsingHiresFont) {
             return;

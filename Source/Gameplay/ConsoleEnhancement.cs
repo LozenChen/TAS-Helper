@@ -55,7 +55,7 @@ public static class ConsoleEnhancement {
 
     [Initialize]
     public static void Initialize() {
-        using (new DetourContext { Before = new List<string> { "*" }, ID = "TAS Helper ConsoleEnhancement"}) {
+        using (new DetourContext { Before = new List<string> { "*" }, ID = "TAS Helper ConsoleEnhancement" }) {
             // vivhelper also hooks this method, so a IL.Monocle hook will fail after reloading
             typeof(Monocle.Commands).GetMethod("UpdateClosed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).IlHook(ILCommandUpdateClosed);
         }
@@ -96,7 +96,7 @@ public static class ConsoleEnhancement {
             ins => ins.OpCode == OpCodes.Ble,
             ins => ins.MatchLdloc(1))) {
             cursor.Index += 5;
-            ILLabel end = (ILLabel) cursor.Prev.Operand;
+            ILLabel end = (ILLabel)cursor.Prev.Operand;
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate(BeforeAction);
             cursor.GotoLabel(end);

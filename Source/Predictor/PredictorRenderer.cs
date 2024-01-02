@@ -4,7 +4,6 @@ using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using TAS;
 using static Celeste.Mod.TASHelper.Predictor.Core;
 
 namespace Celeste.Mod.TASHelper.Predictor;
@@ -62,7 +61,7 @@ public class PredictorRenderer : Entity {
 
         if (!contentCached) {
             int count = Math.Min(futures.Count, TasHelperSettings.TimelineLength);
-            
+
             if (UsePolygonalLine || UseDottedPolygonalLine) {
                 Dictionary<int, List<Vector2>> lists = new();
                 int curr_list = 0;
@@ -77,7 +76,7 @@ public class PredictorRenderer : Entity {
                     if (data.visible) {
                         lists[curr_list].Add(new Vector2(data.exactX + data.width / 2f, data.exactY + data.height / 2f) * 6f);
                     }
-                    else if (lists[curr_list].IsNotNullOrEmpty()){
+                    else if (lists[curr_list].IsNotNullOrEmpty()) {
                         curr_list++;
                         lists[curr_list] = new List<Vector2>();
                     }
@@ -103,7 +102,7 @@ public class PredictorRenderer : Entity {
                 }
             }
         }
-        
+
         foreach (Tuple<RenderData, Color> data in processedNormalframeRenderData) {
             RenderData keyframeData = data.Item1;
             Draw.HollowRect(keyframeData.x, keyframeData.y, keyframeData.width, keyframeData.height, data.Item2);

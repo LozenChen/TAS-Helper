@@ -72,3 +72,6 @@ internal class InitializeAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Method)]
 internal class TasDisableRunAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Method)]
+internal class TasEnableRunAttribute : Attribute { }

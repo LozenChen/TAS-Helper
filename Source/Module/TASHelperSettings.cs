@@ -88,55 +88,26 @@ public class TASHelperSettings : EverestModuleSettings {
     }
     internal void Sleep() {
         MainSwitch = MainSwitchModes.Off;
-        Awake_CycleHitboxColors = false;
-        Awake_UsingNotInViewColor = false;
-        Awake_EnableSimplifiedSpinner = false;
         Awake_CountdownModes = false;
         Awake_LoadRange = false;
         Awake_CameraTarget = false;
         Awake_PixelGrid = false;
-        Awake_SpawnPoint = false;
-        Awake_EntityActivatorReminder = false;
-        Awake_FireBallTrack = false;
-        Awake_TrackSpinnerTrack = false;
-        Awake_RotateSpinnerTrack = false;
-        Awake_PredictFuture = false;
-        Awake_EnableOoO = false;
-        Awake_OpenConsoleInTas = false;
-        Awake_ScrollableHistoryLog = false;
-        Awake_BetterInvincible = false;
-        Awake_ShowWindSpeed = false;
-        Awake_SimplifiedTriggers = false;
-        Awake_EnableCameraTriggerColor = false;
     }
     internal void Awake(bool awakeAll) {
         MainSwitch = awakeAll ? MainSwitchModes.AllowAll : MainSwitchModes.OnlyDefault;
-        Awake_CycleHitboxColors = true;
-        Awake_UsingNotInViewColor = true;
-        Awake_EnableSimplifiedSpinner = true;
         Awake_CountdownModes = awakeAll;
         Awake_LoadRange = awakeAll;
         Awake_CameraTarget = awakeAll;
         Awake_PixelGrid = awakeAll;
-        Awake_SpawnPoint = true;
-        Awake_EntityActivatorReminder = true;
-        Awake_FireBallTrack = true;
-        Awake_TrackSpinnerTrack = true;
-        Awake_RotateSpinnerTrack = true;
-        Awake_PredictFuture = true;
-        Awake_EnableOoO = true;
-        Awake_OpenConsoleInTas = true;
-        Awake_ScrollableHistoryLog = true;
-        Awake_BetterInvincible = true;
-        Awake_ShowWindSpeed = true;
-        Awake_SimplifiedTriggers = true;
-        Awake_EnableCameraTriggerColor = true;
+
+        // if you have an Awake_XX = true, drop it
+        // coz now we won't make this settings show in mod settings if the mod is disabled
+        // so there's no possibility that users see a wrong value
     }
 
     #endregion
 
     #region CycleHitboxColor
-    public bool Awake_CycleHitboxColors = true;
 
     // we need to make it public, so this setting is stored
     // though we don't want anyone to visit it directly...
@@ -145,24 +116,21 @@ public class TASHelperSettings : EverestModuleSettings {
 
     [YamlIgnore]
     public bool ShowCycleHitboxColors {
-        get => Enabled && Awake_CycleHitboxColors && showCycleHitboxColor;
+        get => Enabled && showCycleHitboxColor;
         set {
             showCycleHitboxColor = value;
-            Awake_CycleHitboxColors = true;
         }
     }
 
-    public bool Awake_UsingNotInViewColor = true;
     public enum UsingNotInViewColorModes { Off, WhenUsingInViewRange, Always };
 
     public UsingNotInViewColorModes usingNotInViewColorMode;
 
     [YamlIgnore]
     public UsingNotInViewColorModes UsingNotInViewColorMode {
-        get => Enabled && Awake_UsingNotInViewColor ? usingNotInViewColorMode : UsingNotInViewColorModes.Off;
+        get => Enabled ? usingNotInViewColorMode : UsingNotInViewColorModes.Off;
         set {
             usingNotInViewColorMode = value;
-            Awake_UsingNotInViewColor = true;
             UsingNotInViewColor = (value == UsingNotInViewColorModes.Always) || (value == UsingNotInViewColorModes.WhenUsingInViewRange && UsingInViewRange);
         }
     }
@@ -285,17 +253,13 @@ public class TASHelperSettings : EverestModuleSettings {
     #endregion
 
     #region Simplified Graphics
-
-    public bool Awake_EnableSimplifiedSpinner = true;
-
     public bool enableSimplifiedSpinner = true;
 
     [YamlIgnore]
     public bool EnableSimplifiedSpinner {
-        get => Enabled && Awake_EnableSimplifiedSpinner && enableSimplifiedSpinner;
+        get => Enabled && enableSimplifiedSpinner;
         set {
             enableSimplifiedSpinner = value;
-            Awake_EnableSimplifiedSpinner = true;
         }
     }
 
@@ -347,14 +311,11 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool simplifiedTriggers = true;
 
-    public bool Awake_SimplifiedTriggers = true;
-
     [YamlIgnore]
     public bool EnableSimplifiedTriggers {
-        get => Enabled && Awake_SimplifiedTriggers && simplifiedTriggers;
+        get => Enabled && simplifiedTriggers;
         set {
             simplifiedTriggers = value;
-            Awake_SimplifiedTriggers = true;
         }
     }
 
@@ -364,14 +325,12 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool enableCameraTriggerColor = true;
 
-    public bool Awake_EnableCameraTriggerColor = true;
 
     [YamlIgnore]
     public bool EnableCameraTriggerColor {
-        get => Enabled && Awake_EnableCameraTriggerColor && enableCameraTriggerColor;
+        get => Enabled && enableCameraTriggerColor;
         set {
             enableCameraTriggerColor = value;
-            Awake_EnableCameraTriggerColor = true;
         }
     }
 
@@ -433,14 +392,11 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool predictFutureEnabled = false;
 
-    public bool Awake_PredictFuture = true;
-
     [YamlIgnore]
     public bool PredictFutureEnabled {
-        get => Enabled && Awake_PredictFuture && ModUtils.SpeedrunToolInstalled && predictFutureEnabled;
+        get => Enabled && ModUtils.SpeedrunToolInstalled && predictFutureEnabled;
         set {
             predictFutureEnabled = value;
-            Awake_PredictFuture = true;
         }
     }
 
@@ -466,7 +422,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int PredictorLineWidth = 3;
 
-    public enum TimelineFinestStyle { NotApplied, HitboxPerFrame, PolygonLine, DottedPolygonLine};
+    public enum TimelineFinestStyle { NotApplied, HitboxPerFrame, PolygonLine, DottedPolygonLine };
 
     public enum TimelineScales { NotApplied, _2, _5, _10, _15, _20, _25, _30, _45, _60, _100 }
 
@@ -555,16 +511,13 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region Other
 
-    public bool Awake_EntityActivatorReminder = true;
-
     public bool entityActivatorReminder = true;
 
     [YamlIgnore]
     public bool EntityActivatorReminder {
-        get => Enabled && Awake_EntityActivatorReminder && entityActivatorReminder;
+        get => Enabled && entityActivatorReminder;
         set {
             entityActivatorReminder = value;
-            Awake_EntityActivatorReminder = true;
         }
     }
 
@@ -599,16 +552,13 @@ public class TASHelperSettings : EverestModuleSettings {
     public int PixelGridWidth = 2;
     public int PixelGridOpacity = 8;
 
-    public bool Awake_SpawnPoint = true;
-
     public bool usingSpawnPoint = true;
 
     [YamlIgnore]
     public bool UsingSpawnPoint {
-        get => Enabled && Awake_SpawnPoint && usingSpawnPoint;
+        get => Enabled && usingSpawnPoint;
         set {
             usingSpawnPoint = value;
-            Awake_SpawnPoint = true;
         }
     }
 
@@ -616,42 +566,33 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int OtherSpawnPointOpacity = 2;
 
-    public bool Awake_FireBallTrack = true;
-
     public bool usingFireBallTrack = true;
 
     [YamlIgnore]
     public bool UsingFireBallTrack {
-        get => Enabled && Awake_FireBallTrack && usingFireBallTrack;
+        get => Enabled && usingFireBallTrack;
         set {
             usingFireBallTrack = value;
-            Awake_FireBallTrack = true;
         }
     }
-
-    public bool Awake_TrackSpinnerTrack = true;
 
     public bool usingTrackSpinnerTrack = false;
 
     [YamlIgnore]
     public bool UsingTrackSpinnerTrack {
-        get => Enabled && Awake_TrackSpinnerTrack && usingTrackSpinnerTrack;
+        get => Enabled && usingTrackSpinnerTrack;
         set {
             usingTrackSpinnerTrack = value;
-            Awake_TrackSpinnerTrack = true;
         }
     }
-
-    public bool Awake_RotateSpinnerTrack = true;
 
     public bool usingRotateSpinnerTrack = false;
 
     [YamlIgnore]
     public bool UsingRotateSpinnerTrack {
-        get => Enabled && Awake_RotateSpinnerTrack && usingRotateSpinnerTrack;
+        get => Enabled && usingRotateSpinnerTrack;
         set {
             usingRotateSpinnerTrack = value;
-            Awake_RotateSpinnerTrack = true;
         }
     }
 
@@ -683,69 +624,54 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool enableOoO = false;
 
-    public bool Awake_EnableOoO = true;
-
     [YamlIgnore]
 
     public bool EnableOoO {
-        get => Enabled && Awake_EnableOoO && enableOoO;
+        get => Enabled && enableOoO;
         set {
             enableOoO = value;
-            Awake_EnableOoO = true;
         }
     }
 
     public bool enableOpenConsoleInTas { get; set; } = true;
 
-    public bool Awake_OpenConsoleInTas = true;
-
     [YamlIgnore]
     public bool EnableOpenConsoleInTas {
-        get => Enabled && Awake_OpenConsoleInTas && enableOpenConsoleInTas;
+        get => Enabled && enableOpenConsoleInTas;
         set {
             enableOpenConsoleInTas = value;
-            Awake_OpenConsoleInTas = true;
         }
     }
 
     public bool enableScrollableHistoryLog { get; set; } = true;
 
-    public bool Awake_ScrollableHistoryLog = true;
-
     [YamlIgnore]
     public bool EnableScrollableHistoryLog {
-        get => Enabled && Awake_ScrollableHistoryLog && enableScrollableHistoryLog;
+        get => Enabled && enableScrollableHistoryLog;
         set {
             enableScrollableHistoryLog = value;
-            Awake_ScrollableHistoryLog = true;
         }
     }
 
     public bool betterInvincible = true;
 
-    public bool Awake_BetterInvincible = true;
-
     [YamlIgnore]
 
     public bool BetterInvincible {
-        get => Enabled && Awake_BetterInvincible && betterInvincible;
+        get => Enabled && betterInvincible;
         set {
             betterInvincible = value;
-            Awake_BetterInvincible = true;
         }
     }
 
     public bool showWindSpeed = false;
 
-    public bool Awake_ShowWindSpeed = true;
-
     [YamlIgnore]
 
     public bool ShowWindSpeed {
-        get => Enabled && Awake_ShowWindSpeed && showWindSpeed;
+        get => Enabled && showWindSpeed;
         set {
             showWindSpeed = value;
-            Awake_ShowWindSpeed = true;
         }
     }
 

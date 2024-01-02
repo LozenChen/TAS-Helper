@@ -86,7 +86,7 @@ public static class HiresLevelRenderer {
         foreach (THRenderer renderer in toAdd) {
             list.Add(renderer);
 
-            if (tracker.TryGetValue(renderer.GetType(), out List<THRenderer> list_of_this_type)){
+            if (tracker.TryGetValue(renderer.GetType(), out List<THRenderer> list_of_this_type)) {
                 list_of_this_type.Add(renderer);
             }
             else {

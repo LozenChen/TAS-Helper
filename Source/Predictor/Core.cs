@@ -5,6 +5,8 @@ using Monocle;
 using MonoMod.Cil;
 using System.Reflection;
 using TAS;
+using TAS.Input;
+using TAS.Input.Commands;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 public static class Core {
@@ -177,11 +179,13 @@ public static class Core {
             if (StrictFrameStep && TasHelperSettings.PredictOnFrameStep && Engine.Scene is Level) {
                 Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, false);
             }
+            ClearPreventSendStateToStudio();
         });
 
         typeof(Level).GetMethod("BeforeRender").HookBefore(DelayedActions);
 
         HookHelper.SkipMethod(typeof(Core), nameof(InPredictMethod), typeof(GameInfo).GetMethod("Update", BindingFlags.Public | BindingFlags.Static));
+        HookHelper.SkipMethod(typeof(Core), nameof(PreventSendStateToStudio), typeof(TAS.Manager).GetMethod("SendStateToStudio", BindingFlags.Public | BindingFlags.Static));
 
         InitializeChecks();
         InitializeCachePeriod();
@@ -292,13 +296,61 @@ public static class Core {
     }
     private static void DelayedPredict() {
         if (hasDelayedPredict && !InPredict) {
-            Manager.Controller.RefreshInputs(false);
-            // if you insert/delete lines before CurrentFrame, then Studio will jump to the line of CurrentFrame, to notice you shouldn't do that!
+            RefreshInputs();
             GameInfo.Update();
             Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, delayedMustRedo);
             hasDelayedPredict = false;
         }
         // we shouldn't do this in half of the render process
+
+        void RefreshInputs() {
+            InputController c = Manager.Controller;
+            c.NeedsReload = true;
+            preventSendStateToStudio = true;
+            string lastChecksum = c.Checksum;
+            bool firstRun = c.UsedFiles.IsEmpty();
+            if (c.NeedsReload) {
+                c.Clear();
+                int tryCount = 5;
+                while (tryCount > 0) {
+                    if (c.ReadFile(InputController.TasFilePath)) {
+                        if (Manager.NextStates.Has(StudioCommunication.States.Disable)) {
+                            c.Clear();
+                            Manager.DisableRun();
+                            preventSendStateToStudio = true;
+                        }
+                        else {
+                            c.NeedsReload = false;
+                            c.ParseFileEnd();
+                            if (!firstRun && lastChecksum != c.Checksum) {
+                                MetadataCommands.UpdateRecordCount(c);
+                            }
+                        }
+                        break;
+                    }
+                    else {
+                        System.Threading.Thread.Sleep(50);
+                        tryCount--;
+                        c.Clear();
+                    }
+                }
+
+                c.CurrentFrameInTas = Math.Min(c.Inputs.Count, c.CurrentFrameInTas);
+            }
+        }
+    }
+
+    private static bool preventSendStateToStudio = false;
+
+    private static bool PreventSendStateToStudio() {
+        return preventSendStateToStudio;
+    }
+
+    [TasEnableRun]
+    [TasDisableRun]
+
+    private static void ClearPreventSendStateToStudio() {
+        preventSendStateToStudio = false;
     }
 
     private static bool InPredictMethod() {

@@ -1,9 +1,9 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
 using MonoMod.Cil;
-using TAS.Input.Commands;
 using TAS;
+using TAS.Input.Commands;
 
-namespace Celeste.Mod.TASHelper.Gameplay; 
+namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class BetterInvincible {
     // make you invincible while still make tas sync
 

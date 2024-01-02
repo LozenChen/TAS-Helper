@@ -1,12 +1,12 @@
-﻿using Celeste.Mod.TASHelper.Utils;
-using MonoMod.Cil;
-using Monocle;
-using Mono.Cecil.Cil;
-using MonoMod.RuntimeDetour;
-using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using TAS.EverestInterop.Hitboxes;
+﻿using Celeste.Mod.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
+using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
+using Monocle;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
+using TAS.EverestInterop.Hitboxes;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 public static class SimplifiedTrigger {
@@ -19,7 +19,7 @@ public static class SimplifiedTrigger {
 
     public static Color CameraTriggerColor => CustomColors.CameraTriggerColor;
 
-    
+
     [Load]
     private static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
@@ -43,9 +43,9 @@ public static class SimplifiedTrigger {
         HandleExtendedVariantTrigger();
         HandleContortHelperTrigger();
         HandleOtherMods();
-        typeof(HitboxColor).GetMethodInfo("GetCustomColor", new Type[] { typeof(Color), typeof(Entity)}).IlHook(ModGetCustomColor);
+        typeof(HitboxColor).GetMethodInfo("GetCustomColor", new Type[] { typeof(Color), typeof(Entity) }).IlHook(ModGetCustomColor);
     }
-    
+
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         orig(level, playerIntro, isFromLoader);
@@ -61,7 +61,7 @@ public static class SimplifiedTrigger {
     }
 
     private static void ModGetCustomColor(ILContext il) {
-        ILCursor cursor = new (il);
+        ILCursor cursor = new(il);
         if (cursor.TryGotoNext(ins => ins.MatchLdsfld(typeof(HitboxColor), nameof(HitboxColor.RespawnTriggerColor)), ins => ins.OpCode == OpCodes.Stloc_1, ins => ins.OpCode == OpCodes.Br_S)) {
             ILLabel label = (ILLabel)cursor.Next.Next.Next.Operand;
             cursor.Goto(0);
@@ -121,7 +121,7 @@ public static class SimplifiedTrigger {
 
         public override void Removed(Scene scene) {
             lastInstanceRemoved = true;
-            base.Removed(scene);    
+            base.Removed(scene);
         }
 
         public static void Build(Level level) {
@@ -210,8 +210,8 @@ public static class SimplifiedTrigger {
             List<string> ignoreVariantString = new() { "RoomLighting", "RoomBloom", "GlitchEffect", "ColorGrading", "ScreenShakeIntensity", "AnxietyEffect", "BlurLevel", "ZoomLevel", "BackgroundBrightness", "DisableMadelineSpotlight", "ForegroundEffectOpacity", "MadelineIsSilhouette", "DashTrailAllTheTime", "FriendlyBadelineFollower", "MadelineHasPonytail", "MadelineBackpackMode", "BackgroundBlurLevel", "AlwaysInvisible", "DisplaySpeedometer", "DisableKeysSpotlight", "SpinnerColor", "InvisibleMotion", "PlayAsBadeline" };
             extendedVariants = ignoreVariantString.Select(x => GetEnum(variantEnumType, x)).Where(x => x is not null).ToList();
 
-            GetTypes("ExtendedVariantMode", 
-                "ExtendedVariants.Entities.Legacy.ExtendedVariantTrigger", 
+            GetTypes("ExtendedVariantMode",
+                "ExtendedVariants.Entities.Legacy.ExtendedVariantTrigger",
                 "ExtendedVariants.Entities.Legacy.ExtendedVariantFadeTrigger",
                 "ExtendedVariants.Entities.ForMappers.FloatExtendedVariantFadeTrigger"
             ).ForEach(type => {
@@ -223,8 +223,8 @@ public static class SimplifiedTrigger {
             });
 
             if (ModUtils.GetType("ExtendedVariantMode", "ExtendedVariants.Entities.ForMappers.AbstractExtendedVariantTrigger`1") is { } abstractExtendedVariantTriggerType) {
-                AddCheck(x => 
-                       x.GetType().BaseType is Type type 
+                AddCheck(x =>
+                       x.GetType().BaseType is Type type
                     && type.IsGenericType
                     && type.GetGenericTypeDefinition() == abstractExtendedVariantTriggerType
                     && x.GetFieldValue("variantChange") is { } variantChange
@@ -256,13 +256,13 @@ public static class SimplifiedTrigger {
         AddTypes("CommunalHelper", "Celeste.Mod.CommunalHelper.Triggers.AddVisualToPlayerTrigger", "Celeste.Mod.CommunalHelper.Triggers.CassetteMusicFadeTrigger", "Celeste.Mod.CommunalHelper.Triggers.CloudscapeColorTransitionTrigger", "Celeste.Mod.CommunalHelper.Triggers.CloudscapeLightningConfigurationTrigger", "Celeste.Mod.CommunalHelper.Triggers.MusicParamTrigger", "Celeste.Mod.CommunalHelper.Triggers.SoundAreaTrigger", "Celeste.Mod.CommunalHelper.Triggers.StopLightningControllerTrigger");
         AddTypes("CrystallineHelper", "vitmod.BloomStrengthTrigger", "Celeste.Mod.Code.Entities.RoomNameTrigger");
         AddTypes("CustomPoints", "Celeste.Mod.CustomPoints.PointsTrigger");
-        AddTypes("DJMapHelper", "Celeste.Mod.DJMapHelper.Triggers.ChangeSpinnerColorTrigger", "Celeste.Mod.DJMapHelper.Triggers.ColorGradeTrigger" );
+        AddTypes("DJMapHelper", "Celeste.Mod.DJMapHelper.Triggers.ChangeSpinnerColorTrigger", "Celeste.Mod.DJMapHelper.Triggers.ColorGradeTrigger");
         AddTypes("FactoryHelper", "FactoryHelper.Triggers.SteamWallColorTrigger");
         AddTypes("FemtoHelper", "ParticleRemoteEmit");
         AddTypes("FlaglinesAndSuch", "FlaglinesAndSuch.FlagLightFade", "FlaglinesAndSuch.MusicIfFlag");
         AddTypes("FrostHelper", "FrostHelper.AnxietyTrigger", "FrostHelper.BloomColorFadeTrigger", "FrostHelper.BloomColorPulseTrigger", "FrostHelper.BloomColorTrigger", "FrostHelper.DoorDisableTrigger", "FrostHelper.LightningColorTrigger", "FrostHelper.RainbowBloomTrigger", "FrostHelper.StylegroundMoveTrigger");
         AddTypes("JungleHelper", "Celeste.Mod.JungleHelper.Triggers.GeckoTutorialTrigger", "Celeste.Mod.JungleHelper.Triggers.UIImageTrigger", "Celeste.Mod.JungleHelper.Triggers.UITextTrigger");
-        AddTypes("Long Name Helper by Helen, Helen's Helper, hELPER", "Celeste.Mod.hELPER.ColourChangeTrigger", "Celeste.Mod.hELPER.SpriteReplaceTrigger" );
+        AddTypes("Long Name Helper by Helen, Helen's Helper, hELPER", "Celeste.Mod.hELPER.ColourChangeTrigger", "Celeste.Mod.hELPER.SpriteReplaceTrigger");
         AddTypes("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Triggers.AllBlackholesStrengthTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.FloatFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.ColorGradeFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.GradientDustTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.MadelinePonytailTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.MadelineSilhouetteTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.PersistentMusicFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.RainbowSpinnerColorFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.RainbowSpinnerColorTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.SetBloomBaseTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.SetBloomStrengthTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.SetDarknessAlphaTrigger");
         AddTypes("MoreDasheline", "MoreDasheline.HairColorTrigger");
         AddTypes("Sardine7", "Celeste.Mod.Sardine7.Triggers.AmbienceTrigger");

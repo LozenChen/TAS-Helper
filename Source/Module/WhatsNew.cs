@@ -44,13 +44,14 @@ public static class WhatsNew {
         AddLog("1.8.11", "\"More Options\" -> \"Better Invincibility\".");
         AddLog("1.8.12", "Wind Speed Renderer. Enable it in \"More Options\" -> \"Show Wind Speed\".", "Add the \"What's New!\" page. You can unsubscribe it in \"More Options\" -> \"Subscribe What's New!\"");
         AddLog("1.8.13", "Now in Predictor, you can use (Dotted) Polygon Line instead of Hitbox per Frame to show your future track. Enable it in \"Predictor\" -> \"Other\" -> \"Timeline Finest Scale\" -> \"(Dotted) Polygon Line\"", "Simplified Triggers, which will hide unimportant triggers.", "Now Camera-Related Triggers have a different color.Enable it in \"Custom Colors Config\" -> \"Switches\" -> \"Camera-Related Triggers Color\"");
+        AddLog("1.8.14", "Bugfix: If you use Predictor \"Predict on Tas File Changed\" and edit any content before the current frame in tas, then the cursor in CelesteStudio will jump around.");
 
-        UpdateLogs.Sort((x,y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
+        UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
     private static Version LastVersion;
 
-    
+
     private static void AddLog(string version, List<string> updateLogs) {
         if (LastVersion < new Version(version)) {
             UpdateLogs.Add(new Tuple<string, List<string>>(version, updateLogs));
@@ -78,7 +79,7 @@ public static class WhatsNew {
             foreach (Tuple<string, List<string>> tuple in UpdateLogs) {
                 subMenu.Add(new TextMenuExt.ButtonExt(tuple.Item1) { TextColor = Color.White, Scale = 0.7f * Vector2.One });
                 foreach (string updateLog in tuple.Item2) {
-                    subMenu.Add(new LogItem(" - " + updateLog) { TextColor = Color.Gray, Scale = 0.6f * Vector2.One});
+                    subMenu.Add(new LogItem(" - " + updateLog) { TextColor = Color.Gray, Scale = 0.6f * Vector2.One });
                 }
             }
             subMenu.OnPressed += () => {

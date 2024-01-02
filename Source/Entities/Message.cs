@@ -89,7 +89,7 @@ public class WindSpeedRenderer : Message {
             lifetimer = maxLifetimer;
             alpha = 1f;
         }
-        else if (lifetimer > 0){
+        else if (lifetimer > 0) {
             lifetimer--;
             if (lifetimer <= 0.5 * maxLifetimer) {
                 alpha = (float)lifetimer / (0.5f * (float)maxLifetimer);
@@ -122,7 +122,7 @@ public class WindSpeedRenderer : Message {
         }
     }
 
-    private static float ArrowAngle = (float) Math.PI / 6f;
+    private static float ArrowAngle = (float)Math.PI / 6f;
 
     private static int lifetimer = 0;
 
@@ -297,7 +297,7 @@ public class HotkeyWatcher : Message {
     public override void Render() {
         float scale = 0.6f;
         Vector2 Size = FontSize.Measure(text) * scale;
-        Monocle.Draw.Rect(Position - 0.5f * Size.Y * Vector2.UnitY - 10f * Vector2.UnitX, Size.X + 20f , Size.Y + 10f, Color.Black * alpha * 0.5f);
+        Monocle.Draw.Rect(Position - 0.5f * Size.Y * Vector2.UnitY - 10f * Vector2.UnitX, Size.X + 20f, Size.Y + 10f, Color.Black * alpha * 0.5f);
         Font.Draw(BaseSize, text, Position, new Vector2(0f, 0.5f), Vector2.One * scale, Color.White * alpha, 0f, Color.Transparent, 1f, Color.Black);
     }
 

@@ -1,5 +1,5 @@
-﻿using Monocle;
-using Celeste.Mod.TASHelper.Utils;
+﻿using Celeste.Mod.TASHelper.Utils;
+using Monocle;
 
 namespace Celeste.Mod.TASHelper.Entities;
 
