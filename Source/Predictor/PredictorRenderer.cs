@@ -68,14 +68,14 @@ public class PredictorRenderer : Entity {
                 int curr_list = 0;
                 lists[0] = new List<Vector2>();
                 if (Engine.Scene.GetPlayer() is { } player) {
-                    lists[curr_list].Add(player.Center * 6f);
+                    lists[curr_list].Add((player.Center + player.PositionRemainder) * 6f);
                 }
                 foreach (RenderData data in futures) {
                     if (data.index > count) {
                         continue;
                     }
                     if (data.visible) {
-                        lists[curr_list].Add(new Vector2(data.x + data.width / 2f, data.y + data.height / 2f) * 6f);
+                        lists[curr_list].Add(new Vector2(data.exactX + data.width / 2f, data.exactY + data.height / 2f) * 6f);
                     }
                     else if (lists[curr_list].IsNotNullOrEmpty()){
                         curr_list++;

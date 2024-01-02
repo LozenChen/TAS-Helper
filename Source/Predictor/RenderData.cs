@@ -12,6 +12,8 @@ public class PlayerState {
     public bool LevelHasPlayer;
     public float x;
     public float y;
+    public float exactX;
+    public float exactY;
     public float width;
     public float height;
 
@@ -55,6 +57,8 @@ public class PlayerState {
         state.LevelHasPlayer = true;
         state.x = player.Collider.Left + player.X;
         state.y = player.Collider.Top + player.Y;
+        state.exactX = state.x + player.PositionRemainder.X;
+        state.exactY = state.y + player.PositionRemainder.Y;
         state.width = player.Collider.Width;
         state.height = player.Collider.Height;
         state.StateMachineState = player.StateMachine.State;
@@ -85,6 +89,8 @@ public struct RenderData {
     public bool visible;
     public float x;
     public float y;
+    public float exactX;
+    public float exactY;
     public float width;
     public float height;
     public KeyframeType Keyframe;
@@ -97,13 +103,15 @@ public struct RenderData {
         if (CurrentState.LevelHasPlayer) {
             x = CurrentState.x;
             y = CurrentState.y;
+            exactX = CurrentState.exactX;
+            exactY = CurrentState.exactY;
             width = CurrentState.width;
             height = CurrentState.height;
             visible = true;
             Keyframe |= KeyframeType.NotNull;
         }
         else {
-            x = 0f; y = 0f; width = 0f; height = 0f; visible = false;
+            x = 0f; y = 0f; exactX = 0f; exactY = 0f; width = 0f; height = 0f; visible = false;
             return;
         }
         if (CurrentState.Dead && !PreviousState.Dead) {
