@@ -30,7 +30,7 @@ internal static class SpinnerRenderHelper {
     internal static Color ActivateEveryFrameColor => TasHelperSettings.ActivateEveryFrameColor;
     // ActivatesEveryFrame now consists of 2 cases: (a) nocycle mod hazards (b) when time freeze
 
-    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, FreezeActivateEveryFrame, NoCycle };
+    public enum SpinnerColorIndex { Default, Group1, Group2, Group3, NotInView, MoreThan3, NeverActivate, FreezeActivateEveryFrame, NoCycle};
     public static Color GetSpinnerColor(SpinnerColorIndex index) {
 #pragma warning disable CS8524
         return index switch {
@@ -38,11 +38,11 @@ internal static class SpinnerRenderHelper {
             SpinnerColorIndex.Group1 => TasSettings.CycleHitboxColor1,
             SpinnerColorIndex.Group2 => TasSettings.CycleHitboxColor2,
             SpinnerColorIndex.Group3 => TasSettings.CycleHitboxColor3,
-            SpinnerColorIndex.MoreThan3 => TasSettings.OtherCyclesHitboxColor,
             SpinnerColorIndex.NotInView => NotInViewColor,
+            SpinnerColorIndex.MoreThan3 => TasSettings.OtherCyclesHitboxColor,
             SpinnerColorIndex.NeverActivate => NeverActivateColor,
             SpinnerColorIndex.FreezeActivateEveryFrame => ActivateEveryFrameColor,
-            SpinnerColorIndex.NoCycle => ActivateEveryFrameColor,
+            SpinnerColorIndex.NoCycle => ActivateEveryFrameColor
         };
 #pragma warning restore CS8524
     }

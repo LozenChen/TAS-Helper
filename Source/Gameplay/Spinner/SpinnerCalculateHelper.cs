@@ -50,6 +50,11 @@ public static class SpinnerCalculateHelper {
         // this must be before tas mod's FreeCameraHitbox.SubHudRendererOnBeforeRender, otherwise spinners will flash if you zoom out in center camera mode
     }
 
+    private static void DictionaryAdderVanilla(Type type, GetDelegate<object, float> offsetGetter, int HazardType) {
+        HazardTypesTreatNormal.Add(type, HazardType);
+        OffsetGetters.Add(type, offsetGetter);
+    }
+
     private static void DictionaryAdderNormal(Type type, string offsetName, int HazardType) {
         HazardTypesTreatNormal.Add(type, HazardType);
         OffsetGetters.Add(type, type.CreateGetDelegate<object, float>(offsetName));
@@ -64,10 +69,11 @@ public static class SpinnerCalculateHelper {
     public static void Initialize() {
         Assembly Vanilla = ModUtils.VanillaAssembly;
         Type vanillaCrysSpinnerType;
-        DictionaryAdderNormal(vanillaCrysSpinnerType = Vanilla.GetType("Celeste.CrystalStaticSpinner"), "offset", spinner);
-        DictionaryAdderNormal(Vanilla.GetType("Celeste.Lightning"), "toggleOffset", lightning);
-        DictionaryAdderNormal(Vanilla.GetType("Celeste.DustStaticSpinner"), "offset", dust);
+        DictionaryAdderVanilla(vanillaCrysSpinnerType = Vanilla.GetType("Celeste.CrystalStaticSpinner"), e => (e as CrystalStaticSpinner).offset, spinner);
+        DictionaryAdderVanilla(Vanilla.GetType("Celeste.Lightning"), e => (e as Lightning).toggleOffset, lightning);
+        DictionaryAdderVanilla(Vanilla.GetType("Celeste.DustStaticSpinner"), e => (e as DustStaticSpinner).offset, dust);
         // for some reasons mentioned below, subclass should be considered different, so we add these three types into dictionary, instead of manually check "if (entity is CrystalStaticSpinner) ..."
+        // but using publicizer is much more efficient, so we dont use DictionaryAdderNormal here
 
         if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType && ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinnerController") is { } frostControllerType) {
             DictionaryAdderSpecial(frostSpinnerType, "offset", e => e.GetFieldValue<bool>("HasCollider") ? spinner : null);
@@ -214,14 +220,28 @@ public static class SpinnerCalculateHelper {
         else if (HazardTypesTreatSpecial.TryGetValue(type, out GetDelegate<Entity, int?> getter)) {
             return getter(self);
         }
-        return null;
+        else {
+            return self switch {
+                // we've checked vanilla types before, but we still need to check here so subclasses of these can be handled correctly when i forget to add some hazard type
+                // e.g. AcidHelper, which is a mod contained in Glyph
+                CrystalStaticSpinner => spinner,
+                DustStaticSpinner => dust,
+                Lightning => lightning,
+                _ => null
+            };
+        }
     }
 
     public static float? GetOffset(Entity self) {
         if (OffsetGetters.TryGetValue(self.GetType(), out GetDelegate<object, float> getter)) {
             return getter(self);
         }
-        return null;
+        return self switch {
+            CrystalStaticSpinner spinner => spinner.offset,
+            DustStaticSpinner dust => dust.offset,
+            Lightning lightning => lightning.toggleOffset,
+            _ => null,
+        };
     }
     public static bool isSpinnner(this Entity self) {
         return HazardType(self) == spinner;

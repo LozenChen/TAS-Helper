@@ -14,7 +14,7 @@ internal static class SimplifiedLightning {
     }
 
     private static bool DrawInner(Func<bool, Lightning, bool> orig, bool visible, Lightning item) {
-        if (TasHelperSettings.EnableSimplifiedLightning) {
+        if (TasHelperSettings.EnableSimplifiedLightning && SpinnerCalculateHelper.HazardType(item) != null) {
 
             bool collidable = SpinnerCalculateHelper.GetCollidable(item);
             bool inView = SpinnerCalculateHelper.InView(item, ActualPosition.CameraPosition);
