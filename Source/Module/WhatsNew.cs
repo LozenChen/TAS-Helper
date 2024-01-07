@@ -1,7 +1,6 @@
 //#define ShowAllLog
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
-using Monocle;
 using System.Text;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -38,7 +37,7 @@ public static class WhatsNew {
 
     public static void CreateUpdateLog() {
         // this feat appears in v1.8.12 and i dont plan to write those update logs several versions ago...
-        // we only introduce new features / bugfixes here. Optimizations are not included unless that's a major one
+        // we only introduce new features / bugfixes here. Optimizations are not included unless that's a major one, or unless we have nothing to say
 
         UpdateLogs.Clear();
         LastVersion = new Version(TasHelperSettings.LastVersion);
@@ -48,6 +47,7 @@ public static class WhatsNew {
         AddLog("1.8.13", "Now in Predictor, you can use (Dotted) Polygon Line instead of Hitbox per Frame to show your future track. Enable it in \"Predictor\" -> \"Other\" -> \"Timeline Finest Scale\" -> \"(Dotted) Polygon Line\"", "Simplified Triggers, which will hide unimportant triggers.", "Now Camera-Related Triggers have a different color.Enable it in \"Custom Colors Config\" -> \"Switches\" -> \"Camera-Related Triggers Color\"");
         AddLog("1.8.14", "Bugfix: If you use Predictor \"Predict on Tas File Changed\" and edit any content before the current frame in tas, then the cursor in CelesteStudio will jump around.");
         AddLog("1.8.15", "Bugfix: Game Crashes when encountering AcidLightning of Glyph mod.");
+        AddLog("1.8.16", "Simplified Triggers feature now can hide StyleMaskHelper masks.");
 
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }

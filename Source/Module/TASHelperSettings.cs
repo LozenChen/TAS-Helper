@@ -309,15 +309,9 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ApplyActualCollideHitboxForLightning = false;
 
-    public bool simplifiedTriggers = true;
+    public SimplifiedGraphicsMode EnableSimplifiedTriggersMode = SimplifiedGraphicsMode.WhenSimplifyGraphics;
 
-    [YamlIgnore]
-    public bool EnableSimplifiedTriggers {
-        get => Enabled && simplifiedTriggers;
-        set {
-            simplifiedTriggers = value;
-        }
-    }
+    public bool EnableSimplifiedTriggers => Enabled && SGModeToBool(EnableSimplifiedTriggersMode);
 
     public bool HideCameraTriggers = false;
 

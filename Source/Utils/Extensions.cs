@@ -474,6 +474,8 @@ internal static class LevelExtensions {
 
     // this should always be called in Initialize, so when any tracker instance is created, these types are already stored
     public static void AddToTracker(Type entity, bool inherited = false) {
+        // if inherited, then all subclass entities of class T can be fetched using Tracker.GetEntities<T>()
+        // otherwise, Tracker.GetEntities<T>() only return those entities whose type is exactly T
         if (!typeof(Entity).IsAssignableFrom(entity)) {
             return;
         }

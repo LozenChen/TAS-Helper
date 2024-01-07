@@ -43,6 +43,7 @@ public static class SimplifiedTrigger {
         HandleExtendedVariantTrigger();
         HandleContortHelperTrigger();
         HandleOtherMods();
+        HandleNonTriggerTrigger();
         typeof(HitboxColor).GetMethodInfo("GetCustomColor", new Type[] { typeof(Color), typeof(Entity) }).IlHook(ModGetCustomColor);
     }
 
@@ -89,7 +90,7 @@ public static class SimplifiedTrigger {
     }
 
     public static bool IsUnimportantTrigger(Entity entity) {
-        return UnimportantTriggers.Contains(entity) && !TAS.EverestInterop.InfoHUD.InfoWatchEntity.WatchingEntities.Contains(entity);
+        return Enabled && UnimportantTriggers.Contains(entity) && !TAS.EverestInterop.InfoHUD.InfoWatchEntity.WatchingEntities.Contains(entity);
     }
 
     public static bool IsCameraTrigger(Entity entity) {
@@ -149,11 +150,19 @@ public static class SimplifiedTrigger {
                     }
                 }
             }
+            foreach (Type type in nonTriggerTypes) {
+                if (level.Tracker.Entities.TryGetValue(type, out List<Entity> list)) {
+                    foreach (Entity entity in list) {
+                        UnimportantTriggers.Add(entity);
+                        Logger.Log(LogLevel.Verbose, "TAS Helper", $"Hide Entity: {entity.GetEntityId()}");
+                    }
+                }
+            }
             while (!lastInstanceRemoved) { // which is the same time when triggers in last room also get removed (e.g. in transition routine)
                 yield return null;
             }
             RemainingTriggersList.Clear();
-            foreach (Entity entity in level.Tracker.GetEntities<Trigger>().Where(x => !IsUnimportantTrigger(x))) {
+            foreach (Entity entity in level.Tracker.GetEntities<Trigger>().Where(x => !UnimportantTriggers.Contains(x))) {
                 RemainingTriggersList.Add(GetTriggerInfo(entity));
             }
             Active = false;
@@ -283,6 +292,25 @@ public static class SimplifiedTrigger {
     }
 
     private static HashSet<Type> otherModsTypes = new();
+
+    private static void HandleNonTriggerTrigger() {
+        // to be fair it's kind of complement of simplified graphics feature, instead of simplified triggers
+        // here we collect those entities which are not hidden by CelesteTAS and look like triggers
+
+        // we will use [Tracked(true)], so no need to add every entity type
+        AddTypes("StyleMaskHelper", "Celeste.Mod.StyleMaskHelper.Entities.Mask"); // their colliders are only used to determine if these masks should be used i guess
+
+        void AddTypes(string modName, params string[] typeNames) {
+            foreach (string name in typeNames) {
+                if (ModUtils.GetType(modName, name) is { } type) {
+                    nonTriggerTypes.Add(type);
+                    LevelExtensions.AddToTracker(type, true);
+                }
+            }
+        }
+    }
+
+    private static HashSet<Type> nonTriggerTypes = new();
 
     private static object GetEnum(Type enumType, string value) {
         if (long.TryParse(value.ToString(), out long longValue)) {
