@@ -2,7 +2,7 @@
 
 https://gamebanana.com/tools/12383
 
-A Celeste Mod designed to be a tool in TAS making.
+This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-EverestInterop) and aims to provide some extra convenience for making TASes.
 
 # Features:
 
@@ -24,7 +24,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Camera Target -> show which direction the camera moves towards. Basically *CameraTarget = Player's position + CameraOffset*, plus CameraTarget should be bounded in room and some other modification, then *CameraPosition = (1-r)\*PreviousCameraPosition + r\*CameraTarget*, where *r = 0.074*. We visualize this by drawing the points Position, PreviousPosition and CameraTarget, and drawing a link from PreviousPosition to CameraTarget.
 
-- CustomInfoHelper -> provide some fields / properties which are not easy to compute in CelesteTas's CustomInfo. Check https://github.com/LozenChen/TAS-Helper/blob/main/Source/Gameplay/CustomInfoHelper.cs
+- CustomInfoHelper -> provide some fields / properties which are not easy to compute in CelesteTas's CustomInfo. Check [CustomInfoHelper](https://github.com/LozenChen/TAS-Helper/blob/main/Source/Gameplay/CustomInfoHelper.cs)
 
 - Order-of-Operation Stepping -> just like frame advance, but in a subframe scale, thus visualize order of operations in a frame. The bottom-left message indicates the next action (if there's no "begin/end" postfix) / current action (if there is) of the game engine.
 
@@ -36,7 +36,7 @@ A Celeste Mod designed to be a tool in TAS making.
 
 - Main Switch hotkey -> Settings are memorized in a way that, ActualSettings = MainSwitch state && MemorizedSettings (if both sides are boolean. Similar for other types). The Main Switch hotkey just modifies MainSwitch state, and will not modify MemorizedSettings. Editing settings in menu or using other hotkeys will modify MemorizedSettings.
 
-- Add some commands -> Currently we have, spinner_freeze cmd, nearest_timeactive cmd, setting-related cmd, OoO config cmd. Check https://github.com/LozenChen/TAS-Helper/blob/main/Docs/Commands.md
+- Add some commands -> Currently we have, spinner_freeze cmd, nearest_timeactive cmd, setting-related cmd, OoO config cmd. Check [Commands](https://github.com/LozenChen/TAS-Helper/blob/main/Docs/Commands.md)
 
 - ... Check the menu in game!
 
@@ -53,8 +53,6 @@ A Celeste Mod designed to be a tool in TAS making.
 - Slowdown indicator (note there's 1 frame delay between DeltaTime and TimeRate)
 
 - Key cycle indicator.
-
-- Scrollable console.
 
 - Push on XMinty's AutoWatch PR on CelesteTAS, to support more entities (e.g. for an entity with a re-awake timer, watch the timer if it's not zero).
 
