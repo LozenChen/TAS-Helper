@@ -145,7 +145,7 @@ public static class SimplifiedTrigger {
                 foreach (Func<Entity, bool> checker in UnimportantCheckers) {
                     if (checker(entity)) {
                         UnimportantTriggers.Add(entity);
-                        Logger.Log(LogLevel.Verbose, "TAS Helper", $"Hide Trigger: {entity.GetEntityId()}");
+                        //Logger.Log(LogLevel.Verbose, "TAS Helper", $"Hide Trigger: {entity.GetEntityId()}");
                         break;
                     }
                 }
@@ -154,13 +154,14 @@ public static class SimplifiedTrigger {
                 if (level.Tracker.Entities.TryGetValue(type, out List<Entity> list)) {
                     foreach (Entity entity in list) {
                         UnimportantTriggers.Add(entity);
-                        Logger.Log(LogLevel.Verbose, "TAS Helper", $"Hide Entity: {entity.GetEntityId()}");
+                        //Logger.Log(LogLevel.Verbose, "TAS Helper", $"Hide Entity: {entity.GetEntityId()}");
                     }
                 }
             }
             while (!lastInstanceRemoved) { // which is the same time when triggers in last room also get removed (e.g. in transition routine)
                 yield return null;
             }
+            // i just realize that i can use a TransitionListener.OnInEnd instead...
             RemainingTriggersList.Clear();
             foreach (Entity entity in level.Tracker.GetEntities<Trigger>().Where(x => !UnimportantTriggers.Contains(x))) {
                 RemainingTriggersList.Add(GetTriggerInfo(entity));
@@ -299,6 +300,8 @@ public static class SimplifiedTrigger {
 
         // we will use [Tracked(true)], so no need to add every entity type
         AddTypes("StyleMaskHelper", "Celeste.Mod.StyleMaskHelper.Entities.Mask"); // their colliders are only used to determine if these masks should be used i guess
+        AddTypes("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.StylegroundMasks.Mask");
+        AddTypes("Celeste", "Celeste.SpawnFacingTrigger");
 
         void AddTypes(string modName, params string[] typeNames) {
             foreach (string name in typeNames) {

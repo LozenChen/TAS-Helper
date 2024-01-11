@@ -144,6 +144,21 @@ public static class CILCodeHelper {
         }).Dispose();
     }
 
+    public static void CILCodeLoggerAtLast(this MethodBase methodBase) {
+        methods.Add(methodBase);
+    }
+
+    internal static void InitializeAtLast() {
+        using (DetourContext context = new DetourContext() { After = new List<string>() { "*" } }) {
+            foreach (MethodBase method in methods) {
+                method.CILCodeLogger();
+            }
+        }
+        methods.Clear();
+    }
+
+    private static List<MethodBase> methods = new();
+
     private static int position = 0;
 
     public static int Position {

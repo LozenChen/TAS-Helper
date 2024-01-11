@@ -73,3 +73,5 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 - Celeste TAS hotkeys randomly work improperly -> Not sure if it's caused by TAS Helper.
 
 - Use SRT save, then reload asset, then SRT load. This causes crash -> I guess it's a general issue and only happens for mod developers, so just ignore it.
+
+- Predictor can't handle SJ cassette blocks well -> Not sure but I guess the reason is, they have special hook such that SJ cassette blocks also update in freeze frames, and my simulator doesn't take this into account.

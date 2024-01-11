@@ -24,6 +24,7 @@ internal static class Loader {
         typeof(TAS.Manager).GetMethod("EnableRun").HookBefore(() => AttributeUtils.Invoke<TasEnableRunAttribute>());
         TasHelperSettings.FirstInstall = false;
         TASHelperModule.Instance.SaveSettings();
+        CILCodeHelper.InitializeAtLast();
         if (Reloading) {
             OnReload();
             Reloading = false;

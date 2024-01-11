@@ -163,6 +163,11 @@ internal static class TasHelperSL {
     private static HashSet<Entity> TH_UnimportantTriggers = new();
     private static HashSet<Entity> SRT_UnimportantTriggers = new();
 
+    private static Dictionary<int, Color> TH_beatColors = new();
+    private static Dictionary<int, List<int>> TH_ColorSwapTime = new();
+    private static Dictionary<int, Color> SRT_beatColors = new();
+    private static Dictionary<int, List<int>> SRT_ColorSwapTime = new();
+
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             DashTime = GameInfo.DashTime;
@@ -175,6 +180,8 @@ internal static class TasHelperSL {
             TH_LastPositions = ActualEntityCollideHitbox.LastPositions.TH_DeepCloneShared();
             TH_LastCollidables = ActualEntityCollideHitbox.LastColldables.TH_DeepCloneShared();
             TH_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.TH_DeepCloneShared();
+            TH_beatColors = CassetteBlockHelper.CasstteBlockVisualizer.beatColors.TH_DeepCloneShared();
+            TH_ColorSwapTime = CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime.TH_DeepCloneShared();
         };
         TH.SlAction load = (_, _) => {
             GameInfo.DashTime = DashTime;
@@ -196,6 +203,9 @@ internal static class TasHelperSL {
                 ActualEntityCollideHitbox.LastColldables[key] = lastCollide[key];
             }
             SimplifiedTrigger.UnimportantTriggers = TH_UnimportantTriggers.TH_DeepCloneShared();
+
+            CassetteBlockHelper.CasstteBlockVisualizer.beatColors = TH_beatColors.TH_DeepCloneShared();
+            CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime = TH_ColorSwapTime.TH_DeepCloneShared();
         };
         Action clear = () => {
             TH_CachedNodes = null;
@@ -204,6 +214,8 @@ internal static class TasHelperSL {
             TH_LastPositions.Clear();
             TH_LastCollidables.Clear();
             TH_UnimportantTriggers.Clear();
+            TH_beatColors.Clear();
+            TH_ColorSwapTime.Clear();
         };
         return new TH(save, load, clear, null, null);
     }
@@ -215,6 +227,9 @@ internal static class TasHelperSL {
             SRT_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.DeepCloneShared();
             SRT_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.DeepCloneShared();
             SRT_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.DeepCloneShared();
+
+            SRT_beatColors = CassetteBlockHelper.CasstteBlockVisualizer.beatColors.DeepCloneShared();
+            SRT_ColorSwapTime = CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime.DeepCloneShared();
         };
         SRT.SlAction load = (_, _) => {
             Predictor.Core.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
@@ -223,12 +238,16 @@ internal static class TasHelperSL {
             Gameplay.MovingEntityTrack.CachedCircle = SRT_CachedCircle.DeepCloneShared();
             TH_Hotkeys.HotkeyInitialize();
             SimplifiedTrigger.UnimportantTriggers = SRT_UnimportantTriggers.DeepCloneShared();
+            CassetteBlockHelper.CasstteBlockVisualizer.beatColors = SRT_beatColors.DeepCloneShared();
+            CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
         };
         Action clear = () => {
             SRT_CachedNodes = null;
             SRT_CachedStartEnd = null;
             SRT_CachedCircle = null;
             SRT_UnimportantTriggers = null;
+            SRT_beatColors = null;
+            SRT_ColorSwapTime = null;
         };
 
         ConstructorInfo constructor = typeof(SRT).GetConstructors()[0];

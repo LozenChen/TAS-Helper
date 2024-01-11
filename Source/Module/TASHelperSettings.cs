@@ -309,13 +309,13 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ApplyActualCollideHitboxForLightning = false;
 
-    public SimplifiedGraphicsMode EnableSimplifiedTriggersMode = SimplifiedGraphicsMode.WhenSimplifyGraphics;
+    public SimplifiedGraphicsMode EnableSimplifiedTriggersMode = SimplifiedGraphicsMode.Always;
 
     public bool EnableSimplifiedTriggers => Enabled && SGModeToBool(EnableSimplifiedTriggersMode);
 
     public bool HideCameraTriggers = false;
 
-    public bool HideGoldBerryCollectTrigger = true;
+    public bool HideGoldBerryCollectTrigger = false;
 
     public bool enableCameraTriggerColor = true;
 
@@ -504,6 +504,16 @@ public class TASHelperSettings : EverestModuleSettings {
     #endregion
 
     #region Other
+
+    public bool enableCassetteBlockHelper = true;
+
+    [YamlIgnore]
+    public bool EnableCassetteBlockHelper {
+        get => Enabled && enableCassetteBlockHelper;
+        set {
+            enableCassetteBlockHelper = value;
+        }
+    }
 
     public bool entityActivatorReminder = true;
 

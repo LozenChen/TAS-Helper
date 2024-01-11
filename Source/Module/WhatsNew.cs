@@ -48,6 +48,7 @@ public static class WhatsNew {
         AddLog("1.8.14", "Bugfix: If you use Predictor \"Predict on Tas File Changed\" and edit any content before the current frame in tas, then the cursor in CelesteStudio will jump around.");
         AddLog("1.8.15", "Bugfix: Game Crashes when encountering AcidLightning of Glyph mod.");
         AddLog("1.8.16", "Simplified Triggers feature now can hide StyleMaskHelper masks.");
+        AddLog("1.8.17", "Cassette Block Helper. Enable it in \"More Options\".");
 
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
