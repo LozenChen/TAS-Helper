@@ -1,6 +1,7 @@
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 
@@ -13,14 +14,15 @@ internal static class CassetteBlockHelper {
     public static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
         IL.Monocle.Engine.Update += ILEngineUpdate;
+        IL.Celeste.Celeste.Freeze += ILCelesteFreeze;
     }
 
 
     [Unload]
-
     public static void Unload() {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
         IL.Monocle.Engine.Update -= ILEngineUpdate;
+        IL.Celeste.Celeste.Freeze -= ILCelesteFreeze;
     }
 
 
@@ -35,12 +37,27 @@ internal static class CassetteBlockHelper {
     private static void ILEngineUpdate(ILContext il) {
         ILCursor cursor = new ILCursor(il);
         if (cursor.TryGotoNext(ins => ins.MatchLdsfld<Engine>("FreezeTimer"), ins => ins.MatchCall<Engine>("get_RawDeltaTime"))) {
-            cursor.EmitDelegate(AdvanceCasstteBlockVisualizer);
+            cursor.EmitDelegate(SJ_AdvanceCasstteBlockVisualizer);
         }
     }
 
-    private static void AdvanceCasstteBlockVisualizer() {
-        Engine.Scene.Tracker.GetEntity<CasstteBlockVisualizer>()?.Update();
+    private static void ILCelesteFreeze(ILContext il) {
+        ILCursor cursor = new ILCursor(il);
+        if (cursor.TryGotoNext(ins => ins.MatchCall<Engine>("get_Scene"), ins => ins.OpCode == OpCodes.Brfalse_S)) {
+            cursor.EmitDelegate(Vanilla_AdvanceCasstteBlockVisualizer);
+        }
+    }
+
+    private static void SJ_AdvanceCasstteBlockVisualizer() {
+        if (Engine.Scene.Tracker.GetEntity<CasstteBlockVisualizer>() is { } visualizer && visualizer.cbmType == CasstteBlockVisualizer.CBMType.SJ) {
+            visualizer.Update();
+        }
+    }
+
+    private static void Vanilla_AdvanceCasstteBlockVisualizer() {
+        if (Engine.Scene.Tracker.GetEntity<CasstteBlockVisualizer>() is { } visualizer && visualizer.cbmType == CasstteBlockVisualizer.CBMType.Vanilla) {
+            CasstteBlockVisualizer.FreezeAdvanceTime();
+        }
     }
 
     [Tracked(false)]
@@ -69,6 +86,7 @@ internal static class CassetteBlockHelper {
             currColorIndex = -1;
             TimeElapse = NearestTime = 0;
             maxBeat = 4;
+            // some order of operation issues suck so the numbers we show are "not" correct. though you can have other understandings to make that correct
         }
 
         public static bool AddToScene(Level level) {
@@ -79,8 +97,13 @@ internal static class CassetteBlockHelper {
 
         [Initialize]
         private static void Initialize() {
+            // Test maps: vanilla 9A, SJ ShatterSong and GMHS, Spring Collab 2020 Expert CANADIAN, Into-the-Jungle maps
             SJ_CBMType = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlockController");
             SJ_CassetteBlockType = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlock");
+            if (ModUtils.GetType("FrostHelper", "FrostHelper.CassetteTempoTrigger")?.GetMethodInfo("SetManagerTempo") is { } method) {
+                method.HookAfter(SetStateChanged);
+            }
+            // todo: support JungleHelper cassette
         }
 
         internal static void BuildBeatColors(Level level) {
@@ -104,7 +127,7 @@ internal static class CassetteBlockHelper {
 
         public static Dictionary<int, Color> beatColors = new();
 
-        private const int loop = 1024;
+        private const int loop = 330; // contains two full cycles
         public override void Update() {
             if (Predictor.Core.InPredict) {
                 return;
@@ -168,7 +191,8 @@ internal static class CassetteBlockHelper {
                 }
             }
 
-            if (timerateGotoMonitor || normalGotoMonitor) {
+            if (timerateGotoMonitor || normalGotoMonitor || stateChanged) {
+                stateChanged = false;
                 LastDeltaTime = Engine.DeltaTime;
                 bool hasData;
                 if (cbmType == CBMType.Vanilla) {
@@ -194,7 +218,6 @@ internal static class CassetteBlockHelper {
                     ColorSwapTime.Clear();
                 }
             }
-
         }
 
         public int TimeElapse = 0;
@@ -206,6 +229,19 @@ internal static class CassetteBlockHelper {
         public static Dictionary<int, List<int>> ColorSwapTime = new();
 
         private static Vector2 textOffset = new Vector2(40f, -10f);
+
+        public static bool stateChanged = false;
+
+        public static void SetStateChanged() {
+            stateChanged = true;
+        }
+
+        public static void FreezeAdvanceTime() {
+            stateChanged = true;
+            // the time argument is unnecessary
+            // as we will goto sync with cbm (on which the freeze advance time has been applied)
+            // yeah maybe we can have better ways, but this is easy and safe to implement, also actually not very expansive
+        }
         public override void Render() {
             if (!DebugRendered) {
                 return;
@@ -233,10 +269,10 @@ internal static class CassetteBlockHelper {
                         minorControllers.Add(controllerIndex);
                         if (ColorSwapTime[index] is { } list && list.Count > 0) {
                             int y = index - controllerIndex * SJWonkyCassetteBlockControllerSimulator.minorOffset;
-                            Message.RenderMessage(y.ToString(), pos + new Vector2(-27f - 100f * (controllerIndex - 1), 40f * (highestIndex + y + 3)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.OrangeRed, Color.Black);
-                            Message.RenderMessage((list[0] - TimeElapse).ToString(), pos + new Vector2(-100f * (controllerIndex - 1), 40f * (highestIndex + y + 3)), Vector2.Zero, Vector2.One * 0.7f);
+                            Message.RenderMessage(y.ToString(), pos + new Vector2(-27f - 160f * (controllerIndex - 1), 40f * (highestIndex + y + 3)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.OrangeRed, Color.Black);
+                            Message.RenderMessage((list[0] - TimeElapse).ToString(), pos + new Vector2(-160f * (controllerIndex - 1), 40f * (highestIndex + y + 3)), Vector2.Zero, Vector2.One * 0.7f);
                             if (beatColors.TryGetValue(index, out Color color)) {
-                                Vector2 target = pos + new Vector2(-100f * controllerIndex + 20f, 12f + 40f * (highestIndex + y + 3));
+                                Vector2 target = pos + new Vector2(-160f * controllerIndex + 80f, 12f + 40f * (highestIndex + y + 3));
                                 Monocle.Draw.Rect(target, 20f, 20f, color);
                                 Monocle.Draw.HollowRect(target - Vector2.One, 22f, 22f, Color.Black);
                             }
@@ -257,7 +293,7 @@ internal static class CassetteBlockHelper {
                     Message.RenderMessage("main", pos + new Vector2(-20f, 40f * (highestIndex + 1)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.Orange, Color.Black);
                 }
                 foreach (int controllerIndex in minorControllers) {
-                    Message.RenderMessage(minorControllers.Count > 1 ? $"minor {controllerIndex}" : "minor", pos + new Vector2(80f - 100f * controllerIndex, 40f * (highestIndex + 2)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.OrangeRed, Color.Black);
+                    Message.RenderMessage(minorControllers.Count > 1 ? $"minor {controllerIndex}" : "minor", pos + new Vector2(140f - 160f * controllerIndex, 40f * (highestIndex + 2)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.OrangeRed, Color.Black);
                 }
             }
         }
@@ -323,19 +359,40 @@ internal static class CassetteBlockHelper {
             }
         }
 
+        private static Type jungle_SwingBlockType;
+
+        [Initialize]
+        private static void SupportJungleHelper() {
+            jungle_SwingBlockType = ModUtils.GetType("JungleHelper", "Celeste.Mod.JungleHelper.Entities.SwingCassetteBlock");
+        }
+
         public static bool UpdateLoop(int loop, out Dictionary<int, List<int>> swapTime) {
             swapTime = new();
             for (int j = 0; j < maxBeat; j++) {
                 swapTime[j] = new List<int>();
             }
             float time = Engine.DeltaTime * tempoMult;
+            bool jungleFlag = jungle_SwingBlockType is not null && Engine.Scene.Tracker.Entities[jungle_SwingBlockType].Count > 0;
 
             for (int timeElapsed = 1; timeElapsed <= loop; timeElapsed++) {
                 beatTimer += time;
-                if (beatTimer < 1f / 6f) {
-                    continue;
+                if (jungleFlag) {
+                    float gate = 1f / 6f * ((beatIndex % 2 == 0) ? 1.32f : 0.68f);
+                    if (beatTimer < gate) {
+                        continue;
+                    }
+                    else {
+                        beatTimer -= gate;
+                    }
                 }
-                beatTimer -= 1f / 6f;
+                else {
+                    if (beatTimer < 1f / 6f) {
+                        continue;
+                    }
+                    else {
+                        beatTimer -= 1f / 6f;
+                    }
+                }
                 beatIndex++;
                 beatIndex %= beatIndexMax;
                 if (beatIndex % (beatsPerTick * ticksPerSwap) == 0) {
