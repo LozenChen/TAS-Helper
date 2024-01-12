@@ -257,7 +257,7 @@ internal static class CassetteBlockHelper {
             else {
                 stateChanged = true;
                 // freeze time may not be an exact multiple of Engine.DeltaTime * tempoMult, so we cant handle it using several updates
-                // goto sync with cbm (on which the freeze advance time has been applied)
+                // goto sync with cbm (on which the freeze advance time has already been applied)
             }
         }
         public override void Render() {
