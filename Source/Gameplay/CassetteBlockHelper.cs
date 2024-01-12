@@ -127,7 +127,7 @@ internal static class CassetteBlockHelper {
 
         public static Dictionary<int, Color> beatColors = new();
 
-        private const int loop = 330; // contains two full cycles
+        private const int loop = 512; // contains two full cycles
         public override void Update() {
             if (Predictor.Core.InPredict) {
                 return;
@@ -162,30 +162,35 @@ internal static class CassetteBlockHelper {
             TimeElapse++;
             bool timerateGotoMonitor = Math.Abs(Engine.DeltaTime - LastDeltaTime) > 0.0001f;
             bool normalGotoMonitor = false;
-            if (!timerateGotoMonitor && TimeElapse < NearestTime) {
-                // nothing happens
-            }
-            else if (!timerateGotoMonitor && TimeElapse >= NearestTime) {
-                bool found = false;
-                foreach (KeyValuePair<int, List<int>> pair in ColorSwapTime) {
-                    List<int> list = pair.Value;
-                    if (list.IsNotNullOrEmpty() && list[0] == TimeElapse) {
-                        found = true;
-                        list.RemoveAt(0);
-                        currColorIndex = pair.Key; // only makes sense to vanilla
-                        if (list.IsNullOrEmpty()) {
-                            normalGotoMonitor = true;
+            if (!timerateGotoMonitor) {
+                if (TimeElapse <= NearestTime) {
+                    // nothing happens
+                }
+                else {
+                    bool found = false;
+                    foreach (KeyValuePair<int, List<int>> pair in ColorSwapTime) {
+                        List<int> list = pair.Value;
+                        if (list.IsNotNullOrEmpty() && list[0] < TimeElapse) {
+                            found = true;
+                            list.RemoveAt(0);
+                            currColorIndex = pair.Key; // only makes sense to vanilla
+                            if (list.IsNullOrEmpty()) {
+                                normalGotoMonitor = true;
+                            }
                         }
                     }
-                }
-                if (!found) {
-                    normalGotoMonitor = true;
-                }
-                else if (!normalGotoMonitor) {
-                    NearestTime = loop;
-                    foreach (List<int> list2 in ColorSwapTime.Values) {
-                        if (list2.IsNotNullOrEmpty()) {
-                            NearestTime = Math.Min(NearestTime, list2[0]);
+                    if (!found) {
+                        normalGotoMonitor = true;
+                    }
+                    else if (!normalGotoMonitor) {
+                        NearestTime = loop;
+                        foreach (List<int> list2 in ColorSwapTime.Values) {
+                            if (list2.IsNotNullOrEmpty()) {
+                                NearestTime = Math.Min(NearestTime, list2[0]);
+                            }
+                        }
+                        if (NearestTime < TimeElapse) {
+                            normalGotoMonitor = true;
                         }
                     }
                 }
