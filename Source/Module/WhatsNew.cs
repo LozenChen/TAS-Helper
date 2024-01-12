@@ -49,6 +49,7 @@ public static class WhatsNew {
         AddLog("1.8.15", "Bugfix: Game Crashes when encountering AcidLightning of Glyph mod.");
         AddLog("1.8.16", "Simplified Triggers feature now can hide StyleMaskHelper masks.");
         AddLog("1.8.17", "Cassette Block Helper. Enable it in \"More Options\".");
+        AddLog("1.8.18", "Cassette Block Helper now supports the cassette maps in Spring Collab 2020 and Into the Jungle");
 
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }

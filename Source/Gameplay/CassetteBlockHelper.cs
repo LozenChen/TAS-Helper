@@ -11,7 +11,7 @@ internal static class CassetteBlockHelper {
     public static bool Enabled => TasHelperSettings.EnableCassetteBlockHelper;
 
     [Load]
-    public static void Load() {
+    private static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
         IL.Monocle.Engine.Update += ILEngineUpdate;
         IL.Celeste.Celeste.Freeze += ILCelesteFreeze;
@@ -19,12 +19,11 @@ internal static class CassetteBlockHelper {
 
 
     [Unload]
-    public static void Unload() {
+    private static void Unload() {
         On.Celeste.Level.LoadLevel -= OnLoadLevel;
         IL.Monocle.Engine.Update -= ILEngineUpdate;
         IL.Celeste.Celeste.Freeze -= ILCelesteFreeze;
     }
-
 
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         orig(level, playerIntro, isFromLoader);
@@ -42,21 +41,26 @@ internal static class CassetteBlockHelper {
     }
 
     private static void ILCelesteFreeze(ILContext il) {
+        // XaphanHelper.Managers.TimeManager has a hook on Celeste.Freeze, which completely skips the orig method
+        // so our hook fails
         ILCursor cursor = new ILCursor(il);
         if (cursor.TryGotoNext(ins => ins.MatchCall<Engine>("get_Scene"), ins => ins.OpCode == OpCodes.Brfalse_S)) {
+            cursor.Index += 2;
+            cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate(Vanilla_AdvanceCasstteBlockVisualizer);
         }
     }
 
     private static void SJ_AdvanceCasstteBlockVisualizer() {
+        // we handle freeze frames using the same way as the corresponding cassette block manager
         if (Engine.Scene.Tracker.GetEntity<CasstteBlockVisualizer>() is { } visualizer && visualizer.cbmType == CasstteBlockVisualizer.CBMType.SJ) {
             visualizer.Update();
         }
     }
 
-    private static void Vanilla_AdvanceCasstteBlockVisualizer() {
+    private static void Vanilla_AdvanceCasstteBlockVisualizer(float time) {
         if (Engine.Scene.Tracker.GetEntity<CasstteBlockVisualizer>() is { } visualizer && visualizer.cbmType == CasstteBlockVisualizer.CBMType.Vanilla) {
-            CasstteBlockVisualizer.FreezeAdvanceTime();
+            CasstteBlockVisualizer.FreezeAdvanceTime(visualizer, time);
         }
     }
 
@@ -73,7 +77,7 @@ internal static class CassetteBlockHelper {
 
         public int maxBeat;
 
-        public enum CBMType { Vanilla, SJ };
+        public enum CBMType { Vanilla, SJ, None };
 
         public CBMType cbmType;
         public CasstteBlockVisualizer() {
@@ -86,6 +90,7 @@ internal static class CassetteBlockHelper {
             currColorIndex = -1;
             TimeElapse = NearestTime = 0;
             maxBeat = 4;
+            cbmType = CBMType.None;
             // some order of operation issues suck so the numbers we show are "not" correct. though you can have other understandings to make that correct
         }
 
@@ -103,7 +108,6 @@ internal static class CassetteBlockHelper {
             if (ModUtils.GetType("FrostHelper", "FrostHelper.CassetteTempoTrigger")?.GetMethodInfo("SetManagerTempo") is { } method) {
                 method.HookAfter(SetStateChanged);
             }
-            // todo: support JungleHelper cassette
         }
 
         internal static void BuildBeatColors(Level level) {
@@ -152,7 +156,7 @@ internal static class CassetteBlockHelper {
                     return;
                 }
             }
-            if (cbm is null || cbm.Scene != Engine.Scene) { // always check this, so in case there's a teleport or something... so the cbm is actually removed from scene (but we still have a reference to it so it's not cleared by GC)
+            if (cbm is null || cbm.Scene != Engine.Scene || cbmType == CBMType.None) { // always check this, so in case there's a teleport or something... so the cbm is actually removed from scene (but we still have a reference to it so it's not cleared by GC)
                 RemoveSelf();
                 Visible = false;
                 return;
@@ -162,9 +166,12 @@ internal static class CassetteBlockHelper {
             TimeElapse++;
             bool timerateGotoMonitor = Math.Abs(Engine.DeltaTime - LastDeltaTime) > 0.0001f;
             bool normalGotoMonitor = false;
-            if (!timerateGotoMonitor) {
+            if (!timerateGotoMonitor && !stateChanged) {
                 if (TimeElapse <= NearestTime) {
                     // nothing happens
+                }
+                else if (TimeElapse > NearestTime + 1) {
+                    normalGotoMonitor = true;
                 }
                 else {
                     bool found = false;
@@ -241,11 +248,17 @@ internal static class CassetteBlockHelper {
             stateChanged = true;
         }
 
-        public static void FreezeAdvanceTime() {
-            stateChanged = true;
-            // the time argument is unnecessary
-            // as we will goto sync with cbm (on which the freeze advance time has been applied)
-            // yeah maybe we can have better ways, but this is easy and safe to implement, also actually not very expansive
+        public static void FreezeAdvanceTime(CasstteBlockVisualizer visualizer, float time) {
+            if (VanillaCasstteBlockManagerSimulator.GetLoopCount(time, out int count)) {
+                for (int i = 0; i < count; i++) {
+                    visualizer.Update();
+                }
+            }
+            else {
+                stateChanged = true;
+                // freeze time may not be an exact multiple of Engine.DeltaTime * tempoMult, so we cant handle it using several updates
+                // goto sync with cbm (on which the freeze advance time has been applied)
+            }
         }
         public override void Render() {
             if (!DebugRendered) {
@@ -369,6 +382,16 @@ internal static class CassetteBlockHelper {
         [Initialize]
         private static void SupportJungleHelper() {
             jungle_SwingBlockType = ModUtils.GetType("JungleHelper", "Celeste.Mod.JungleHelper.Entities.SwingCassetteBlock");
+        }
+
+        public static bool GetLoopCount(float advanceTime, out int count) {
+            count = 0;
+            float time = Engine.DeltaTime * tempoMult;
+            while (advanceTime > 0) {
+                advanceTime -= time;
+                count++;
+            }
+            return advanceTime > -0.0001f;
         }
 
         public static bool UpdateLoop(int loop, out Dictionary<int, List<int>> swapTime) {

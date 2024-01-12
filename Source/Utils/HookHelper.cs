@@ -109,6 +109,7 @@ public static class CILCodeHelper {
     public static void CILCodeLogger(this ILCursor ilCursor, int logCount = 9999, bool useCommand = true) {
         // remember, Commands.Log can only work in Initialize()
         Celeste.Commands.Log("------------------------------");
+        Logger.Log(LogLevel.Debug, "TAS Helper", "---- CILCodeLogger ----");
         if (Apply) {
             if (AsShift) {
                 ilCursor.Index += Position;
