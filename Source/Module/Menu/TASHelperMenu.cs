@@ -147,6 +147,7 @@ internal static class TASHelperMenu {
             TextMenu.Item cassetteBlock;
             subMenu.Add(cassetteBlock = new TextMenu.OnOff("Cassette Block Helper".ToDialogText(), TasHelperSettings.EnableCassetteBlockHelper).Change((value) => TasHelperSettings.EnableCassetteBlockHelper = value));
             subMenu.AddDescription(menu, cassetteBlock, "Cassette Block Description".ToDialogText());
+            subMenu.Add(new TextMenu.OnOff("Cassette Block Helper Extra Info".ToDialogText(), TasHelperSettings.CassetteBlockHelperShowExtraInfo).Change((value) => TasHelperSettings.CassetteBlockHelperShowExtraInfo = value));
             TextMenu.Item EntityActivatorReminderItem;
             subMenu.Add(EntityActivatorReminderItem = new TextMenu.OnOff("Entity Activator Reminder".ToDialogText(), TasHelperSettings.EntityActivatorReminder).Change((value) => TasHelperSettings.EntityActivatorReminder = value));
             subMenu.AddDescription(menu, EntityActivatorReminderItem, "Entity Activator Reminder Description".ToDialogText());

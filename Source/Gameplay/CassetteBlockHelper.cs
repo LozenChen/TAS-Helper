@@ -10,6 +10,8 @@ internal static class CassetteBlockHelper {
 
     public static bool Enabled => TasHelperSettings.EnableCassetteBlockHelper;
 
+    public static bool ShowExtraInfo => TasHelperSettings.CassetteBlockHelperShowExtraInfo;
+
     [Load]
     private static void Load() {
         On.Celeste.Level.LoadLevel += OnLoadLevel;
@@ -77,6 +79,18 @@ internal static class CassetteBlockHelper {
 
         public int maxBeat;
 
+        public int beatIndexMax;
+
+        public int beatIndex;
+
+        public float beatTimer;
+
+        public float tempoMult;
+
+        public float maxBeatTimer;
+
+        public List<Tuple<int, int, int, float, float>> minorControllerData = new();
+
         public enum CBMType { Vanilla, SJ, None };
 
         public CBMType cbmType;
@@ -90,6 +104,11 @@ internal static class CassetteBlockHelper {
             currColorIndex = -1;
             TimeElapse = NearestTime = 0;
             maxBeat = 4;
+            beatIndexMax = 256;
+            beatIndex = 0;
+            beatTimer = 0f;
+            tempoMult = 1f;
+            maxBeatTimer = 1f / 6f;
             cbmType = CBMType.None;
             // some order of operation issues suck so the numbers we show are "not" correct. though you can have other understandings to make that correct
         }
@@ -166,6 +185,7 @@ internal static class CassetteBlockHelper {
             TimeElapse++;
             bool timerateGotoMonitor = Math.Abs(Engine.DeltaTime - LastDeltaTime) > 0.0001f;
             bool normalGotoMonitor = false;
+
             if (!timerateGotoMonitor && !stateChanged) {
                 if (TimeElapse <= NearestTime) {
                     // nothing happens
@@ -208,11 +228,11 @@ internal static class CassetteBlockHelper {
                 LastDeltaTime = Engine.DeltaTime;
                 bool hasData;
                 if (cbmType == CBMType.Vanilla) {
-                    VanillaCasstteBlockManagerSimulator.Initialize(cbm, out currColorIndex, out maxBeat);
+                    VanillaCasstteBlockManagerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out tempoMult);
                     hasData = VanillaCasstteBlockManagerSimulator.UpdateLoop(2 * loop, out ColorSwapTime);
                 }
                 else {
-                    SJWonkyCassetteBlockControllerSimulator.Initialize(cbm, out currColorIndex, out maxBeat);
+                    SJWonkyCassetteBlockControllerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out maxBeatTimer);
                     hasData = SJWonkyCassetteBlockControllerSimulator.UpdateLoop(2 * loop, out ColorSwapTime);
                 }
                 if (hasData) {
@@ -229,6 +249,9 @@ internal static class CassetteBlockHelper {
                     NearestTime = 0;
                     ColorSwapTime.Clear();
                 }
+            }
+            if (DebugRendered && ShowExtraInfo) {
+                UpdateExtraInfo();
             }
         }
 
@@ -260,58 +283,142 @@ internal static class CassetteBlockHelper {
                 // goto sync with cbm (on which the freeze advance time has already been applied)
             }
         }
+
+        public void UpdateExtraInfo() {
+            if (cbmType == CBMType.Vanilla) {
+                CassetteBlockManager manager = (CassetteBlockManager)cbm;
+                beatTimer = 60f * manager.beatTimer;
+                beatIndex = manager.beatIndex;
+                if (VanillaCasstteBlockManagerSimulator.jungle_SwingBlockType is { } type && Engine.Scene.Tracker.Entities[type].Count > 0) {
+                    maxBeatTimer = 10f * ((beatIndex % 2 == 0) ? 1.32f : 0.68f);
+                }
+                else {
+                    maxBeatTimer = 10f;
+                }
+            }
+            else if (cbmType == CBMType.SJ && ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.StrawberryJam2021Module")?.GetPropertyValue<EverestModuleSession>("Session") is EverestModuleSession session) {
+                beatTimer = 60f * session.GetFieldValue<float>("CassetteBeatTimer");
+                beatIndex = session.GetFieldValue<int>("CassetteWonkyBeatIndex");
+                minorControllerData.Clear();
+                if (SJWonkyCassetteBlockControllerSimulator.MinorSimulator.minor_type is { } type && Engine.Scene.Tracker.Entities.TryGetValue(type, out List<Entity> sourceList) && sourceList.Count > 0) {
+                    foreach (Entity entity in sourceList) {
+                        minorControllerData.Add(new Tuple<int, int, int, float, float>(
+                            entity.GetFieldValue<int>("ControllerIndex"),
+                            entity.GetFieldValue<int>("CassetteWonkyBeatIndex"),
+                            entity.GetFieldValue<int>("maxBeats"),
+                            60f * entity.GetFieldValue<float>("CassetteBeatTimer"),
+                            60f * entity.GetFieldValue<float>("beatIncrement")
+                        ));
+                    }
+                }
+            }
+        }
+
+        private static readonly Vector2 centerLeft = Vector2.UnitY * 0.5f;
+        private static readonly Vector2 center = Vector2.One * 0.5f;
+        private static readonly Vector2 centerRight = new Vector2(1f, 0.5f);
         public override void Render() {
             if (!DebugRendered) {
                 return;
             }
-            Vector2 pos = Position;
             if (cbmType == CBMType.Vanilla) {
-                for (int i = 0; i < maxBeat; i++) {
-                    Monocle.Draw.Rect(pos, 20f, 20f, VanillaColorChooser(i, i == currColorIndex));
-                    Monocle.Draw.HollowRect(pos - Vector2.One, 22f, 22f, Color.Black);
-                    if (ColorSwapTime[i] is { } list && list.Count > 0) {
-                        Message.RenderMessage((list[0] - TimeElapse).ToString(), pos + textOffset, Vector2.Zero, Vector2.One * 0.7f);
-                    }
-
-                    pos += Vector2.UnitY * 40f;
-                }
+                VanillaRender();
             }
-            else {
-                pos += textOffset;
-                int highestIndex = 0;
-                HashSet<int> minorControllers = new();
-                foreach (int index in ColorSwapTime.Keys) {
-                    if (Math.Abs(index) > SJWonkyCassetteBlockControllerSimulator.minorOffset / 2) {
-                        int controllerIndex = (int)Math.Round((float)index / (float)SJWonkyCassetteBlockControllerSimulator.minorOffset);
-                        // we know these are added later, so highestIndex is already calculated
-                        minorControllers.Add(controllerIndex);
-                        if (ColorSwapTime[index] is { } list && list.Count > 0) {
-                            int y = index - controllerIndex * SJWonkyCassetteBlockControllerSimulator.minorOffset;
-                            Message.RenderMessage(y.ToString(), pos + new Vector2(-27f - 160f * (controllerIndex - 1), 40f * (highestIndex + y + 3)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.OrangeRed, Color.Black);
-                            Message.RenderMessage((list[0] - TimeElapse).ToString(), pos + new Vector2(-160f * (controllerIndex - 1), 40f * (highestIndex + y + 3)), Vector2.Zero, Vector2.One * 0.7f);
-                            if (beatColors.TryGetValue(index, out Color color)) {
-                                Vector2 target = pos + new Vector2(-160f * controllerIndex + 80f, 12f + 40f * (highestIndex + y + 3));
-                                Monocle.Draw.Rect(target, 20f, 20f, color);
-                                Monocle.Draw.HollowRect(target - Vector2.One, 22f, 22f, Color.Black);
-                            }
-                        }
-                    }
-                    else if (ColorSwapTime[index] is { } list && list.Count > 0) {
-                        Message.RenderMessage(index.ToString(), pos + new Vector2(-27f, 40f * index), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.Orange, Color.Black);
-                        Message.RenderMessage((list[0] - TimeElapse).ToString(), pos + new Vector2(0, 40f * index), Vector2.Zero, Vector2.One * 0.7f);
-                        highestIndex = Math.Max(highestIndex, index);
+            else if (cbmType == CBMType.SJ){
+                SJ_Render();
+            }
+        }
+
+        private void VanillaRender() {
+            Vector2 pos = Position;
+            for (int i = 0; i < maxBeat; i++) {
+                Monocle.Draw.Rect(pos, 20f, 20f, VanillaColorChooser(i, i == currColorIndex));
+                Monocle.Draw.HollowRect(pos - Vector2.One, 22f, 22f, Color.Black);
+                if (ColorSwapTime[i] is { } list && list.Count > 0) {
+                    Message.RenderMessage((list[0] - TimeElapse).ToString(), pos + textOffset, Vector2.Zero, Vector2.One * 0.7f);
+                }
+
+                pos += Vector2.UnitY * 40f;
+            }
+            if (!ShowExtraInfo) {
+                return;
+            }
+            pos += new Vector2(20f, 10f);
+            
+            Message.RenderMessageJetBrainsMono($"[{beatIndex}/{beatIndexMax}]", pos, centerLeft, Vector2.One, 2f, Color.White, Color.Black);
+            Message.RenderMessageJetBrainsMono("index ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+            pos.Y += 30f;
+            Message.RenderMessageJetBrainsMono($"{beatTimer,5:0.00}/{maxBeatTimer,5:0.00}", pos - Vector2.UnitX * 10f, centerLeft, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+            Message.RenderMessageJetBrainsMono("timer ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+            if (tempoMult != 1f) {
+                pos.Y += 30f;
+                Message.RenderMessageJetBrainsMono(tempoMult.ToString("0.00"), pos + Vector2.UnitX, centerLeft, Vector2.One, 2f, Color.White, Color.Black);
+                Message.RenderMessageJetBrainsMono("tempo ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+            }
+        }
+
+        private void SJ_Render() {
+            Vector2 pos = Position;
+            pos += textOffset;
+            int highestIndex = 0;
+            HashSet<int> minorControllers = new();
+            foreach (int index in ColorSwapTime.Keys) {
+                if (Math.Abs(index) > SJWonkyCassetteBlockControllerSimulator.minorOffset / 2) {
+                    int controllerIndex = (int)Math.Round((float)index / (float)SJWonkyCassetteBlockControllerSimulator.minorOffset);
+                    // we know these are added later, so highestIndex is already calculated
+                    minorControllers.Add(controllerIndex);
+                    if (ColorSwapTime[index] is { } list && list.Count > 0) {
+                        int y = index - controllerIndex * SJWonkyCassetteBlockControllerSimulator.minorOffset;
+                        Message.RenderMessage(y.ToString(), pos + new Vector2(-27f - 160f * (controllerIndex - 1), 40f * (highestIndex + y + 3)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.OrangeRed, Color.Black);
+                        Message.RenderMessage((list[0] - TimeElapse).ToString(), pos + new Vector2(-160f * (controllerIndex - 1), 40f * (highestIndex + y + 3)), Vector2.Zero, Vector2.One * 0.7f);
                         if (beatColors.TryGetValue(index, out Color color)) {
-                            Vector2 target = pos + new Vector2(-80f, 12f + 40f * index);
+                            Vector2 target = pos + new Vector2(-160f * controllerIndex + 80f, 12f + 40f * (highestIndex + y + 3));
                             Monocle.Draw.Rect(target, 20f, 20f, color);
                             Monocle.Draw.HollowRect(target - Vector2.One, 22f, 22f, Color.Black);
                         }
                     }
                 }
-                if (minorControllers.IsNotEmpty()) {
-                    Message.RenderMessage("main", pos + new Vector2(-20f, 40f * (highestIndex + 1)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.Orange, Color.Black);
+                else if (ColorSwapTime[index] is { } list && list.Count > 0) {
+                    Message.RenderMessage(index.ToString(), pos + new Vector2(-27f, 40f * index), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.Orange, Color.Black);
+                    Message.RenderMessage((list[0] - TimeElapse).ToString(), pos + new Vector2(0, 40f * index), Vector2.Zero, Vector2.One * 0.7f);
+                    highestIndex = Math.Max(highestIndex, index);
+                    if (beatColors.TryGetValue(index, out Color color)) {
+                        Vector2 target = pos + new Vector2(-80f, 12f + 40f * index);
+                        Monocle.Draw.Rect(target, 20f, 20f, color);
+                        Monocle.Draw.HollowRect(target - Vector2.One, 22f, 22f, Color.Black);
+                    }
                 }
-                foreach (int controllerIndex in minorControllers) {
-                    Message.RenderMessage(minorControllers.Count > 1 ? $"minor {controllerIndex}" : "minor", pos + new Vector2(140f - 160f * controllerIndex, 40f * (highestIndex + 2)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.OrangeRed, Color.Black);
+            }
+            if (minorControllers.IsNotEmpty()) {
+                Message.RenderMessage("main", pos + new Vector2(-20f, 40f * (highestIndex + 1)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.Orange, Color.Black);
+            }
+            foreach (int controllerIndex in minorControllers) {
+                Message.RenderMessage(minorControllers.Count > 1 ? $"minor {controllerIndex}" : "minor", pos + new Vector2(140f - 160f * controllerIndex, 40f * (highestIndex + 2)), Vector2.UnitX * 0.5f, Vector2.One * 0.7f, 2f, Color.OrangeRed, Color.Black);
+            }
+            if (!ShowExtraInfo) {
+                return;
+            }
+            pos += new Vector2(-240f, 22f);
+            Message.RenderMessageJetBrainsMono($"[{beatIndex}/{beatIndexMax}]", pos, centerLeft, Vector2.One, 2f, Color.White, Color.Black);
+            Message.RenderMessageJetBrainsMono("index ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+            pos.Y += 30f;
+            Message.RenderMessageJetBrainsMono($"{beatTimer,5:0.00}/{maxBeatTimer,5:0.00}", pos + Vector2.UnitX * 2f, centerLeft, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+            Message.RenderMessageJetBrainsMono("timer ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+            if (minorControllerData.IsNotNullOrEmpty()) {
+                bool moreThanOne = minorControllerData.Count > 1;
+                foreach (Tuple<int,int,int,float,float> tuple in minorControllerData) {
+                    pos.Y += 30f;
+                    Message.RenderMessageJetBrainsMono("main", pos, centerLeft, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+                    pos.Y += 20f;
+                    Monocle.Draw.Line(pos - Vector2.UnitX * 80f, pos + Vector2.UnitX * 140f, Color.White);
+                    pos.Y += 20f;
+                    Message.RenderMessageJetBrainsMono(moreThanOne ? $"minor {tuple.Item1}" : "minor", pos, centerLeft, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+                    pos.Y += 30f;
+                    Message.RenderMessageJetBrainsMono($"[{tuple.Item2}/{tuple.Item3}]", pos, centerLeft, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+                    Message.RenderMessageJetBrainsMono("index ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+                    pos.Y += 30f;
+                    Message.RenderMessageJetBrainsMono($"{tuple.Item4,5:0.00}/{tuple.Item5,5:0.00}", pos + Vector2.UnitX * 2f, centerLeft, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+                    Message.RenderMessageJetBrainsMono("timer ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
                 }
             }
         }
@@ -354,21 +461,23 @@ internal static class CassetteBlockHelper {
 
         private static int beatIndexMax;
 
-        public static void Initialize(Entity entity, out int currColorIndex, out int maxBeats) {
+        public static void Initialize(Entity entity, out int currColorIndex, out int maxBeats, out int outBeatIndexMax, out float outTempoMult) {
             currColorIndex = -1;
-            maxBeats = 1;
             if (entity is not CassetteBlockManager cbm) {
+                maxBeats = 1;
+                outBeatIndexMax = 256;
+                outTempoMult = 1f;
                 return;
             }
             currentIndex = cbm.currentIndex;
             beatTimer = cbm.beatTimer;
             beatIndex = cbm.beatIndex;
-            tempoMult = cbm.tempoMult;
+            outTempoMult = tempoMult = cbm.tempoMult;
             leadBeats = cbm.leadBeats;
             maxBeat = maxBeats = cbm.maxBeat;
             beatsPerTick = cbm.beatsPerTick;
             ticksPerSwap = cbm.ticksPerSwap;
-            beatIndexMax = cbm.beatIndexMax;
+            outBeatIndexMax = beatIndexMax = cbm.beatIndexMax;
             foreach (CassetteBlock block in cbm.Scene.Tracker.GetEntities<CassetteBlock>()) {
                 if (block.Activated) {
                     currColorIndex = block.Index;
@@ -377,7 +486,7 @@ internal static class CassetteBlockHelper {
             }
         }
 
-        private static Type jungle_SwingBlockType;
+        internal static Type jungle_SwingBlockType;
 
         [Initialize]
         private static void SupportJungleHelper() {
@@ -472,11 +581,13 @@ internal static class CassetteBlockHelper {
         public static List<MinorSimulator> minorSimulators;
 
         public const int minorOffset = 64;
-        public static void Initialize(Entity entity, out int currColorIndex, out int maxBeat) {
+        public static void Initialize(Entity entity, out int currColorIndex, out int maxBeat, out int beatIndexMax, out float maxBeatTimer) {
             currColorIndex = -1;
-            maxBeat = maxBeats = 1;
             if (ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.StrawberryJam2021Module")?.GetPropertyValue<EverestModuleSession>("Session") is not { } session || session.GetFieldValue<bool>("CassetteBlocksDisabled") || entity.GetType() != CasstteBlockVisualizer.SJ_CBMType || MinorSimulator.minor_type is null) {
                 disabled = true;
+                maxBeat = maxBeats = 1;
+                beatIndexMax = 500;
+                maxBeatTimer = 10f;
                 return;
             }
             else {
@@ -487,8 +598,9 @@ internal static class CassetteBlockHelper {
             CassetteWonkyBeatIndex = session.GetFieldValue<int>("CassetteWonkyBeatIndex");
             MusicBeatTimer = session.GetFieldValue<float>("MusicBeatTimer");
             MusicWonkyBeatIndex = session.GetFieldValue<int>("MusicWonkyBeatIndex");
-            maxBeats = entity.GetFieldValue<int>("maxBeats");
+            beatIndexMax = maxBeats = entity.GetFieldValue<int>("maxBeats");
             beatIncrement = entity.GetFieldValue<float>("beatIncrement");
+            maxBeatTimer = 60f * beatIncrement;
             maxBeat = barLength = entity.GetFieldValue<int>("barLength");
             beatLength = entity.GetFieldValue<int>("beatLength");
             minorSimulators = new();

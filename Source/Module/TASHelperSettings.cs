@@ -515,6 +515,8 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    public bool CassetteBlockHelperShowExtraInfo = false;
+
     public bool entityActivatorReminder = true;
 
     [YamlIgnore]
