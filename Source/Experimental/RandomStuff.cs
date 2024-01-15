@@ -14,7 +14,7 @@ using Celeste.Mod.TASHelper.Entities;
 using TAS.Input.Commands;
 using TAS;
 
-namespace Celeste.Mod.TASHelper.Gameplay;
+namespace Celeste.Mod.TASHelper.Experimental;
 internal class RandomStuff {
     // test some stuff, not actually in use
 

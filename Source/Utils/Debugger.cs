@@ -1,10 +1,17 @@
 //#define usingDebug
-
+//#define usingLogger
+/*
+using System.Text;
+using System.Collections;
+using Monocle;
+using Microsoft.Xna.Framework;
+*/
 namespace Celeste.Mod.TASHelper.Utils;
 
 #pragma warning disable CS8602
 
 #if usingDebug
+
 public static class DebugHelper {
 
     // only for developing this mod, so make it readonly
@@ -97,8 +104,9 @@ public static class DebugHelper {
     }
     public static bool StartToLog = false;
 }
+#endif
 
-
+#if usingLogger
 public static class Logger {
     public static int stringLength = 0;
     public static int lineLength = 140;
@@ -189,10 +197,12 @@ public static class Logger {
     private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
         orig(self);
         if (StringBuilder.Length > 0) {
-            Celeste.Commands.Log(StringBuilder.ToString());
+            Mod.Logger.Log(LogLevel.Debug, "TAS Helper", StringBuilder.ToString());
             StringBuilder.Clear();
         }
     }
+
+
     public static void LogString(string message) {
         stringLength += message.Length;
         if (stringLength > lineLength) {

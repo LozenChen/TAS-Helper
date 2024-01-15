@@ -325,6 +325,7 @@ internal static class OoO_Core {
         hookTASIsPaused.Apply();
         hookManagerUpdate.Apply();
         Applied = true;
+        ForEachBreakPoints_EntityList.Load();
         ResetLongtermState();
         ResetTempState();
         //Gameplay.Spinner.ActualCollideHitboxDelegatee.StopActualCollideHitbox();
@@ -339,6 +340,7 @@ internal static class OoO_Core {
         hookTASIsPaused.Undo();
         hookManagerUpdate.Undo();
         Applied = false;
+        ForEachBreakPoints_EntityList.Unload();
         ResetLongtermState();
         ResetTempState();
         overrideStepping = false;

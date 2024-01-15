@@ -40,11 +40,8 @@ internal static class ForEachBreakPoints_EntityList {
     private static bool autoStop = true;
 
     private static void OnEntityListUpdate(On.Monocle.EntityList.orig_Update orig, EntityList self) {
-        if (OoO_Core.Applied) {
-            MainBody(self); // we assume no other mod hooks here (except CelesteTAS)
-            return;
-        }
-        orig(self);
+        MainBody(self); // we assume no other mod hooks here (except CelesteTAS)
+        return;
     }
 
     internal static bool firstEnter = true;
@@ -208,20 +205,29 @@ internal static class ForEachBreakPoints_EntityList {
     public static void Undo() {
         Reset();
     }
-
-    [Load]
-    private static void Load() {
+    
+    // no [Load] attribute here
+    internal static void Load() {
         // it seems OnHook and ILHook works on different levels? OnHook (refers to On/IL.Celeste....+= ...) will always be after ILHook?
         // OnHook works via MonoMod.RuntimeDetour.HookGen.HookEndpointManager
         // ILHook works in MonoMod.RuntimeDetour namespace
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_EntityList" }) {
-            On.Monocle.EntityList.Update += OnEntityListUpdate;
+
+        if (!hookBuild) {
+            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_EntityList" }) {
+                On.Monocle.EntityList.Update += OnEntityListUpdate;
+            }
+            hookBuild = true;
         }
     }
 
+    internal static bool hookBuild = false;
+
     [Unload]
-    private static void Unload() {
-        On.Monocle.EntityList.Update -= OnEntityListUpdate;
+    internal static void Unload() {
+        if (hookBuild) {
+            On.Monocle.EntityList.Update -= OnEntityListUpdate;
+            hookBuild = false;
+        }
     }
 
     public static void Reset() {
