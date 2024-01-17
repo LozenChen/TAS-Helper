@@ -63,6 +63,8 @@ TAS_HELPER_COUNTDOWN_MODE=                                 Mode
 TAS_HELPER_COUNTDOWN_MODE_OFF=                             Off
 TAS_HELPER_COUNTDOWN_MODE_3F_CYCLE=                        3f Cycle
 TAS_HELPER_COUNTDOWN_MODE_15F_CYCLE=                       15f Cycle
+TAS_HELPER_COUNTDOWN_MODE_EXACT_GROUP_MOD_3=               ExactGroup % 3
+TAS_HELPER_COUNTDOWN_MODE_EXACT_GROUP_MOD_15=              ExactGroup % 15
 TAS_HELPER_COUNTDOWN_MODE_DESCRIPTION=                     Every 3 frames, check the conditions of the following actions:{n}
                                                               - Spinner turn on/off collision (NearPlayer) when visible,{n}
                                                               - Lightning turn on collision (InView),{n}
@@ -70,6 +72,15 @@ TAS_HELPER_COUNTDOWN_MODE_DESCRIPTION=                     Every 3 frames, check
                                                            Every 15 frames, check the conditions of the following actions:{n}
                                                               - Spinner become invisible (InView),{n}
                                                               - Lightning turn off collision (InView).
+TAS_HELPER_COUNTDOWN_EXACT_GROUP_DESCRIPTION=              ExactGroup % 3/15: mainly used for spinner drift manip.{n}
+                                                           {n}
+                                                           Hazard's ExactGroup is (Hazard's offset * 60) modulo 3 (or 15).{n}
+                                                           TimeActive's ExactGroup is shown at the top-right of the screen,{n}
+                                                           \S                   its formula is (TimeActive * 60 - 1) modulo 3 (or 15).{n} 
+                                                           When x < y < x + 1, where x is Hazard's ExactGroup and y is TimeActive's ExactGroup,{n}
+                                                           \S                   Hazard turn on/off on this frame.{n}
+                                                           Equivalently, hazards with ExactGroup lying in (y, y + 1) are temporarily in one group.
+                                                           (Doesn't work when TimeActive is too large)
 TAS_HELPER_FONT=                                           Font
 TAS_HELPER_HIRES_FONT=                                     Hires Font
 TAS_HELPER_PIXEL_FONT=                                     Pixel Font

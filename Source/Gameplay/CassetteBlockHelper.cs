@@ -122,6 +122,7 @@ internal static class CassetteBlockHelper {
         [Initialize]
         private static void Initialize() {
             // Test maps: vanilla 9A, SJ ShatterSong and GMHS, Spring Collab 2020 Expert CANADIAN, Into-the-Jungle maps
+            // CommunalHelper/CustomCassetteBlock is a subclass of CassetteBlock, and it seems that it's nothing different from the original ones, except colors
             SJ_CBMType = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlockController");
             SJ_CassetteBlockType = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlock");
             if (ModUtils.GetType("FrostHelper", "FrostHelper.CassetteTempoTrigger")?.GetMethodInfo("SetManagerTempo") is { } method) {
@@ -152,7 +153,7 @@ internal static class CassetteBlockHelper {
 
         private const int loop = 512; // contains two full cycles
         public override void Update() {
-            if (Predictor.Core.InPredict) {
+            if (Predictor.PredictorCore.InPredict) {
                 return;
             }
             if (!findCBM) {
@@ -324,7 +325,7 @@ internal static class CassetteBlockHelper {
             if (cbmType == CBMType.Vanilla) {
                 VanillaRender();
             }
-            else if (cbmType == CBMType.SJ){
+            else if (cbmType == CBMType.SJ) {
                 SJ_Render();
             }
         }
@@ -344,7 +345,7 @@ internal static class CassetteBlockHelper {
                 return;
             }
             pos += new Vector2(20f, 10f);
-            
+
             Message.RenderMessageJetBrainsMono($"[{beatIndex}/{beatIndexMax}]", pos, centerLeft, Vector2.One, 2f, Color.White, Color.Black);
             Message.RenderMessageJetBrainsMono("index ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
             pos.Y += 30f;
@@ -406,7 +407,7 @@ internal static class CassetteBlockHelper {
             Message.RenderMessageJetBrainsMono("timer ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
             if (minorControllerData.IsNotNullOrEmpty()) {
                 bool moreThanOne = minorControllerData.Count > 1;
-                foreach (Tuple<int,int,int,float,float> tuple in minorControllerData) {
+                foreach (Tuple<int, int, int, float, float> tuple in minorControllerData) {
                     pos.Y += 30f;
                     Message.RenderMessageJetBrainsMono("main", pos, centerLeft, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
                     pos.Y += 20f;

@@ -451,9 +451,18 @@ internal static class DictionaryExtensions {
 internal static class LevelExtensions {
 
     private static List<Entity> toAdd = new();
+
+    private static List<Entity> toRemove = new();
     public static void AddImmediately(this Scene scene, Entity entity) {
         // ensure entity is added even if the regular engine update loop is interrupted, e.g. TAS stop
+        // such entities may be added during gameplay instead of when load level
         toAdd.Add(entity);
+    }
+
+    public static void RemoveImmediately(this Scene scene, Entity entity) {
+        // ensure entity is added even if the regular engine update loop is interrupted, e.g. TAS stop
+        // such entities may be added during gameplay instead of when load level
+        toRemove.Add(entity);
     }
 
     [Initialize]
@@ -463,6 +472,13 @@ internal static class LevelExtensions {
     }
 
     private static void AddEntities() {
+        if (toRemove.IsNotEmpty()) {
+            foreach (Entity entity in toRemove) {
+                Engine.Scene.Remove(entity);
+            }
+            toRemove.Clear();
+            Engine.Scene.Entities.UpdateLists();
+        }
         if (toAdd.IsNotEmpty()) {
             foreach (Entity entity in toAdd) {
                 Engine.Scene.Add(entity);

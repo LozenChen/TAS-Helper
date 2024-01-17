@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
 using Celeste.Mod.TASHelper.Gameplay;
+using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
@@ -168,12 +169,15 @@ internal static class TasHelperSL {
     private static Dictionary<int, Color> SRT_beatColors = new();
     private static Dictionary<int, List<int>> SRT_ColorSwapTime = new();
 
+    private static Dictionary<Entity, Tuple<bool, string>> TH_offsetGroup = new();
+    private static Dictionary<Entity, Tuple<bool, string>> SRT_offsetGroup = new();
+
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             DashTime = GameInfo.DashTime;
             Frozen = GameInfo.Frozen;
             TransitionFrames = GameInfo.TransitionFrames;
-            TH_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
+            TH_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.PredictorCore.FreezeTimerBeforeUpdate;
             TH_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.TH_DeepCloneShared();
             TH_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.TH_DeepCloneShared();
             TH_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.TH_DeepCloneShared();
@@ -182,12 +186,13 @@ internal static class TasHelperSL {
             TH_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.TH_DeepCloneShared();
             TH_beatColors = CassetteBlockHelper.CasstteBlockVisualizer.beatColors.TH_DeepCloneShared();
             TH_ColorSwapTime = CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime.TH_DeepCloneShared();
+            TH_offsetGroup = ExactSpinnerGroup.offsetGroup.TH_DeepCloneShared();
         };
         TH.SlAction load = (_, _) => {
             GameInfo.DashTime = DashTime;
             GameInfo.Frozen = Frozen;
             GameInfo.TransitionFrames = TransitionFrames;
-            Predictor.Core.FreezeTimerBeforeUpdate = TH_freezeTimerBeforeUpdateBeforePredictLoops;
+            Predictor.PredictorCore.FreezeTimerBeforeUpdate = TH_freezeTimerBeforeUpdateBeforePredictLoops;
             TH_Hotkeys.HotkeyInitialize();
             Gameplay.MovingEntityTrack.CachedNodes = TH_CachedNodes.TH_DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedStartEnd = TH_CachedStartEnd.TH_DeepCloneShared();
@@ -206,6 +211,7 @@ internal static class TasHelperSL {
 
             CassetteBlockHelper.CasstteBlockVisualizer.beatColors = TH_beatColors.TH_DeepCloneShared();
             CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime = TH_ColorSwapTime.TH_DeepCloneShared();
+            ExactSpinnerGroup.offsetGroup = TH_offsetGroup.TH_DeepCloneShared();
         };
         Action clear = () => {
             TH_CachedNodes = null;
@@ -216,13 +222,14 @@ internal static class TasHelperSL {
             TH_UnimportantTriggers.Clear();
             TH_beatColors.Clear();
             TH_ColorSwapTime.Clear();
+            TH_offsetGroup.Clear();
         };
         return new TH(save, load, clear, null, null);
     }
 
     public static SRT CreateSRT() {
         SRT.SlAction save = (_, _) => {
-            SRT_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.Core.FreezeTimerBeforeUpdate;
+            SRT_freezeTimerBeforeUpdateBeforePredictLoops = Predictor.PredictorCore.FreezeTimerBeforeUpdate;
             SRT_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.DeepCloneShared();
             SRT_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.DeepCloneShared();
             SRT_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.DeepCloneShared();
@@ -230,9 +237,11 @@ internal static class TasHelperSL {
 
             SRT_beatColors = CassetteBlockHelper.CasstteBlockVisualizer.beatColors.DeepCloneShared();
             SRT_ColorSwapTime = CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime.DeepCloneShared();
+
+            SRT_offsetGroup = ExactSpinnerGroup.offsetGroup.DeepCloneShared();
         };
         SRT.SlAction load = (_, _) => {
-            Predictor.Core.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
+            Predictor.PredictorCore.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
             Gameplay.MovingEntityTrack.CachedNodes = SRT_CachedNodes.DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedStartEnd = SRT_CachedStartEnd.DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedCircle = SRT_CachedCircle.DeepCloneShared();
@@ -240,6 +249,7 @@ internal static class TasHelperSL {
             SimplifiedTrigger.UnimportantTriggers = SRT_UnimportantTriggers.DeepCloneShared();
             CassetteBlockHelper.CasstteBlockVisualizer.beatColors = SRT_beatColors.DeepCloneShared();
             CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
+            ExactSpinnerGroup.offsetGroup = SRT_offsetGroup.DeepCloneShared();
         };
         Action clear = () => {
             SRT_CachedNodes = null;
@@ -248,6 +258,7 @@ internal static class TasHelperSL {
             SRT_UnimportantTriggers = null;
             SRT_beatColors = null;
             SRT_ColorSwapTime = null;
+            SRT_offsetGroup = null;
         };
 
         ConstructorInfo constructor = typeof(SRT).GetConstructors()[0];

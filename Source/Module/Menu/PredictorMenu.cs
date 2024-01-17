@@ -33,7 +33,7 @@ public static class PredictorMenu {
         page.AddDescriptionOnEnter(menu, PredictItem, "Predictor Description".ToDialogText());
         page.Add(new IntSlider("Timeline Length".ToDialogText(), 1, 999, TasHelperSettings.TimelineLength).Change((value) => {
             TasHelperSettings.TimelineLength = value;
-            Predictor.Core.InitializeCachePeriod();
+            Predictor.PredictorCore.InitializeCachePeriod();
         }));
 
         page.Add(new SubHeaderExt("Predict Start Conditions".ToDialogText()) {
@@ -127,19 +127,19 @@ public static class PredictorMenu {
 
         page.Add(new TextMenu.OnOff("Allow Start Predict When Transition".ToDialogText(), TasHelperSettings.StartPredictWhenTransition).Change(value => {
             TasHelperSettings.StartPredictWhenTransition = value;
-            Predictor.Core.InitializeChecks();
+            Predictor.PredictorCore.InitializeChecks();
         }));
         page.Add(new TextMenu.OnOff("Stop Predict When Transition".ToDialogText(), TasHelperSettings.StopPredictWhenTransition).Change(value => {
             TasHelperSettings.StopPredictWhenTransition = value;
-            Predictor.Core.InitializeChecks();
+            Predictor.PredictorCore.InitializeChecks();
         }));
         page.Add(new TextMenu.OnOff("Stop Predict When Death".ToDialogText(), TasHelperSettings.StopPredictWhenDeath).Change(value => {
             TasHelperSettings.StopPredictWhenDeath = value;
-            Predictor.Core.InitializeChecks();
+            Predictor.PredictorCore.InitializeChecks();
         }));
         page.Add(new TextMenu.OnOff("Stop Predict When Keyframe".ToDialogText(), TasHelperSettings.StopPredictWhenKeyframe).Change(value => {
             TasHelperSettings.StopPredictWhenKeyframe = value;
-            Predictor.Core.InitializeChecks();
+            Predictor.PredictorCore.InitializeChecks();
         }));
         TextMenu.Item ultraSpeedItem = new IntSlider("Ultra Speed Lower Limit".ToDialogText(), 0, 325, TasHelperSettings.UltraSpeedLowerLimit).Change((value) => TasHelperSettings.UltraSpeedLowerLimit = value);
         page.Add(ultraSpeedItem);

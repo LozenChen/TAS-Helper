@@ -74,7 +74,7 @@ public static class PauseUpdater {
         }
 
         public override void Update() {
-            if (!Predictor.Core.InPredict) {
+            if (!Predictor.PredictorCore.InPredict) {
                 updated = true;
             }
         }

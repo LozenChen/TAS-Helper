@@ -141,9 +141,11 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region Countdown
     public bool Awake_CountdownModes = true;
-    public enum CountdownModes { Off, _3fCycle, _15fCycle };
+    public enum CountdownModes { Off, _3fCycle, _15fCycle, ExactGroupMod3, ExactGroupMod15 };
 
     public CountdownModes countdownMode;
+
+    public bool CountdownHotkeyCycleOrMod = false;
 
     [YamlIgnore]
     public CountdownModes CountdownMode {
@@ -152,13 +154,25 @@ public class TASHelperSettings : EverestModuleSettings {
             countdownMode = value;
             Awake_CountdownModes = true;
 
-            UsingCountDown = (CountdownMode != CountdownModes.Off);
+            UsingCountDown = value is CountdownModes._3fCycle or CountdownModes._15fCycle;
+            int modulo = value switch {
+                CountdownModes.ExactGroupMod3 => 3,
+                CountdownModes.ExactGroupMod15 => 15,
+                _ => -1
+            };
+            if (UsingCountDown) {
+                CountdownHotkeyCycleOrMod = false;
+            }
+            else if (modulo > 0) {
+                CountdownHotkeyCycleOrMod = true;
+            }
+            ExactSpinnerGroup.SetModulo(modulo);
             CountdownRenderer.ClearCache();
             if (CountdownMode == CountdownModes._3fCycle) {
                 SpinnerCountdownLoad = true;
                 SpinnerInterval = 0.05f;
             }
-            else {
+            else if (CountdownMode == CountdownModes._15fCycle) {
                 SpinnerCountdownLoad = false;
                 SpinnerInterval = 0.25f;
             }
@@ -338,12 +352,24 @@ public class TASHelperSettings : EverestModuleSettings {
         // it can happen their value is changed but not via the setter (i.e. change the Awake_...s)
 
         UsingNotInViewColor = (UsingNotInViewColorMode == UsingNotInViewColorModes.Always) || (UsingNotInViewColorMode == UsingNotInViewColorModes.WhenUsingInViewRange && UsingInViewRange);
-        UsingCountDown = (CountdownMode != CountdownModes.Off);
+        UsingCountDown = CountdownMode is CountdownModes._3fCycle or CountdownModes._15fCycle;
+        int modulo = CountdownMode switch {
+            CountdownModes.ExactGroupMod3 => 3,
+            CountdownModes.ExactGroupMod15 => 15,
+            _ => -1
+        };
+        ExactSpinnerGroup.SetModulo(modulo);
+        if (UsingCountDown) {
+            CountdownHotkeyCycleOrMod = false;
+        }
+        else if (modulo > 0) {
+            CountdownHotkeyCycleOrMod = true;
+        }
         if (CountdownMode == CountdownModes._3fCycle) {
             SpinnerCountdownLoad = true;
             SpinnerInterval = 0.05f;
         }
-        else {
+        else if (CountdownMode == CountdownModes._15fCycle) {
             SpinnerCountdownLoad = false;
             SpinnerInterval = 0.25f;
         }
@@ -768,9 +794,18 @@ public class TASHelperSettings : EverestModuleSettings {
             if (Enabled) {
                 changed = true;
                 switch (CountdownMode) {
-                    case CountdownModes.Off: CountdownMode = CountdownModes._3fCycle; Refresh("Hazard Countdown Mode = 3f Cycle"); break;
+                    case CountdownModes.Off: {
+                            if (CountdownHotkeyCycleOrMod) {
+                                CountdownMode = CountdownModes.ExactGroupMod3; Refresh("Hazard Countdown Mode = ExactGroup % 3"); break;
+                            }
+                            else {
+                                CountdownMode = CountdownModes._3fCycle; Refresh("Hazard Countdown Mode = 3f Cycle"); break;
+                            }
+                        }
                     case CountdownModes._3fCycle: CountdownMode = CountdownModes._15fCycle; Refresh("Hazard Countdown Mode = 15f Cycle"); break;
                     case CountdownModes._15fCycle: CountdownMode = CountdownModes.Off; Refresh("Hazard Countdown Mode = Off"); break;
+                    case CountdownModes.ExactGroupMod3: CountdownMode = CountdownModes.ExactGroupMod15; Refresh("Hazard Countdown Mode = ExactGroup % 15"); break;
+                    case CountdownModes.ExactGroupMod15: CountdownMode = CountdownModes.Off; Refresh("Hazard Countdown Mode = Off"); break;
                 }
 
             }
@@ -836,7 +871,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 Refresh("Not frame-stepping, refuse to predict");
             }
             else {
-                Predictor.Core.PredictLater(false);
+                Predictor.PredictorCore.PredictLater(false);
                 Refresh("Predictor Start");
             }
         }

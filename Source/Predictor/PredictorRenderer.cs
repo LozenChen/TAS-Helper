@@ -4,7 +4,7 @@ using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using static Celeste.Mod.TASHelper.Predictor.Core;
+using static Celeste.Mod.TASHelper.Predictor.PredictorCore;
 
 namespace Celeste.Mod.TASHelper.Predictor;
 public class PredictorRenderer : Entity {

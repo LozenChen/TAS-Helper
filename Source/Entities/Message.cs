@@ -79,7 +79,7 @@ public class WindSpeedRenderer : Message {
         }
         if (Instance is null || !level.Entities.Contains(Instance)) {
             Instance = new();
-            level.AddImmediately(Instance);
+            level.Add(Instance);
         }
         return true;
     }

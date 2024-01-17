@@ -10,7 +10,7 @@ using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 namespace Celeste.Mod.TASHelper.Module.Menu;
 
 internal static class TASHelperMenu {
-    internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_"));
+    internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_")).Replace("\\S", " ");
     private static EaseInOptionSubMenuCountExt CreateColorCustomizationSubMenu(TextMenu menu, bool inGame) {
         EaseInOptionSubMenuCountExt ColorCustomizationItem = new EaseInOptionSubMenuCountExt("Color Customization".ToDialogText());
         ColorCustomizationItem.OnLeave += () => ColorCustomizationItem.MenuIndex = 0;
@@ -37,9 +37,20 @@ internal static class TASHelperMenu {
     private static EaseInSubMenu CreateCountdownSubMenu(TextMenu menu) {
         return new EaseInSubMenu("Countdown".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item CountdownModeItem;
+            EaseInSubHeaderExtVarTitle descriptionText = new("Countdown Exact Group Description".ToDialogText(), "Countdown Mode Description".ToDialogText(), false, menu, null, TasHelperSettings.CountdownMode is CountdownModes.ExactGroupMod3 or CountdownModes.ExactGroupMod15) {
+                TextColor = Color.Gray,
+                HeightExtra = 0f
+            };
             subMenu.Add(CountdownModeItem = new TextMenuExt.EnumerableSlider<CountdownModes>("Countdown Mode".ToDialogText(), CreateCountdownOptions(),
-                    TasHelperSettings.CountdownMode).Change(value => TasHelperSettings.CountdownMode = value));
-            subMenu.AddDescription(menu, CountdownModeItem, "Countdown Mode Description".ToDialogText());
+                    TasHelperSettings.CountdownMode).Change(value => {
+                        TasHelperSettings.CountdownMode = value;
+                        descriptionText.SetTitle(TasHelperSettings.CountdownMode is CountdownModes.ExactGroupMod3 or CountdownModes.ExactGroupMod15);
+                    }));
+            subMenu.Add(descriptionText);
+            CountdownModeItem.OnEnter += () => descriptionText.FadeVisible = true;
+            CountdownModeItem.OnLeave += () => descriptionText.FadeVisible = false;
+
+
             TextMenu.Item CountdownBoostItem;
             subMenu.Add(CountdownBoostItem = new TextMenu.OnOff("Countdown Boost".ToDialogText(), TasHelperSettings.CountdownBoost).Change(value => TasHelperSettings.CountdownBoost = value));
             subMenu.AddDescription(menu, CountdownBoostItem, "Countdown Boost Description".ToDialogText());
@@ -213,6 +224,8 @@ internal static class TASHelperMenu {
             new(CountdownModes.Off, "Countdown Mode Off".ToDialogText()),
             new(CountdownModes._3fCycle, "Countdown Mode 3f Cycle".ToDialogText()),
             new(CountdownModes._15fCycle, "Countdown Mode 15f Cycle".ToDialogText()),
+            new(CountdownModes.ExactGroupMod3, "Countdown Mode Exact Group Mod 3".ToDialogText()),
+            new(CountdownModes.ExactGroupMod15, "Countdown Mode Exact Group Mod 15".ToDialogText()),
         };
     }
     private static IEnumerable<KeyValuePair<CountdownFonts, string>> CreateCountdownFontOptions() {
@@ -353,6 +366,48 @@ public class EaseInSubMenu : TextMenuExt.SubMenu, IEaseInItem {
     }
 }
 
+
+public class EaseInSubHeaderExtVarTitle : TextMenuExt.EaseInSubHeaderExt {
+
+    public string Title1;
+
+    public string Title2;
+
+    public float TitleLerp;
+
+    public float TitleLerpTarget;
+    public EaseInSubHeaderExtVarTitle(string title1, string title2, bool initiallyVisible, TextMenu containingMenu, string icon = null, bool initialFirstTitle = true) : base(title1, initiallyVisible, containingMenu, icon) {
+        Title1 = title1;
+        Title2 = title2;
+        SetTitle(initialFirstTitle);
+        TitleLerp = initialFirstTitle ? 0 : 1;
+    }
+
+    public void SetTitle(bool first) {
+        if (first) {
+            Title = Title1;
+            TitleLerpTarget = 0;
+        }
+        else {
+            Title = Title2;
+            TitleLerpTarget = 1;
+        }
+    }
+
+    public float BaseHeight(string title) {
+        return (((Title.Length > 0) ? (ActiveFont.HeightOf(title) * 0.6f) : 0f) + (float)(TopPadding ? 48 : 0)) - 48f + HeightExtra;
+    }
+
+    public override float Height() {
+        return MathHelper.Lerp(0f - containingMenu.ItemSpacing, MathHelper.Lerp(BaseHeight(Title1), BaseHeight(Title2), TitleLerp), Alpha);
+    }
+
+    public override void Update() {
+        base.Update();
+        TitleLerp = Calc.Clamp(TitleLerp + 10f * Math.Sign(TitleLerpTarget - TitleLerp) * Engine.DeltaTime, 0, 1);
+
+    }
+}
 
 public class EaseInOptionSubMenuCountExt : OptionSubMenuCountExt, IEaseInItem {
     private float alpha;

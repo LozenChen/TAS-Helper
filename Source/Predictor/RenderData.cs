@@ -72,7 +72,7 @@ public class PlayerState {
         state.Dashes = player.Dashes;
         state.CanDash = player.dashCooldownTimer <= 0f && player.Dashes > 0;
         state.RespawnPoint = level.Session.RespawnPoint ?? Vector2.Zero;
-        state.EngineFreeze = Core.ThisPredictedFrameFreezed;
+        state.EngineFreeze = PredictorCore.ThisPredictedFrameFreezed;
         state.OnBounce = PlayerStateUtils.AnyBounce && !state.EngineFreeze;
         state.OnUltra = PlayerStateUtils.Ultra && !state.EngineFreeze && Math.Abs(PlayerStateUtils.SpeedBeforeUltra.X) >= TasHelperSettings.UltraSpeedLowerLimit;
         state.OnRefillDash = PlayerStateUtils.RefillDash && !state.EngineFreeze;

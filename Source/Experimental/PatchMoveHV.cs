@@ -6,6 +6,7 @@ using Monocle;
 using Celeste;
 using Microsoft.Xna.Framework;
 using System;
+using MonoMod.RuntimeDetour;
 
 namespace Celeste.Mod.TASHelper.Experimental;
 
@@ -16,7 +17,9 @@ internal static class PatchMoveHV {
 
     [Load]
     private static void Load() {
-        On.Celeste.Actor.MoveHExact += HookMoveHExact;
+        using (new DetourContext { Before = new List<string> { "*" }, ID = "TAS Helper PatchMoveHV" }) {
+            On.Celeste.Actor.MoveHExact += HookMoveHExact;
+        }
     }
 
     [Unload]
@@ -25,8 +28,12 @@ internal static class PatchMoveHV {
     }
 
     private static bool HookMoveHExact(On.Celeste.Actor.orig_MoveHExact orig, Actor self, int moveH, Collision onCollide, Solid pusher) {
-        // 2 - 3 times faster than orig when high speed (e.g. SuperDashing 9)
+        // 1 - 2 times faster than orig when high speed (e.g. SuperDashing 9)
         // 1/4 faster than orig when low speed (e.g. 1A dashless)
+        // SJ GMHS sync, 1.2 time faster
+
+        // some DESYNC, coz it cant handle sideways jumpthru well
+
         if (self.Collider is not { } collider) {
             self.X += moveH;
             return false;

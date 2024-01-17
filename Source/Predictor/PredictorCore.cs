@@ -9,7 +9,7 @@ using TAS.Input;
 using TAS.Input.Commands;
 
 namespace Celeste.Mod.TASHelper.Predictor;
-public static class Core {
+public static class PredictorCore {
 
     public static List<RenderData> futures = new();
 
@@ -184,8 +184,8 @@ public static class Core {
 
         typeof(Level).GetMethod("BeforeRender").HookBefore(DelayedActions);
 
-        HookHelper.SkipMethod(typeof(Core), nameof(InPredictMethod), typeof(GameInfo).GetMethod("Update", BindingFlags.Public | BindingFlags.Static));
-        HookHelper.SkipMethod(typeof(Core), nameof(PreventSendStateToStudio), typeof(TAS.Manager).GetMethod("SendStateToStudio", BindingFlags.Public | BindingFlags.Static));
+        HookHelper.SkipMethod(typeof(PredictorCore), nameof(InPredictMethod), typeof(GameInfo).GetMethod("Update", BindingFlags.Public | BindingFlags.Static));
+        HookHelper.SkipMethod(typeof(PredictorCore), nameof(PreventSendStateToStudio), typeof(TAS.Manager).GetMethod("SendStateToStudio", BindingFlags.Public | BindingFlags.Static));
 
         InitializeChecks();
         InitializeCachePeriod();
