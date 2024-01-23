@@ -94,14 +94,14 @@ public static class CustomColors {
     public static Color CameraTriggerColor { get => TasHelperSettings.CameraTriggerColor; set => TasHelperSettings.CameraTriggerColor = value; }
 
     public static TextMenu.Item CreateChangeColorItem(Func<Color> getter, Action<Color> setter, string name, TextMenu textMenu, bool inGame) {
-        TextMenu.Item item = new ButtonColorExt(name.ToDialogText(), getter).Pressed(
+        TextMenu.Item item = new ButtonColorExt(name.ToDialogText(), getter, inGame).Pressed(inGame ? () => { }
+        :
             () => {
                 Audio.Play("event:/ui/main/savefile_rename_start");
                 textMenu.SceneAs<Overworld>().Goto<OuiModOptionStringHexColor>()
                     .Init<OuiModOptions>(ColorToHex(getter()),
                         value => setter(HexToColor(value, getter())), 9);
             });
-        item.Disabled = inGame;
         return item;
     }
 
@@ -162,6 +162,7 @@ public static class CustomColors {
             HeightExtra = 0f
         };
         page.Add(descriptionText);
+        page.Add(new HLine(Color.Gray));
         return page;
 
     }
@@ -187,6 +188,7 @@ public static class CustomColors {
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => Predictor_CoarseScaleColor, value => Predictor_CoarseScaleColor = value, nameof(Predictor_CoarseScaleColor), defaultPredictorCoarseScaleColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => Predictor_EndpointColor, value => Predictor_EndpointColor = value, nameof(Predictor_EndpointColor), defaultPredictorEndpointColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => Predictor_KeyframeColor, value => Predictor_KeyframeColor = value, nameof(Predictor_KeyframeColor), defaultPredictorKeyframeColor);
+        page.Add(new HLine(Color.Gray));
         return page;
 
     }
@@ -211,6 +213,7 @@ public static class CustomColors {
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => LoadRangeColliderColor, value => LoadRangeColliderColor = value, nameof(LoadRangeColliderColor), defaultLoadRangeColliderColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => CameraTargetColor, value => CameraTargetColor = value, nameof(CameraTargetColor), defaultCameraTargetColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => CameraTriggerColor, value => CameraTriggerColor = value, nameof(CameraTriggerColor), defaultCameraTriggerColor);
+        page.Add(new HLine(Color.Gray));
         return page;
     }
 
@@ -234,6 +237,7 @@ public static class CustomColors {
             }
         );
         page.Add(resetButton);
+        page.Add(new HLine(Color.Gray));
         return page;
     }
 
@@ -890,6 +894,7 @@ public class ButtonColorExt : TextMenu.Button, IItemExt {
     public string name;
     public Color TextColorDisabled { get; set; } = Color.DarkSlateGray;
 
+    public Color TextColorHighlightDisabled { get; set; } = Color.SlateGray;
 
     public string Icon { get; set; }
 
@@ -904,6 +909,7 @@ public class ButtonColorExt : TextMenu.Button, IItemExt {
 
     public Vector2 Scale { get; set; } = Vector2.One;
 
+    public bool InGame;
 
     public override float Height() {
         return base.Height() * Scale.Y;
@@ -914,19 +920,20 @@ public class ButtonColorExt : TextMenu.Button, IItemExt {
     }
 
 #pragma warning disable CS8625
-    public ButtonColorExt(string label, Func<Color> cubecolorGetter, string icon = null)
+    public ButtonColorExt(string label, Func<Color> cubecolorGetter, bool inGame = false)
 #pragma warning restore CS8625
         : base(label) {
         CubeColorGetter = cubecolorGetter;
-        Icon = icon;
+        Icon = "";
         name = label;
+        InGame = inGame;
     }
 
     public override void Render(Vector2 position, bool highlighted) {
         Label = name + $": {ColorToHex(CubeColorGetter())}";
         position += Offset;
         float num = Container.Alpha * Alpha;
-        Color color = (Disabled ? TextColorDisabled : highlighted ? Container.HighlightColor : TextColor) * num;
+        Color color = (InGame ? (highlighted ? TextColorHighlightDisabled : TextColorDisabled) : (highlighted ? Container.HighlightColor : TextColor)) * num;
         Color strokeColor = Color.Black * (num * num * num);
         bool flag = Container.InnerContent == TextMenu.InnerContentMode.TwoColumn && !AlwaysCenter;
         Vector2 textPosition = position + (flag ? Vector2.Zero : new Vector2(Container.Width * 0.5f, 0f));
@@ -935,7 +942,6 @@ public class ButtonColorExt : TextMenu.Button, IItemExt {
         Vector2 cubePosition = textPosition + new Vector2(ActiveFont.Measure(Label).X + 30f, -height / 2f);
         Draw.Rect(cubePosition - new Vector2(4f, 4f), height + 8f, height + 8f, Color.Black);
         Draw.Rect(cubePosition, height, height, CubeColorGetter());
-        DrawIcon(position, Icon, IconWidth, Height(), IconOutline, (Disabled ? Color.DarkSlateGray : highlighted ? Color.White : Color.LightSlateGray) * num, ref textPosition);
         ActiveFont.DrawOutline(Label, textPosition, justify, Scale, color, 2f, strokeColor);
     }
 }

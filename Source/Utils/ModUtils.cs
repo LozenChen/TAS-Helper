@@ -10,6 +10,7 @@ internal static class ModUtils {
 
 #pragma warning disable CS8603
     public static Type GetType(string modName, string name, bool throwOnError = false, bool ignoreCase = false) {
+        // we need mod name = mod metadata name here, where e.g. assembly name = FrostTempleHelper, mod metadata name = FrostHelper
         return GetAssembly(modName)?.GetType(name, throwOnError, ignoreCase);
     }
     // check here if you dont know what's the correct name for a nested type / generic type

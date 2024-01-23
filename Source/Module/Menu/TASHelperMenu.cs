@@ -96,7 +96,7 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.OnOff("Spinner Dashed Border".ToDialogText(), TasHelperSettings.SimplifiedSpinnerDashedBorder).Change(value => TasHelperSettings.SimplifiedSpinnerDashedBorder = value));
             subMenu.Add(new TextMenu.OnOff("Spinner_Ignore_TAS_UncollidableAlpha".ToDialogText(), TasHelperSettings.Ignore_TAS_UnCollidableAlpha).Change(value => TasHelperSettings.Ignore_TAS_UnCollidableAlpha = value));
             subMenu.Add(new TextMenu.OnOff("ACH For Spinner".ToDialogText(), TasHelperSettings.ApplyActualCollideHitboxForSpinner).Change(value => TasHelperSettings.ApplyActualCollideHitboxForSpinner = value));
-            subMenu.Add(new HLine());
+            subMenu.Add(new HLine(Color.Gray));
             TextMenu.Item simplifiedLightning;
             subMenu.Add(simplifiedLightning = new TextMenuExt.EnumerableSlider<SimplifiedGraphicsMode>("Simplified Lightning".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnableSimplifiedLightningMode).Change(value => TasHelperSettings.EnableSimplifiedLightningMode = value));
             subMenu.AddDescription(menu, simplifiedLightning, "Simplified Lightning Description".ToDialogText());
@@ -106,11 +106,12 @@ internal static class TASHelperMenu {
             TextMenu.Item ACH_LightningItem;
             subMenu.Add(ACH_LightningItem = new TextMenu.OnOff("ACH For Lightning".ToDialogText(), TasHelperSettings.ApplyActualCollideHitboxForLightning).Change(value => TasHelperSettings.ApplyActualCollideHitboxForLightning = value));
             subMenu.AddDescription(menu, ACH_LightningItem, "ACH Warn Lightning".ToDialogText());
-            subMenu.Add(new HLine());
+            subMenu.Add(new HLine(Color.Gray));
             TextMenu.Item simplifiedTrigger;
             subMenu.Add(simplifiedTrigger = new TextMenuExt.EnumerableSlider<SimplifiedGraphicsMode>("Simplified Triggers".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnableSimplifiedTriggersMode).Change(value => TasHelperSettings.EnableSimplifiedTriggersMode = value));
             subMenu.Add(new TextMenu.OnOff("Hide Camera Trigger".ToDialogText(), TasHelperSettings.HideCameraTriggers).Change(value => TasHelperSettings.HideCameraTriggers = value));
             subMenu.Add(new TextMenu.OnOff("Hide Gold Berry".ToDialogText(), TasHelperSettings.HideGoldBerryCollectTrigger).Change(value => TasHelperSettings.HideGoldBerryCollectTrigger = value));
+            subMenu.Add(new HLine(Color.Gray));
         });
     }
 
@@ -405,7 +406,6 @@ public class EaseInSubHeaderExtVarTitle : TextMenuExt.EaseInSubHeaderExt {
     public override void Update() {
         base.Update();
         TitleLerp = Calc.Clamp(TitleLerp + 10f * Math.Sign(TitleLerpTarget - TitleLerp) * Engine.DeltaTime, 0, 1);
-
     }
 }
 
@@ -593,10 +593,23 @@ public class EaseInSubHeaderExtPub : TextMenuExt.SubHeaderExt {
 }
 
 public class HLine : TextMenu.Item {
-    public float margins;
-    public HLine(float margins = 0f) {
+    public Color lineColor;
+
+    public float leftMargin;
+
+    public float rightMargin;
+
+    public string text;
+
+    public float textHorizontalAlign;
+
+    public HLine(Color color, float leftMargin = 20f, float rightMargin = 0f, string label = "", float textAlign = 0.5f) {
         Selectable = false;
-        this.margins = margins;
+        lineColor = color;
+        this.leftMargin = leftMargin;
+        this.rightMargin = rightMargin;
+        text = label;
+        textHorizontalAlign = textAlign;
     }
 
     public override float LeftWidth() {
@@ -612,6 +625,18 @@ public class HLine : TextMenu.Item {
     }
 
     public override void Render(Vector2 position, bool highlighted) {
-        Monocle.Draw.Line(new Vector2(Container.X - Container.Width / 2f + margins, position.Y), new Vector2(Container.X + Container.Width / 2f - margins, position.Y), Color.Gray, 4f);
+        float left = Container.X - Container.Width / 2f + leftMargin;
+        float right = Container.X + Container.Width / 2f - rightMargin;
+        float y = position.Y;
+        if (text.IsNullOrEmpty()) {
+            Monocle.Draw.Line(new Vector2(left, y), new Vector2(right, y), lineColor, 4f);
+        }
+        else {
+            float textCenter = MathHelper.Lerp(left, right, textHorizontalAlign);
+            float haldWidth = ActiveFont.Measure(text).X / 2f * 0.6f + 10f;
+            ActiveFont.DrawOutline(text, new Vector2(textCenter, y), new Vector2(0.5f, 0.5f), Vector2.One * 0.6f, Color.Gray, 2f, Color.Black);
+            Monocle.Draw.Line(new Vector2(left, y), new Vector2(textCenter - haldWidth, y), lineColor, 4f);
+            Monocle.Draw.Line(new Vector2(textCenter + haldWidth, y), new Vector2(right, y), lineColor, 4f);
+        }
     }
 }

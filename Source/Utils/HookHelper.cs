@@ -106,7 +106,7 @@ internal static class HookHelper {
 }
 
 public static class CILCodeHelper {
-    public static void CILCodeLogger(this ILCursor ilCursor, int logCount = 9999, bool useCommand = true) {
+    public static void CILCodeLogger(this ILCursor ilCursor, int logCount = 999999, bool useCommand = true) {
         // remember, Commands.Log can only work in Initialize()
         Celeste.Commands.Log("------------------------------");
         Logger.Log(LogLevel.Debug, "TAS Helper", "---- CILCodeLogger ----");
@@ -138,7 +138,7 @@ public static class CILCodeHelper {
         }
     }
 
-    public static void CILCodeLogger(this MethodBase methodBase, int logCount = 9999, bool useCommand = true) {
+    public static void CILCodeLogger(this MethodBase methodBase, int logCount = 999999, bool useCommand = true) {
         new ILHook(methodBase, il => {
             ILCursor cursor = new ILCursor(il);
             CILCodeLogger(cursor, logCount, useCommand);

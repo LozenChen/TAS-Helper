@@ -26,6 +26,15 @@ public static class PredictorMenu {
         itemBelow.OnLeave += () => descriptionText.FadeVisible = false;
     }
 
+    private static Color hlineColor = Color.Lerp(Color.Gray, Color.Black, 0.2f);
+
+    private static HLine CreateHLine() {
+        return new HLine(Color.Gray);
+    }
+    private static HLine CreateHLine(string text) {
+        return new HLine(hlineColor, 20f, 0f, text, 0.4f);
+    }
+
     internal static List<TextMenu.Item> Create_PageOnOff(TextMenu menu, bool inGame) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
         TextMenu.Item PredictItem;
@@ -35,14 +44,11 @@ public static class PredictorMenu {
             TasHelperSettings.TimelineLength = value;
             Predictor.PredictorCore.InitializeCachePeriod();
         }));
-
-        page.Add(new SubHeaderExt("Predict Start Conditions".ToDialogText()) {
-            TextColor = Color.Gray,
-            HeightExtra = 0f
-        });
+        page.Add(CreateHLine("Predict Start Conditions".ToDialogText()));
         page.Add(new TextMenu.OnOff("Predict On Frame Step".ToDialogText(), TasHelperSettings.PredictOnFrameStep).Change(value => TasHelperSettings.PredictOnFrameStep = value));
         page.Add(new TextMenu.OnOff("Predict On File Change".ToDialogText(), TasHelperSettings.PredictOnFileChange).Change(value => TasHelperSettings.PredictOnFileChange = value));
         page.Add(new TextMenu.OnOff("Predict On Hotkey Pressed".ToDialogText(), TasHelperSettings.PredictOnHotkeyPressed).Change(value => TasHelperSettings.PredictOnHotkeyPressed = value));
+        page.Add(CreateHLine());
         return page;
     }
 
@@ -52,10 +58,7 @@ public static class PredictorMenu {
         page.Add(mainSwitchItem);
         page.AddDescriptionOnEnter(menu, mainSwitchItem, "Keyframe Description".ToDialogText());
         page.Add(new TextMenu.OnOff("Use Key Frame Time".ToDialogText(), TasHelperSettings.UseKeyFrameTime).Change(value => TasHelperSettings.UseKeyFrameTime = value));
-        page.Add(new SubHeaderExt("Key Frame Flags".ToDialogText()) {
-            TextColor = Color.Gray,
-            HeightExtra = 0f
-        });
+        page.Add(CreateHLine("Key Frame Flags".ToDialogText()));
         TextMenu.Item gainLevelControlItem = new TextMenu.OnOff("Gain Level Control", TasHelperSettings.UseFlagGainLevelControl).Change(value => TasHelperSettings.UseFlagGainLevelControl = value);
         TextMenu.Item loseLevelControlItem = new TextMenu.OnOff("Lose Level Control", TasHelperSettings.UseFlagLoseLevelControl).Change(value => TasHelperSettings.UseFlagLoseLevelControl = value);
 
@@ -70,26 +73,17 @@ public static class PredictorMenu {
         page.Add(losePlayerControlItem);
         page.Add(new TextMenu.OnOff("Begin Engine Freeze", TasHelperSettings.UseFlagGainFreeze).Change(value => TasHelperSettings.UseFlagGainFreeze = value));
         page.Add(new TextMenu.OnOff("End Engine Freeze", TasHelperSettings.UseFlagLoseFreeze).Change(value => TasHelperSettings.UseFlagLoseFreeze = value));
-
+        page.Add(CreateHLine());
         return page;
     }
 
     internal static List<TextMenu.Item> Create_PageKeyframe_2(TextMenu menu, bool inGame) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
-        page.Add(new SubHeaderExt("Key Frame Flags".ToDialogText()) {
-            TextColor = Color.Gray,
-            HeightExtra = 0f
-        });
-
+        page.Add(CreateHLine("Key Frame Flags".ToDialogText()));
         page.Add(new TextMenu.OnOff("Gain On Ground", TasHelperSettings.UseFlagGainOnGround).Change(value => TasHelperSettings.UseFlagGainOnGround = value));
-
         page.Add(new TextMenu.OnOff("Lose On Ground", TasHelperSettings.UseFlagLoseOnGround).Change(value => TasHelperSettings.UseFlagLoseOnGround = value));
-
-
         page.Add(new TextMenu.OnOff("Gain Ultra", TasHelperSettings.UseFlagGainUltra).Change(value => TasHelperSettings.UseFlagGainUltra = value));
-
         page.Add(new TextMenu.OnOff("On Bounce", TasHelperSettings.UseFlagOnBounce).Change(value => TasHelperSettings.UseFlagOnBounce = value));
-
         TextMenu.Item onEntityStateItem = new TextMenu.OnOff("On Entity State", TasHelperSettings.UseFlagOnEntityState).Change(value => TasHelperSettings.UseFlagOnEntityState = value);
         page.Add(onEntityStateItem);
         page.AddDescriptionOnEnter(menu, onEntityStateItem, "Predictor On Entity State Description".ToDialogText());
@@ -104,7 +98,7 @@ public static class PredictorMenu {
         page.Add(new TextMenu.OnOff("Refill Dash", TasHelperSettings.UseFlagRefillDash).Change(value => TasHelperSettings.UseFlagRefillDash = value));
         page.Add(new TextMenu.OnOff("Respawn Point Change", TasHelperSettings.UseFlagRespawnPointChange).Change(value => TasHelperSettings.UseFlagRespawnPointChange = value));
         page.Add(new TextMenu.OnOff("Dead", TasHelperSettings.UseFlagDead).Change(value => TasHelperSettings.UseFlagDead = value));
-
+        page.Add(CreateHLine());
         return page;
     }
 
@@ -118,6 +112,7 @@ public static class PredictorMenu {
         page.AddDescriptionOnEnter(menu, fadeoutItem, "Only Apply To Hitbox".ToDialogText());
         page.Add(new IntSlider("Predictor Line Width".ToDialogText(), 0, 20, TasHelperSettings.PredictorLineWidth).Change(value => TasHelperSettings.PredictorLineWidth = value));
         page.Add(new IntSlider("Predictor Point Size".ToDialogText(), 0, 20, TasHelperSettings.PredictorPointSize).Change(value => TasHelperSettings.PredictorPointSize = value));
+        page.Add(CreateHLine());
         return page;
     }
 
@@ -144,7 +139,7 @@ public static class PredictorMenu {
         TextMenu.Item ultraSpeedItem = new IntSlider("Ultra Speed Lower Limit".ToDialogText(), 0, 325, TasHelperSettings.UltraSpeedLowerLimit).Change((value) => TasHelperSettings.UltraSpeedLowerLimit = value);
         page.Add(ultraSpeedItem);
         page.AddDescriptionOnEnter(menu, ultraSpeedItem, "Ultra Speed Lower Limit Description".ToDialogText());
-
+        page.Add(CreateHLine());
 
         return page;
     }

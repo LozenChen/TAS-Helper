@@ -158,8 +158,7 @@ TAS_HELPER_TIMELINE_LENGTH=                                时间线的长度
 TAS_HELPER_PREDICT_ON_FILE_CHANGE=                         条件: 当 TAS 文件内容变动
 TAS_HELPER_PREDICT_ON_HOTKEY_PRESSED=                      条件: 当按下快捷键
 TAS_HELPER_PREDICT_ON_FRAME_STEP=                          条件: 当 TAS 步进
-TAS_HELPER_PREDICT_START_CONDITIONS=                       ----------------------- 条件: -----------------------
-
+TAS_HELPER_PREDICT_START_CONDITIONS=                       条件
 TAS_HELPER_PREDICTOR_FINISHED=                             完成
 TAS_HELPER_PREDICTOR_ONOFF=                                开关
 TAS_HELPER_PREDICTOR_KEYFRAME_1=                           关键帧/1
@@ -190,7 +189,7 @@ TAS_HELPER_STOP_PREDICT_WHEN_DEATH=                        死亡时终止预测
 TAS_HELPER_STOP_PREDICT_WHEN_KEYFRAME=                     关键帧处终止预测
 TAS_HELPER_USE_KEY_FRAME=                                  关键帧的主开关
 TAS_HELPER_USE_KEY_FRAME_TIME=                             显示关键帧对应的时间点
-TAS_HELPER_KEY_FRAME_FLAGS=                                ----------------------- Flags: -----------------------
+TAS_HELPER_KEY_FRAME_FLAGS=                                Flags
 TAS_HELPER_PREDICTOR_LINE_WIDTH=                           折线宽度
 TAS_HELPER_PREDICTOR_POINT_SIZE=                           点的大小
 
