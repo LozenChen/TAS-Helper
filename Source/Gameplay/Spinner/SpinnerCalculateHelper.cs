@@ -69,9 +69,9 @@ public static class SpinnerCalculateHelper {
     public static void Initialize() {
         Assembly Vanilla = ModUtils.VanillaAssembly;
         Type vanillaCrysSpinnerType;
-        DictionaryAdderVanilla(vanillaCrysSpinnerType = Vanilla.GetType("Celeste.CrystalStaticSpinner"), e => (e as CrystalStaticSpinner).offset, spinner);
-        DictionaryAdderVanilla(Vanilla.GetType("Celeste.Lightning"), e => (e as Lightning).toggleOffset, lightning);
-        DictionaryAdderVanilla(Vanilla.GetType("Celeste.DustStaticSpinner"), e => (e as DustStaticSpinner).offset, dust);
+        DictionaryAdderVanilla(vanillaCrysSpinnerType = Vanilla.GetType("Celeste.CrystalStaticSpinner"), e => (e as CrystalStaticSpinner)!.offset, spinner);
+        DictionaryAdderVanilla(Vanilla.GetType("Celeste.Lightning"), e => (e as Lightning)!.toggleOffset, lightning);
+        DictionaryAdderVanilla(Vanilla.GetType("Celeste.DustStaticSpinner"), e => (e as DustStaticSpinner)!.offset, dust);
         // for some reasons mentioned below, subclass should be considered different, so we add these three types into dictionary, instead of manually check "if (entity is CrystalStaticSpinner) ..."
         // but using publicizer is much more efficient, so we dont use DictionaryAdderNormal here
 

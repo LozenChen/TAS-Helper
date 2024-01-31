@@ -354,7 +354,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
     public static void Dispose() {
         detour?.Dispose();
     }
-
+#pragma warning disable CS8625
     public static void Reset() {
         removed_targets.Clear();
         expected_passed_targets = 0;
@@ -371,4 +371,5 @@ internal static class ForEachBreakPoints_PlayerCollider {
         passed_targets = 0;
         trackedPC = null;
     }
+#pragma warning restore CS8625
 }

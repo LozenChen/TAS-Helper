@@ -242,7 +242,9 @@ internal static class ForEachBreakPoints_EntityList {
 
     public static void ResetTemp() {
         passed_targets = 0;
+#pragma warning disable CS8625
         trackedEntity = null;
+#pragma warning restore CS8625
     }
 
     private static bool EntityUpdateWithBreakPoints(Entity entity) {

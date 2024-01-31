@@ -107,7 +107,7 @@ public static class CassetteBlockHelper {
 
         public static Vector2 PositionWithoutAlignment = new Vector2(1780f, 20f);
 
-        private static Vector2 TopRightInScreen = new Vector2(1780f, 20f);
+        private static readonly Vector2 TopRightInScreen = new Vector2(1780f, 20f);
 
         public static bool needReAlignment = true;
         public CassetteBlockVisualizer() {
@@ -154,7 +154,7 @@ public static class CassetteBlockHelper {
                 foreach (Entity cassetteBlock in level.Tracker.Entities[SJ_CassetteBlockType]) {
                     int[] OnAtBeats = cassetteBlock.GetFieldValue<int[]>("OnAtBeats");
                     int controllerIndex = cassetteBlock.GetFieldValue<int>("ControllerIndex");
-                    Color color = (cassetteBlock as CassetteBlock).color;
+                    Color color = (cassetteBlock as CassetteBlock)!.color;
                     foreach (int n in OnAtBeats) {
                         beatColors[n + controllerIndex * SJWonkyCassetteBlockControllerSimulator.minorOffset] = color;
                     }

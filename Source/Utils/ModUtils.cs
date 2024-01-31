@@ -69,7 +69,7 @@ internal static class ModUtils {
         // so all entities mentioned in corresponding hooks do exist
     }
 
-
+#pragma warning disable CS8603
     private static class ExtendedVariantsUtils {
         private static readonly Lazy<EverestModule> module = new(() => ModUtils.GetModule("ExtendedVariantMode"));
         private static readonly Lazy<object> triggerManager = new(() => module.Value?.GetFieldValue<object>("TriggerManager"));
@@ -88,7 +88,7 @@ internal static class ModUtils {
                 try {
                     return variantType.Value == null ? null : Enum.Parse(variantType.Value, value);
                 }
-                catch (Exception e) {
+                catch {
                     return null;
                 }
             };

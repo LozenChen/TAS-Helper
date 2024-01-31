@@ -324,7 +324,9 @@ public static class SimplifiedTrigger {
                 return Enum.Parse(enumType, value, true);
             }
             catch {
+#pragma warning disable CS8603
                 return null;
+#pragma warning restore CS8603
             }
         }
     }

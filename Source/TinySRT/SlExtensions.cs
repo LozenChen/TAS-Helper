@@ -16,7 +16,9 @@ namespace Celeste.Mod.TASHelper.TinySRT;
 
 // we want to use SRT as fewer as possible (to avoid wrong reference)
 // so we copy almost everything to here
-
+#pragma warning disable CS8625
+#pragma warning disable CS8603
+#pragma warning disable CS8600
 internal static class TH_MuteAudioUtils {
     public static readonly HashSet<string> RequireMuteAudioPaths = new HashSet<string> { "event:/game/general/strawberry_get", "event:/game/general/strawberry_laugh", "event:/game/general/strawberry_flyaway", "event:/game/general/seed_complete_main", "event:/game/general/key_get", "event:/game/general/cassette_get", "event:/game/05_mirror_temple/eyewall_destroy", "event:/char/badeline/boss_hug", "event:/char/badeline/boss_laser_fire" };
 
@@ -154,7 +156,9 @@ internal static class TH_EventInstanceExtensions {
     public static readonly ConditionalWeakTable<EventInstance, object> CachedTimelinePositions = new ConditionalWeakTable<EventInstance, object>();
 
     public static EventInstance NeedManualClone(this EventInstance eventInstance) {
+#pragma warning disable CS8620
         NeedManualClonedEventInstances.Set(eventInstance, null);
+#pragma warning disable CS8620
         return eventInstance;
     }
 

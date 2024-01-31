@@ -56,7 +56,7 @@ public static class SpinnerColliderHelper {
             SpinnerColliderTextures.Add(SpinnerColliderKey(hitboxString, scale), value);
         }
     }
-
+#pragma warning disable CS8625
     public static bool TryGetValue(string[] hitboxString, float scale, out SpinnerColliderValue value) {
         if (SpinnerColliderTextures.TryGetValue(SpinnerColliderKey(hitboxString, scale), out SpinnerColliderValue v1)) {
             value = v1;
@@ -88,11 +88,13 @@ public static class SpinnerColliderHelper {
         value = null;
         return false;
     }
-
+#pragma warning restore CS8625
     public static ColliderList ParseHitboxType(string[] S, float scale) {
+#pragma warning disable CS8603
         if (S.Length == 0 || (S.Length == 1 && string.IsNullOrWhiteSpace(S[0]))) {
             return null;
         }
+#pragma warning restore CS8603
         List<Collider> colliders = new List<Collider>();
         /*At this point, string[] S is a string where each string should be formatted like this:
          * SMaster = A1|A2|A3|A4...|An, S[k] = Ak

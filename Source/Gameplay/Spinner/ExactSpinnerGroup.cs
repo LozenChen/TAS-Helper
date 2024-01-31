@@ -18,7 +18,7 @@ public static class ExactSpinnerGroup {
 
     public static double ExactHazardGroup(Entity entity) {
         if (SpinnerCalculateHelper.HazardType(entity) is not null) {
-            return (double)SpinnerCalculateHelper.GetOffset(entity) * 60 % GroupPeriod;
+            return (double)SpinnerCalculateHelper.GetOffset(entity)! * 60 % GroupPeriod;
         }
         return -99;
     }

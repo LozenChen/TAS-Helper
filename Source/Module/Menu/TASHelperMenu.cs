@@ -38,7 +38,7 @@ internal static class TASHelperMenu {
     private static EaseInSubMenu CreateCountdownSubMenu(TextMenu menu) {
         return new EaseInSubMenu("Countdown".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item CountdownModeItem;
-            EaseInSubHeaderExtVarTitle descriptionText = new("Countdown Exact Group Description".ToDialogText(), "Countdown Mode Description".ToDialogText(), false, menu, null, TasHelperSettings.CountdownMode is CountdownModes.ExactGroupMod3 or CountdownModes.ExactGroupMod15) {
+            EaseInSubHeaderExtVarTitle descriptionText = new("Countdown Exact Group Description".ToDialogText(), "Countdown Mode Description".ToDialogText(), false, menu, "", TasHelperSettings.CountdownMode is CountdownModes.ExactGroupMod3 or CountdownModes.ExactGroupMod15) {
                 TextColor = Color.Gray,
                 HeightExtra = 0f
             };
@@ -399,7 +399,7 @@ public class EaseInSubHeaderExtVarTitle : TextMenuExt.EaseInSubHeaderExt {
     public float TitleLerp;
 
     public float TitleLerpTarget;
-    public EaseInSubHeaderExtVarTitle(string title1, string title2, bool initiallyVisible, TextMenu containingMenu, string icon = null, bool initialFirstTitle = true) : base(title1, initiallyVisible, containingMenu, icon) {
+    public EaseInSubHeaderExtVarTitle(string title1, string title2, bool initiallyVisible, TextMenu containingMenu, string icon = "", bool initialFirstTitle = true) : base(title1, initiallyVisible, containingMenu, icon) {
         Title1 = title1;
         Title2 = title2;
         SetTitle(initialFirstTitle);

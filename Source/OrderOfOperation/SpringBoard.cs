@@ -33,9 +33,9 @@ internal class SpringBoard {
                     // for EndingBreakpoints, there maybe several different matching results, but jump to one is enough
                     Instruction target = cursor.Next;
                     string label = (string)cursor.Next.Operand;
-
+#pragma warning disable CS0219
                     bool recordRemoved = false;
-
+#pragma warning restore CS0219
                     BreakPoints point = BreakPoints.dictionary[label];
                     if (point.SubMethodPassed is bool b && !b) {
                         // do nothing

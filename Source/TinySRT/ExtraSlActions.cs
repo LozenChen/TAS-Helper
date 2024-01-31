@@ -17,6 +17,7 @@ using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
+#pragma warning disable CS8625
 public static class ExtraSlActions {
 
     // if there's mod which add SlAction by itself, instead of by SRT, then we also add it to our SaveLoadActions
@@ -35,7 +36,9 @@ public static class ExtraSlActions {
 
         SRT_Actions.Add(TasHelperSL.CreateSRT());
         foreach (SRT action in SRT_Actions) {
+#pragma warning disable CS0618
             SRT.Add(action);
+#pragma warning restore CS0618
         }
     }
 

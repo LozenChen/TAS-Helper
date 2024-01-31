@@ -21,6 +21,9 @@ using SRT = Celeste.Mod.SpeedrunTool.SaveLoad;
 
 namespace Celeste.Mod.TASHelper.TinySRT;
 
+#pragma warning disable CS8625
+#pragma warning disable CS8603
+#pragma warning disable CS8600
 public sealed class TH_SaveLoadAction {
     public delegate void SlAction(Dictionary<Type, Dictionary<string, object>> savedValues, Level level);
 
@@ -662,6 +665,7 @@ public sealed class TH_SaveLoadAction {
                 Dictionary<string, object> saved = savedValues[typeof(Audio)];
 
                 Audio.SetMusic(saved["currentMusicEvent"] as string);
+#pragma warning disable CS8604
                 Audio.CurrentMusicEventInstance?.CopyParametersFrom(saved["currentMusicEventParameters"] as ConcurrentDictionary<string, float>);
 
                 Audio.SetAmbience(saved["CurrentAmbienceEventInstance"] as string);
@@ -678,6 +682,7 @@ public sealed class TH_SaveLoadAction {
                     Audio.ReleaseSnapshot(Level._PauseSnapshot);
                     Level.PauseSnapshot = null;
                 }
+#pragma warning disable CS8604
             }
         );
     }
