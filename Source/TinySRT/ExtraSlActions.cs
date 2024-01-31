@@ -184,8 +184,8 @@ internal static class TasHelperSL {
             TH_LastPositions = ActualEntityCollideHitbox.LastPositions.TH_DeepCloneShared();
             TH_LastCollidables = ActualEntityCollideHitbox.LastColldables.TH_DeepCloneShared();
             TH_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.TH_DeepCloneShared();
-            TH_beatColors = CassetteBlockHelper.CasstteBlockVisualizer.beatColors.TH_DeepCloneShared();
-            TH_ColorSwapTime = CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime.TH_DeepCloneShared();
+            TH_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.beatColors.TH_DeepCloneShared();
+            TH_ColorSwapTime = CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime.TH_DeepCloneShared();
             TH_offsetGroup = ExactSpinnerGroup.offsetGroup.TH_DeepCloneShared();
         };
         TH.SlAction load = (_, _) => {
@@ -209,8 +209,8 @@ internal static class TasHelperSL {
             }
             SimplifiedTrigger.UnimportantTriggers = TH_UnimportantTriggers.TH_DeepCloneShared();
 
-            CassetteBlockHelper.CasstteBlockVisualizer.beatColors = TH_beatColors.TH_DeepCloneShared();
-            CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime = TH_ColorSwapTime.TH_DeepCloneShared();
+            CassetteBlockHelper.CassetteBlockVisualizer.beatColors = TH_beatColors.TH_DeepCloneShared();
+            CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = TH_ColorSwapTime.TH_DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = TH_offsetGroup.TH_DeepCloneShared();
         };
         Action clear = () => {
@@ -235,8 +235,8 @@ internal static class TasHelperSL {
             SRT_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.DeepCloneShared();
             SRT_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.DeepCloneShared();
 
-            SRT_beatColors = CassetteBlockHelper.CasstteBlockVisualizer.beatColors.DeepCloneShared();
-            SRT_ColorSwapTime = CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime.DeepCloneShared();
+            SRT_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.beatColors.DeepCloneShared();
+            SRT_ColorSwapTime = CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime.DeepCloneShared();
 
             SRT_offsetGroup = ExactSpinnerGroup.offsetGroup.DeepCloneShared();
         };
@@ -247,8 +247,8 @@ internal static class TasHelperSL {
             Gameplay.MovingEntityTrack.CachedCircle = SRT_CachedCircle.DeepCloneShared();
             TH_Hotkeys.HotkeyInitialize();
             SimplifiedTrigger.UnimportantTriggers = SRT_UnimportantTriggers.DeepCloneShared();
-            CassetteBlockHelper.CasstteBlockVisualizer.beatColors = SRT_beatColors.DeepCloneShared();
-            CassetteBlockHelper.CasstteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
+            CassetteBlockHelper.CassetteBlockVisualizer.beatColors = SRT_beatColors.DeepCloneShared();
+            CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = SRT_offsetGroup.DeepCloneShared();
         };
         Action clear = () => {

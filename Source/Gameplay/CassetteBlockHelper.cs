@@ -6,11 +6,21 @@ using Monocle;
 using MonoMod.Cil;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
-internal static class CassetteBlockHelper {
+
+
+
+public static class CassetteBlockHelper {
 
     public static bool Enabled => TasHelperSettings.EnableCassetteBlockHelper;
 
     public static bool ShowExtraInfo => TasHelperSettings.CassetteBlockHelperShowExtraInfo;
+
+    public enum Alignments { TopRight, BottomRight, TopLeft, BottomLeft, None };
+    // the difference between TopRight and None :
+    // if None, then we just use DefaultPosition (which can be modified by user)
+    // if TopRight, we will ignore DefaultPosition but use TopRightInScreen instead
+
+    public static Alignments Alignment => TasHelperSettings.CassetteBlockInfoAlignment;
 
     [Load]
     private static void Load() {
@@ -30,8 +40,8 @@ internal static class CassetteBlockHelper {
     private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
         orig(level, playerIntro, isFromLoader);
         if (Enabled) {
-            CasstteBlockVisualizer.AddToScene(level);
-            CasstteBlockVisualizer.BuildBeatColors(level);
+            CassetteBlockVisualizer.AddToScene(level);
+            CassetteBlockVisualizer.BuildBeatColors(level);
         }
     }
 
@@ -55,21 +65,21 @@ internal static class CassetteBlockHelper {
 
     private static void SJ_AdvanceCasstteBlockVisualizer() {
         // we handle freeze frames using the same way as the corresponding cassette block manager
-        if (Engine.Scene.Tracker.GetEntity<CasstteBlockVisualizer>() is { } visualizer && visualizer.cbmType == CasstteBlockVisualizer.CBMType.SJ) {
+        if (Engine.Scene.Tracker.GetEntity<CassetteBlockVisualizer>() is { } visualizer && visualizer.cbmType == CassetteBlockVisualizer.CBMType.SJ) {
             visualizer.Update();
         }
     }
 
     private static void Vanilla_AdvanceCasstteBlockVisualizer(float time) {
-        if (Engine.Scene.Tracker.GetEntity<CasstteBlockVisualizer>() is { } visualizer && visualizer.cbmType == CasstteBlockVisualizer.CBMType.Vanilla) {
-            CasstteBlockVisualizer.FreezeAdvanceTime(visualizer, time);
+        if (Engine.Scene.Tracker.GetEntity<CassetteBlockVisualizer>() is { } visualizer && visualizer.cbmType == CassetteBlockVisualizer.CBMType.Vanilla) {
+            CassetteBlockVisualizer.FreezeAdvanceTime(visualizer, time);
         }
     }
 
     [Tracked(false)]
-    public class CasstteBlockVisualizer : Entity {
+    public class CassetteBlockVisualizer : Entity {
 
-        public static CasstteBlockVisualizer Instance;
+        public static CassetteBlockVisualizer Instance;
 
         public int currColorIndex;
 
@@ -94,10 +104,16 @@ internal static class CassetteBlockHelper {
         public enum CBMType { Vanilla, SJ, None };
 
         public CBMType cbmType;
-        public CasstteBlockVisualizer() {
+
+        public static Vector2 PositionWithoutAlignment = new Vector2(1780f, 20f);
+
+        private static Vector2 TopRightInScreen = new Vector2(1780f, 20f);
+
+        public static bool needReAlignment = true;
+        public CassetteBlockVisualizer() {
             base.Tag = Tags.HUD;
             Depth = -10000; // update after CasstteBlockManager
-            Position = new Vector2(1780f, 20f);
+            Position = PositionWithoutAlignment;
             Collidable = false;
             Visible = false;
             findCBM = false;
@@ -114,8 +130,9 @@ internal static class CassetteBlockHelper {
         }
 
         public static bool AddToScene(Level level) {
-            Instance = new CasstteBlockVisualizer();
+            Instance = new CassetteBlockVisualizer();
             level.Add(Instance);
+            needReAlignment = true;
             return true;
         }
 
@@ -270,9 +287,10 @@ internal static class CassetteBlockHelper {
 
         public static void SetStateChanged() {
             stateChanged = true;
+            needReAlignment = true;
         }
 
-        public static void FreezeAdvanceTime(CasstteBlockVisualizer visualizer, float time) {
+        public static void FreezeAdvanceTime(CassetteBlockVisualizer visualizer, float time) {
             if (VanillaCasstteBlockManagerSimulator.GetLoopCount(time, out int count)) {
                 for (int i = 0; i < count; i++) {
                     visualizer.Update();
@@ -323,9 +341,11 @@ internal static class CassetteBlockHelper {
                 return;
             }
             if (cbmType == CBMType.Vanilla) {
+                HandleAlignment();
                 VanillaRender();
             }
             else if (cbmType == CBMType.SJ) {
+                HandleAlignment();
                 SJ_Render();
             }
         }
@@ -344,8 +364,12 @@ internal static class CassetteBlockHelper {
             if (!ShowExtraInfo) {
                 return;
             }
-            pos += new Vector2(20f, 10f);
-
+            if (Alignment is Alignments.TopLeft or Alignments.BottomLeft) {
+                pos += new Vector2(60f, 10f);
+            }
+            else {
+                pos += new Vector2(20f, 10f);
+            }
             Message.RenderMessageJetBrainsMono($"[{beatIndex}/{beatIndexMax}]", pos, centerLeft, Vector2.One, 2f, Color.White, Color.Black);
             Message.RenderMessageJetBrainsMono("index ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
             pos.Y += 30f;
@@ -356,6 +380,25 @@ internal static class CassetteBlockHelper {
                 Message.RenderMessageJetBrainsMono(tempoMult.ToString("0.00"), pos + Vector2.UnitX, centerLeft, Vector2.One, 2f, Color.White, Color.Black);
                 Message.RenderMessageJetBrainsMono("tempo ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
             }
+        }
+
+        private Vector2 VanillaRenderTotalOffset() {
+            // the offset from position to bottom left of the content
+
+            Vector2 delta = new Vector2(20f, -20f);
+            delta.Y += 40f * maxBeat;
+            if (ShowExtraInfo) {
+                if (Alignment is Alignments.TopLeft or Alignments.BottomLeft) {
+                    delta += new Vector2(0f, 60f);
+                }
+                else {
+                    delta += new Vector2(-40f, 60f);
+                }
+                if (tempoMult != 1f) {
+                    delta.Y += 30f;
+                }
+            }
+            return delta;
         }
 
         private void SJ_Render() {
@@ -399,7 +442,12 @@ internal static class CassetteBlockHelper {
             if (!ShowExtraInfo) {
                 return;
             }
-            pos += new Vector2(-240f, 22f);
+            if (Alignment is Alignments.TopLeft or Alignments.BottomLeft) {
+                pos += new Vector2(140f, 22f);
+            }
+            else {
+                pos += new Vector2(-240f, 22f);
+            }
             Message.RenderMessageJetBrainsMono($"[{beatIndex}/{beatIndexMax}]", pos, centerLeft, Vector2.One, 2f, Color.White, Color.Black);
             Message.RenderMessageJetBrainsMono("index ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
             pos.Y += 30f;
@@ -407,9 +455,9 @@ internal static class CassetteBlockHelper {
             Message.RenderMessageJetBrainsMono("timer ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
             if (minorControllerData.IsNotNullOrEmpty()) {
                 bool moreThanOne = minorControllerData.Count > 1;
+                pos.Y += 30f;
+                Message.RenderMessageJetBrainsMono("main", pos, centerLeft, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
                 foreach (Tuple<int, int, int, float, float> tuple in minorControllerData) {
-                    pos.Y += 30f;
-                    Message.RenderMessageJetBrainsMono("main", pos, centerLeft, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
                     pos.Y += 20f;
                     Monocle.Draw.Line(pos - Vector2.UnitX * 80f, pos + Vector2.UnitX * 140f, Color.White);
                     pos.Y += 20f;
@@ -422,6 +470,40 @@ internal static class CassetteBlockHelper {
                     Message.RenderMessageJetBrainsMono("timer ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
                 }
             }
+        }
+
+        private Vector2 SJRenderTotalOffset() {
+            Vector2 iniOffset = textOffset;
+            Vector2 contentOffset = Vector2.Zero;
+
+            void GetXY(Vector2 vec) {
+                contentOffset.X = Math.Min(contentOffset.X, vec.X);
+                contentOffset.Y = Math.Max(contentOffset.Y, vec.Y);
+            }
+
+            int highestIndex = 0;
+            foreach (int index in ColorSwapTime.Keys) {
+                if (Math.Abs(index) > SJWonkyCassetteBlockControllerSimulator.minorOffset / 2) {
+                    int controllerIndex = (int)Math.Round((float)index / (float)SJWonkyCassetteBlockControllerSimulator.minorOffset);
+                    GetXY(new Vector2(140f - 160f * controllerIndex, 40f * (highestIndex + 2)));
+                    if (ColorSwapTime[index] is { } list && list.Count > 0) {
+                        int y = index - controllerIndex * SJWonkyCassetteBlockControllerSimulator.minorOffset;
+                        GetXY(new Vector2(-27f - 160f * (controllerIndex - 1), 40f * (highestIndex + y + 3)));
+                        if (beatColors.TryGetValue(index, out Color color)) {
+                            GetXY(new Vector2(-160f * controllerIndex + 80f, 12f + 40f * (highestIndex + y + 3)));
+                        }
+                    }
+                }
+                else if (ColorSwapTime[index] is { } list && list.Count > 0) {
+                    GetXY(new Vector2(-27f, 40f * index));
+                    highestIndex = Math.Max(highestIndex, index);
+                    if (beatColors.TryGetValue(index, out Color color)) {
+                        GetXY(new Vector2(-80f, 12f + 40f * index));
+                    }
+                }
+            }
+
+            return iniOffset + contentOffset + new Vector2(10f, 20f);
         }
 
         public static Color VanillaColorChooser(int index, bool notDark = true) {
@@ -438,6 +520,58 @@ internal static class CassetteBlockHelper {
                 3 => Calc.HexToColor("166d32"),
                 _ => Color.Red,
             };
+        }
+
+        public void HandleAlignment() {
+            if (Scene is not Level level || level.Transitioning) {
+                return;
+            }
+            if (needReAlignment) {
+                if (Alignment == Alignments.None) {
+                    Position = PositionWithoutAlignment;
+                    needReAlignment = false;
+                    return;
+                }
+                if (Alignment == Alignments.TopRight) {
+                    Position = TopRightInScreen;
+                    needReAlignment = false;
+                    return;
+                }
+                Vector2 offset;
+                if (cbmType == CBMType.Vanilla) {
+                    offset = VanillaRenderTotalOffset();
+                }
+                else if (cbmType == CBMType.SJ) {
+                    offset = SJRenderTotalOffset();
+                }
+                else {
+                    needReAlignment = false;
+                    return;
+                }
+                if (Alignment == Alignments.BottomRight) {
+                    Position.X = TopRightInScreen.X;
+                    Position.Y = 1080f - 20f - offset.Y;
+                    needReAlignment = false;
+                    return;
+                }
+                if (Alignment == Alignments.TopLeft) {
+                    float speedrunOffset = Settings.Instance.SpeedrunClock switch {
+                        SpeedrunType.Chapter => 100f,
+                        SpeedrunType.File => 120f,
+                        _ => 0f,
+                    };
+                    Position.Y = TopRightInScreen.Y + speedrunOffset;
+                    Position.X = 40f - offset.X;
+                    needReAlignment = false;
+                    return;
+                }
+                if (Alignment == Alignments.BottomLeft) {
+                    Position.X = 40f - offset.X;
+                    Position.Y = 1080f - 20f - offset.Y;
+                    needReAlignment = false;
+                    return;
+                }
+            }
         }
     }
 
@@ -584,7 +718,7 @@ internal static class CassetteBlockHelper {
         public const int minorOffset = 64;
         public static void Initialize(Entity entity, out int currColorIndex, out int maxBeat, out int beatIndexMax, out float maxBeatTimer) {
             currColorIndex = -1;
-            if (ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.StrawberryJam2021Module")?.GetPropertyValue<EverestModuleSession>("Session") is not { } session || session.GetFieldValue<bool>("CassetteBlocksDisabled") || entity.GetType() != CasstteBlockVisualizer.SJ_CBMType || MinorSimulator.minor_type is null) {
+            if (ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.StrawberryJam2021Module")?.GetPropertyValue<EverestModuleSession>("Session") is not { } session || session.GetFieldValue<bool>("CassetteBlocksDisabled") || entity.GetType() != CassetteBlockVisualizer.SJ_CBMType || MinorSimulator.minor_type is null) {
                 disabled = true;
                 maxBeat = maxBeats = 1;
                 beatIndexMax = 500;

@@ -214,6 +214,12 @@ TAS_HELPER_OTHER_SPAWN_POINT_OPACITY=                      Other Spawn Point Opa
 TAS_HELPER_CASSETTE_BLOCK_HELPER=                          Cassette Block Helper
 TAS_HELPER_CASSETTE_BLOCK_HELPER_EXTRA_INFO=               Cassette Block Extra Info
 TAS_HELPER_CASSETTE_BLOCK_DESCRIPTION=                     Show when will the cassette blocks activate.
+TAS_HELPER_CASSETTE_INFO_ALIGNMENT=                        Cassette Info Alignment
+TAS_HELPER_CASSETTE_INFO_TOPRIGHT=                         TopRight
+TAS_HELPER_CASSETTE_INFO_BOTTOMRIGHT=                      BottomRight
+TAS_HELPER_CASSETTE_INFO_TOPLEFT=                          TopLeft
+TAS_HELPER_CASSETTE_INFO_BOTTOMLEFT=                       BottomLeft
+TAS_HELPER_CASSETTE_INFO_NONE=                             None
 TAS_HELPER_ENTITY_ACTIVATOR_REMINDER=                      Entity Activator Reminder
 TAS_HELPER_ENTITY_ACTIVATOR_REMINDER_DESCRIPTION=          Activator Reminder may interfere Spinner Stun.{n}
                                                            This option will remind you when you enter a room with Activator Reminder.

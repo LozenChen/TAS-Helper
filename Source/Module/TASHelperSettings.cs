@@ -1,4 +1,5 @@
 using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.OrderOfOperation;
@@ -542,6 +543,17 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     public bool CassetteBlockHelperShowExtraInfo = false;
+
+    public CassetteBlockHelper.Alignments cassetteBlockInfoAlignment = CassetteBlockHelper.Alignments.TopRight;
+
+    [YamlIgnore]
+    public CassetteBlockHelper.Alignments CassetteBlockInfoAlignment {
+        get => cassetteBlockInfoAlignment;
+        set {
+            cassetteBlockInfoAlignment = value;
+            CassetteBlockHelper.CassetteBlockVisualizer.needReAlignment = true;
+        }
+    }
 
     public bool entityActivatorReminder = true;
 
