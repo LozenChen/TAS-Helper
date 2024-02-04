@@ -69,8 +69,9 @@ public static class SpinnerCalculateHelper {
     public static void Initialize() {
         Assembly Vanilla = ModUtils.VanillaAssembly;
         Type vanillaCrysSpinnerType;
+        Type vanillaLightningType;
         DictionaryAdderVanilla(vanillaCrysSpinnerType = Vanilla.GetType("Celeste.CrystalStaticSpinner"), e => (e as CrystalStaticSpinner)!.offset, spinner);
-        DictionaryAdderVanilla(Vanilla.GetType("Celeste.Lightning"), e => (e as Lightning)!.toggleOffset, lightning);
+        DictionaryAdderVanilla(vanillaLightningType = Vanilla.GetType("Celeste.Lightning"), e => (e as Lightning)!.toggleOffset, lightning);
         DictionaryAdderVanilla(Vanilla.GetType("Celeste.DustStaticSpinner"), e => (e as DustStaticSpinner)!.offset, dust);
         // for some reasons mentioned below, subclass should be considered different, so we add these three types into dictionary, instead of manually check "if (entity is CrystalStaticSpinner) ..."
         // but using publicizer is much more efficient, so we dont use DictionaryAdderNormal here
@@ -141,6 +142,10 @@ public static class SpinnerCalculateHelper {
             NoCycleTypes.Add(dreamSpinnerType, _ => true);
         }
 
+        if (ModUtils.GetType("Glyph", "Celeste.Mod.AcidHelper.Entities.AcidLightning") is { } acidLightningType) {
+            HazardTypesTreatNormal.Add(acidLightningType, lightning);
+            OffsetGetters.Add(acidLightningType, OffsetGetters[vanillaLightningType]);
+        }
 
         //if (ModUtils.GetType("Scuffed Helper", "ScuffedHelperCode.RandomSpinner") is { } randomSpinnerType) {
         //    DictionaryAdderNormal(randomSpinnerType, "offset", spinner);
@@ -220,6 +225,12 @@ public static class SpinnerCalculateHelper {
         else if (HazardTypesTreatSpecial.TryGetValue(type, out GetDelegate<Entity, int?> getter)) {
             return getter(self);
         }
+        return null;
+        /*
+         * NO, if we dont classify it as a hazard, then it may just be a lack of feature
+         * but if we classify it as a hazard casually, something bad may happen
+         * e.g. SJ2021/SineDustSpinner, it's actually moving!
+         * if it's viewed as a hazard, then its hitbox doesn't show for some reason..
         else {
             return self switch {
                 // we've checked vanilla types before, but we still need to check here so subclasses of these can be handled correctly when i forget to add some hazard type
@@ -230,18 +241,14 @@ public static class SpinnerCalculateHelper {
                 _ => null
             };
         }
+        */
     }
 
     public static float? GetOffset(Entity self) {
         if (OffsetGetters.TryGetValue(self.GetType(), out GetDelegate<object, float> getter)) {
             return getter(self);
         }
-        return self switch {
-            CrystalStaticSpinner spinner => spinner.offset,
-            DustStaticSpinner dust => dust.offset,
-            Lightning lightning => lightning.toggleOffset,
-            _ => null,
-        };
+        return null;
     }
     public static bool isSpinnner(this Entity self) {
         return HazardType(self) == spinner;

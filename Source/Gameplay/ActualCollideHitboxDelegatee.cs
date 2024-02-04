@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using System.Runtime.CompilerServices;
 using TAS;
 using TAS.EverestInterop.Hitboxes;
 
@@ -67,11 +68,13 @@ internal static class ActualCollideHitboxDelegatee {
 
     public static void DrawLastFrameHitbox(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig) {
         DrawLastFrameHitboxImpl(skipCondition, entity, camera, color, collidable, (a, b, c, d, e) => {
-            protectOrig = true;
+            protectOrig = true; // orig may contain Hitbox.DebugRender, which is already handled. if we make actual collide hitbox handle it again, there will be some issue
             invokeOrig(a, b, c, d, e);
             protectOrig = false;
         });
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void DrawLastFrameHitboxImpl(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig) {
         // currently we don't need an actualCamera...?
 
