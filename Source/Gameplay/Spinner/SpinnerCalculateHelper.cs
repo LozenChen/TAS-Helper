@@ -4,6 +4,8 @@ using Monocle;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 // VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
@@ -15,16 +17,22 @@ public static class SpinnerCalculateHelper {
     public static float[] PredictLoadTimeActive = new float[10];
     public static float[] PredictUnloadTimeActive = new float[100];
 
+
     [Load]
     public static void Load() {
         using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" } }) {
             On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         }
+        On.Celeste.Tags.Initialize += On_CelesteTags_Initialize;
+        IL.Monocle.EntityList.UpdateLists += IL_EntityList_UpdateLists;
     }
+
 
     [Unload]
     public static void Unload() {
         On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
+        On.Celeste.Tags.Initialize -= On_CelesteTags_Initialize;
+        IL.Monocle.EntityList.UpdateLists -= IL_EntityList_UpdateLists;
     }
 
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
@@ -48,6 +56,46 @@ public static class SpinnerCalculateHelper {
             time += Engine.DeltaTime;
         }
         // this must be before tas mod's FreeCameraHitbox.SubHudRendererOnBeforeRender, otherwise spinners will flash if you zoom out in center camera mode
+    }
+
+    private static void On_CelesteTags_Initialize(On.Celeste.Tags.orig_Initialize orig) {
+        orig();
+        TagUtils.SafeAdd("IsSpinner", out IsSpinner);
+        TagUtils.SafeAdd("IsLightning", out IsLightning);
+        TagUtils.SafeAdd("IsDust", out IsDust);
+        IsSpinnerTagValue = (int)IsSpinner;
+        IsLightningTagValue = (int)IsLightning;
+        IsDustTagValue = (int)IsDust;
+        IsHazardTagValue = IsSpinnerTagValue | IsLightningTagValue | IsDustTagValue;
+    }
+
+
+    private static void IL_EntityList_UpdateLists(ILContext il) {
+        // we assume whether an entity is hazard or not can be determined when it is added to scene (i.e. not when awake)
+        ILCursor cursor = new ILCursor(il);
+        if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldarg_0, ins => ins.MatchCallvirt<EntityList>("get_Scene"), ins => ins.MatchCallvirt<Scene>("get_TagLists"), ins => ins.OpCode == OpCodes.Ldloc_1, ins => ins.MatchCallvirt<TagLists>(nameof(TagLists.EntityAdded)))) { // before the "Scene.TagLists.EntityAdded(entity)" in the toAdd.Count > 0 sentences.
+            cursor.MoveAfterLabels();
+            cursor.Emit(OpCodes.Ldloc_1);
+            cursor.EmitDelegate(CheckAndAddTag);
+        }
+        else {
+            throw new Exception($"[TAS Helper] IL Hook SpinnerCalculateHelper.{nameof(IL_EntityList_UpdateLists)} fails.");
+        }
+    }
+
+    private static void CheckAndAddTag(Entity entity) {
+        int? value = HazardTypeImpl(entity);
+        if (value.HasValue) {
+            switch (value.Value) {
+                case spinner:
+                    entity.AddTag(IsSpinner); break;
+                case lightning:
+                    entity.AddTag(IsLightning); break;
+                case dust:
+                    entity.AddTag(IsDust); break;
+                default: break;
+            }
+        }
     }
 
     private static void DictionaryAdderVanilla(Type type, GetDelegate<object, float> offsetGetter, int HazardType) {
@@ -217,7 +265,34 @@ public static class SpinnerCalculateHelper {
     internal const int dust = 1;
     internal const int lightning = 2;
 
+    internal static BitTag IsSpinner;
+
+    internal static BitTag IsLightning;
+
+    internal static BitTag IsDust;
+
+    internal static int IsSpinnerTagValue;
+
+    internal static int IsLightningTagValue;
+
+    internal static int IsDustTagValue;
+
+    internal static int IsHazardTagValue;
+
+    [Obsolete("Use IsHazard/Spinner/Lightning/Dust instead")]
     public static int? HazardType(Entity self) {
+        if (self.isSpinnner()) {
+            return spinner;
+        }
+        if (self.isLightning()) {
+            return lightning;
+        }
+        if (self.isDust()) {
+            return dust;
+        }
+        return null;
+    }
+    public static int? HazardTypeImpl(Entity self) {
         Type type = self.GetType();
         if (HazardTypesTreatNormal.TryGetValue(type, out int value)) {
             return value;
@@ -250,14 +325,19 @@ public static class SpinnerCalculateHelper {
         }
         return null;
     }
+
     public static bool isSpinnner(this Entity self) {
-        return HazardType(self) == spinner;
+        return self.TagCheck(IsSpinnerTagValue);
     }
     public static bool isLightning(this Entity self) {
-        return HazardType(self) == lightning;
+        return self.TagCheck(IsLightningTagValue);
     }
     public static bool isDust(this Entity self) {
-        return HazardType(self) == dust;
+        return self.TagCheck(IsDustTagValue);
+    }
+
+    public static bool isHazard(this Entity self) {
+        return self.TagCheck(IsHazardTagValue);
     }
 
     public static bool LightningInView(Entity self, Vector2 CameraPos) {

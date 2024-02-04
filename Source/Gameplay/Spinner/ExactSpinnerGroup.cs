@@ -17,7 +17,7 @@ public static class ExactSpinnerGroup {
     public static int GroupPeriod = -1; // initial state need to be different from 3, 15 in order to activate later
 
     public static double ExactHazardGroup(Entity entity) {
-        if (SpinnerCalculateHelper.HazardType(entity) is not null) {
+        if (entity.isHazard()) {
             return (double)SpinnerCalculateHelper.GetOffset(entity)! * 60 % GroupPeriod;
         }
         return -99;

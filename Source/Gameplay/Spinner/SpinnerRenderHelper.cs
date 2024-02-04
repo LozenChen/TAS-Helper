@@ -49,6 +49,7 @@ internal static class SpinnerRenderHelper {
 
     public static SpinnerColorIndex GetSpinnerColorIndex(Entity Hazard, bool checkInView) {
         // we assume you've checked it's a hazard
+
 #pragma warning disable CS8629
         return checkInView ? CycleHitboxColorIndex(Hazard, SpinnerCalculateHelper.GetOffset(Hazard).Value, ActualPosition.CameraPosition) : CycleHitboxColorIndexNoInView(Hazard, SpinnerCalculateHelper.GetOffset(Hazard).Value);
 #pragma warning restore CS8629

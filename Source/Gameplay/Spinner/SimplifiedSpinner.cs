@@ -242,7 +242,7 @@ internal static class SimplifiedSpinner {
      */
 
     private static void PatchDebugRender(On.Monocle.Entity.orig_DebugRender orig, Entity self, Camera camera) {
-        if (!TasHelperSettings.Enabled || SpinnerCalculateHelper.HazardType(self) == null) {
+        if (!TasHelperSettings.Enabled || !self.isHazard()) {
             orig(self, camera);
             return;
         }

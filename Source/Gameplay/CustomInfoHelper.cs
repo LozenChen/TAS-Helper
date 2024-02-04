@@ -15,9 +15,9 @@ public static class CustomInfoHelper {
             if (Engine.Scene is not Level level) {
                 return cachedCS = "";
             }
-            foreach (CutsceneEntity cs in level.Tracker.GetEntities<CutsceneEntity>()) {
-                if (cs.Running) {
-                    return cachedCS = cs.GetType().Name;
+            foreach (Entity cs in level.Tracker.GetEntities<CutsceneEntity>()) {
+                if (cs is CutsceneEntity cse && cse.Running) {
+                    return cachedCS = cse.GetType().Name;
                 }
             }
             if (level.SkippingCutscene) {

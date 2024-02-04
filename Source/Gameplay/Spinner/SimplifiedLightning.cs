@@ -14,7 +14,7 @@ internal static class SimplifiedLightning {
     }
 
     private static bool DrawInner(Func<bool, Lightning, bool> orig, bool visible, Lightning item) {
-        if (TasHelperSettings.EnableSimplifiedLightning && SpinnerCalculateHelper.HazardType(item) != null) {
+        if (TasHelperSettings.EnableSimplifiedLightning && item.isHazard()) {
             // why we still check hazard type here: in case in future we decide that some perticular subclass of lightning is not a hazard
             // note in the following codes we need to assume it's indeed a hazard (which is the bugfix of v1.8.15)
 
