@@ -20,13 +20,13 @@ internal static class Countdown {
             float offset = SpinnerCalculateHelper.GetOffset(self).Value;
 #pragma warning restore CS8629
             Vector2 CountdownPos;
-            if (self.isLightning()) {
+            if (self.IsLightning()) {
                 CountdownPos = self.Center + new Vector2(-1f, -2f);
             }
             else {
                 CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
-            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.isDust()), index, collidable);
+            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.IsDust()), index, collidable);
         }
     }
 }

@@ -1,11 +1,11 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
+using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
 // VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
@@ -60,12 +60,12 @@ public static class SpinnerCalculateHelper {
 
     private static void On_CelesteTags_Initialize(On.Celeste.Tags.orig_Initialize orig) {
         orig();
-        TagUtils.SafeAdd("IsSpinner", out IsSpinner);
-        TagUtils.SafeAdd("IsLightning", out IsLightning);
-        TagUtils.SafeAdd("IsDust", out IsDust);
-        IsSpinnerTagValue = (int)IsSpinner;
-        IsLightningTagValue = (int)IsLightning;
-        IsDustTagValue = (int)IsDust;
+        TagUtils.SafeAdd("IsSpinner", out IsSpinnerTag);
+        TagUtils.SafeAdd("IsLightning", out IsLightningTag);
+        TagUtils.SafeAdd("IsDust", out IsDustTag);
+        IsSpinnerTagValue = (int)IsSpinnerTag;
+        IsLightningTagValue = (int)IsLightningTag;
+        IsDustTagValue = (int)IsDustTag;
         IsHazardTagValue = IsSpinnerTagValue | IsLightningTagValue | IsDustTagValue;
     }
 
@@ -88,11 +88,11 @@ public static class SpinnerCalculateHelper {
         if (value.HasValue) {
             switch (value.Value) {
                 case spinner:
-                    entity.AddTag(IsSpinner); break;
+                    entity.AddTag(IsSpinnerTag); break;
                 case lightning:
-                    entity.AddTag(IsLightning); break;
+                    entity.AddTag(IsLightningTag); break;
                 case dust:
-                    entity.AddTag(IsDust); break;
+                    entity.AddTag(IsDustTag); break;
                 default: break;
             }
         }
@@ -248,11 +248,13 @@ public static class SpinnerCalculateHelper {
             // FrostHelper.AttachedLightning inherits from Lightning, so no need to check before
             return lightning.Collidable && !lightning.disappearing;
         }
+
+        // for future modification: ASSUMPTION: ActualCollideHitboxDelegatee.Initialize assumes that only lightning has special checks
         return self.Collidable;
     }
 
     public static bool NoPeriodicCheckInViewBehavior(Entity self) {
-        if (self.isDust()) {
+        if (self.IsDust()) {
             return true;
         }
         if (NoPeriodicInViewCheckTypes.Contains(self.GetType())) {
@@ -265,11 +267,11 @@ public static class SpinnerCalculateHelper {
     internal const int dust = 1;
     internal const int lightning = 2;
 
-    internal static BitTag IsSpinner;
+    internal static BitTag IsSpinnerTag;
 
-    internal static BitTag IsLightning;
+    internal static BitTag IsLightningTag;
 
-    internal static BitTag IsDust;
+    internal static BitTag IsDustTag;
 
     internal static int IsSpinnerTagValue;
 
@@ -281,13 +283,13 @@ public static class SpinnerCalculateHelper {
 
     [Obsolete("Use IsHazard/Spinner/Lightning/Dust instead")]
     public static int? HazardType(Entity self) {
-        if (self.isSpinnner()) {
+        if (self.IsSpinner()) {
             return spinner;
         }
-        if (self.isLightning()) {
+        if (self.IsLightning()) {
             return lightning;
         }
-        if (self.isDust()) {
+        if (self.IsDust()) {
             return dust;
         }
         return null;
@@ -320,23 +322,26 @@ public static class SpinnerCalculateHelper {
     }
 
     public static float? GetOffset(Entity self) {
+        // another dumb way: add a component to hold the offset and everytime we look for the component to get offset
+        // this is much slower than the current one
+
         if (OffsetGetters.TryGetValue(self.GetType(), out GetDelegate<object, float> getter)) {
             return getter(self);
         }
         return null;
     }
 
-    public static bool isSpinnner(this Entity self) {
+    public static bool IsSpinner(this Entity self) {
         return self.TagCheck(IsSpinnerTagValue);
     }
-    public static bool isLightning(this Entity self) {
+    public static bool IsLightning(this Entity self) {
         return self.TagCheck(IsLightningTagValue);
     }
-    public static bool isDust(this Entity self) {
+    public static bool IsDust(this Entity self) {
         return self.TagCheck(IsDustTagValue);
     }
 
-    public static bool isHazard(this Entity self) {
+    public static bool IsHazard(this Entity self) {
         return self.TagCheck(IsHazardTagValue);
     }
 
@@ -346,7 +351,7 @@ public static class SpinnerCalculateHelper {
     }
     public static bool InView(Entity self, Vector2 CameraPos) {
         float zoom = ActualPosition.CameraZoom;
-        if (self.isLightning()) {
+        if (self.IsLightning()) {
             // i guess this order of comparison is more efficient
             return self.X + self.Width > CameraPos.X - 16f && self.Y + self.Height > CameraPos.Y - 16f && self.X < CameraPos.X + 320f * zoom + 16f && self.Y < CameraPos.Y + 180f * zoom + 16f;
         }
@@ -374,7 +379,7 @@ public static class SpinnerCalculateHelper {
     }
 
     private static bool FarFromRangeImpl(Entity self, Vector2 PlayerPosition, Vector2 CameraPos, float scale) {
-        if (self.isLightning()) {
+        if (self.IsLightning()) {
             if (self.X > CameraPos.X + 320f * scale + 320f + 16f || self.Y > CameraPos.Y + 180f * scale + 180f + 16f || self.Y + self.Height < CameraPos.Y - 180f * scale - 16f || self.X + self.Width < CameraPos.X - 320f * scale - 16f) {
                 return true;
             }

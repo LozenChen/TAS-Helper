@@ -17,7 +17,7 @@ internal static class ActualCollideHitboxDelegatee {
 
         typeof(ActualEntityCollideHitbox).GetMethod("SaveActualCollidable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter<Entity>(
             e => {
-                if (TasHelperSettings.Enabled && e.isHazard()) {
+                if (TasHelperSettings.Enabled && e.IsLightning()) {
                     LastCollidables[e] = SpinnerCalculateHelper.GetCollidable(e);
                 }
             }

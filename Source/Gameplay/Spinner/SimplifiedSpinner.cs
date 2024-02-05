@@ -242,7 +242,7 @@ internal static class SimplifiedSpinner {
      */
 
     private static void PatchDebugRender(On.Monocle.Entity.orig_DebugRender orig, Entity self, Camera camera) {
-        if (!TasHelperSettings.Enabled || !self.isHazard()) {
+        if (!TasHelperSettings.Enabled || !self.IsHazard()) {
             orig(self, camera);
             return;
         }
@@ -259,10 +259,10 @@ internal static class SimplifiedSpinner {
             // skip part of render
         }
         else {
-            if (TasHelperSettings.EnableSimplifiedSpinner && !self.isLightning()) {
+            if (TasHelperSettings.EnableSimplifiedSpinner && !self.IsLightning()) {
                 ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForSpinner, self, camera, color, collidable, SpinnerRenderHelper.DrawSpinnerCollider);
             }
-            else if (TasHelperSettings.EnableSimplifiedLightning && self.isLightning()) {
+            else if (TasHelperSettings.EnableSimplifiedLightning && self.IsLightning()) {
                 ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForLightning, self, camera, color, collidable, SimplifiedLightning.DrawOutline);
             }
             else {

@@ -175,7 +175,7 @@ internal static class ActualPosition {
 
 
     private static void PatchHazardUpdate(Entity self) {
-        if (TasHelperSettings.Enabled && !UltraFastForwarding && self.isHazard() && player != null) {
+        if (TasHelperSettings.Enabled && !UltraFastForwarding && self.IsHazard() && player != null) {
             if (PlayerPositionChangedCount == 0) {
                 PlayerPositionChangedCount++;
                 PlayerPosition = player.Position;

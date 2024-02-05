@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Monocle;
 
 namespace Celeste.Mod.TASHelper.Utils;
@@ -11,6 +10,7 @@ public static class TagUtils {
     // still some worst case: we are going to modify the whole logic, instead of adding something new, and there is no overriden function for us to hook (so we can only hook the parent one... if the characteristics is a bit complex, then we may lose too much time on finding these entities, and we have to do this every game loop!!!), and things happen in (debug)render, so we can not use pre/post update
     // luckily we still have Entity.Tag
     // we put our results on this tag, so results are stored, so we can find these special entities quickly
+    // or similarly we can add a component (specifically invented for our use here), we can store everything into component, however it's expansive than Tag, but i guess it's still cheaper in most cases when comparing to computing some heavy stuff each frame
 
 
     public static void SafeAdd(string name, out BitTag tag) {

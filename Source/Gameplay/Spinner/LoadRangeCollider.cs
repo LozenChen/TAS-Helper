@@ -10,7 +10,7 @@ internal static class LoadRangeCollider {
         }
 
         if (TasHelperSettings.UsingLoadRangeCollider) {
-            if (self.isLightning()) {
+            if (self.IsLightning()) {
                 // only check in view for lightning
                 if ((TasHelperSettings.UsingInViewRange || TasHelperSettings.LoadRangeColliderMode == Module.TASHelperSettings.LoadRangeColliderModes.Always) && !SpinnerCalculateHelper.LightningInView(self, ActualPosition.CameraPosition)) {
                     LoadRangeColliderRenderer.lightningDatas.Add(new LoadRangeColliderRenderer.LightningData(self.Position, self.Width + 1, self.Height + 1));

@@ -53,6 +53,7 @@ public static class WhatsNew {
         AddLog("1.8.19", "Cassette Block Helper now shows more info. Enable it in \"More Options\" -> \"Cassette Block Extra Info\".");
         AddLog("1.8.20", "Hazard Countdown now has a new mode: ExactGroup, which is useful when you need to manip a spinner drift.");
         AddLog("1.8.21", "Cassette Block Info now can be placed at top/bottom-left/right. Configurate it in \"More Options\".");
+        AddLog("1.8.22", "Performance Optimization. It improves by 25%.");
 
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }

@@ -17,7 +17,7 @@ public static class ExactSpinnerGroup {
     public static int GroupPeriod = -1; // initial state need to be different from 3, 15 in order to activate later
 
     public static double ExactHazardGroup(Entity entity) {
-        if (entity.isHazard()) {
+        if (entity.IsHazard()) {
             return (double)SpinnerCalculateHelper.GetOffset(entity)! * 60 % GroupPeriod;
         }
         return -99;
@@ -171,7 +171,7 @@ public static class ExactSpinnerGroup {
                 foreach (Entity entity in level.Entities) {
                     double value = ExactHazardGroup(entity);
                     if (value > -1) {
-                        offsetGroup.Add(entity, new Tuple<bool, string>(entity.isLightning(), value.ToString("0.00")));
+                        offsetGroup.Add(entity, new Tuple<bool, string>(entity.IsLightning(), value.ToString("0.00")));
                     }
                 }
                 Active = false;
