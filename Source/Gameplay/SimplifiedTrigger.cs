@@ -257,7 +257,7 @@ public static class SimplifiedTrigger {
     private static void HandleOtherMods() {
         // https://maddie480.ovh/celeste/custom-entity-catalog
         // to reduce work, i will not check those mods which are used as dependency by less than 5 mods
-        // last update date: 2023.12.21, there are 426 triggers in the list
+        // last major update date: 2023.12.21, there are 426 triggers in the list
 
         AddTypes("AurorasHelper", "Celeste.Mod.AurorasHelper.ResetMusicTrigger", "Celeste.Mod.AurorasHelper.PlayAudioTrigger", "Celeste.Mod.AurorasHelper.ShowSubtitlesTrigger");
         AddTypes("AvBdayHelper2021", "Celeste.Mod.AvBdayHelper.Code.Triggers.ScreenShakeTrigger");
@@ -270,7 +270,7 @@ public static class SimplifiedTrigger {
         AddTypes("FactoryHelper", "FactoryHelper.Triggers.SteamWallColorTrigger");
         AddTypes("FemtoHelper", "ParticleRemoteEmit");
         AddTypes("FlaglinesAndSuch", "FlaglinesAndSuch.FlagLightFade", "FlaglinesAndSuch.MusicIfFlag");
-        AddTypes("FrostHelper", "FrostHelper.AnxietyTrigger", "FrostHelper.BloomColorFadeTrigger", "FrostHelper.BloomColorPulseTrigger", "FrostHelper.BloomColorTrigger", "FrostHelper.DoorDisableTrigger", "FrostHelper.LightningColorTrigger", "FrostHelper.RainbowBloomTrigger", "FrostHelper.StylegroundMoveTrigger");
+        AddTypes("FrostHelper", "FrostHelper.AnxietyTrigger", "FrostHelper.BloomColorFadeTrigger", "FrostHelper.BloomColorPulseTrigger", "FrostHelper.BloomColorTrigger", "FrostHelper.DoorDisableTrigger", "FrostHelper.LightningColorTrigger", "FrostHelper.RainbowBloomTrigger", "FrostHelper.StylegroundMoveTrigger", "FrostHelper.Triggers.StylegroundBlendStateTrigger", "FrostHelper.Triggers.LightingBaseColorTrigger");
         AddTypes("JungleHelper", "Celeste.Mod.JungleHelper.Triggers.GeckoTutorialTrigger", "Celeste.Mod.JungleHelper.Triggers.UIImageTrigger", "Celeste.Mod.JungleHelper.Triggers.UITextTrigger");
         AddTypes("Long Name Helper by Helen, Helen's Helper, hELPER", "Celeste.Mod.hELPER.ColourChangeTrigger", "Celeste.Mod.hELPER.SpriteReplaceTrigger");
         AddTypes("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Triggers.AllBlackholesStrengthTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.FloatFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.ColorGradeFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.GradientDustTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.MadelinePonytailTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.MadelineSilhouetteTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.PersistentMusicFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.RainbowSpinnerColorFadeTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.RainbowSpinnerColorTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.SetBloomBaseTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.SetBloomStrengthTrigger", "Celeste.Mod.MaxHelpingHand.Triggers.SetDarknessAlphaTrigger");
