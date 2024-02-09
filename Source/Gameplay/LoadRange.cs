@@ -7,19 +7,8 @@ internal static class LoadRange {
     internal static Color InViewRangeColor => TasHelperSettings.InViewRangeColor;
     internal static Color NearPlayerRangeColor => TasHelperSettings.NearPlayerRangeColor;
 
-    [Load]
-    public static void Load() {
-        On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
-    }
-
-    [Unload]
-    public static void Unload() {
-        On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
-    }
-
-
-    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
-        orig(self, camera);
+    [AddDebugRender]
+    private static void PatchEntityListDebugRender() {
         if (TasHelperSettings.UsingNearPlayerRange) {
             // to see whether it works, teleport to Farewell [a-01] and updash
             // (teleport modifies your actualDepth, otherwise you need to set depth, or just die in this room)

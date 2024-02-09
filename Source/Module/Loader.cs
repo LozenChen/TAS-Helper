@@ -20,6 +20,7 @@ internal static class Loader {
         HookHelper.InitializeAtFirst();
         ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();
+        AttributeUtils.Invoke<EventOnHookAttribute>();
         typeof(TAS.Manager).GetMethod("DisableRun").HookAfter(() => AttributeUtils.Invoke<TasDisableRunAttribute>());
         typeof(TAS.Manager).GetMethod("EnableRun").HookBefore(() => AttributeUtils.Invoke<TasEnableRunAttribute>());
         TasHelperSettings.FirstInstall = false;

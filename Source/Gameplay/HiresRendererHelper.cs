@@ -17,7 +17,7 @@ public static class HiresLevelRenderer {
         On.Celeste.Level.Begin += OnLevelBegin;
         On.Celeste.Level.End += OnLevelEnd;
         IL.Celeste.Level.Render += ILLevelRender;
-        On.Monocle.Scene.AfterUpdate += OnLevelAfterUpdate;
+        EventOnHook.Scene.AfterUpdate += OnLevelAfterUpdate;
     }
 
     [Unload]
@@ -25,7 +25,6 @@ public static class HiresLevelRenderer {
         On.Celeste.Level.Begin -= OnLevelBegin;
         On.Celeste.Level.End -= OnLevelEnd;
         IL.Celeste.Level.Render -= ILLevelRender;
-        On.Monocle.Scene.AfterUpdate -= OnLevelAfterUpdate;
     }
 
     private static void OnLevelBegin(On.Celeste.Level.orig_Begin orig, Level self) {
@@ -42,8 +41,10 @@ public static class HiresLevelRenderer {
         orig(self);
     }
 
-    private static void OnLevelAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
-        orig(self);
+    private static void OnLevelAfterUpdate(Scene self) {
+        if (self is not Level) {
+            return;
+        }
         UpdateLists();
         foreach (THRenderer renderer in list) {
             renderer.Update();

@@ -7,18 +7,6 @@ namespace Celeste.Mod.TASHelper.Gameplay;
 
 public static class MovingEntityTrack {
 
-    [Load]
-    public static void Load() {
-        On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
-    }
-
-    [Unload]
-
-    public static void Unload() {
-        On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
-    }
 
     [Initialize]
 
@@ -98,14 +86,16 @@ public static class MovingEntityTrack {
     internal static Dictionary<RotateData, int> CachedCircle = new();
 
     public static Color TrackColor = Color.Yellow * 0.5f;
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
+
+    [LoadLevel(true)]
+    private static void OnLoadLevel() {
         CachedNodes.Clear();
         CachedStartEnd.Clear();
         CachedCircle.Clear();
-        orig(self, playerIntro, isFromLoader);
     }
-    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
-        orig(self, camera);
+
+    [AddDebugRender]
+    private static void PatchEntityListDebugRender(EntityList self) {
         if (self.Scene is not Level) {
             return;
         }

@@ -7,19 +7,8 @@ internal static class CameraTarget {
     private static readonly Vector2 TopLeft2Center = new(160f, 90f);
     internal static Color CameraTargetVectorColor => TasHelperSettings.CameraTargetColor;
 
-    [Load]
-    public static void Load() {
-        On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
-    }
-
-    [Unload]
-    public static void Unload() {
-        On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
-    }
-
-
-    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
-        orig(self, camera);
+    [AddDebugRender]
+    private static void PatchEntityListDebugRender() {
         if (TasHelperSettings.UsingCameraTarget) {
             DrawCameraTarget(ActualPosition.PreviousCameraPos, ActualPosition.CameraPosition, ActualPosition.CameraTowards);
         }

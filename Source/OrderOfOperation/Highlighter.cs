@@ -8,18 +8,8 @@ namespace Celeste.Mod.TASHelper.OrderOfOperation;
 
 internal static class Highlighter {
 
-    [Load]
-    public static void Load() {
-        On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
-    }
-
-    [Unload]
-    public static void Unload() {
-        On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
-    }
-
-    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
-        orig(self, camera);
+    [AddDebugRender]
+    private static void PatchEntityListDebugRender(EntityList self, Camera camera) {
         if (Applied) {
             UpdateTime();
             DebugRender(camera);

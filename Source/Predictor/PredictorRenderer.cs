@@ -203,18 +203,8 @@ public class PredictorRenderer : Entity {
 
     private const float FadeOutCoraseTillThisFrame = 500f;
 
-    [Load]
-    public static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
-    }
-
-    [Unload]
-    public static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
-    }
-
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes introTypes, bool isFromLoader) {
-        orig(self, introTypes, isFromLoader);
+    [LoadLevel]
+    private static void OnLoadLevel(Level self) {
         self.Add(new PredictorRenderer());
     }
 }

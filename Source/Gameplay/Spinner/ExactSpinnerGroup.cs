@@ -55,18 +55,9 @@ public static class ExactSpinnerGroup {
         ExactSpinnerGroupRenderer.Instance?.Apply(x => { HiresLevelRenderer.Remove(x); });
     }
 
-    [Load]
-    public static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
-    }
+    [LoadLevel]
 
-    [Unload]
-    public static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
-    }
-
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        orig(level, playerIntro, isFromLoader);
+    private static void OnLoadLevel() {
         if (Enabled) {
             LoadExactSpinnerGroup();
             LoadExactLevelGroup();

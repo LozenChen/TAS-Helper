@@ -2,6 +2,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using _Celeste = Celeste;
 
 namespace Celeste.Mod.TASHelper.Utils;
 internal static class HookHelper {
@@ -101,6 +102,226 @@ internal static class HookHelper {
                     ilCursor.Emit(OpCodes.Brfalse, start).Emit(OpCodes.Ldc_R4, 0f).Emit(OpCodes.Ret);
                 });
             }
+        }
+    }
+}
+
+internal static class EventOnHook {
+    private static void ThrowException() {
+        Logger.Log("TAS Helper", "EventOnHook finds a method with improper attributes!");
+        throw new Exception("Invalid ParameterInfo");
+    }
+    public static class Scene {
+        public delegate void UpdateHandler(Monocle.Scene scene);
+
+        public static event UpdateHandler BeforeUpdate;
+
+        public static event UpdateHandler AfterUpdate;
+
+        [EventOnHook]
+        private static void CreateOnHook() {
+            On.Monocle.Scene.BeforeUpdate += OnBeforeUpdate;
+            On.Monocle.Scene.AfterUpdate += OnAfterUpdate;
+        }
+
+        [Unload]
+        private static void Unload() {
+            On.Monocle.Scene.BeforeUpdate -= OnBeforeUpdate;
+            On.Monocle.Scene.AfterUpdate -= OnAfterUpdate;
+        }
+
+        private static void OnBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Monocle.Scene self) {
+            orig(self);
+            BeforeUpdate?.Invoke(self);
+        }
+
+        private static void OnAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Monocle.Scene self) {
+            orig(self);
+            AfterUpdate?.Invoke(self);
+        }
+    }
+
+    public static class Level {
+        public delegate void LoadLevelHandler(_Celeste.Level level, Player.IntroTypes playerIntro, bool isFromLoader = false);
+
+        public static event LoadLevelHandler LoadLevel;
+
+        public static event LoadLevelHandler LoadLevel_Before;
+
+        private delegate void LoadLevelHandler_Parameter0();
+
+        private static event LoadLevelHandler_Parameter0 LoadLevel_Parameter0;
+
+        private static event LoadLevelHandler_Parameter0 LoadLevel_Before_Parameter0;
+
+        private delegate void LoadLevelHandler_Parameter1(_Celeste.Level level);
+
+        private static event LoadLevelHandler_Parameter1 LoadLevel_Parameter1;
+
+        private static event LoadLevelHandler_Parameter1 LoadLevel_Before_Parameter1;
+
+        private delegate void LoadLevelHandler_Parameter2(_Celeste.Level level, Player.IntroTypes playerIntro);
+
+        private static event LoadLevelHandler_Parameter2 LoadLevel_Parameter2;
+
+        private static event LoadLevelHandler_Parameter2 LoadLevel_Before_Parameter2;
+
+        [Initialize]
+        private static void Initialize() {
+            foreach (MethodInfo method in typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
+            .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))) {
+                if (method.GetCustomAttribute<LoadLevelAttribute>() is not LoadLevelAttribute attr) {
+                    continue;
+                }
+                if (attr.Before) {
+                    switch (method.GetParameters().Length) {
+                        case 0: {
+                                LoadLevel_Parameter0 += (LoadLevelHandler_Parameter0)method.CreateDelegate(typeof(LoadLevelHandler_Parameter0));
+                                break;
+                            }
+                        case 1: {
+                                LoadLevel_Parameter1 += (LoadLevelHandler_Parameter1)method.CreateDelegate(typeof(LoadLevelHandler_Parameter1));
+                                break;
+                            }
+                        case 2: {
+                                LoadLevel_Parameter2 += (LoadLevelHandler_Parameter2)method.CreateDelegate(typeof(LoadLevelHandler_Parameter2));
+                                break;
+                            }
+                        case 3: {
+                                LoadLevel += (LoadLevelHandler)method.CreateDelegate(typeof(LoadLevelHandler));
+                                break;
+                            }
+                        default: {
+                                ThrowException();
+                                break;
+                            }
+                    }
+                }
+                else {
+                    switch (method.GetParameters().Length) {
+                        case 0: {
+                                LoadLevel_Before_Parameter0 += (LoadLevelHandler_Parameter0)method.CreateDelegate(typeof(LoadLevelHandler_Parameter0));
+                                break;
+                            }
+                        case 1: {
+                                LoadLevel_Before_Parameter1 += (LoadLevelHandler_Parameter1)method.CreateDelegate(typeof(LoadLevelHandler_Parameter1));
+                                break;
+                            }
+                        case 2: {
+                                LoadLevel_Before_Parameter2 += (LoadLevelHandler_Parameter2)method.CreateDelegate(typeof(LoadLevelHandler_Parameter2));
+                                break;
+                            }
+                        case 3: {
+                                LoadLevel_Before += (LoadLevelHandler)method.CreateDelegate(typeof(LoadLevelHandler));
+                                break;
+                            }
+                        default: {
+                                ThrowException();
+                                break;
+                            }
+                    }
+                }
+            }
+            if (LoadLevel_Parameter0 is not null) {
+                LoadLevel += (_, _, _) => LoadLevel_Parameter0.Invoke();
+            }
+            if (LoadLevel_Parameter1 is not null) {
+                LoadLevel += (level, _, _) => LoadLevel_Parameter1.Invoke(level);
+            }
+            if (LoadLevel_Parameter2 is not null) {
+                LoadLevel += (level, playerIntro, _) => LoadLevel_Parameter2.Invoke(level, playerIntro);
+            }
+            if (LoadLevel_Before_Parameter0 is not null) {
+                LoadLevel_Before += (_, _, _) => LoadLevel_Before_Parameter0.Invoke();
+            }
+            if (LoadLevel_Before_Parameter1 is not null) {
+                LoadLevel_Before += (level, _, _) => LoadLevel_Before_Parameter1.Invoke(level);
+            }
+            if (LoadLevel_Before_Parameter2 is not null) {
+                LoadLevel_Before += (level, playerIntro, _) => LoadLevel_Before_Parameter2.Invoke(level, playerIntro);
+            }
+        }
+
+        [EventOnHook]
+        private static void CreateOnHook() {
+            // yeah i know Everest.Events.Level.OnLoadLevel already exists
+            // but my compiler throws me a CS0229 error
+            // maybe the issue of publicizer, idk
+            On.Celeste.Level.LoadLevel += OnLoadLevel;
+
+        }
+
+        [Unload]
+        private static void Unload() {
+            On.Celeste.Level.LoadLevel -= OnLoadLevel;
+        }
+
+        private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, _Celeste.Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
+            LoadLevel_Before?.Invoke(level, playerIntro, isFromLoader);
+            orig(level, playerIntro, isFromLoader);
+            LoadLevel?.Invoke(level, playerIntro, isFromLoader);
+        }
+    }
+
+
+    public static class EntityList {
+        public delegate void DebugRenderHandler(Monocle.EntityList self, Monocle.Camera camera);
+
+        public static event DebugRenderHandler DebugRender;
+
+        private delegate void DebugRenderHandler_Parameter0();
+
+        private static event DebugRenderHandler_Parameter0 DebugRender_Parameter0;
+
+        private delegate void DebugRenderHandler_Parameter1(Monocle.EntityList self);
+
+        private static event DebugRenderHandler_Parameter1 DebugRender_Parameter1;
+
+        [Initialize]
+        private static void Initialize() {
+            foreach (MethodInfo method in typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
+            .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)).Where(method => method.GetCustomAttribute<AddDebugRenderAttribute>() is { })) {
+                switch (method.GetParameters().Length) {
+                    case 0: {
+                            DebugRender_Parameter0 += (DebugRenderHandler_Parameter0)method.CreateDelegate(typeof(DebugRenderHandler_Parameter0));
+                            break;
+                        }
+                    case 1: {
+                            DebugRender_Parameter1 += (DebugRenderHandler_Parameter1)method.CreateDelegate(typeof(DebugRenderHandler_Parameter1));
+                            break;
+                        }
+                    case 2: {
+                            DebugRender += (DebugRenderHandler)method.CreateDelegate(typeof(DebugRenderHandler));
+                            break;
+                        }
+                    default: {
+                            ThrowException();
+                            break;
+                        }
+                }
+            }
+            if (DebugRender_Parameter0 is not null) {
+                DebugRender += (_, _) => DebugRender_Parameter0.Invoke();
+            }
+            if (DebugRender_Parameter1 is not null) {
+                DebugRender += (self, _) => DebugRender_Parameter1.Invoke(self);
+            }
+        }
+
+        [EventOnHook]
+        private static void CreateOnHook() {
+            On.Monocle.EntityList.DebugRender += OnEntityListDebugRender;
+
+        }
+
+        [Unload]
+        private static void Unload() {
+            On.Monocle.EntityList.DebugRender -= OnEntityListDebugRender;
+        }
+
+        private static void OnEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, Monocle.EntityList self, Monocle.Camera camera) {
+            orig(self, camera);
+            DebugRender?.Invoke(self, camera);
         }
     }
 }

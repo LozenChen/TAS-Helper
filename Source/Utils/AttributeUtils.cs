@@ -78,3 +78,20 @@ internal class TasEnableRunAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Method)]
 internal class ReloadAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Method)]
+internal class EventOnHookAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Method)]
+// it allows 0 - 3 parameters, so you can't collect/invoke it using attribute utils functions. we put it here just to make it global
+internal class LoadLevelAttribute : Attribute {
+    public bool Before;
+
+    public LoadLevelAttribute(bool before = false) {
+        Before = before;
+    }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+// 0 - 2 parameters
+internal class AddDebugRenderAttribute : Attribute { }

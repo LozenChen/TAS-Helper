@@ -17,6 +17,7 @@ public class TASHelperModule : EverestModule {
         AttributeUtils.CollectMethods<TasDisableRunAttribute>();
         AttributeUtils.CollectMethods<TasEnableRunAttribute>();
         AttributeUtils.CollectMethods<ReloadAttribute>();
+        AttributeUtils.CollectMethods<EventOnHookAttribute>();
     }
 
     public override Type SettingsType => typeof(TASHelperSettings);

@@ -3,33 +3,6 @@ using Monocle;
 
 namespace Celeste.Mod.TASHelper.Entities;
 
-internal static class PixelGridHook {
-    [Load]
-    public static void Load() {
-        On.Celeste.Level.LoadLevel += CreatePixelGridAroundPlayer;
-    }
-
-    [Unload]
-    public static void Unload() {
-        On.Celeste.Level.LoadLevel -= CreatePixelGridAroundPlayer;
-    }
-    private static void PixelGridAroundPlayerUpdate(PixelGrid self) {
-        if (player is not null) {
-            self.Position = player.Position;
-            self.Collider.Width = player.Collider.Width;
-            self.Collider.Height = player.Collider.Height;
-            self.Collider.Left = player.Collider.Left;
-            self.Collider.Top = player.Collider.Top;
-            self.width = TasHelperSettings.PixelGridWidth;
-        }
-    }
-    private static void CreatePixelGridAroundPlayer(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
-        orig(self, playerIntro, isFromLoader);
-        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid && player is not null, PixelGridAroundPlayerUpdate));
-    }
-
-}
-
 [Tracked(false)]
 public class PixelGrid : Entity {
     public static Color color1 = Color.White;
@@ -50,6 +23,21 @@ public class PixelGrid : Entity {
         Collider = new Hitbox(0f, 0f);
         this.visibleGetter = visibleGetter;
         this.UpdateBeforeRender = UpdateBeforeRender;
+    }
+
+    [LoadLevel]
+    private static void CreatePixelGridAroundPlayer(Level self) {
+        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid && player is not null, PixelGridAroundPlayerUpdate));
+    }
+    private static void PixelGridAroundPlayerUpdate(PixelGrid self) {
+        if (player is not null) {
+            self.Position = player.Position;
+            self.Collider.Width = player.Collider.Width;
+            self.Collider.Height = player.Collider.Height;
+            self.Collider.Left = player.Collider.Left;
+            self.Collider.Top = player.Collider.Top;
+            self.width = TasHelperSettings.PixelGridWidth;
+        }
     }
 
     [Initialize]

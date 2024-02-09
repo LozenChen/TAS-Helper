@@ -1,5 +1,6 @@
 ﻿using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using TAS;
@@ -49,22 +50,10 @@ internal class CountdownRenderer : THRenderer {
         NonHiresID2Positions = new Dictionary<int, List<Vector2>>();
     }
 
-    [Load]
-    public static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
-        On.Monocle.EntityList.DebugRender += NonHiresRender;
-        On.Monocle.Scene.BeforeUpdate += OnSceneBeforeUpdate;
-    }
-
-    [Unload]
-    public static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
-        On.Monocle.EntityList.DebugRender -= NonHiresRender;
-        On.Monocle.Scene.BeforeUpdate -= OnSceneBeforeUpdate;
-    }
-
     [Initialize]
     public static void Initialize() {
+        EventOnHook.Scene.BeforeUpdate += (_) => ClearCache();
+
         // copied from ExtendedVariants.Entities.DashCountIndicator
         MTexture source = GFX.Game["pico8/font"];
         numbers = new MTexture[10];
@@ -77,9 +66,8 @@ internal class CountdownRenderer : THRenderer {
         }
     }
 
-
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        orig(level, playerIntro, isFromLoader);
+    [LoadLevel]
+    private static void OnLoadLevel() {
         if (Instance is null || !HiresLevelRenderer.Contains(Instance)) {
             HiresLevelRenderer.Add(new CountdownRenderer());
         }
@@ -165,9 +153,8 @@ internal class CountdownRenderer : THRenderer {
         }
     }
 
-    private static void NonHiresRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
-        orig(self, camera);
-
+    [AddDebugRender]
+    private static void NonHiresRender() {
         if (TasHelperSettings.UsingHiresFont) {
             return;
         }
@@ -216,11 +203,6 @@ internal class CountdownRenderer : THRenderer {
         overlapDetector.Clear();
         overlapResolver.Clear();
         Cached = false;
-    }
-
-    private static void OnSceneBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
-        orig(self);
-        ClearCache();
     }
 }
 

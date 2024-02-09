@@ -89,23 +89,20 @@ internal static class ActualPosition {
 
     [Load]
     public static void Load() {
-        On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
+        EventOnHook.Scene.BeforeUpdate += PatchBeforeUpdate;
+        EventOnHook.Scene.AfterUpdate += PatchAfterUpdate;
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
-        On.Monocle.Scene.AfterUpdate += PatchAfterUpdate;
         typeof(Player).GetMethod("orig_Update").IlHook(PlayerPositionBeforeCameraUpdateIL);
     }
 
     [Unload]
     public static void Unload() {
-        On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
         On.Celeste.Lightning.Update -= PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update -= PatchDustUpdate;
-        On.Monocle.Scene.AfterUpdate -= PatchAfterUpdate;
     }
 
-    private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
-        orig(self);
+    private static void PatchBeforeUpdate(Scene self) {
         if (TasHelperSettings.Enabled && self is Level level) {
             PlayerPositionChangedCount = 0;
             PreviousCameraPos = level.Camera.Position;
@@ -113,7 +110,7 @@ internal static class ActualPosition {
         }
     }
 
-    private static void PatchAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self) {
+    private static void PatchAfterUpdate(Scene self) {
         if (TasHelperSettings.Enabled && self is Level level) {
             CameraPosition = level.Camera.Position;
             if (player != null) {
@@ -124,7 +121,6 @@ internal static class ActualPosition {
                 CameraTowards = PlayerPositionBeforeCameraUpdate + level.CameraOffset;
             }
         }
-        orig(self);
     }
 
     private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {

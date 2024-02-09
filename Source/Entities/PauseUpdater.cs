@@ -25,7 +25,6 @@ public static class PauseUpdater {
 
     [Load]
     public static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
         On.Celeste.Level.BeforeRender += OnBeforeRender;
     }
 
@@ -33,18 +32,12 @@ public static class PauseUpdater {
     [Unload]
 
     public static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
         On.Celeste.Level.BeforeRender -= OnBeforeRender;
     }
 
     public static void Register(Entity entity) {
         entity.Tag |= levelPauseTags;
         entity.Add(new PauseUpdateComponent());
-    }
-
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        orig(level, playerIntro, isFromLoader);
-        Detector.AddIfNecessary(level);
     }
 
     private static void OnBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level level) {
@@ -79,9 +72,10 @@ public static class PauseUpdater {
             }
         }
 
-        public static void AddIfNecessary(Scene scene) {
-            if (instance is null || instance.Scene != scene) {
-                scene.AddImmediately(new Detector());
+        [LoadLevel]
+        public static void AddIfNecessary(Level level) {
+            if (instance is null || instance.Scene != level) {
+                level.AddImmediately(new Detector());
             }
         }
     }

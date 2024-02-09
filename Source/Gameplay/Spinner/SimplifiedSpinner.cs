@@ -25,7 +25,7 @@ internal static class SimplifiedSpinner {
 
     // sprites are created by e.g. AddSprites(), so they do not necessarily exist when load level
 
-    private static bool NotUpdated => NeedClearSprites || wasSpritesCleared != SpritesCleared;
+    private static bool NotUpdated => NeedClearSprites || wasSpritesCleared != SpritesCleared; // the latter one is used for hotkey changing that state
 
     private static readonly List<Action<Level>> ClearSpritesAction = new();
 
@@ -37,13 +37,17 @@ internal static class SimplifiedSpinner {
             // so we need to be after HitboxOptimized hook, which already uses After = {"*"}, so we need even more configs
             On.Monocle.Entity.DebugRender += PatchDebugRender;
         }
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
     }
 
     [Unload]
     public static void Unload() {
         On.Monocle.Entity.DebugRender -= PatchDebugRender;
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
+    }
+
+    [LoadLevel]
+
+    private static void LoadLevel() {
+        NeedClearSprites = true;
     }
 
     [Initialize]
@@ -142,11 +146,6 @@ internal static class SimplifiedSpinner {
         void OnCreateSprites(Type type) {
             EOF(type.GetMethod("CreateSprites", BindingFlags.NonPublic | BindingFlags.Instance));
         }
-    }
-
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
-        orig(self, playerIntro, isFromLoader);
-        wasSpritesCleared = !SpritesCleared;
     }
 
     private static void LevelBeforeRender(Level self) {

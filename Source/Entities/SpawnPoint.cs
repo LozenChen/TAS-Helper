@@ -8,22 +8,13 @@ public class SpawnPoint : Entity {
 
     public static MTexture Maddy;
 
-    [Load]
-    public static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
-    }
-
-    [Unload]
-    public static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
-    }
-
     [Initialize]
     public static void Initialize() {
         Maddy = GFX.Game["TASHelper/Spawn/sitDown00"];
     }
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level self, Player.IntroTypes playerIntro, bool isFromLoader) {
-        orig(self, playerIntro, isFromLoader);
+
+    [LoadLevel]
+    private static void OnLoadLevel(Level self) {
         self.Add(new SpawnPoint(self));
     }
 

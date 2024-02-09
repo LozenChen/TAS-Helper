@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 
@@ -34,20 +35,9 @@ internal static class LoadRangeColliderRenderer {
 
     internal static MTexture starShape;
 
-    [Load]
-    public static void Load() {
-        On.Monocle.EntityList.DebugRender += PatchEntityListDebugRender;
-        On.Monocle.Scene.BeforeUpdate += OnSceneBeforeUpdate;
-    }
-
-    [Unload]
-    public static void Unload() {
-        On.Monocle.EntityList.DebugRender -= PatchEntityListDebugRender;
-        On.Monocle.Scene.BeforeUpdate -= OnSceneBeforeUpdate;
-    }
-
     [Initialize]
     public static void Initialize() {
+        EventOnHook.Scene.BeforeUpdate += (_) => ClearCache();
         starShape = GFX.Game["TASHelper/SpinnerCenter/spinner_center"];
     }
 
@@ -64,8 +54,9 @@ internal static class LoadRangeColliderRenderer {
     public static readonly List<LightningData> lightningDatas = new List<LightningData>();
 
     public static readonly List<Vector2> starShapePositions = new List<Vector2>();
-    private static void PatchEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, EntityList self, Camera camera) {
-        orig(self, camera);
+
+    [AddDebugRender]
+    private static void PatchEntityListDebugRender() {
         // render it after entity list debug render, so they are rendered above those solids
         foreach (LightningData data in lightningDatas) {
             Draw.HollowRect(data.Position, data.Width, data.Height, SpinnerCenterColor);
@@ -74,11 +65,6 @@ internal static class LoadRangeColliderRenderer {
             starShape.Draw(position, new Vector2(1f, 1f), SpinnerCenterColor);
         }
         Cached = true;
-    }
-
-    private static void OnSceneBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
-        orig(self);
-        ClearCache();
     }
 
     public static void ClearCache() {

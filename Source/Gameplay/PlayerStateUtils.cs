@@ -43,7 +43,7 @@ public static class PlayerStateUtils {
 
     [Load]
     public static void Load() {
-        On.Monocle.Scene.BeforeUpdate += OnBeforeUpdate;
+        EventOnHook.Scene.BeforeUpdate += (_) => Clear();
         On.Celeste.Player.SideBounce += OnSideBounce;
         On.Celeste.Player.RefillDash += OnRefillDash;
     }
@@ -51,14 +51,8 @@ public static class PlayerStateUtils {
     [Unload]
 
     public static void Unload() {
-        On.Monocle.Scene.BeforeUpdate -= OnBeforeUpdate;
         On.Celeste.Player.SideBounce -= OnSideBounce;
         On.Celeste.Player.RefillDash -= OnRefillDash;
-    }
-
-    private static void OnBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Monocle.Scene self) {
-        orig(self);
-        Clear();
     }
 
     private static bool OnSideBounce(On.Celeste.Player.orig_SideBounce orig, Player self, int dir, float fromX, float fromY) {

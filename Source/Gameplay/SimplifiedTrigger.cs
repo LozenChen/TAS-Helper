@@ -22,7 +22,6 @@ public static class SimplifiedTrigger {
 
     [Load]
     private static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
         using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }, ID = "TAS Helper SimplifiedTrigger" }) {
             IL.Monocle.Entity.DebugRender += ModDebugRender;
         }
@@ -30,7 +29,6 @@ public static class SimplifiedTrigger {
 
     [Unload]
     private static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
         IL.Monocle.Entity.DebugRender -= ModDebugRender;
     }
 
@@ -45,12 +43,6 @@ public static class SimplifiedTrigger {
         HandleOtherMods();
         HandleNonTriggerTrigger();
         typeof(HitboxColor).GetMethodInfo("GetCustomColor", new Type[] { typeof(Color), typeof(Entity) }).IlHook(ModGetCustomColor);
-    }
-
-
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        orig(level, playerIntro, isFromLoader);
-        TriggerInfoBuilder.Build(level);
     }
 
     private static void ModDebugRender(ILContext il) {
@@ -125,6 +117,7 @@ public static class SimplifiedTrigger {
             base.Removed(scene);
         }
 
+        [LoadLevel]
         public static void Build(Level level) {
             if (!Enabled) {
                 level.Tracker.GetEntities<TriggerInfoBuilder>().ForEach(x => x.RemoveSelf());

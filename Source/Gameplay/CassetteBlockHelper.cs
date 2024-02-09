@@ -24,7 +24,6 @@ public static class CassetteBlockHelper {
 
     [Load]
     private static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
         IL.Monocle.Engine.Update += ILEngineUpdate;
         IL.Celeste.Celeste.Freeze += ILCelesteFreeze;
     }
@@ -32,13 +31,12 @@ public static class CassetteBlockHelper {
 
     [Unload]
     private static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
         IL.Monocle.Engine.Update -= ILEngineUpdate;
         IL.Celeste.Celeste.Freeze -= ILCelesteFreeze;
     }
 
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        orig(level, playerIntro, isFromLoader);
+    [LoadLevel]
+    private static void OnLoadLevel(Level level) {
         if (Enabled) {
             CassetteBlockVisualizer.AddToScene(level);
             CassetteBlockVisualizer.BuildBeatColors(level);

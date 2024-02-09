@@ -90,6 +90,10 @@
 		<DoNotPublicize Include="Celeste:Monocle.Scene.OnEndOfFrame" />
 		<DoNotPublicize Include="Celeste:Celeste.Mod.TextInput.OnInput" />
 	</ItemGroup>
+
+	<PropertyGroup>
+		<PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>
+	</PropertyGroup>
 	
   <ItemGroup>
     <Compile Remove="Libs\**" />

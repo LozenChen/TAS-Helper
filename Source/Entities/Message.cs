@@ -10,28 +10,12 @@ namespace Celeste.Mod.TASHelper.Entities;
 
 public static class Messenger {
 
-    [Load]
-    public static void Load() {
-        On.Celeste.Level.LoadLevel += OnLoadLevel;
-    }
-
-    [Unload]
-
-    public static void Unload() {
-        On.Celeste.Level.LoadLevel -= OnLoadLevel;
-    }
-
     [Initialize]
 
     public static void Initialize() {
         if (ModUtils.PandorasBoxInstalled) {
             PandorasBoxPatch();
         }
-    }
-
-    private static void HelloWorld(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        orig(level, playerIntro, isFromLoader);
-        level.Add(new Message("Hello\nWorld", Vector2.Zero));
     }
 
     private static void PandorasBoxPatch() {
@@ -42,12 +26,6 @@ public static class Messenger {
                 cursor.EmitDelegate(WatchEntityActivator);
             }
         });
-    }
-
-    private static void OnLoadLevel(On.Celeste.Level.orig_LoadLevel orig, Level level, Player.IntroTypes playerIntro, bool isFromLoader = false) {
-        EntityActivatorWarner.MessageCount = 0;
-        orig(level, playerIntro, isFromLoader);
-        WindSpeedRenderer.AddIfNecessary();
     }
 
     private static void WatchEntityActivator(EntityData data) {
@@ -73,15 +51,12 @@ public class WindSpeedRenderer : Message {
         base.Tag |= Tags.Global;
     }
 
-    public static bool AddIfNecessary() {
-        if (Engine.Scene is not Level level) {
-            return false;
-        }
+    [LoadLevel]
+    public static void AddIfNecessary(Level level) {
         if (Instance is null || !level.Entities.Contains(Instance)) {
             Instance = new();
             level.Add(Instance);
         }
-        return true;
     }
 
     public override void Update() {
@@ -142,6 +117,11 @@ public class EntityActivatorWarner : Message {
     public static float lifetime = 5f;
 
     public float lifetimer = lifetime;
+
+    [LoadLevel(true)]
+    private static void OnLoadLevel() {
+        MessageCount = 0;
+    }
     public EntityActivatorWarner() : base("", new Vector2(960f, 20f)) {
         // hud renderer range: [0, 1920] * [0, 1080]
         this.Depth = -20000;
