@@ -75,3 +75,6 @@ internal class TasDisableRunAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Method)]
 internal class TasEnableRunAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Method)]
+internal class ReloadAttribute : Attribute { }

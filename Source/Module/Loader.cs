@@ -37,6 +37,7 @@ internal static class Loader {
 
     public static void OnReload() {
         typeof(TAS.EverestInterop.InfoHUD.InfoCustom).InvokeMethod("CollectAllTypeInfo"); // InfoCustom loses some mod info after hot reload
+        AttributeUtils.Invoke<ReloadAttribute>();
     }
 
     public static bool Reloading;

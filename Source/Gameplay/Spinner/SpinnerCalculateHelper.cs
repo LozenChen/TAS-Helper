@@ -23,7 +23,6 @@ public static class SpinnerCalculateHelper {
         using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" } }) {
             On.Monocle.Scene.BeforeUpdate += PatchBeforeUpdate;
         }
-        On.Celeste.Tags.Initialize += On_CelesteTags_Initialize;
         IL.Monocle.EntityList.UpdateLists += IL_EntityList_UpdateLists;
     }
 
@@ -31,13 +30,23 @@ public static class SpinnerCalculateHelper {
     [Unload]
     public static void Unload() {
         On.Monocle.Scene.BeforeUpdate -= PatchBeforeUpdate;
-        On.Celeste.Tags.Initialize -= On_CelesteTags_Initialize;
         IL.Monocle.EntityList.UpdateLists -= IL_EntityList_UpdateLists;
     }
 
     private static void PatchBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
         orig(self);
         PreSpinnerCalculate(self);
+    }
+
+    [Initialize]
+    private static void PrepareTags() {
+        TagUtils.SafeAdd("IsSpinner", out IsSpinnerTag);
+        TagUtils.SafeAdd("IsLightning", out IsLightningTag);
+        TagUtils.SafeAdd("IsDust", out IsDustTag);
+        IsSpinnerTagValue = (int)IsSpinnerTag;
+        IsLightningTagValue = (int)IsLightningTag;
+        IsDustTagValue = (int)IsDustTag;
+        IsHazardTagValue = IsSpinnerTagValue | IsLightningTagValue | IsDustTagValue;
     }
 
     // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
@@ -56,17 +65,6 @@ public static class SpinnerCalculateHelper {
             time += Engine.DeltaTime;
         }
         // this must be before tas mod's FreeCameraHitbox.SubHudRendererOnBeforeRender, otherwise spinners will flash if you zoom out in center camera mode
-    }
-
-    private static void On_CelesteTags_Initialize(On.Celeste.Tags.orig_Initialize orig) {
-        orig();
-        TagUtils.SafeAdd("IsSpinner", out IsSpinnerTag);
-        TagUtils.SafeAdd("IsLightning", out IsLightningTag);
-        TagUtils.SafeAdd("IsDust", out IsDustTag);
-        IsSpinnerTagValue = (int)IsSpinnerTag;
-        IsLightningTagValue = (int)IsLightningTag;
-        IsDustTagValue = (int)IsDustTag;
-        IsHazardTagValue = IsSpinnerTagValue | IsLightningTagValue | IsDustTagValue;
     }
 
 
