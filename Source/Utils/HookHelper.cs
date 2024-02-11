@@ -176,30 +176,6 @@ internal static class EventOnHook {
                 if (attr.Before) {
                     switch (method.GetParameters().Length) {
                         case 0: {
-                                LoadLevel_Parameter0 += (LoadLevelHandler_Parameter0)method.CreateDelegate(typeof(LoadLevelHandler_Parameter0));
-                                break;
-                            }
-                        case 1: {
-                                LoadLevel_Parameter1 += (LoadLevelHandler_Parameter1)method.CreateDelegate(typeof(LoadLevelHandler_Parameter1));
-                                break;
-                            }
-                        case 2: {
-                                LoadLevel_Parameter2 += (LoadLevelHandler_Parameter2)method.CreateDelegate(typeof(LoadLevelHandler_Parameter2));
-                                break;
-                            }
-                        case 3: {
-                                LoadLevel += (LoadLevelHandler)method.CreateDelegate(typeof(LoadLevelHandler));
-                                break;
-                            }
-                        default: {
-                                ThrowException();
-                                break;
-                            }
-                    }
-                }
-                else {
-                    switch (method.GetParameters().Length) {
-                        case 0: {
                                 LoadLevel_Before_Parameter0 += (LoadLevelHandler_Parameter0)method.CreateDelegate(typeof(LoadLevelHandler_Parameter0));
                                 break;
                             }
@@ -213,6 +189,30 @@ internal static class EventOnHook {
                             }
                         case 3: {
                                 LoadLevel_Before += (LoadLevelHandler)method.CreateDelegate(typeof(LoadLevelHandler));
+                                break;
+                            }
+                        default: {
+                                ThrowException();
+                                break;
+                            }
+                    }
+                }
+                else {
+                    switch (method.GetParameters().Length) {
+                        case 0: {
+                                LoadLevel_Parameter0 += (LoadLevelHandler_Parameter0)method.CreateDelegate(typeof(LoadLevelHandler_Parameter0));
+                                break;
+                            }
+                        case 1: {
+                                LoadLevel_Parameter1 += (LoadLevelHandler_Parameter1)method.CreateDelegate(typeof(LoadLevelHandler_Parameter1));
+                                break;
+                            }
+                        case 2: {
+                                LoadLevel_Parameter2 += (LoadLevelHandler_Parameter2)method.CreateDelegate(typeof(LoadLevelHandler_Parameter2));
+                                break;
+                            }
+                        case 3: {
+                                LoadLevel += (LoadLevelHandler)method.CreateDelegate(typeof(LoadLevelHandler));
                                 break;
                             }
                         default: {
@@ -248,7 +248,6 @@ internal static class EventOnHook {
             // but my compiler throws me a CS0229 error
             // maybe the issue of publicizer, idk
             On.Celeste.Level.LoadLevel += OnLoadLevel;
-
         }
 
         [Unload]
@@ -311,7 +310,6 @@ internal static class EventOnHook {
         [EventOnHook]
         private static void CreateOnHook() {
             On.Monocle.EntityList.DebugRender += OnEntityListDebugRender;
-
         }
 
         [Unload]
@@ -357,6 +355,14 @@ public static class CILCodeHelper {
             logCount--;
             ilCursor.Index++;
         }
+    }
+
+    public static void CILCodeLogger(this MulticastDelegate func) {
+        if (func is null) {
+            Logger.Log("TAS Helper", "CILCodeLogger: This Delegate is null.");
+            return;
+        }
+        func.GetInvocationList().ToList().ForEach(x => x.Method.CILCodeLogger());
     }
 
     public static void CILCodeLogger(this MethodBase methodBase, int logCount = 999999, bool useCommand = true) {
