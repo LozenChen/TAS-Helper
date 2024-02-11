@@ -50,7 +50,7 @@ public class PlayerState {
 
     public static PlayerState GetState() {
         PlayerState state = new();
-        if (Engine.Scene is not Level level || player is null) {
+        if (Engine.Scene is not Level level || playerInstance is not Player player) {
             state.LevelHasPlayer = false;
             return state;
         }

@@ -121,7 +121,10 @@ internal static class EventOnHook {
         [EventOnHook]
         private static void CreateOnHook() {
             On.Monocle.Scene.BeforeUpdate += OnBeforeUpdate;
-            On.Monocle.Scene.AfterUpdate += OnAfterUpdate;
+
+            using (new DetourContext { Before = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper Scene.AfterUpdate" }) {
+                On.Monocle.Scene.AfterUpdate += OnAfterUpdate;
+            }
         }
 
         [Unload]

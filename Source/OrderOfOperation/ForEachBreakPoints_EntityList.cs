@@ -54,6 +54,7 @@ internal static class ForEachBreakPoints_EntityList {
         }
 
         PlayerData? oldData = null;
+        Player player = playerInstance;
         if (!ultraFastForwarding && autoStop && player is not null) {
             oldData = new PlayerData(player);
         }
@@ -150,7 +151,7 @@ internal static class ForEachBreakPoints_EntityList {
 
     [Command_StringParameter("ooo_add_target", "Add the entity as a for-each breakpoint in EntityList.Update() (TAS Helper OoO Stepping)")]
     public static void CmdAddTarget(string UID) {
-        if (UID.StartsWith("Player") && (UID == "Player" || (player is not null && UID == GetUID(player)))) {
+        if (UID.StartsWith("Player") && (UID == "Player" || (playerInstance is not null && UID == GetUID(playerInstance)))) {
             AddTarget("Player", true);
         }
         else {

@@ -87,6 +87,8 @@
 		<Publicize Include="MonoMod.Utils" />
 		<Publicize Include="MonoMod.Utils:MonoMod.Utils.DynamicData._DataMap" />
 		<Publicize Include="MonoMod.Utils:MonoMod.Utils.DynamicData._Data_" />
+		<DoNotPublicize Include="Celeste:Monocle.Entity.PreUpdate" />
+		<DoNotPublicize Include="Celeste:Monocle.Entity.PostUpdate" />
 		<DoNotPublicize Include="Celeste:Monocle.Scene.OnEndOfFrame" />
 		<DoNotPublicize Include="Celeste:Celeste.Mod.TextInput.OnInput" />
 	</ItemGroup>

@@ -113,7 +113,7 @@ internal static class ActualPosition {
     private static void PatchAfterUpdate(Scene self) {
         if (TasHelperSettings.Enabled && self is Level level) {
             CameraPosition = level.Camera.Position;
-            if (player != null) {
+            if (playerInstance is Player player) {
                 if (PlayerPositionChangedCount == 0) {
                     PlayerPositionChangedCount++;
                     PlayerPosition = player.Position;
@@ -171,7 +171,7 @@ internal static class ActualPosition {
 
 
     private static void PatchHazardUpdate(Entity self) {
-        if (TasHelperSettings.Enabled && !UltraFastForwarding && self.IsHazard() && player != null) {
+        if (TasHelperSettings.Enabled && !UltraFastForwarding && self.IsHazard() && playerInstance is Player player) {
             if (PlayerPositionChangedCount == 0) {
                 PlayerPositionChangedCount++;
                 PlayerPosition = player.Position;

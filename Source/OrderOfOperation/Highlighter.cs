@@ -45,7 +45,7 @@ internal static class Highlighter {
         // but rendering this above everything else is not so bad imo....
         if (trackedPC?.Entity is { } entity) {
             Collider collider = trackedPC.Collider;
-            if (trackedPC.FeatherCollider != null && player is not null && player.StateMachine.state == 19) {
+            if (trackedPC.FeatherCollider != null && playerInstance is Player player && player.StateMachine.state == 19) {
                 collider = trackedPC.FeatherCollider;
             }
             collider ??= entity.Collider;

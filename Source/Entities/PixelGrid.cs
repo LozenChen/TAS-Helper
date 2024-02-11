@@ -27,10 +27,10 @@ public class PixelGrid : Entity {
 
     [LoadLevel]
     private static void CreatePixelGridAroundPlayer(Level self) {
-        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid && player is not null, PixelGridAroundPlayerUpdate));
+        self.Add(new PixelGrid(() => TasHelperSettings.EnablePixelGrid && playerInstance is not null, PixelGridAroundPlayerUpdate));
     }
     private static void PixelGridAroundPlayerUpdate(PixelGrid self) {
-        if (player is not null) {
+        if (playerInstance is Player player) {
             self.Position = player.Position;
             self.Collider.Width = player.Collider.Width;
             self.Collider.Height = player.Collider.Height;

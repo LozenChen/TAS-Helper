@@ -58,15 +58,15 @@ public static class CustomInfoHelper {
 
 
     public static float PlayerIntPositionX {
-        get => player?.X ?? 0;
+        get => playerInstance?.X ?? 0;
         set {
-            if (player is not null) { player.X = value; }
+            if (playerInstance is not null) { playerInstance.X = value; }
         }
     }
     public static float PlayerIntPositionY {
-        get => player?.Y ?? 0;
+        get => playerInstance?.Y ?? 0;
         set {
-            if (player is not null) { player.Y = value; }
+            if (playerInstance is not null) { playerInstance.Y = value; }
         }
     }
     // TAS mod somehow redirects Player.Position, so we provide this

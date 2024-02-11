@@ -34,7 +34,7 @@ internal static class GlobalVariables {
 
     public static bool StrictFrameStep => Manager.Running && ((Manager.LastStates.Has(StudioCommunication.States.FrameStep) ? 1 : 0) + (Manager.States.Has(StudioCommunication.States.FrameStep) ? 1 : 0) + (Manager.NextStates.Has(StudioCommunication.States.FrameStep) ? 1 : 0) > 1);
     // i haven't check how these states are set, but this just works well
-    public static Player? player => Engine.Scene.Tracker.GetEntity<Player>();
+    public static Player? playerInstance => Engine.Scene.Tracker.GetEntity<Player>();
 
     public static readonly object[] parameterless = { };
 }
