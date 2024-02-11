@@ -27,6 +27,7 @@ public static class CustomColors {
     public static readonly Color defaultPredictorPolygonalLineColor = Color.Red;
     public static readonly Color defaultPredictorDotColor = Color.LightBlue;
     public static readonly Color defaultCameraTriggerColor = Color.DarkGoldenrod;
+    public static readonly Color defaultMOAColor = Color.DarkOrange;
 
     public static void ResetOtherColor() {
         LoadRangeColliderColor = defaultLoadRangeColliderColor;
@@ -34,6 +35,7 @@ public static class CustomColors {
         NearPlayerRangeColor = defaultNearPlayerRangeColor;
         CameraTargetColor = defaultCameraTargetColor;
         CameraTriggerColor = defaultCameraTriggerColor;
+        MovementOvershootAssistantColor = defaultMOAColor;
     }
 
     public static void ResetSpinnerColor() {
@@ -92,6 +94,8 @@ public static class CustomColors {
     public static Color Predictor_DotColor { get => TasHelperSettings.PredictorDotColor; set => TasHelperSettings.PredictorDotColor = value; }
 
     public static Color CameraTriggerColor { get => TasHelperSettings.CameraTriggerColor; set => TasHelperSettings.CameraTriggerColor = value; }
+
+    public static Color MovementOvershootAssistantColor { get => TasHelperSettings.MOAColor; set => TasHelperSettings.MOAColor = value; }
 
     public static TextMenu.Item CreateChangeColorItem(Func<Color> getter, Action<Color> setter, string name, TextMenu textMenu, bool inGame) {
         TextMenu.Item item = new ButtonColorExt(name.ToDialogText(), getter, inGame).Pressed(inGame ? () => { }
@@ -213,6 +217,8 @@ public static class CustomColors {
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => LoadRangeColliderColor, value => LoadRangeColliderColor = value, nameof(LoadRangeColliderColor), defaultLoadRangeColliderColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => CameraTargetColor, value => CameraTargetColor = value, nameof(CameraTargetColor), defaultCameraTargetColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => CameraTriggerColor, value => CameraTriggerColor = value, nameof(CameraTriggerColor), defaultCameraTriggerColor);
+        AddItemWithDescriptionAndCMD(menu, page, inGame, () => MovementOvershootAssistantColor, value => MovementOvershootAssistantColor = value, nameof(MovementOvershootAssistantColor), defaultMOAColor);
+
         page.Add(new HLine(Color.Gray));
         return page;
     }
@@ -355,6 +361,11 @@ public static class CustomColors {
                 }
             case nameof(Predictor_DotColor): {
                     Predictor_DotColor = HexToColorWithLog(color, defaultPredictorDotColor);
+                    TASHelperModule.Instance.SaveSettings();
+                    return;
+                }
+            case nameof(MovementOvershootAssistantColor): {
+                    MovementOvershootAssistantColor = HexToColorWithLog(color, defaultMOAColor);
                     TASHelperModule.Instance.SaveSettings();
                     return;
                 }

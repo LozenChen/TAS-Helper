@@ -386,6 +386,7 @@ public class TASHelperSettings : EverestModuleSettings {
         };
         LoadRangeColliderRenderer.ClearCache();
         CountdownRenderer.ClearCache();
+        MovementOvershootAssistant.UpdateDetourState();
     }
     public bool UsingCountDown = false;
     public bool UsingLoadRange = true;
@@ -406,6 +407,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public Color NotInViewColor = CustomColors.defaultNotInViewColor;
     public Color NeverActivateColor = CustomColors.defaultNeverActivateColor;
     public Color ActivateEveryFrameColor = CustomColors.defaultActivateEveryFrameColor;
+    public Color MOAColor = CustomColors.defaultMOAColor;
 
     #endregion
 
@@ -720,6 +722,30 @@ public class TASHelperSettings : EverestModuleSettings {
     }
 
     public bool SubscribeWhatsNew = true;
+
+    public bool enableMovementOvershootAssistant = true;
+
+    [YamlIgnore]
+    public bool EnableMovementOvershootAssistant {
+        get => Enabled && enableMovementOvershootAssistant;
+        set {
+            enableMovementOvershootAssistant = value;
+            MovementOvershootAssistant.UpdateDetourState();
+        }
+    }
+
+    public bool moaAbovePlayer = true;
+
+    [YamlIgnore]
+    public bool MOAAbovePlayer {
+        get => moaAbovePlayer;
+        set {
+            moaAbovePlayer = value;
+            if (MovementOvershootAssistant.MOA_Renderer.Instance is { } renderer) {
+                renderer.Depth = value ? -1 : 1;
+            }
+        }
+    }
 
     #endregion
 

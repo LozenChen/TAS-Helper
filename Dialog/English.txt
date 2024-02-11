@@ -56,6 +56,7 @@ TAS_HELPER_PREDICTOR_ENDPOINTCOLOR=                        Timeline Endpoint Col
 TAS_HELPER_PREDICTOR_KEYFRAMECOLOR=                        Timeline Keyframe Color
 TAS_HELPER_PREDICTOR_POLYGONALLINECOLOR=                   Timeline Polygonal Line Color
 TAS_HELPER_PREDICTOR_DOTCOLOR=                             Timeline Dot Color
+TAS_HELPER_MOVEMENTOVERSHOOTASSISTANTCOLOR=                Movement Overshoot Assistant Color
 
 # ============================================= Hazard Countdown =====================================================
 TAS_HELPER_COUNTDOWN=                                      Hazard Countdown
@@ -247,3 +248,6 @@ TAS_HELPER_SHOW_WIND_SPEED=                                Show Wind Speed
 TAS_HELPER_WHATS_NEW=                                      What's New!
 TAS_HELPER_SUBSCRIBE_WHATS_NEW=                            Subscribe What's New!
 TAS_HELPER_SUBSCRIBE_WHATS_NEW_DESCRIPTION=                "Whats's New" will show new features / bugfixes when TAS Helper updates, and disappear after you read it.
+TAS_HELPER_MOVEMENT_OVERSHOOT_ASSISTANT=                   Movement Overshoot Assistant
+TAS_HELPER_MOA_ABOVE_PLAYER=                               Show above Player
+TAS_HELPER_MOA_DESCRIPTION=                                Show how far player would go if there were no walls.

@@ -158,6 +158,11 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenuExt.IntSlider("Current Spawn Point Opacity".ToDialogText(), 1, 9, TasHelperSettings.CurrentSpawnPointOpacity).Change((value) => TasHelperSettings.CurrentSpawnPointOpacity = value));
             subMenu.Add(new TextMenuExt.IntSlider("Other Spawn Point Opacity".ToDialogText(), 0, 9, TasHelperSettings.OtherSpawnPointOpacity).Change((value) => TasHelperSettings.OtherSpawnPointOpacity = value));
             subMenu.Add(new HLine(Color.Gray));
+            TextMenu.Item moaItem;
+            subMenu.Add(moaItem = new TextMenu.OnOff("Movement Overshoot Assistant".ToDialogText(), TasHelperSettings.EnableMovementOvershootAssistant).Change((value) => TasHelperSettings.EnableMovementOvershootAssistant = value));
+            subMenu.AddDescription(menu, moaItem, "MOA Description".ToDialogText());
+            subMenu.Add(new TextMenu.OnOff("MOA Above Player".ToDialogText(), TasHelperSettings.MOAAbovePlayer).Change((value) => TasHelperSettings.MOAAbovePlayer = value));
+            subMenu.Add(new HLine(Color.Gray));
             TextMenu.Item cassetteBlock;
             subMenu.Add(cassetteBlock = new TextMenu.OnOff("Cassette Block Helper".ToDialogText(), TasHelperSettings.EnableCassetteBlockHelper).Change((value) => TasHelperSettings.EnableCassetteBlockHelper = value));
             subMenu.AddDescription(menu, cassetteBlock, "Cassette Block Description".ToDialogText());
