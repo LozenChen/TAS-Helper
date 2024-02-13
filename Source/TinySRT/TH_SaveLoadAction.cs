@@ -201,7 +201,7 @@ public sealed class TH_SaveLoadAction {
         if (initialized) {
             return;
         }
-
+        // last update date: 2024.02.13
         initialized = true;
         InitFields();
         SupportSimpleStaticFields();
@@ -1003,6 +1003,7 @@ public sealed class TH_SaveLoadAction {
 
         // 解决读档后冲进 DreamSpinner 会被刺死
         CloneModTypeFields("IsaGrabBag", "Celeste.Mod.IsaGrabBag.GrabBagModule", "ZipLineState", "playerInstance");
+        CloneModTypeFields("IsaGrabBag", "Celeste.Mod.IsaGrabBag.BadelineFollower", "booster", "LookForBubble");
     }
 
     private static void SupportSpirialisHelper() {
