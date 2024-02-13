@@ -734,7 +734,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public bool moaAbovePlayer = true;
+    public bool moaAbovePlayer = false;
 
     [YamlIgnore]
     public bool MOAAbovePlayer {

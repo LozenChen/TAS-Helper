@@ -52,7 +52,7 @@ internal class CountdownRenderer : THRenderer {
 
     [Initialize]
     public static void Initialize() {
-        EventOnHook.Scene.BeforeUpdate += (_) => ClearCache();
+        EventOnHook._Scene.BeforeUpdate += (_) => ClearCache();
 
         // copied from ExtendedVariants.Entities.DashCountIndicator
         MTexture source = GFX.Game["pico8/font"];

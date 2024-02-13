@@ -111,7 +111,7 @@ internal static class EventOnHook {
         Logger.Log("TAS Helper", "EventOnHook finds a method with improper attributes!");
         throw new Exception("Invalid ParameterInfo");
     }
-    public static class Scene {
+    internal static class _Scene {
         public delegate void UpdateHandler(Monocle.Scene scene);
 
         public static event UpdateHandler BeforeUpdate;
@@ -144,7 +144,8 @@ internal static class EventOnHook {
         }
     }
 
-    public static class Level {
+    internal static class _Level {
+        // name it as _Level instead of Level, so custom info will not find it using "Level", so "Level.Wind" will work properly in infohud
         public delegate void LoadLevelHandler(_Celeste.Level level, Player.IntroTypes playerIntro, bool isFromLoader = false);
 
         public static event LoadLevelHandler LoadLevel;
@@ -266,7 +267,7 @@ internal static class EventOnHook {
     }
 
 
-    public static class EntityList {
+    internal static class _EntityList {
         public delegate void DebugRenderHandler(Monocle.EntityList self, Monocle.Camera camera);
 
         public static event DebugRenderHandler DebugRender;

@@ -89,8 +89,8 @@ internal static class ActualPosition {
 
     [Load]
     public static void Load() {
-        EventOnHook.Scene.BeforeUpdate += PatchBeforeUpdate;
-        EventOnHook.Scene.AfterUpdate += PatchAfterUpdate;
+        EventOnHook._Scene.BeforeUpdate += PatchBeforeUpdate;
+        EventOnHook._Scene.AfterUpdate += PatchAfterUpdate;
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
         typeof(Player).GetMethod("orig_Update").IlHook(PlayerPositionBeforeCameraUpdateIL);

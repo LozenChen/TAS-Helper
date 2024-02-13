@@ -19,7 +19,7 @@ public static class SpinnerCalculateHelper {
 
     [Load]
     public static void Load() {
-        EventOnHook.Scene.BeforeUpdate += PreSpinnerCalculate;
+        EventOnHook._Scene.BeforeUpdate += PreSpinnerCalculate;
         IL.Monocle.EntityList.UpdateLists += IL_EntityList_UpdateLists;
     }
 

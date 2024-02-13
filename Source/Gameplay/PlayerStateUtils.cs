@@ -43,7 +43,7 @@ public static class PlayerStateUtils {
 
     [Load]
     public static void Load() {
-        EventOnHook.Scene.BeforeUpdate += (_) => Clear();
+        EventOnHook._Scene.BeforeUpdate += (_) => Clear();
         On.Celeste.Player.SideBounce += OnSideBounce;
         On.Celeste.Player.RefillDash += OnRefillDash;
     }

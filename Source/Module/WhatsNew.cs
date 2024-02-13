@@ -55,6 +55,7 @@ public static class WhatsNew {
         AddLog("1.8.21", "Cassette Block Info now can be placed at top/bottom-left/right. Configurate it in \"More Options\".");
         AddLog("1.8.22", "Performance Optimization. It improves by 25%.");
         AddLog("1.9.0", "Feature: Movement Overshoot Assistant. This shows how far player would go if there were no walls.", "Add OUI console commands, so you can goto some common OUIs very quickly.");
+        AddLog("1.9.1", "Rename some internal class names to resolve some custom info issues.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

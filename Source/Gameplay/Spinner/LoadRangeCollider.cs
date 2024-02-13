@@ -37,7 +37,7 @@ internal static class LoadRangeColliderRenderer {
 
     [Initialize]
     public static void Initialize() {
-        EventOnHook.Scene.BeforeUpdate += (_) => ClearCache();
+        EventOnHook._Scene.BeforeUpdate += (_) => ClearCache();
         starShape = GFX.Game["TASHelper/SpinnerCenter/spinner_center"];
     }
 

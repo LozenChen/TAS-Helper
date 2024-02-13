@@ -17,7 +17,7 @@ public static class HiresLevelRenderer {
         On.Celeste.Level.Begin += OnLevelBegin;
         On.Celeste.Level.End += OnLevelEnd;
         IL.Celeste.Level.Render += ILLevelRender;
-        EventOnHook.Scene.AfterUpdate += OnLevelAfterUpdate;
+        EventOnHook._Scene.AfterUpdate += OnLevelAfterUpdate;
     }
 
     [Unload]
