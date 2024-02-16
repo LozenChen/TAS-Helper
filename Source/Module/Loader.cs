@@ -4,7 +4,7 @@ namespace Celeste.Mod.TASHelper.Module;
 
 internal static class Loader {
 
-    // order: all mods load -> all mods initialize ~= all mods load content
+    // order: all mods (load settings -> load) -> all mods initialize ~= all mods load content
 
     public static void Load() {
         Reloading = GFX.Loaded; // Tas Helper load -> GFX load -> Tas Helper unload -> Tas Helper reload. So GFX.Loaded can be used to detect this

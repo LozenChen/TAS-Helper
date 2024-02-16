@@ -6,6 +6,8 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 # Features:
 
+- Check the menu in game! The menu should contain enough descriptions about TAS Helper features.
+
 - In the following, hazards mean vanilla's CrystalStaticSpinner, Lightning and DustStaticSpinner, FrostHelper's CustomSpinner/AttachedLightning, VivHelper's CustomSpinner, and ChronoHelper's ShatterSpinner/DarkLightning.
 
 - Cycle Hitbox Colors -> basically same as that in CelesteTAS mod, plus a bit modification when hazards are not in view or when spinner freezes.
@@ -24,7 +26,7 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 - Camera Target -> show which direction the camera moves towards. Basically *CameraTarget = Player's position + CameraOffset*, plus CameraTarget should be bounded in room and some other modification, then *CameraPosition = (1-r)\*PreviousCameraPosition + r\*CameraTarget*, where *r = 0.074*. We visualize this by drawing the points Position, PreviousPosition and CameraTarget, and drawing a link from PreviousPosition to CameraTarget.
 
-- CustomInfoHelper -> provide some fields / properties which are not easy to compute in CelesteTas's CustomInfo. Check [CustomInfoHelper](https://github.com/LozenChen/TAS-Helper/blob/main/Source/Gameplay/CustomInfoHelper.cs)
+- CustomInfoHelper -> provide some fields / properties which are not easy to compute in CelesteTAS's CustomInfo. Check [CustomInfoHelper](https://github.com/LozenChen/TAS-Helper/blob/main/Source/Gameplay/CustomInfoHelper.cs)
 
 - Order-of-Operation Stepping -> just like frame advance, but in a subframe scale, thus visualize order of operations in a frame. The bottom-left message indicates the next action (if there's no "begin/end" postfix) / current action (if there is) of the game engine.
 
@@ -38,7 +40,13 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 - Add some commands -> Currently we have, spinner_freeze cmd, nearest_timeactive cmd, setting-related cmd, OoO config cmd. Check [Commands](https://github.com/LozenChen/TAS-Helper/blob/main/Docs/Commands.md)
 
-- ... Check the menu in game!
+- ...
+
+# Feature Request:
+
+  If you have feature requests related to TAS, you can ping/DM me @Lozen#0956 on Celeste discord server. Please describe your feature request as detailed as possible. However, there is no guarantee that the final result will be same as what you've demanded.
+
+  When a feature is useful and standard enough to become a part of CelesteTAS, this feature will first be merged into TAS Helper (so you can get it at first time), and a pull request/an issue on this feature will be submitted to CelesteTAS simultaneously.
 
 # Some details:
 
@@ -56,7 +64,7 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 - Push on XMinty's AutoWatch PR on CelesteTAS, to support more entities (e.g. for an entity with a re-awake timer, watch the timer if it's not zero).
 
-- SpeedrunTool multi-saveslots PR (hard afaik, even though we've effectively created a 2-nd saveslot in Tas Helper)
+- SpeedrunTool multi-saveslots PR (hard afaik, even though we've effectively created a 2-nd saveslot in TAS Helper)
 
 - Auto completion in Celeste Studio (when using something like "set invincible true"), and some other gadgets for Studio. (Update: relating codes already exist in Studio, but it seems they have not been used)
 
@@ -66,12 +74,8 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 - Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7.
 
-- TAS Helper does not save settings (change settings in the menu) when closing game with the X instead of the exit button in game -> Can't reproduce. It's said that turning off and on tashelper after changing settings will work. After several changes on settings system, i guess this bug should be addressed after v1.6.5.
-
 - Predictor can't handle commands like StunPause Simulate (StunPause Input is ok), SetCommands, InvokeCommands and so on. -> Currently don't plan to support them. Tell me if you need this feature.
 
 - Celeste TAS hotkeys randomly work improperly -> Not sure if it's caused by TAS Helper.
 
-- Use SRT save, then reload asset, then SRT load. This causes crash -> I guess it's a general issue and only happens for mod developers, so just ignore it.
-
-- Predictor can't handle SJ cassette blocks well -> Not sure but I guess the reason is, they have special hook such that SJ cassette blocks also update in freeze frames, and my simulator doesn't take this into account.
+- ~~Use SRT save, then reload asset, then SRT load. This causes crash -> I guess it's a general issue and only happens for mod developers, so just ignore it.~~

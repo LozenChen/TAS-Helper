@@ -145,7 +145,7 @@ internal static class EventOnHook {
     }
 
     internal static class _Level {
-        // name it as _Level instead of Level, so custom info will not find it using "Level", so "Level.Wind" will work properly in infohud
+        // name it as "_Level" instead of "Level", so custom info will not find it using "Level", so "Level.Wind" will work properly in infohud
         public delegate void LoadLevelHandler(_Celeste.Level level, Player.IntroTypes playerIntro, bool isFromLoader = false);
 
         public static event LoadLevelHandler LoadLevel;
@@ -331,7 +331,9 @@ internal static class EventOnHook {
 public static class CILCodeHelper {
     public static void CILCodeLogger(this ILCursor ilCursor, int logCount = 999999, bool useCommand = true) {
         // remember, Commands.Log can only work in Initialize()
-        Celeste.Commands.Log("------------------------------");
+        if (useCommand) {
+            Celeste.Commands.Log("------------------------------");
+        }
         Logger.Log(LogLevel.Debug, "TAS Helper", "---- CILCodeLogger ----");
         if (Apply) {
             if (AsShift) {
@@ -344,13 +346,13 @@ public static class CILCodeHelper {
         while (logCount > 0 && ilCursor.Next is not null) {
             string str;
             if (ilCursor.Next.Operand is ILLabel label) {
-                str = $"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand} | {label.Target.Offset.ToString("x4")}, {label.Target.OpCode}, {label.Target.Operand}";
+                str = $"{ilCursor.Next.Offset:x4}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand} | {label.Target.Offset:x4}, {label.Target.OpCode}, {label.Target.Operand}";
             }
             else if (ilCursor.Next.Operand is Instruction ins) {
-                str = $"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode} | {ins.Offset.ToString("x4")}, {ins.OpCode}, {ins.Operand}";
+                str = $"{ilCursor.Next.Offset:x4}, {ilCursor.Next.OpCode} | {ins.Offset:x4}, {ins.OpCode}, {ins.Operand}";
             }
             else {
-                str = $"{ilCursor.Next.Offset.ToString("x4")}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand}";
+                str = $"{ilCursor.Next.Offset:x4}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand}";
             }
             Mod.Logger.Log(LogLevel.Debug, "TAS Helper", str);
             if (useCommand) {

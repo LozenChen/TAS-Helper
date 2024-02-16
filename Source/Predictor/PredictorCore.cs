@@ -130,6 +130,7 @@ public static class PredictorCore {
         }
         if (!Engine.DashAssistFreeze) {
             if (Engine.FreezeTimer > 0f) {
+                SJ_CassetteHookFreeze?.Invoke(null, parameterless);
                 Engine.FreezeTimer = Math.Max(Engine.FreezeTimer - Engine.RawDeltaTime, 0f);
             }
             else if (engine.scene != null) {
@@ -183,13 +184,17 @@ public static class PredictorCore {
         });
 
         typeof(Level).GetMethod("BeforeRender").HookBefore(DelayedActions);
-
+#pragma warning disable CS8601
+        SJ_CassetteHookFreeze = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlockController")?.GetMethod("FreezeUpdate", BindingFlags.NonPublic | BindingFlags.Static);
+#pragma warning restore CS8601
         HookHelper.SkipMethod(typeof(PredictorCore), nameof(InPredictMethod), typeof(GameInfo).GetMethod("Update", BindingFlags.Public | BindingFlags.Static));
         HookHelper.SkipMethod(typeof(PredictorCore), nameof(PreventSendStateToStudio), typeof(TAS.Manager).GetMethod("SendStateToStudio", BindingFlags.Public | BindingFlags.Static));
 
         InitializeChecks();
         InitializeCachePeriod();
     }
+
+    private static MethodInfo SJ_CassetteHookFreeze;
 
     private static void AfterMInputUpdate() {
         PredictorRenderer.ClearCachedMessage();
