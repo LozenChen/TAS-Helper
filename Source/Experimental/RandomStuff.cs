@@ -13,6 +13,7 @@ using MonoMod.Cil;
 using Celeste.Mod.TASHelper.Entities;
 using TAS.Input.Commands;
 using TAS;
+using YamlDotNet.Core;
 
 namespace Celeste.Mod.TASHelper.Experimental;
 internal class RandomStuff {
@@ -101,8 +102,26 @@ internal class RandomStuff {
 
     [Initialize]
     private static void Initialize() {
+        /*
+        ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.PixelRendered.PixelComponent")?.GetMethodInfo("DebugRender")?.IlHook((cursor, _) => {
+            Instruction start = cursor.Next;
+            cursor.EmitDelegate(IsSimplifiedGraphics);
+            cursor.Emit(OpCodes.Brfalse, start);
+            cursor.Emit(OpCodes.Ret);
+        });
+        
+        ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.PixelRendered.PixelComponent")?.GetMethodInfo("Render")?.IlHook((cursor, _) => {
+            Instruction start = cursor.Next;
+            cursor.EmitDelegate(IsSimplifiedGraphics);
+            cursor.Emit(OpCodes.Brfalse, start);
+            cursor.Emit(OpCodes.Ret);
+        });
+        */
+
         Celeste.Commands.Log("WARNING: TAS Helper Random Stuff loaded! Please contact the author to disable these codes.");
     }
+
+    private static bool IsSimplifiedGraphics() => TasSettings.SimplifiedGraphics;
 }
 
 #endif

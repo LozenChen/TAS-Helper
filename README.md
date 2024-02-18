@@ -70,6 +70,8 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 # Known issues:
 
+- There will be some offset between HiresRenderer and Gameplay contents when we use ExtendedVariant.ZoomLevel. This also applies to CelesteTAS.CenterCamera when we zoom out. -> maybe will fix this later.
+
 - VivHelper spinner isn't fully supported if its hitbox is not prestored -> maybe will add support for them.
 
 - Laggy when there are too many spinners (e.g. Strawberry Jam GrandMaster HeartSide) -> Partially solved in v1.4.7.

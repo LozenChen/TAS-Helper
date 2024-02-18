@@ -7,6 +7,7 @@ using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using TAS.EverestInterop.Hitboxes;
+using TAS.EverestInterop.InfoHUD;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 public static class SimplifiedTrigger {
@@ -43,6 +44,7 @@ public static class SimplifiedTrigger {
         HandleOtherMods();
         HandleNonTriggerTrigger();
         typeof(HitboxColor).GetMethodInfo("GetCustomColor", new Type[] { typeof(Color), typeof(Entity) }).IlHook(ModGetCustomColor);
+        typeof(InfoWatchEntity).GetMethod("FindClickedEntities", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(ModFindClickedEntities);
     }
 
     private static void ModDebugRender(ILContext il) {
@@ -51,6 +53,16 @@ public static class SimplifiedTrigger {
         ilCursor.Emit(OpCodes.Ldarg_0)
             .EmitDelegate<Func<Entity, bool>>(IsUnimportantTrigger);
         ilCursor.Emit(OpCodes.Brfalse, start).Emit(OpCodes.Ret);
+    }
+
+    private static void ModFindClickedEntities(ILContext il) {
+        ILCursor cursor = new ILCursor(il);
+        cursor.Goto(-1);
+        cursor.EmitDelegate(FilterOutUnimportantTrigger);
+    }
+
+    private static List<Entity> FilterOutUnimportantTrigger(List<Entity> list) {
+        return list.Where(e => !IsUnimportantTrigger(e)).ToList();
     }
 
     private static void ModGetCustomColor(ILContext il) {

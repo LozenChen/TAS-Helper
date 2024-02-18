@@ -131,6 +131,7 @@ internal static class MovementOvershootAssistant {
         public MOA_Renderer() {
             Depth = AbovePlayer ? -1 : 1;
             Collider = new Hitbox(8f, 11f, -4f, -11f);
+            Visible = false;
             Instance = this;
         }
 
