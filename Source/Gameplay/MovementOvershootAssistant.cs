@@ -1,5 +1,6 @@
 using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -98,13 +99,13 @@ internal static class MovementOvershootAssistant {
             return;
         }
         NoObsPosition = NaiveMove(player.Position, player.movementCounter, player.Speed * Engine.DeltaTime);
-        renderer.Collider = player.Collider.Clone();
+        renderer.unselectableCollider = player.Collider.Clone();
         renderer.Position = NoObsPosition;
     }
 
     private static void ComparePosition(Player player) {
         if (!IsDreamDash && MOA_Renderer.Instance is { } renderer) {
-            renderer.Visible = IsDifferent(player.Position, NoObsPosition) || IsDifferent(player.Collider.TopLeft, renderer.Collider.TopLeft) || IsDifferent(player.Collider.BottomRight, renderer.Collider.BottomRight);
+            renderer.Visible = IsDifferent(player.Position, NoObsPosition) || IsDifferent(player.Collider.TopLeft, renderer.unselectableCollider.TopLeft) || IsDifferent(player.Collider.BottomRight, renderer.unselectableCollider.BottomRight + renderer.Position);
         }
     }
 
@@ -128,16 +129,19 @@ internal static class MovementOvershootAssistant {
 
         public static Color HitboxColor => CustomColors.MovementOvershootAssistantColor;
 
+        public Collider unselectableCollider;
+
         public MOA_Renderer() {
             Depth = AbovePlayer ? -1 : 1;
-            Collider = new Hitbox(8f, 11f, -4f, -11f);
+            unselectableCollider = new Hitbox(8f, 11f, -4f, -11f); // we use this to avoid captured by FindClickedEntities
+            Collidable = false;
             Visible = false;
             Instance = this;
         }
 
         public override void DebugRender(Camera camera) {
-            if (Visible && Scene is Level level && !level.Transitioning) {
-                (Collider as Hitbox)?.Render(camera, HitboxColor);
+            if (Visible && Scene is Level level && !level.Transitioning && unselectableCollider is Hitbox hb) {
+                DrawHollowRect(hb.Left + X, hb.Top + Y, hb.Width, hb.Height, HitboxColor);  // we use this to avoid captured by ActualCollideHitbox
             }
         }
 
@@ -146,6 +150,34 @@ internal static class MovementOvershootAssistant {
             if (Enabled) {
                 self.Add(new MOA_Renderer());
             }
+        }
+
+        private static void DrawHollowRect(float x, float y, float width, float height, Color color) {
+            int fx = (int)Math.Floor(x);
+            int fy = (int)Math.Floor(y);
+            int cw = (int)Math.Ceiling(width + x - fx);
+            int cy = (int)Math.Ceiling(height + y - fy);
+            OrigHollowRect(fx, fy, cw, cy, color);
+        }
+
+        private static Rectangle rect = new Rectangle();
+        private static readonly Texture2D texture2d = Monocle.Draw.Pixel.Texture.Texture_Safe;
+        private static readonly Rectangle clip = Monocle.Draw.Pixel.ClipRect;
+        private static readonly SpriteBatch sb = Monocle.Draw.SpriteBatch;
+        private static void OrigHollowRect(int x, int y, int width, int height, Color color) {
+            rect.X = x;
+            rect.Y = y;
+            rect.Width = width;
+            rect.Height = 1;
+            sb.Draw(texture2d, rect, clip, color);
+            rect.Y += height - 1;
+            sb.Draw(texture2d, rect, clip, color);
+            rect.Y -= height - 1;
+            rect.Width = 1;
+            rect.Height = height;
+            sb.Draw(texture2d, rect, clip, color);
+            rect.X += width - 1;
+            sb.Draw(texture2d, rect, clip, color);
         }
     }
 }
