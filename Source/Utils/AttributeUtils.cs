@@ -55,6 +55,30 @@ internal static class AttributeUtils {
     }
 #endif
 
+    public static void SendToTas<TSource>(string attributeFullName) where TSource : Attribute {
+        if (ModUtils.GetType("CelesteTAS", attributeFullName) is not { } target) {
+            return;
+        }
+        if (MethodInfos.TryGetValue(typeof(TSource), out var sourceInfos) && TAS.Utils.AttributeUtils.MethodInfos.TryGetValue(target, out var targetInfos)) {
+            targetInfos = targetInfos.ToList().Apply(x => x.AddRange(sourceInfos)).Distinct();
+            MethodsSentToTas.Add(sourceInfos, target);
+        }
+    }
+
+    [Unload]
+    public static void ReclaimFromTas() {
+        foreach (KeyValuePair<IEnumerable<MethodInfo>, Type> pair in MethodsSentToTas) {
+            if (TAS.Utils.AttributeUtils.MethodInfos.TryGetValue(pair.Value, out var targetInfos)){
+                targetInfos = targetInfos.ToList().Apply(x => {
+                    foreach (MethodInfo source in pair.Key) {
+                        x.Remove(source);
+                    }
+                });
+            }
+        }
+    }
+
+    private static readonly Dictionary<IEnumerable<MethodInfo>, Type> MethodsSentToTas = new();
 }
 
 

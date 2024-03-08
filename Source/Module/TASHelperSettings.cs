@@ -320,9 +320,9 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool HighlightLoadUnload = false;
 
-    public bool ApplyActualCollideHitboxForSpinner = false;
+    public bool ApplyActualCollideHitboxForSpinner = true;
 
-    public bool ApplyActualCollideHitboxForLightning = false;
+    public bool ApplyActualCollideHitboxForLightning = true;
 
     public SimplifiedGraphicsMode EnableSimplifiedTriggersMode = SimplifiedGraphicsMode.Always;
 

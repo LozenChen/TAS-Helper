@@ -70,6 +70,7 @@
 	<ItemGroup>
 		<Publicize Include="Celeste" />
 		<Publicize Include="SpeedrunTool" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.Utils.AttributeUtils.MethodInfos" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Utils.SpeedrunToolUtils.saveLoadAction" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.UsedFiles" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.Checksum" />

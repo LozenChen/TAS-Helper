@@ -130,6 +130,4 @@ public static class TH_Hotkeys {
             binding.Keys.Add(propertyInfo.GetCustomAttribute<DefaultButtonBinding2Attribute>().ExtraKey);
         }
     }
-
-
 }
