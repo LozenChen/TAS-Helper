@@ -47,6 +47,7 @@ public static class ExtraSlActions {
         // tas mod already adds to SRT itself
         TH_Actions.Add(TasHelperSL.Create());
         TH_Actions.Add(GravityHelperSL.Create());
+        TH_Actions.Add(BGSwitchSL.Create());
         foreach (TH action in TH_Actions) {
             TH.Add(action);
         }
@@ -299,6 +300,38 @@ internal static class GravityHelperSL {
         };
         Action clear = () => {
             PlayerGravityComponent = null;
+        };
+        return new TH(save, load, clear, null, null);
+    }
+}
+
+internal static class BGSwitchSL {
+    private static bool bgMode;
+
+    private static Solid bgSolidTiles;
+
+    private static Grid bgSolidTilesGrid;
+
+    public static Type type;
+    public static TH Create() {
+        type = ModUtils.GetType("BGswitch", "Celeste.Mod.BGswitch.BGModeManager");
+        TH.SlAction save = (_, _) => {
+            if (type is not null) {
+                bgMode = type.GetFieldValue<bool>("bgMode");
+                bgSolidTiles = type.GetFieldValue<Solid>("bgSolidTiles").TH_DeepCloneShared();
+                bgSolidTilesGrid = type.GetFieldValue<Grid>("bgSolidTilesGrid").TH_DeepCloneShared();
+            }
+        };
+        TH.SlAction load = (_, _) => {
+            if (type is not null) {
+                type.SetFieldValue("bgMode", bgMode);
+                type.SetFieldValue("bgSolidTiles", bgSolidTiles.TH_DeepCloneShared());
+                type.SetFieldValue("bgSolidTilesGrid", bgSolidTilesGrid.TH_DeepCloneShared());
+            }
+        };
+        Action clear = () => {
+            bgSolidTiles = null;
+            bgSolidTilesGrid = null;
         };
         return new TH(save, load, clear, null, null);
     }

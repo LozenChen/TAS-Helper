@@ -76,6 +76,7 @@
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.Checksum" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.ParseFileEnd" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.InputController.CurrentFrameInTas" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.Commands.TasCommandAttribute.MethodInfos" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.LoadActualCollidePosition" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.SavePlayerPosition" />

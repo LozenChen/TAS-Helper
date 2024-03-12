@@ -67,15 +67,15 @@ public static class PredictorCore {
         futures.Clear();
 
         ModifiedAutoMute.Apply();
+
         InputManager.ReadInputs(frames);
 
         PlayerState PreviousState;
         PlayerState CurrentState = PlayerState.GetState();
 
         for (int i = 0; i < frames; i++) {
+            InputManager.ExecuteCommands(i); // commands are partially supported
             TAS.InputHelper.FeedInputs(InputManager.Inputs[i]);
-            // commands are not supported
-
             AlmostEngineUpdate(Engine.Instance, (GameTime)typeof(Game).GetFieldInfo("gameTime").GetValue(Engine.Instance));
 
             PreviousState = CurrentState;
