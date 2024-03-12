@@ -8,6 +8,7 @@ internal static class MaintenaceRoutine {
 
     private static void CheckSpeedrunTool() {
         // Tiny SRT needs "sync fork" from SpeedrunTool
+        // also, if a mod support SRT on its own, we need to create a corresponding support in TASHelper
     }
 
     [Initialize]

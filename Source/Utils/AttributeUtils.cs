@@ -68,7 +68,7 @@ internal static class AttributeUtils {
     [Unload]
     public static void ReclaimFromTas() {
         foreach (KeyValuePair<IEnumerable<MethodInfo>, Type> pair in MethodsSentToTas) {
-            if (TAS.Utils.AttributeUtils.MethodInfos.TryGetValue(pair.Value, out var targetInfos)){
+            if (TAS.Utils.AttributeUtils.MethodInfos.TryGetValue(pair.Value, out var targetInfos)) {
                 targetInfos = targetInfos.ToList().Apply(x => {
                     foreach (MethodInfo source in pair.Key) {
                         x.Remove(source);
