@@ -131,6 +131,7 @@ internal static class EventOnHook {
         private static void Unload() {
             On.Monocle.Scene.BeforeUpdate -= OnBeforeUpdate;
             On.Monocle.Scene.AfterUpdate -= OnAfterUpdate;
+            BeforeUpdate = AfterUpdate = null;
         }
 
         private static void OnBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Monocle.Scene self) {
@@ -172,6 +173,10 @@ internal static class EventOnHook {
 
         [Initialize]
         private static void Initialize() {
+            LoadLevel = LoadLevel_Before = null;
+            LoadLevel_Parameter0 = LoadLevel_Before_Parameter0 = null;
+            LoadLevel_Parameter1 = LoadLevel_Before_Parameter1 = null;
+            LoadLevel_Parameter2 = LoadLevel_Before_Parameter2 = null;
             foreach (MethodInfo method in typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))) {
                 if (method.GetCustomAttribute<LoadLevelAttribute>() is not LoadLevelAttribute attr) {
@@ -282,6 +287,9 @@ internal static class EventOnHook {
 
         [Initialize]
         private static void Initialize() {
+            DebugRender = null;
+            DebugRender_Parameter0 = null;
+            DebugRender_Parameter1 = null;
             foreach (MethodInfo method in typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)).Where(method => method.GetCustomAttribute<AddDebugRenderAttribute>() is { })) {
                 switch (method.GetParameters().Length) {

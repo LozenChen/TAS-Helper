@@ -1,4 +1,5 @@
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
@@ -22,6 +23,8 @@ internal static class MovementOvershootAssistant {
     // ok so let's make a relatively clear definition:
     // your no_obs_position is what your position will be after MoveH/V(Speed.X/Y * Engine.DeltaTime, onCollideH/V), AS IF onCollideH/V is null.
     // Movements after this are not considered (e.g. player collider, moving block pushing)
+
+    // it behaves similar to ActualCollideHitbox if there's only moving blocks pushing/carrying you, but a bit different if you collide into solids on your own
 
     [Initialize]
     private static void Initialize() {
@@ -93,12 +96,12 @@ internal static class MovementOvershootAssistant {
         if (MOA_Renderer.Instance is not { } renderer) {
             return;
         }
-        IsDreamDash = player.StateMachine.State == 9 || player.StateMachine.State == 22;
+        IsDreamDash = player.StateMachine.State == 9 || player.StateMachine.State == 22 || player.StateMachine.state.IsDreamTunnelDashState();
         if (IsDreamDash) {
             renderer.Visible = false;
             return;
         }
-        NoObsPosition = NaiveMove(player.Position, player.movementCounter, player.Speed * Engine.DeltaTime);
+        NoObsPosition = NaiveMove(player.Position, player.movementCounter, player.Speed.GetGravityAffectedVector2() * Engine.DeltaTime);
         renderer.unselectableCollider = player.Collider.Clone();
         renderer.Position = NoObsPosition;
     }
