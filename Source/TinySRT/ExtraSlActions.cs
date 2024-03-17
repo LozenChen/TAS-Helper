@@ -48,6 +48,7 @@ public static class ExtraSlActions {
         TH_Actions.Add(TasHelperSL.Create());
         TH_Actions.Add(GravityHelperSL.Create());
         TH_Actions.Add(BGSwitchSL.Create());
+        TH_Actions.Add(GhostModSL.Create());
         foreach (TH action in TH_Actions) {
             TH.Add(action);
         }
@@ -332,6 +333,56 @@ internal static class BGSwitchSL {
         Action clear = () => {
             bgSolidTiles = null;
             bgSolidTilesGrid = null;
+        };
+        return new TH(save, load, clear, null, null);
+    }
+}
+
+internal static class GhostModSL {
+    private static Type GhostRecorder;
+    private static Type GhostCompare;
+    private static Type GhostReplayer;
+    private static bool Installed;
+    private static Guid run;
+    private static long ghostTime;
+    private static long lastGhostTime;
+    private static long currentTime;
+    private static long lastCurrentTime;
+    private static long RTASessionTime;
+    private static Entity recorder;
+    private static Entity replayer;
+    public static TH Create() {
+        GhostRecorder = ModUtils.GetType("GhostModForTas", "Celeste.Mod.GhostModForTas.Recorder.GhostRecorder");
+        GhostCompare = ModUtils.GetType("GhostModForTas", "Celeste.Mod.GhostModForTas.Replayer.GhostCompare");
+        GhostReplayer = ModUtils.GetType("GhostModForTas", "Celeste.Mod.GhostModForTas.Replayer.GhostReplayer");
+        Installed = GhostRecorder is not null && GhostCompare is not null && GhostReplayer is not null;
+        TH.SlAction save = (_, _) => {
+            if (Installed) {
+                run = GhostRecorder.GetFieldValue<Guid>("Run");
+                ghostTime = GhostCompare.GetFieldValue<long>("GhostTime");
+                lastGhostTime = GhostCompare.GetFieldValue<long>("LastGhostTime");
+                currentTime = GhostCompare.GetFieldValue<long>("CurrentTime");
+                lastCurrentTime = GhostCompare.GetFieldValue<long>("LastCurrentTime");
+                RTASessionTime = GhostRecorder.GetFieldValue<long>("RTASessionTime");
+                recorder = GhostRecorder.GetFieldValue<Entity>("Recorder").TH_DeepCloneShared();
+                replayer = GhostReplayer.GetFieldValue<Entity>("Replayer").TH_DeepCloneShared();
+            }
+        };
+        TH.SlAction load = (_, _) => {
+            if (Installed) {
+                GhostRecorder.SetFieldValue("Run", run);
+                GhostCompare.SetFieldValue("GhostTime", ghostTime);
+                GhostCompare.SetFieldValue("LastGhostTime", lastGhostTime);
+                GhostCompare.SetFieldValue("CurrentTime", currentTime);
+                GhostCompare.SetFieldValue("LastCurrentTime", lastCurrentTime);
+                GhostRecorder.SetFieldValue("RTASessionTime", RTASessionTime);
+                GhostRecorder.SetFieldValue("Recorder", recorder.TH_DeepCloneShared());
+                GhostReplayer.SetFieldValue("Replayer", replayer.TH_DeepCloneShared());
+            }
+        };
+        Action clear = () => {
+            recorder = null;
+            replayer = null;
         };
         return new TH(save, load, clear, null, null);
     }

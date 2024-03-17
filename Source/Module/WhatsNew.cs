@@ -59,6 +59,7 @@ public static class WhatsNew {
         AddLog("1.9.2", "Bugfix: Predictor doesn't work properly when encountering Strawberry Jam Wonky Cassette Blocks.");
         AddLog("1.9.3", "Bugfix: Predictor makes BGSwitch related tas desync.", "Feature: Predictor now supports most common commands. (\"Set\", \"Invoke\", \"Console\", \"Mouse\", \"Press\", \"Gun\", \"EvalLua\")");
         AddLog("1.9.4", "MovementOvershootAssistant now supports Inverted Gravity and DreamTunnelDashState.");
+        AddLog("1.9.5", "Support GhostModForTas.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
