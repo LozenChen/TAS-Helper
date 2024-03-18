@@ -56,7 +56,6 @@ public static class ConsoleEnhancement {
     [Initialize]
     public static void Initialize() {
         using (new DetourContext { Before = new List<string> { "*" }, ID = "TAS Helper ConsoleEnhancement" }) {
-            // vivhelper also hooks this method, so a IL.Monocle hook will fail after reloading
             typeof(Monocle.Commands).GetMethod("UpdateClosed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).IlHook(ILCommandUpdateClosed);
         }
         typeof(Manager).GetMethod("Update").HookAfter(UpdateCommands);
@@ -218,25 +217,26 @@ public static class ConsoleEnhancement {
     }
 
     private static void ILCommandUpdateClosed(ILContext context) {
-        // it seems this feature may break after hot reload
         ILCursor cursor = new ILCursor(context);
-        if (cursor.TryGotoNext(MoveType.AfterLabel,
+        if (cursor.TryGotoNext(
             ins => ins.MatchCallOrCallvirt<CMCore.CoreModule>("get_Settings"),
             ins => ins.MatchCallOrCallvirt<CMCore.CoreModuleSettings>("get_DebugConsole"),
             ins => ins.MatchCallOrCallvirt<ButtonBinding>("get_Pressed"))) {
-            ILLabel target;
-            if (cursor.Next.Next.Next.Next.OpCode == OpCodes.Brtrue_S) { // depends on version of Everest
-                target = (ILLabel)cursor.Next.Next.Next.Next.Operand;
-            }
-            else if (cursor.Prev.OpCode == OpCodes.Brtrue_S) {
-                target = (ILLabel)cursor.Prev.Operand;
+            int index = cursor.Index;
+            cursor.Index += 3;
+            if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Brtrue_S)) {
+                // vivhelper also hooks this method, so the position of Brtrue_S may change, if we swap hook order
+                // in particular, if reloading, then hook order may change
+                ILLabel target = (ILLabel)cursor.Next.Operand;
+                cursor.Goto(index, MoveType.AfterLabel);
+                cursor.EmitDelegate(GetOpenConsole);
+                cursor.Emit(OpCodes.Brtrue_S, target);
             }
             else {
                 Logger.Log(LogLevel.Warn, "TAS Helper", "ConsoleEnhancement fails to hook Monocle.Commands.UpdateClosed!");
                 return;
             }
-            cursor.EmitDelegate(GetOpenConsole);
-            cursor.Emit(OpCodes.Brtrue_S, target);
+            
         }
     }
 }

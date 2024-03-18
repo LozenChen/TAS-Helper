@@ -11,6 +11,7 @@ public static class TagUtils {
     // luckily we still have Entity.Tag
     // we put our results on this tag, so results are stored, so we can find these special entities quickly
     // or similarly we can add a component (specifically invented for our use here), we can store everything into component, however it's expansive than Tag, but i guess it's still cheaper in most cases when comparing to computing some heavy stuff each frame
+    // 2024.03.18 update: okay i just realized that we can also use DynamicData to attach that data to entity, however that's also slow
 
 
     public static void SafeAdd(string name, out BitTag tag) {
