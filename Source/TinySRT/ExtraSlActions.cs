@@ -170,8 +170,10 @@ internal static class TasHelperSL {
     private static HashSet<Entity> SRT_UnimportantTriggers = new();
 
     private static Dictionary<int, Color> TH_beatColors = new();
+    private static Dictionary<int, Color> TH_QMbeatColors = new();
     private static Dictionary<int, List<int>> TH_ColorSwapTime = new();
     private static Dictionary<int, Color> SRT_beatColors = new();
+    private static Dictionary<int, Color> SRT_QMbeatColors = new();
     private static Dictionary<int, List<int>> SRT_ColorSwapTime = new();
 
     private static Dictionary<Entity, Tuple<bool, string>> TH_offsetGroup = new();
@@ -189,7 +191,8 @@ internal static class TasHelperSL {
             TH_LastPositions = ActualEntityCollideHitbox.LastPositions.TH_DeepCloneShared();
             TH_LastCollidables = ActualEntityCollideHitbox.LastColldables.TH_DeepCloneShared();
             TH_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.TH_DeepCloneShared();
-            TH_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.beatColors.TH_DeepCloneShared();
+            TH_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors.TH_DeepCloneShared();
+            TH_QMbeatColors = CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors.TH_DeepCloneShared();
             TH_ColorSwapTime = CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime.TH_DeepCloneShared();
             TH_offsetGroup = ExactSpinnerGroup.offsetGroup.TH_DeepCloneShared();
         };
@@ -214,7 +217,8 @@ internal static class TasHelperSL {
             }
             SimplifiedTrigger.UnimportantTriggers = TH_UnimportantTriggers.TH_DeepCloneShared();
 
-            CassetteBlockHelper.CassetteBlockVisualizer.beatColors = TH_beatColors.TH_DeepCloneShared();
+            CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors = TH_beatColors.TH_DeepCloneShared();
+            CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors = TH_QMbeatColors.TH_DeepCloneShared();
             CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = TH_ColorSwapTime.TH_DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = TH_offsetGroup.TH_DeepCloneShared();
         };
@@ -226,6 +230,7 @@ internal static class TasHelperSL {
             TH_LastCollidables.Clear();
             TH_UnimportantTriggers.Clear();
             TH_beatColors.Clear();
+            TH_QMbeatColors.Clear();
             TH_ColorSwapTime.Clear();
             TH_offsetGroup.Clear();
         };
@@ -240,7 +245,8 @@ internal static class TasHelperSL {
             SRT_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.DeepCloneShared();
             SRT_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.DeepCloneShared();
 
-            SRT_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.beatColors.DeepCloneShared();
+            SRT_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors.DeepCloneShared();
+            SRT_QMbeatColors = CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors.DeepCloneShared();
             SRT_ColorSwapTime = CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime.DeepCloneShared();
 
             SRT_offsetGroup = ExactSpinnerGroup.offsetGroup.DeepCloneShared();
@@ -252,7 +258,8 @@ internal static class TasHelperSL {
             Gameplay.MovingEntityTrack.CachedCircle = SRT_CachedCircle.DeepCloneShared();
             TH_Hotkeys.HotkeyInitialize();
             SimplifiedTrigger.UnimportantTriggers = SRT_UnimportantTriggers.DeepCloneShared();
-            CassetteBlockHelper.CassetteBlockVisualizer.beatColors = SRT_beatColors.DeepCloneShared();
+            CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors = SRT_beatColors.DeepCloneShared();
+            CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors = SRT_QMbeatColors.DeepCloneShared();
             CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = SRT_offsetGroup.DeepCloneShared();
         };
@@ -262,6 +269,7 @@ internal static class TasHelperSL {
             SRT_CachedCircle = null;
             SRT_UnimportantTriggers = null;
             SRT_beatColors = null;
+            SRT_QMbeatColors = null;
             SRT_ColorSwapTime = null;
             SRT_offsetGroup = null;
         };

@@ -63,7 +63,7 @@ public static class CassetteBlockHelper {
 
     private static void SJ_AdvanceCasstteBlockVisualizer() {
         // we handle freeze frames using the same way as the corresponding cassette block manager
-        if (Engine.Scene.Tracker.GetEntity<CassetteBlockVisualizer>() is { } visualizer && visualizer.cbmType == CassetteBlockVisualizer.CBMType.SJ) {
+        if (Engine.Scene.Tracker.GetEntity<CassetteBlockVisualizer>() is { } visualizer && (visualizer.cbmType == CassetteBlockVisualizer.CBMType.SJ || visualizer.cbmType == CassetteBlockVisualizer.CBMType.QM)) {
             visualizer.Update();
         }
     }
@@ -99,7 +99,7 @@ public static class CassetteBlockHelper {
 
         public List<Tuple<int, int, int, float, float>> minorControllerData = new();
 
-        public enum CBMType { Vanilla, SJ, None };
+        public enum CBMType { Vanilla, SJ, QM, None };
 
         public CBMType cbmType;
 
@@ -108,6 +108,7 @@ public static class CassetteBlockHelper {
         private static readonly Vector2 TopRightInScreen = new Vector2(1780f, 20f);
 
         public static bool needReAlignment = true;
+
         public CassetteBlockVisualizer() {
             base.Tag = Tags.HUD;
             Depth = -10000; // update after CasstteBlockManager
@@ -140,6 +141,8 @@ public static class CassetteBlockHelper {
             // CommunalHelper/CustomCassetteBlock is a subclass of CassetteBlock, and it seems that it's nothing different from the original ones, except colors
             SJ_CBMType = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlockController");
             SJ_CassetteBlockType = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlock");
+            QM_CBMType = ModUtils.GetType("QuantumMechanics", "Celeste.Mod.QuantumMechanics.Entities.WonkyCassetteBlockController");
+            QM_CassetteBlockType = ModUtils.GetType("QuantumMechanics", "Celeste.Mod.QuantumMechanics.Entities.WonkyCassetteBlock");
             if (ModUtils.GetType("FrostHelper", "FrostHelper.CassetteTempoTrigger")?.GetMethodInfo("SetManagerTempo") is { } method) {
                 method.HookAfter(SetStateChanged);
             }
@@ -148,13 +151,24 @@ public static class CassetteBlockHelper {
         internal static void BuildBeatColors(Level level) {
             // we assume cassetteblocks with same color always have same beats
             if (SJ_CassetteBlockType is not null) {
-                beatColors = new();
+                SJbeatColors = new();
                 foreach (Entity cassetteBlock in level.Tracker.Entities[SJ_CassetteBlockType]) {
                     int[] OnAtBeats = cassetteBlock.GetFieldValue<int[]>("OnAtBeats");
                     int controllerIndex = cassetteBlock.GetFieldValue<int>("ControllerIndex");
                     Color color = (cassetteBlock as CassetteBlock)!.color;
                     foreach (int n in OnAtBeats) {
-                        beatColors[n + controllerIndex * SJWonkyCassetteBlockControllerSimulator.minorOffset] = color;
+                        SJbeatColors[n + controllerIndex * SJWonkyCassetteBlockControllerSimulator.minorOffset] = color;
+                    }
+                }
+            }
+            if (QM_CassetteBlockType is not null) {
+                QMbeatColors = new();
+                foreach (Entity cassetteBlock in level.Tracker.Entities[QM_CassetteBlockType]) {
+                    int[] OnAtBeats = cassetteBlock.GetFieldValue<int[]>("OnAtBeats");
+                    int controllerIndex = cassetteBlock.GetFieldValue<int>("ControllerIndex");
+                    Color color = (cassetteBlock as CassetteBlock)!.color;
+                    foreach (int n in OnAtBeats) {
+                        QMbeatColors[n + controllerIndex * QMWonkyCassetteBlockControllerSimulator.minorOffset] = color;
                     }
                 }
             }
@@ -164,7 +178,13 @@ public static class CassetteBlockHelper {
 
         internal static Type SJ_CassetteBlockType;
 
-        public static Dictionary<int, Color> beatColors = new();
+        internal static Type QM_CBMType;
+
+        internal static Type QM_CassetteBlockType;
+
+        public static Dictionary<int, Color> SJbeatColors = new();
+
+        public static Dictionary<int, Color> QMbeatColors = new();
 
         private const int loop = 512; // contains two full cycles
         public override void Update() {
@@ -183,6 +203,13 @@ public static class CassetteBlockHelper {
                     this.cbm = list[0];
                     findCBM = true;
                     cbmType = CBMType.SJ;
+                    this.Tag |= Tags.TransitionUpdate;
+                }
+                else if (QM_CBMType != null && Engine.Scene.Tracker.Entities.TryGetValue(QM_CBMType, out List<Entity> list2) && list2.Count > 0) {
+                    Visible = true;
+                    this.cbm = list2[0];
+                    findCBM = true;
+                    cbmType = CBMType.QM;
                     this.Tag |= Tags.TransitionUpdate;
                 }
                 else {
@@ -247,9 +274,13 @@ public static class CassetteBlockHelper {
                     VanillaCasstteBlockManagerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out tempoMult);
                     hasData = VanillaCasstteBlockManagerSimulator.UpdateLoop(2 * loop, out ColorSwapTime);
                 }
-                else {
+                else if (cbmType == CBMType.SJ) {
                     SJWonkyCassetteBlockControllerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out maxBeatTimer);
                     hasData = SJWonkyCassetteBlockControllerSimulator.UpdateLoop(2 * loop, out ColorSwapTime);
+                }
+                else {
+                    QMWonkyCassetteBlockControllerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out maxBeatTimer);
+                    hasData = QMWonkyCassetteBlockControllerSimulator.UpdateLoop(2 * loop, out ColorSwapTime);
                 }
                 if (hasData) {
                     TimeElapse = 0;
@@ -313,11 +344,25 @@ public static class CassetteBlockHelper {
                     maxBeatTimer = 10f;
                 }
             }
-            else if (cbmType == CBMType.SJ && ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.StrawberryJam2021Module")?.GetPropertyValue<EverestModuleSession>("Session") is EverestModuleSession session) {
+            else if (cbmType == CBMType.SJ || cbmType == CBMType.QM) {
+                EverestModuleSession session = null;
+                if (cbmType == CBMType.SJ && ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.StrawberryJam2021Module")?.GetPropertyValue<EverestModuleSession>("Session") is EverestModuleSession sessionSJ) {
+                    session = sessionSJ;
+                }
+                else if (cbmType == CBMType.QM && ModUtils.GetType("QuantumMechanics", "Celeste.Mod.QuantumMechanics.QuantumMechanicsModule")?.GetPropertyValue<EverestModuleSession>("Session") is EverestModuleSession sessionQM) {
+                    session = sessionQM;
+                }
+                if (session is null) {
+                    return;
+                }
                 beatTimer = 60f * session.GetFieldValue<float>("CassetteBeatTimer");
                 beatIndex = session.GetFieldValue<int>("CassetteWonkyBeatIndex");
                 minorControllerData.Clear();
-                if (SJWonkyCassetteBlockControllerSimulator.MinorSimulator.minor_type is { } type && Engine.Scene.Tracker.Entities.TryGetValue(type, out List<Entity> sourceList) && sourceList.Count > 0) {
+                Type type = cbmType == CBMType.SJ ? SJWonkyCassetteBlockControllerSimulator.MinorSimulator.minor_type : QMWonkyCassetteBlockControllerSimulator.MinorSimulator.minor_type;
+                if (type is null) {
+                    return;
+                }
+                if (Engine.Scene.Tracker.Entities.TryGetValue(type, out List<Entity> sourceList) && sourceList.Count > 0) {
                     foreach (Entity entity in sourceList) {
                         minorControllerData.Add(new Tuple<int, int, int, float, float>(
                             entity.GetFieldValue<int>("ControllerIndex"),
@@ -342,9 +387,9 @@ public static class CassetteBlockHelper {
                 HandleAlignment();
                 VanillaRender();
             }
-            else if (cbmType == CBMType.SJ) {
+            else if (cbmType == CBMType.SJ || cbmType == CBMType.QM) {
                 HandleAlignment();
-                SJ_Render();
+                SJ_Render(cbmType == CBMType.SJ);
             }
         }
 
@@ -399,7 +444,8 @@ public static class CassetteBlockHelper {
             return delta;
         }
 
-        private void SJ_Render() {
+        private void SJ_Render(bool isSJ) {
+            Dictionary<int, Color> beatColors = isSJ ? SJbeatColors : QMbeatColors;
             Vector2 pos = Position;
             pos += textOffset;
             int highestIndex = 0;
@@ -470,7 +516,8 @@ public static class CassetteBlockHelper {
             }
         }
 
-        private Vector2 SJRenderTotalOffset() {
+        private Vector2 SJRenderTotalOffset(bool isSJ) {
+            Dictionary<int, Color> beatColors = isSJ ? SJbeatColors : QMbeatColors;
             Vector2 iniOffset = textOffset;
             Vector2 contentOffset = Vector2.Zero;
 
@@ -539,8 +586,8 @@ public static class CassetteBlockHelper {
                 if (cbmType == CBMType.Vanilla) {
                     offset = VanillaRenderTotalOffset();
                 }
-                else if (cbmType == CBMType.SJ) {
-                    offset = SJRenderTotalOffset();
+                else if (cbmType == CBMType.SJ || cbmType == CBMType.QM) {
+                    offset = SJRenderTotalOffset(cbmType == CBMType.SJ);
                 }
                 else {
                     needReAlignment = false;
@@ -834,6 +881,184 @@ public static class CassetteBlockHelper {
             [Initialize]
             public static void Initialize() {
                 minor_type = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyMinorCassetteBlockController");
+            }
+
+            internal static Type minor_type;
+            public MinorSimulator(Entity entity) {
+                if (minor_type is null || entity.GetType() != minor_type) {
+                    throw new Exception("Bad Argument");
+                }
+                barLength = entity.GetFieldValue<int>("barLength");
+                beatLength = entity.GetFieldValue<int>("beatLength");
+                ControllerIndex = entity.GetFieldValue<int>("ControllerIndex");
+                CassetteWonkyBeatIndex = entity.GetFieldValue<int>("CassetteWonkyBeatIndex");
+                CassetteBeatTimer = entity.GetFieldValue<float>("CassetteBeatTimer");
+                beatIncrement = entity.GetFieldValue<float>("beatIncrement");
+                beatDelta = entity.GetFieldValue<float>("beatDelta");
+                maxBeats = entity.GetFieldValue<int>("maxBeats");
+            }
+
+            public void Synchronize(float time, float parentCassetteBeatTimer) {
+                CassetteWonkyBeatIndex = 0;
+                CassetteBeatTimer = beatDelta + (parentCassetteBeatTimer - time);
+            }
+
+            public void AdvanceMusic(float time, int index) {
+                CassetteBeatTimer += time;
+                if (!(CassetteBeatTimer >= beatIncrement)) {
+                    return;
+                }
+                CassetteBeatTimer -= beatIncrement;
+                int beatInBar = CassetteWonkyBeatIndex / (16 / beatLength) % barLength;
+                swapTimes[beatInBar + ControllerIndex * minorOffset].Add(index);
+                CassetteWonkyBeatIndex = (CassetteWonkyBeatIndex + 1) % maxBeats;
+            }
+        }
+    }
+
+    public static class QMWonkyCassetteBlockControllerSimulator {
+
+        public static bool disabled = false;
+
+        public static float CassetteBeatTimer;
+
+        public static int CassetteWonkyBeatIndex;
+
+        public static float MusicBeatTimer;
+
+        public static int MusicWonkyBeatIndex;
+
+        public static int maxBeats;
+
+        public static float beatIncrement;
+
+        public static int barLength;
+
+        public static int beatLength;
+
+        public static List<MinorSimulator> minorSimulators;
+
+        public const int minorOffset = SJWonkyCassetteBlockControllerSimulator.minorOffset;
+        public static void Initialize(Entity entity, out int currColorIndex, out int maxBeat, out int beatIndexMax, out float maxBeatTimer) {
+            currColorIndex = -1;
+            if (ModUtils.GetType("QuantumMechanics", "Celeste.Mod.QuantumMechanics.QuantumMechanicsModule")?.GetPropertyValue<EverestModuleSession>("Session") is not { } session || session.GetFieldValue<bool>("CassetteBlocksDisabled") || entity.GetType() != CassetteBlockVisualizer.QM_CBMType || MinorSimulator.minor_type is null) {
+                disabled = true;
+                maxBeat = maxBeats = 1;
+                beatIndexMax = 500;
+                maxBeatTimer = 10f;
+                return;
+            }
+            else {
+                disabled = false; // this line is necessary, as we may intialize it more than once, and the value of "CassetteBlocksDisabled" may change during this
+            }
+
+            CassetteBeatTimer = session.GetFieldValue<float>("CassetteBeatTimer");
+            CassetteWonkyBeatIndex = session.GetFieldValue<int>("CassetteWonkyBeatIndex");
+            MusicBeatTimer = session.GetFieldValue<float>("MusicBeatTimer");
+            MusicWonkyBeatIndex = session.GetFieldValue<int>("MusicWonkyBeatIndex");
+            beatIndexMax = maxBeats = entity.GetFieldValue<int>("maxBeats");
+            beatIncrement = entity.GetFieldValue<float>("beatIncrement");
+            maxBeatTimer = 60f * beatIncrement;
+            maxBeat = barLength = entity.GetFieldValue<int>("barLength");
+            beatLength = entity.GetFieldValue<int>("beatLength");
+            minorSimulators = new();
+            foreach (Entity minor_Entity in Engine.Scene.Tracker.Entities[MinorSimulator.minor_type]) {
+                minorSimulators.Add(new MinorSimulator(minor_Entity));
+            }
+        }
+
+        public static bool UpdateLoop(int loop, out Dictionary<int, List<int>> swapTime) {
+            swapTime = new();
+            swapTimes = new();
+            if (disabled) {
+                return false;
+            }
+            for (int j = 0; j < barLength; j++) {
+                swapTimes[j] = new List<int>();
+            }
+            foreach (MinorSimulator minor in minorSimulators) {
+                for (int j = minor.ControllerIndex * minorOffset; j < minor.ControllerIndex * minorOffset + minor.barLength; j++) {
+                    swapTimes[j] = new List<int>();
+                }
+            }
+
+            float time = Engine.DeltaTime;
+            for (int timeElapsed = 1; timeElapsed <= loop; timeElapsed++) {
+                AdvanceMusic(time, timeElapsed);
+            }
+            swapTime = TinySRT.TH_DeepClonerUtils.TH_DeepCloneShared<Dictionary<int, List<int>>>(swapTimes);
+            return true;
+        }
+
+        private static Dictionary<int, List<int>> swapTimes = new();
+        public static void AdvanceMusic(float time, int index) {
+            // SJ casstteblocks are a bit different, controllers give different beats, and cassetteblocks determine if they should activate depending on their OnAtBeats data (instead of just color/index)
+            // moreover, cassetteblocks have controller index to determine which controller they should follow, controller index = 0 is the main one i guess
+            // different controller can have different parameters, but minor is dominated by main anyway
+            if (disabled) {
+                return;
+            }
+
+            CassetteBeatTimer += time;
+            bool synchronizeMinorControllers = false;
+            if (CassetteBeatTimer >= beatIncrement) {
+                CassetteBeatTimer -= beatIncrement;
+
+                int num = (CassetteWonkyBeatIndex + 1) % maxBeats;
+                int beatInBar = CassetteWonkyBeatIndex / (16 / beatLength) % barLength;
+                int nextBeatInBar = num / (16 / beatLength) % barLength;
+
+                swapTimes[beatInBar].Add(index);
+                /*
+                foreach (WonkyCassetteBlock wonkyBlock in enumerable) {
+                    if (wonkyBlock.ControllerIndex == 0) {
+                        wonkyBlock.Activated = wonkyBlock.OnAtBeats.Contains(beatInBar);
+                        if (wonkyBlock.OnAtBeats.Contains(nextBeatInBar) != wonkyBlock.Activated && beatIncrementsNext) {
+                            wonkyBlock.WillToggle();
+                        }
+                    }
+                }
+                */
+                CassetteWonkyBeatIndex = (CassetteWonkyBeatIndex + 1) % maxBeats;
+                if (nextBeatInBar == 0 && beatInBar != 0) {
+                    synchronizeMinorControllers = true;
+                }
+            }
+
+            MusicBeatTimer += time;
+            if (MusicBeatTimer >= beatIncrement) {
+                MusicBeatTimer -= beatIncrement;
+                MusicWonkyBeatIndex = (MusicWonkyBeatIndex + 1) % maxBeats;
+            }
+
+            foreach (MinorSimulator minor in minorSimulators) {
+                if (synchronizeMinorControllers) {
+                    minor.Synchronize(time, CassetteBeatTimer);
+                }
+                minor.AdvanceMusic(time, index);
+            }
+        }
+
+        public class MinorSimulator {
+            public int barLength;
+
+            public int beatLength;
+
+            public int ControllerIndex;
+
+            public int CassetteWonkyBeatIndex;
+
+            public float CassetteBeatTimer;
+
+            private float beatIncrement;
+
+            private float beatDelta;
+
+            private int maxBeats;
+
+            [Initialize]
+            public static void Initialize() {
+                minor_type = ModUtils.GetType("QuantumMechanics", "Celeste.Mod.QuantumMechanics.Entities.WonkyMinorCassetteBlockController");
             }
 
             internal static Type minor_type;

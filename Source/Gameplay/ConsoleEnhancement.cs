@@ -236,7 +236,7 @@ public static class ConsoleEnhancement {
                 Logger.Log(LogLevel.Warn, "TAS Helper", "ConsoleEnhancement fails to hook Monocle.Commands.UpdateClosed!");
                 return;
             }
-            
+
         }
     }
 }
