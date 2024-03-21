@@ -60,6 +60,7 @@ public static class WhatsNew {
         AddLog("1.9.3", "Bugfix: Predictor makes BGSwitch related tas desync.", "Feature: Predictor now supports most common commands. (\"Set\", \"Invoke\", \"Console\", \"Mouse\", \"Press\", \"Gun\", \"EvalLua\")");
         AddLog("1.9.4", "MovementOvershootAssistant now supports Inverted Gravity and DreamTunnelDashState.");
         AddLog("1.9.5", "Support GhostModForTas.");
+        AddLog("1.9.6", "Cassette Block Helper supports QuantumMechanics mod cassette blocks.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
