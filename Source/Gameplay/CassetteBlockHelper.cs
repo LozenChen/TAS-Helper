@@ -271,7 +271,7 @@ public static class CassetteBlockHelper {
                 LastDeltaTime = Engine.DeltaTime;
                 bool hasData;
                 if (cbmType == CBMType.Vanilla) {
-                    VanillaCasstteBlockManagerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out tempoMult);
+                    VanillaCasstteBlockManagerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out tempoMult, out VanillaIndexPeriod);
                     hasData = VanillaCasstteBlockManagerSimulator.UpdateLoop(2 * loop, out ColorSwapTime);
                 }
                 else if (cbmType == CBMType.SJ) {
@@ -307,6 +307,8 @@ public static class CassetteBlockHelper {
         public int NearestTime = 0;
 
         public float LastDeltaTime = 0f;
+
+        public int VanillaIndexPeriod = 8;
 
         public static Dictionary<int, List<int>> ColorSwapTime = new();
 
@@ -413,6 +415,9 @@ public static class CassetteBlockHelper {
             else {
                 pos += new Vector2(20f, 10f);
             }
+            Message.RenderMessageJetBrainsMono($"[{beatIndex % VanillaIndexPeriod}/{VanillaIndexPeriod}]", pos, centerLeft, Vector2.One, 2f, Color.White, Color.Black);
+            Message.RenderMessageJetBrainsMono($"beat ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
+            pos.Y += 30f;
             Message.RenderMessageJetBrainsMono($"[{beatIndex}/{beatIndexMax}]", pos, centerLeft, Vector2.One, 2f, Color.White, Color.Black);
             Message.RenderMessageJetBrainsMono("index ", pos, centerRight, Vector2.One * 0.8f, 2f, Color.White, Color.Black);
             pos.Y += 30f;
@@ -432,10 +437,10 @@ public static class CassetteBlockHelper {
             delta.Y += 40f * maxBeat;
             if (ShowExtraInfo) {
                 if (Alignment is Alignments.TopLeft or Alignments.BottomLeft) {
-                    delta += new Vector2(0f, 60f);
+                    delta += new Vector2(0f, 90f);
                 }
                 else {
-                    delta += new Vector2(-40f, 60f);
+                    delta += new Vector2(-40f, 90f);
                 }
                 if (tempoMult != 1f) {
                     delta.Y += 30f;
@@ -641,12 +646,13 @@ public static class CassetteBlockHelper {
 
         private static int beatIndexMax;
 
-        public static void Initialize(Entity entity, out int currColorIndex, out int maxBeats, out int outBeatIndexMax, out float outTempoMult) {
+        public static void Initialize(Entity entity, out int currColorIndex, out int maxBeats, out int outBeatIndexMax, out float outTempoMult, out int vanillaIndexPeriod) {
             currColorIndex = -1;
             if (entity is not CassetteBlockManager cbm) {
                 maxBeats = 1;
                 outBeatIndexMax = 256;
                 outTempoMult = 1f;
+                vanillaIndexPeriod = 8;
                 return;
             }
             currentIndex = cbm.currentIndex;
@@ -658,6 +664,7 @@ public static class CassetteBlockHelper {
             beatsPerTick = cbm.beatsPerTick;
             ticksPerSwap = cbm.ticksPerSwap;
             outBeatIndexMax = beatIndexMax = cbm.beatIndexMax;
+            vanillaIndexPeriod = beatsPerTick * ticksPerSwap;
             foreach (CassetteBlock block in cbm.Scene.Tracker.GetEntities<CassetteBlock>()) {
                 if (block.Activated) {
                     currColorIndex = block.Index;
