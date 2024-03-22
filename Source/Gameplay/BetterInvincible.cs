@@ -6,6 +6,7 @@ using TAS.Input.Commands;
 namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class BetterInvincible {
     // make you invincible while still make tas sync
+    // it will not persist after SL, and that's what we want!
 
     public static bool Invincible = false;
 
