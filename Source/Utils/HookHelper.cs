@@ -24,7 +24,7 @@ internal static class HookHelper {
     }
 
     // check https://jatheplayer.github.io/celeste/ilhookview/ before creating a hook, to avoid conflict
-
+    // 完全限定名: https://learn.microsoft.com/zh-cn/dotnet/framework/reflection-and-codedom/specifying-fully-qualified-type-names
     public static void OnHook(this MethodBase from, Delegate to) {
         Hooks.Add(new Hook(from, to));
     }
