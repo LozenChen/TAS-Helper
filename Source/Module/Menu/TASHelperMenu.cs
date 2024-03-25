@@ -195,7 +195,8 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.OnOff("Open Console In Tas".ToDialogText(), TasHelperSettings.EnableOpenConsoleInTas).Change(value => TasHelperSettings.EnableOpenConsoleInTas = value));
             subMenu.Add(new TextMenu.OnOff("Scrollable History Log".ToDialogText(), TasHelperSettings.EnableScrollableHistoryLog).Change(value => TasHelperSettings.EnableScrollableHistoryLog = value));
             TextMenu.Item betterInvincible;
-            subMenu.Add(betterInvincible = new TextMenu.OnOff("Better Invincibility".ToDialogText(), TasHelperSettings.BetterInvincible).Change(value => { TasHelperSettings.BetterInvincible = value;
+            subMenu.Add(betterInvincible = new TextMenu.OnOff("Better Invincibility".ToDialogText(), TasHelperSettings.BetterInvincible).Change(value => {
+                TasHelperSettings.BetterInvincible = value;
                 BetterInvincible.Invincible = false; // in case that value doesn't get reset for some unknown reason... yeah i have such bug report
             }));
             subMenu.AddDescription(menu, betterInvincible, "Better Invincible Description".ToDialogText());
