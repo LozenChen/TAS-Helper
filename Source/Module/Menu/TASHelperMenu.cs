@@ -65,6 +65,7 @@ internal static class TASHelperMenu {
             subMenu.Add(OptimizationItem = new TextMenu.OnOff("Performance Optimization".ToDialogText(), TasHelperSettings.DoNotRenderWhenFarFromView).Change(value => TasHelperSettings.DoNotRenderWhenFarFromView = value));
             subMenu.AddDescription(menu, OptimizationItem, "Performance Optimization Description".ToDialogText());
             */
+            subMenu.Add(new HLine(Color.Gray));
         });
     }
     private static EaseInSubMenu CreateLoadRangeSubMenu(TextMenu menu) {
@@ -85,6 +86,7 @@ internal static class TASHelperMenu {
             subMenu.Add(LRCItem = new TextMenuExt.EnumerableSlider<LoadRangeColliderModes>("Load Range Collider".ToDialogText(), CreateEnableLoadRangeColliderOptions(),
                 TasHelperSettings.LoadRangeColliderMode).Change(value => TasHelperSettings.LoadRangeColliderMode = value));
             subMenu.AddDescription(menu, LRCItem, "LRC Description".ToDialogText());
+            subMenu.Add(new HLine(Color.Gray));
         });
     }
 
@@ -130,7 +132,7 @@ internal static class TASHelperMenu {
             subMenu.Add(new TextMenu.OnOff("Main Switch Visualize".ToDialogText(), TasHelperSettings.HotkeyStateVisualize).Change(value => TasHelperSettings.HotkeyStateVisualize = value));
             subMenu.Add(new TextMenu.OnOff("Main Switch Prevent".ToDialogText(), TasHelperSettings.AllowEnableModWithMainSwitch).Change(value => TasHelperSettings.AllowEnableModWithMainSwitch = value));
 
-            subMenu.Add(new TextMenu.Button(Dialog.Clean("options_keyconfig")).Pressed(() => {
+            TextMenu.Item keyConfig = new TextMenu.Button(Dialog.Clean("options_keyconfig")).Pressed(() => {
                 subMenu.Focused = false;
                 KeyboardConfigUI keyboardConfig = new ModuleSettingsKeyboardConfigUIExt(everestModule) {
                     OnClose = () => { subMenu.Focused = true; TH_Hotkeys.HotkeyInitialize(); }
@@ -138,9 +140,12 @@ internal static class TASHelperMenu {
 
                 Engine.Scene.Add(keyboardConfig);
                 Engine.Scene.OnEndOfFrame += () => Engine.Scene.Entities.UpdateLists();
-            }));
-
-            subMenu.Add(new TextMenu.Button(Dialog.Clean("options_btnconfig")).Pressed(() => {
+            });
+            TextMenuExt.EaseInSubHeaderExt descriptionText = new("Hotkey Description".ToDialogText(), false, menu) {
+                TextColor = Color.Gray,
+                HeightExtra = 0f
+            };
+            TextMenu.Item buttonConfig = new TextMenu.Button(Dialog.Clean("options_btnconfig")).Pressed(() => {
                 subMenu.Focused = false;
                 ButtonConfigUI buttonConfig = new ModuleSettingsButtonConfigUI(everestModule) {
                     OnClose = () => { subMenu.Focused = true; TH_Hotkeys.HotkeyInitialize(); }
@@ -148,7 +153,16 @@ internal static class TASHelperMenu {
 
                 Engine.Scene.Add(buttonConfig);
                 Engine.Scene.OnEndOfFrame += () => Engine.Scene.Entities.UpdateLists();
-            }));
+            });
+            subMenu.Add(keyConfig);
+            subMenu.Add(descriptionText);
+            subMenu.Add(buttonConfig);
+
+            keyConfig.OnEnter += () => descriptionText.FadeVisible = true;
+            buttonConfig.OnEnter += () => descriptionText.FadeVisible = true;
+            keyConfig.OnLeave += () => descriptionText.FadeVisible = false;
+            buttonConfig.OnLeave += () => descriptionText.FadeVisible = false;
+            subMenu.Add(new HLine(Color.Gray));
         });
     }
 
@@ -204,6 +218,7 @@ internal static class TASHelperMenu {
             TextMenu.Item subscribeWhatsNew;
             subMenu.Add(subscribeWhatsNew = new TextMenu.OnOff("Subscribe Whats New".ToDialogText(), TasHelperSettings.SubscribeWhatsNew).Change(value => TasHelperSettings.SubscribeWhatsNew = value));
             subMenu.AddDescription(menu, subscribeWhatsNew, "Subscribe Whats New Description".ToDialogText());
+            subMenu.Add(new HLine(Color.Gray));
         });
     }
 
@@ -337,7 +352,6 @@ internal static class TASHelperMenu {
             menu.Insert(N + 5, predictItem);
             menu.Insert(N + 6, moreoptionItem);
             menu.Insert(N + 7, hotkeysItem);
-            hotkeysItem.AddDescription(menu, "Hotkey Description".ToDialogText());
 
             foreach (IEaseInItem item in disabledItems) {
                 item.Initialize();
