@@ -62,6 +62,7 @@ public static class WhatsNew {
         AddLog("1.9.5", "Support GhostModForTas.");
         AddLog("1.9.6", "Cassette Block Helper supports QuantumMechanics mod cassette blocks.");
         AddLog("1.9.7", "Some daily maintenance.");
+        AddLog("1.9.8", "ModInterop: Export predictor's SL action.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
