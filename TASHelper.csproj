@@ -68,7 +68,7 @@
 		<PublicizerRuntimeStrategies>Unsafe;IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
 	</PropertyGroup>
 	<ItemGroup>
-		<Publicize Include="Celeste" IncludeCompilerGeneratedMembers="false"/>
+		<Publicize Include="Celeste" IncludeCompilerGeneratedMembers="false" />
 		<Publicize Include="SpeedrunTool" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Utils.AttributeUtils.MethodInfos" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Utils.SpeedrunToolUtils.saveLoadAction" />

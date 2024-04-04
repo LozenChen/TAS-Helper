@@ -144,7 +144,7 @@ TAS_HELPER_HIDE_GOLD_BERRY=                                Hide Gold-Berry Colle
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        Hotkeys
-TAS_HELPER_HOTKEY_DESCRIPTION=                             Binding multiple keys to a control will cause those keys to act as a keycombo
+TAS_HELPER_HOTKEY_DESCRIPTION=                             Binding multiple keys to a control will cause those keys to act as a keycombo.
 TAS_HELPER_MAIN_SWITCH_HOTKEY=                             Main Switch
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       Switch Countdown
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       Switch Load Range

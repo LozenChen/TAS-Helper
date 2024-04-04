@@ -42,13 +42,18 @@ public static class ExtraSlActions {
         }
     }
 
-    public static void LoadTH() {
+    [Initialize]
+    private static void Initialize() {
         TH_Actions.Add(TasModSL.Create());
         // tas mod already adds to SRT itself
         TH_Actions.Add(TasHelperSL.Create());
         TH_Actions.Add(GravityHelperSL.Create());
         TH_Actions.Add(BGSwitchSL.Create());
         TH_Actions.Add(GhostModSL.Create());
+    }
+
+    internal static void LoadTH() {
+        // this is initialized when savestate is first invoked, so that's quite late
         foreach (TH action in TH_Actions) {
             TH.Add(action);
         }
@@ -65,25 +70,6 @@ public static class ExtraSlActions {
             SRT.Remove(action);
         }
         SRT_Actions.Clear();
-    }
-}
-
-public static class Converter {
-    public static TH.SlAction Convert(this SRT.SlAction action) {
-        return (savedValues, level) => { action(savedValues, level); };
-    }
-
-    public static SRT.SlAction Convert(this TH.SlAction action) {
-        return (savedValues, level) => { action(savedValues, level); };
-    }
-
-    public static TH Convert(this SRT action) {
-        return new TH(action.saveState.Convert(), action.loadState.Convert(), action.clearState, action.beforeSaveState, action.beforeLoadState, action.preCloneEntities);
-    }
-    // only works if these action are quite simple, didn't use the corresponding DeepCloneUtils
-
-    public static SRT Convert(this TH action) {
-        return new SRT(action.saveState.Convert(), action.loadState.Convert(), action.clearState, action.beforeSaveState, action.beforeLoadState, action.preCloneEntities);
     }
 }
 

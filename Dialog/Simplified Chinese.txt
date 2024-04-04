@@ -133,7 +133,7 @@ TAS_HELPER_HIDE_GOLD_BERRY=                                隐藏收集金草莓
 
 # ============================================= Hotkeys =====================================================
 TAS_HELPER_HOTKEYS=                                        快捷键
-TAS_HELPER_HOTKEY_DESCRIPTION=                             绑定多个按键表示组合键，需要同时按下才能触发相应操作
+TAS_HELPER_HOTKEY_DESCRIPTION=                             绑定多个按键表示组合键，需要同时按下才能触发相应操作.
 TAS_HELPER_MAIN_SWITCH_HOTKEY=                             主开关
 TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY=                       切换倒计时
 TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY=                       切换加载范围
