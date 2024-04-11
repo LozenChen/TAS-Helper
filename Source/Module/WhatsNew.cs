@@ -63,6 +63,7 @@ public static class WhatsNew {
         AddLog("1.9.6", "Cassette Block Helper supports QuantumMechanics mod cassette blocks.");
         AddLog("1.9.7", "Some daily maintenance.");
         AddLog("1.9.8", "ModInterop: Export predictor's SL action.");
+        AddLog("1.9.9", "New Hotkey: Reverse Frame Advance. This makes tas re-run but up to the previous frame. (Feature Request from Vamp)");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

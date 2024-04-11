@@ -41,6 +41,12 @@ internal static class AttributeUtils {
     }
 #else
     public static void CollectMethods<T>() where T : Attribute {
+        if (typeof(T) == typeof(InitializeAttribute)) {
+            MethodInfos[typeof(T)] = typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
+                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<InitializeAttribute>() != null)).OrderByDescending(info => info.GetCustomAttribute<InitializeAttribute>().Depth);
+            return;
+        }
         MethodInfos[typeof(T)] = typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
             .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<T>() != null));
@@ -67,7 +73,13 @@ internal class UnloadAttribute : Attribute { }
 internal class LoadContentAttribute : Attribute { }
 
 [AttributeUsage(AttributeTargets.Method)]
-internal class InitializeAttribute : Attribute { }
+internal class InitializeAttribute : Attribute {
+    public int Depth;
+
+    public InitializeAttribute(int depth = 0) {
+        Depth = depth; // depth higher = invoked earlier
+    }
+}
 
 [AttributeUsage(AttributeTargets.Method)]
 internal class TasDisableRunAttribute : Attribute { }

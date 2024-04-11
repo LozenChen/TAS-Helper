@@ -595,8 +595,7 @@ public sealed class TH_SaveLoadAction {
                 SRT.ClearBeforeSaveComponent.RemoveAll(level);
 
                 // 冲刺残影方向错误，干脆移除屏幕不显示了
-                level.Tracker.GetEntities<TrailManager.Snapshot>()
-                    .ForEach(entity => entity.Position = level.Camera.Position - Vector2.One * 100);
+                TrailManager.Clear();
 
                 if (ModUtils.IsInstalled("CelesteNet.Client")) {
                     Type ghostEmoteWheelType = ModUtils.GetType("CelesteNet.Client", "Celeste.Mod.CelesteNet.Client.Entities.GhostEmoteWheel");
@@ -1172,7 +1171,7 @@ public sealed class TH_SaveLoadAction {
 }
 
 internal static class TinySRT_Logger {
-    private const string Tag = "Tas Helper TinySRT";
+    private const string Tag = "SRT_MoreSaveSlots";
 
     internal static void Log(this object message, LogLevel logLevel = LogLevel.Warn) {
         string text = "";

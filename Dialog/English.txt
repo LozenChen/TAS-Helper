@@ -161,6 +161,7 @@ TAS_HELPER_PREDICT_ENABLE_HOTKEY=                          Enable/Disable Predic
 TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          Make a Prediction
 TAS_HELPER_OOO_STEP_HOTKEY=                                Order-of-Operation Stepping
 TAS_HELPER_OOO_FASTFORWARD_HOTKEY=                         Order-of-Operation FastForward
+TAS_HELPER_FRAME_STEP_BACK=                                Reverse Frame Advance
 
 # ============================================= Predictor =====================================================
 TAS_HELPER_PREDICTOR=                                      Predictor

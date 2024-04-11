@@ -29,6 +29,8 @@ public static class TH_Hotkeys {
 
     public static Hotkey OpenConsole { get; set; }
 
+    public static Hotkey FrameStepBack { get; set; }
+
     public static List<Hotkey> Hotkeys = new();
 
     [Load]
@@ -54,6 +56,7 @@ public static class TH_Hotkeys {
         PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
         OoO_Step_Hotkey = BindingToHotkey(TasHelperSettings.keyOoO_Step);
         OoO_Fastforward_Hotkey = BindingToHotkey(TasHelperSettings.keyOoO_Fastforward);
+        FrameStepBack = BindingToHotkey(TasHelperSettings.keyFrameStepBack);
         if (typeof(CMCore.CoreModuleSettings).GetProperty("DebugConsole") is { } getDebugConsole) {
             // there's a period of time when DebugConsole get renamed
             // and before that commit, ToggleDebugConsole doesn't exist
@@ -77,7 +80,8 @@ public static class TH_Hotkeys {
             OpenConsole = new Hotkey(null, null, false, false);
         }
 
-        Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OoO_Step_Hotkey, OoO_Fastforward_Hotkey, OpenConsole };
+        Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OoO_Step_Hotkey, OoO_Fastforward_Hotkey, OpenConsole, FrameStepBack };
+
     }
 
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
@@ -91,9 +95,16 @@ public static class TH_Hotkeys {
         foreach (Hotkey hotkey in Hotkeys) {
             hotkey.Update(updateKey, updateButton);
         }
+        frameCounter++;
     }
 
-    private static Hotkey BindingToHotkey(ButtonBinding binding, bool held = false) {
+    private static int frameCounter = 0;
+
+    public static bool OnInterval(int period) {
+        return frameCounter % period == 0u;
+    }
+
+    internal static Hotkey BindingToHotkey(ButtonBinding binding, bool held = false) {
         return new(binding.Keys, binding.Buttons, true, held);
     }
 

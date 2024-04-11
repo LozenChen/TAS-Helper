@@ -85,6 +85,11 @@
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.playerUpdated" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.LastPositions" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.LastColldables" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.Savestates.SavedCurrentFrame" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.Savestates.Load" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.Savestates.Clear" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.CenterCamera.RestoreTheCamera"/>
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.CenterCamera.CenterTheCamera"/>
 		<Publicize Include="FNA:Microsoft.Xna.Framework.Input.GamePadButtons.buttons" />
 		<Publicize Include="MonoMod.Utils" />
 		<Publicize Include="MonoMod.Utils:MonoMod.Utils.DynamicData._DataMap" />

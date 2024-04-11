@@ -150,6 +150,7 @@ TAS_HELPER_PREDICT_ENABLE_HOTKEY=                          开关未来视
 TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          预测一次
 TAS_HELPER_OOO_STEP_HOTKEY=                                亚帧步进
 TAS_HELPER_OOO_FASTFORWARD_HOTKEY=                         亚帧快进
+TAS_HELPER_FRAME_STEP_BACK=                                步退
 
 # ============================================= Predictor =====================================================
 TAS_HELPER_PREDICTOR=                                      未来视

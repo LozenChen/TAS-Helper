@@ -76,51 +76,44 @@ internal static class TH_FrostHelperUtils {
     }
 
     public static void SupportFrostHelper() {
-        if (!(AttachedDataHelperType.Value != null) || GetAllData.Value != null) {
-            return;
-        }
-
-        MethodInfo setAttached = AttachedDataHelperType.Value.GetMethodInfo("SetAttached");
-        if ((object)setAttached == null) {
-            return;
-        }
-
-        Type genericCustomBoosterType = ModUtils.GetType("FrostHelper", "FrostHelper.Entities.Boosters.GenericCustomBooster");
-        if ((object)genericCustomBoosterType == null) {
-            return;
-        }
-
-        MethodInfo getBoosterThatIsBoostingPlayer = genericCustomBoosterType.GetMethodInfo("GetBoosterThatIsBoostingPlayer");
-        if ((object)getBoosterThatIsBoostingPlayer == null) {
-            return;
-        }
-
-        setAttached = setAttached.MakeGenericMethod(genericCustomBoosterType);
-        TH.SafeAdd(delegate (Dictionary<Type, Dictionary<string, object>> values, Level level) {
-            Dictionary<string, object> dictionary2 = new Dictionary<string, object>();
-            List<Entity> entities = level.Tracker.GetEntities<Player>();
-            List<object> value3 = entities.Select((Entity player) => getBoosterThatIsBoostingPlayer.Invoke(null, new object[1] { player })).ToList();
-            dictionary2["players"] = entities;
-            dictionary2["boosters"] = value3;
-            values[genericCustomBoosterType] = dictionary2.TH_DeepCloneShared();
-        }, delegate (Dictionary<Type, Dictionary<string, object>> values, Level level) {
-            Dictionary<string, object> dictionary = values[genericCustomBoosterType].TH_DeepCloneShared();
-            if (dictionary.TryGetValue("players", out var value) && dictionary.TryGetValue("boosters", out var value2)) {
-                List<Entity> list = value as List<Entity>;
-                if (list != null) {
-                    List<object> list2 = value2 as List<object>;
-                    if (list2 != null) {
-                        for (int i = 0; i < list.Count; i++) {
-                            setAttached.Invoke(null, new object[2]
-                            {
-                                    list[i],
-                                    list2[i]
-                            });
+        if (AttachedDataHelperType.Value != null && GetAllData.Value == null
+            && AttachedDataHelperType.Value.GetMethodInfo("SetAttached") is { } setAttached
+            && ModUtils.GetType("FrostHelper", "FrostHelper.Entities.Boosters.GenericCustomBooster") is { } genericCustomBoosterType
+            && genericCustomBoosterType.GetMethodInfo("GetBoosterThatIsBoostingPlayer") is { } getBoosterThatIsBoostingPlayer
+           ) {
+            setAttached = setAttached.MakeGenericMethod(genericCustomBoosterType);
+            TH.SafeAdd(
+                saveState: (values, level) => {
+                    Dictionary<string, object> dict = new();
+                    List<Entity> players = level.Tracker.GetEntities<Player>();
+                    List<object> boosters = players.Select(player => getBoosterThatIsBoostingPlayer.Invoke(null, new object[] { player })).ToList();
+                    dict["players"] = players;
+                    dict["boosters"] = boosters;
+                    values[genericCustomBoosterType] = dict.TH_DeepCloneShared();
+                },
+                loadState: (values, level) => {
+                    Dictionary<string, object> dict = values[genericCustomBoosterType].TH_DeepCloneShared();
+                    if (dict.TryGetValue("players", out object players) && dict.TryGetValue("boosters", out object boosters)) {
+                        if (players is List<Entity> playerList && boosters is List<object> boosterList) {
+                            for (int i = 0; i < playerList.Count; i++) {
+                                setAttached.Invoke(null, new[] { playerList[i], boosterList[i] });
+                            }
                         }
                     }
-                }
-            }
-        });
+                });
+        }
+
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.ChangeDashSpeedOnce") is { } changeDashSpeedOnceType) {
+            TH.SafeAdd(
+                (savedValues, _) => TH.SaveStaticMemberValues(savedValues, changeDashSpeedOnceType, "NextDashSpeed", "NextSuperJumpSpeed"),
+                (savedValues, _) => TH.LoadStaticMemberValues(savedValues));
+        }
+
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.TimeBasedClimbBlocker") is { } timeBasedClimbBlockerType) {
+            TH.SafeAdd(
+                (savedValues, _) => TH.SaveStaticMemberValues(savedValues, timeBasedClimbBlockerType, "_NoClimbTimer"),
+                (savedValues, _) => TH.LoadStaticMemberValues(savedValues));
+        }
     }
 }
 

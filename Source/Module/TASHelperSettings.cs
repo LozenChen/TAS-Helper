@@ -757,6 +757,9 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.E)]
     public ButtonBinding keyMainSwitch { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.E);
 
+    [SettingName("TAS_HELPER_FRAME_STEP_BACK")]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.Y)]
+    public ButtonBinding keyFrameStepBack { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.I);
 
     [SettingName("TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY")]
     [DefaultButtonBinding2(0, Keys.LeftControl, Keys.R)]
@@ -808,6 +811,11 @@ public class TASHelperSettings : EverestModuleSettings {
 
         TH_Hotkeys.Update(updateKey, updateButton);
 
+        OoO_Core.OnHotkeysPressed();
+        if (OoO_Core.Applied) {
+            return false;
+        }
+
         bool changed = false; // if settings need to be saved
 
         if (TH_Hotkeys.MainSwitchHotkey.Pressed) {
@@ -828,7 +836,7 @@ public class TASHelperSettings : EverestModuleSettings {
                     // other HotkeyWatcher refresh are left to the setter of mainSwitch
             }
         }
-        if (TH_Hotkeys.CountDownHotkey.Pressed) {
+        else if (TH_Hotkeys.CountDownHotkey.Pressed) {
             if (Enabled) {
                 changed = true;
                 switch (CountdownMode) {
@@ -851,7 +859,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 HotkeyWatcher.RefreshHotkeyDisabled();
             }
         }
-        if (TH_Hotkeys.LoadRangeHotkey.Pressed) {
+        else if (TH_Hotkeys.LoadRangeHotkey.Pressed) {
             if (Enabled) {
                 changed = true;
                 switch (LoadRangeMode) {
@@ -865,7 +873,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 HotkeyWatcher.RefreshHotkeyDisabled();
             }
         }
-        if (TH_Hotkeys.PixelGridWidthHotkey.Pressed) {
+        else if (TH_Hotkeys.PixelGridWidthHotkey.Pressed) {
             if (Enabled) {
                 changed = true;
                 EnablePixelGrid = true;
@@ -885,7 +893,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 HotkeyWatcher.RefreshHotkeyDisabled();
             }
         }
-        if (TH_Hotkeys.PredictEnableHotkey.Pressed) {
+        else if (TH_Hotkeys.PredictEnableHotkey.Pressed) {
             if (Enabled) {
                 changed = true;
                 predictFutureEnabled = !predictFutureEnabled;
@@ -895,7 +903,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 HotkeyWatcher.RefreshHotkeyDisabled();
             }
         }
-        if (TH_Hotkeys.PredictFutureHotkey.Pressed) {
+        else if (TH_Hotkeys.PredictFutureHotkey.Pressed) {
             if (!Enabled) {
                 HotkeyWatcher.RefreshHotkeyDisabled();
             }
@@ -913,11 +921,13 @@ public class TASHelperSettings : EverestModuleSettings {
                 Refresh("Predictor Start");
             }
         }
-        if (EnableOpenConsoleInTas && TH_Hotkeys.OpenConsole.Pressed) {
+        else if (EnableOpenConsoleInTas && TH_Hotkeys.OpenConsole.Pressed) {
             Gameplay.ConsoleEnhancement.SetOpenConsole();
             // it's completely ok that this feature is not enabled and people press this key, so there's no warning
         }
-        OoO_Core.OnHotkeysPressed();
+        else if (!OoO_Core.Applied && (TH_Hotkeys.FrameStepBack.Released || TH_Hotkeys.FrameStepBack.Check && TH_Hotkeys.OnInterval((int)Math.Round(4 / TasSettings.SlowForwardSpeed)))) { // we use release so there's no save/load issue
+            FrameStepBack.StepBackOneFrame();
+        }
 
         return changed;
 

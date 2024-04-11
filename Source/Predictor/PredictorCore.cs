@@ -55,7 +55,6 @@ public static class PredictorCore {
             return;
         }
 
-        // warn: this overrides SpeedrunTool's (and thus TAS's) savestate
         if (!TinySRT.TH_StateManager.SaveState()) {
             return;
         }
@@ -200,6 +199,7 @@ public static class PredictorCore {
         PredictorRenderer.ClearCachedMessage();
         FreezeTimerBeforeUpdate = Engine.FreezeTimer;
         neverClearStateThisFrame = true;
+
         if (!Manager.Running) {
             HasCachedFutures = false;
             futures.Clear();

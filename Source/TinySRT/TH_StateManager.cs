@@ -105,7 +105,6 @@ public class TH_StateManager {
 
         Instance.State = State.Saving;
         Instance.SavedByTas = true;
-
         TH.OnBeforeSaveState(level);
         level.TH_DeepCloneToShared(Instance.savedLevel = (Level)FormatterServices.GetUninitializedObject(typeof(Level)));
         Instance.savedSaveData = SaveData.Instance.TH_DeepCloneShared();
@@ -128,7 +127,6 @@ public class TH_StateManager {
         if (Instance.State is State.Loading or State.Waiting || !Instance.IsSaved) {
             return false;
         }
-
         // Instance = StateManger.Instance in any cases
 
         Instance.LoadByTas = true;
