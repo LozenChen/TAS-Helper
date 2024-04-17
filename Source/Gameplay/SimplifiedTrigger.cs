@@ -197,6 +197,22 @@ public static class SimplifiedTrigger {
         GetTypes("CollabUtils2", "Celeste.Mod.CollabUtils2.Triggers.SpeedBerryCollectTrigger", "Celeste.Mod.CollabUtils2.Triggers.SilverBerryCollectTrigger").ForEach(x => goldBerryTriggers.Add(x));
     }
 
+    internal static void OnHideBerryChange(bool enable) {
+        if (Engine.Scene is not Level level) {
+            return;
+        }
+        if (enable) {
+            foreach (Entity entity in level.Tracker.GetEntities<Trigger>()) {
+                if (goldBerryTriggers.Contains(entity.GetType())) {
+                    UnimportantTriggers.Add(entity);
+                }
+            }
+        }
+        else {
+            UnimportantTriggers.RemoveWhere(x => goldBerryTriggers.Contains(x.GetType()));
+        }
+    }
+
     private static readonly HashSet<Type> goldBerryTriggers = new() { typeof(GoldBerryCollectTrigger) };
 
     private static void HandleCameraTrigger() {
@@ -212,6 +228,22 @@ public static class SimplifiedTrigger {
 
         void AddTypes(string modName, params string[] typeNames) {
             AddTypesImpl(cameraTriggers, modName, typeNames);
+        }
+    }
+
+    internal static void OnHideCameraChange(bool enable) {
+        if (Engine.Scene is not Level level) {
+            return;
+        }
+        if (enable) {
+            foreach (Entity entity in level.Tracker.GetEntities<Trigger>()) {
+                if (cameraTriggers.Contains(entity.GetType())) {
+                    UnimportantTriggers.Add(entity);
+                }
+            }
+        }
+        else {
+            UnimportantTriggers.RemoveWhere(x => cameraTriggers.Contains(x.GetType()));
         }
     }
 

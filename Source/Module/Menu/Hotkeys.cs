@@ -95,14 +95,10 @@ public static class TH_Hotkeys {
         foreach (Hotkey hotkey in Hotkeys) {
             hotkey.Update(updateKey, updateButton);
         }
-        frameCounter++;
+        Gameplay.FrameStepBack.OnHotkeyUpdate(FrameStepBack.Check);
     }
 
-    private static int frameCounter = 0;
 
-    public static bool OnInterval(int period) {
-        return frameCounter % period == 0u;
-    }
 
     internal static Hotkey BindingToHotkey(ButtonBinding binding, bool held = false) {
         return new(binding.Keys, binding.Buttons, true, held);

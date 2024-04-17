@@ -925,7 +925,7 @@ public class TASHelperSettings : EverestModuleSettings {
             Gameplay.ConsoleEnhancement.SetOpenConsole();
             // it's completely ok that this feature is not enabled and people press this key, so there's no warning
         }
-        else if (!OoO_Core.Applied && (TH_Hotkeys.FrameStepBack.Released || TH_Hotkeys.FrameStepBack.Check && TH_Hotkeys.OnInterval((int)Math.Round(4 / TasSettings.SlowForwardSpeed)))) { // we use release so there's no save/load issue
+        else if (!OoO_Core.Applied && (TH_Hotkeys.FrameStepBack.Released || TH_Hotkeys.FrameStepBack.Check && Gameplay.FrameStepBack.CheckOnHotkeyHold())) { // we use release so there's no save/load issue
             FrameStepBack.StepBackOneFrame();
         }
 
