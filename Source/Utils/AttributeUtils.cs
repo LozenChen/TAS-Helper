@@ -84,6 +84,8 @@ internal class InitializeAttribute : Attribute {
 [AttributeUsage(AttributeTargets.Method)]
 internal class TasDisableRunAttribute : Attribute { }
 
+// note that if you use RESTART hotkey ("=" by default), then LoadState will be invoked (if it's saved), but TasDisableRun won't!!
+
 [AttributeUsage(AttributeTargets.Method)]
 internal class TasEnableRunAttribute : Attribute { }
 
@@ -106,3 +108,4 @@ internal class LoadLevelAttribute : Attribute {
 [AttributeUsage(AttributeTargets.Method)]
 // 0 - 2 parameters
 internal class AddDebugRenderAttribute : Attribute { }
+

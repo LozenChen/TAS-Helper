@@ -1,5 +1,6 @@
 using Celeste.Mod.TASHelper.Utils;
 using MonoMod.ModInterop;
+using TAS;
 
 namespace Celeste.Mod.TASHelper.Module;
 
@@ -23,8 +24,8 @@ internal static class Loader {
         ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();
         AttributeUtils.Invoke<EventOnHookAttribute>();
-        typeof(TAS.Manager).GetMethod("DisableRun").HookAfter(() => AttributeUtils.Invoke<TasDisableRunAttribute>());
-        typeof(TAS.Manager).GetMethod("EnableRun").HookBefore(() => AttributeUtils.Invoke<TasEnableRunAttribute>());
+        typeof(TAS.Manager).GetMethod(nameof(Manager.DisableRun)).HookAfter(() => AttributeUtils.Invoke<TasDisableRunAttribute>());
+        typeof(TAS.Manager).GetMethod(nameof(Manager.EnableRun)).HookBefore(() => AttributeUtils.Invoke<TasEnableRunAttribute>());
         TasHelperSettings.FirstInstall = false;
         TASHelperModule.Instance.SaveSettings();
         CILCodeHelper.InitializeAtLast();

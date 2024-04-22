@@ -165,6 +165,8 @@ internal static class TasHelperSL {
     private static Dictionary<Entity, Tuple<bool, string>> TH_offsetGroup = new();
     private static Dictionary<Entity, Tuple<bool, string>> SRT_offsetGroup = new();
 
+    private static bool SRT_BetterInvincible = false;
+
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             DashTime = GameInfo.DashTime;
@@ -236,6 +238,8 @@ internal static class TasHelperSL {
             SRT_ColorSwapTime = CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime.DeepCloneShared();
 
             SRT_offsetGroup = ExactSpinnerGroup.offsetGroup.DeepCloneShared();
+
+            SRT_BetterInvincible = Manager.Running ? BetterInvincible.Invincible : false;
         };
         SRT.SlAction load = (_, _) => {
             Predictor.PredictorCore.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
@@ -248,6 +252,11 @@ internal static class TasHelperSL {
             CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors = SRT_QMbeatColors.DeepCloneShared();
             CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = SRT_offsetGroup.DeepCloneShared();
+            BetterInvincible.Invincible = Manager.Running ? SRT_BetterInvincible : false;
+            // note that tas will not invoke enable/disable run if it's using load state
+            // so if our "Set Invincible true" is after the savepoint, invoked, and get deleted later
+            // then Invincible will still be true after load state
+            // so 
         };
         Action clear = () => {
             SRT_CachedNodes = null;
@@ -258,6 +267,7 @@ internal static class TasHelperSL {
             SRT_QMbeatColors = null;
             SRT_ColorSwapTime = null;
             SRT_offsetGroup = null;
+            SRT_BetterInvincible = false;
         };
 
         ConstructorInfo constructor = typeof(SRT).GetConstructors()[0];
