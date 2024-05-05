@@ -11,6 +11,12 @@ internal static class ActualPosition {
 
     internal static Vector2 PreviousCameraPos = Vector2.Zero;
     internal static Vector2 CameraPosition = Vector2.Zero;
+
+    // new impl
+    internal static Dictionary<int, Vector2> CameraPositionDict = new();
+    internal static List<Vector2> CameraPositionSet = new();
+    internal static Vector2 CameraPositionSetLastElement = Vector2.Zero;
+
     internal static float CameraZoom = 1f;
     // only change when there is entity which needs Camera.Zoom in its InView() and ApplyCameraZoom is on
     internal static Vector2 CameraTowards = Vector2.Zero;
@@ -107,12 +113,24 @@ internal static class ActualPosition {
             PlayerPositionChangedCount = 0;
             PreviousCameraPos = level.Camera.Position;
             CameraZoom = 1f;
+            CameraPositionDict.Clear();
+            InViewBoost = TasHelperSettings.UsingInViewRange;
         }
     }
+
+    private static bool InViewBoost = false;
 
     private static void PatchAfterUpdate(Scene self) {
         if (TasHelperSettings.Enabled && self is Level level) {
             CameraPosition = level.Camera.Position;
+            CameraPositionSet = CameraPositionDict.Values.Distinct().ToList();
+            if (CameraPositionSet.IsEmpty()) {
+                CameraPositionSetLastElement = CameraPosition; // add a precise one instead
+            }
+            else {
+                CameraPositionSet.Remove(CameraPositionSetLastElement);
+            }
+
             if (playerInstance is Player player) {
                 if (PlayerPositionChangedCount == 0) {
                     PlayerPositionChangedCount++;
@@ -122,6 +140,7 @@ internal static class ActualPosition {
             }
         }
     }
+
 
     private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
         ILCursor cursor = new ILCursor(il);
@@ -172,6 +191,9 @@ internal static class ActualPosition {
 
     private static void PatchHazardUpdate(Entity self) {
         if (TasHelperSettings.Enabled && !UltraFastForwarding && self.IsHazard() && playerInstance is Player player) {
+            if (InViewBoost && !self.IsDust() && !CameraPositionDict.ContainsKey(self.Depth) && self.Scene is Level level) {
+                TrackCameraPosition(self.Depth, level.Camera.Position);
+            }
             if (PlayerPositionChangedCount == 0) {
                 PlayerPositionChangedCount++;
                 PlayerPosition = player.Position;
@@ -187,4 +209,8 @@ internal static class ActualPosition {
         }
     }
 
+    private static void TrackCameraPosition(int depth, Vector2 vec) {
+        CameraPositionDict.Add(depth, vec);
+        CameraPositionSetLastElement = vec;
+    }
 }

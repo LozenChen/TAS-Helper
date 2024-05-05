@@ -27,7 +27,7 @@ internal static class Countdown {
             else {
                 CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
-            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.IsDust()), index, collidable);
+            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.IsDust(), TasHelperSettings.SpinnerCountdownLoad), index, collidable);
         }
     }
 }

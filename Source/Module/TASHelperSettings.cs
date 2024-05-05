@@ -171,11 +171,9 @@ public class TASHelperSettings : EverestModuleSettings {
             CountdownRenderer.ClearCache();
             if (CountdownMode == CountdownModes._3fCycle) {
                 SpinnerCountdownLoad = true;
-                SpinnerInterval = 0.05f;
             }
             else if (CountdownMode == CountdownModes._15fCycle) {
                 SpinnerCountdownLoad = false;
-                SpinnerInterval = 0.25f;
             }
         }
     }
@@ -368,11 +366,9 @@ public class TASHelperSettings : EverestModuleSettings {
         }
         if (CountdownMode == CountdownModes._3fCycle) {
             SpinnerCountdownLoad = true;
-            SpinnerInterval = 0.05f;
         }
         else if (CountdownMode == CountdownModes._15fCycle) {
             SpinnerCountdownLoad = false;
-            SpinnerInterval = 0.25f;
         }
         UsingLoadRange = (LoadRangeMode != LoadRangeModes.Neither);
         UsingInViewRange = (LoadRangeMode == LoadRangeModes.InViewRange || LoadRangeMode == LoadRangeModes.Both);
@@ -394,7 +390,6 @@ public class TASHelperSettings : EverestModuleSettings {
     public bool UsingNearPlayerRange = true;
     public bool SpinnerCountdownLoad = true;
     public bool UsingLoadRangeCollider = true;
-    public float SpinnerInterval = 0.05f;
     public float RangeAlpha = 0.4f;
     public float SpinnerFillerAlpha_Collidable = 0.8f;
     public float SpinnerFillerAlpha_Uncollidable = 0f;
@@ -557,7 +552,7 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public bool entityActivatorReminder = true;
+    public bool entityActivatorReminder = false;
 
     [YamlIgnore]
     public bool EntityActivatorReminder {

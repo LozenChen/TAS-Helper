@@ -54,5 +54,7 @@ internal static class BetterInvincible {
             }
             Invincible = !beforeInvincible;
         }
+        // if originally invincible = true, but set to false, then betterInv = false
+        // if originally inv = false, but set to true, then inv = false, and betterInv = true
     }
 }

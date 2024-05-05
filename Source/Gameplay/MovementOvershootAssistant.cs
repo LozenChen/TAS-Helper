@@ -139,7 +139,10 @@ internal static class MovementOvershootAssistant {
             unselectableCollider = new Hitbox(8f, 11f, -4f, -11f); // we use this to avoid captured by FindClickedEntities
             Collidable = false;
             Visible = false;
-            Instance = this;
+            // https://discord.com/channels/403698615446536203/666197738026827786/1233483296827117618
+            if (this is not null) {
+                Instance = this;
+            }
         }
 
         public override void DebugRender(Camera camera) {
@@ -164,9 +167,18 @@ internal static class MovementOvershootAssistant {
         }
 
         private static Rectangle rect = new Rectangle();
-        private static readonly Texture2D texture2d = Monocle.Draw.Pixel.Texture.Texture_Safe;
-        private static readonly Rectangle clip = Monocle.Draw.Pixel.ClipRect;
-        private static readonly SpriteBatch sb = Monocle.Draw.SpriteBatch;
+        private static Texture2D texture2d;
+        private static Rectangle clip;
+        private static SpriteBatch sb => Monocle.Draw.SpriteBatch;
+
+        [Initialize]
+        private static void Initialize() {
+            // https://discord.com/channels/403698615446536203/666197738026827786/1233483296827117618
+            // previously the init of texture2d is not here, maybe that causes a crash? idk, that never happens to me
+            texture2d = Monocle.Draw.Pixel.Texture.Texture_Safe;
+            clip = Monocle.Draw.Pixel.ClipRect;
+        }
+
         private static void OrigHollowRect(int x, int y, int width, int height, Color color) {
             rect.X = x;
             rect.Y = y;

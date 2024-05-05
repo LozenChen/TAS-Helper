@@ -393,9 +393,9 @@ public static class SpinnerCalculateHelper {
         return Math.Floor(((double)TimeActive - offset - Engine.DeltaTime) / interval) < Math.Floor(((double)TimeActive - offset) / interval);
     }
 
-    public static int PredictCountdown(float offset, bool isDust) {
-        float interval = isDust ? 0.05f : TasHelperSettings.SpinnerInterval;
-        if (TasHelperSettings.SpinnerCountdownLoad) {
+    public static int PredictCountdown(float offset, bool isDust, bool isLoad) {
+        float interval = isDust || isLoad ? 0.05f : 0.25f;
+        if (isLoad) {
             for (int i = 0; i < 9; i++) {
                 if (OnInterval(PredictLoadTimeActive[i], interval, offset)) return i;
             }

@@ -66,6 +66,7 @@ public static class WhatsNew {
         AddLog("1.9.9", "New Hotkey: Reverse Frame Advance. This makes tas re-run but up to the previous frame. (Feature Request from @Vamp)");
         AddLog("1.9.10", "Optimize Reverse Frame Advance.");
         AddLog("1.9.11", "Bugfix: Better Invincible still persists even if a \"Set Invincible true\" command after breakpoint ***S is removed, if you use the RESTART hotkey. (Thanks @ayalyyn)");
+        AddLog("1.9.12", "Bugfix: InView Range does not work properly if you are doing a bino control storage. Now InView Range will handle OoO issues properly. (Thanks @atpx8)");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

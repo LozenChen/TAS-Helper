@@ -1,7 +1,8 @@
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 
-namespace Celeste.Mod.TASHelper.Gameplay;
+namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 internal static class LoadRange {
 
     internal static Color InViewRangeColor => TasHelperSettings.InViewRangeColor;
@@ -15,21 +16,44 @@ internal static class LoadRange {
             DrawNearPlayerRange(ActualPosition.PlayerPosition, ActualPosition.PreviousPlayerPosition, ActualPosition.PlayerPositionChangedCount);
         }
         if (TasHelperSettings.UsingInViewRange) {
-            DrawInViewRange(ActualPosition.CameraPosition);
+            // Camera Position can be updated by Player or LookOut
+            // ActualPosition.CameraPosition = position on end of frame here
+            // there's ooo issue if you are handling Lightning, since Lightning and Player both have Depth 0
+            // and ooo issue if you are handling spinner and using LookOut, since they both have Depth -8500
+            // if you have bino control storage, then both camera position update can happen
+            DrawInViewRange();
         }
     }
 
-    public static void DrawInViewRange(Vector2 CameraPosition) {
+    public static void DrawInViewRange() {
         float width = TasHelperSettings.InViewRangeWidth;
+        float alpha = TasHelperSettings.RangeAlpha;
+        Color color = InViewRangeColor * alpha;
+
+        DrawInViewRangeImpl(ActualPosition.CameraPositionSetLastElement, width, color, borderColor);
+
+        if (ActualPosition.CameraPositionSet.IsNotEmpty()) {
+            Color inverted = InViewRangeColor.Invert() * alpha;
+            foreach (Vector2 pos in ActualPosition.CameraPositionSet) {
+                DrawInViewRangeImpl(pos, width, inverted, borderColorInverted);
+            }
+        }
+    }
+
+    private static Color borderColor = Color.LightBlue * 0.75f;
+
+    private static Color borderColorInverted = borderColor.Invert();
+
+    public static void DrawInViewRangeImpl(Vector2 CameraPosition, float width, Color color, Color border) {
         float left = (float)Math.Floor(CameraPosition.X - 16f) + 1f;
         float top = (float)Math.Floor(CameraPosition.Y - 16f) + 1f;
         float right = (float)Math.Ceiling(CameraPosition.X + 320f + 16f) - 1f;
         float bottom = (float)Math.Ceiling(CameraPosition.Y + 180f + 16f) - 1f;
-        Draw.HollowRect(left, top, right - left + 1, bottom - top + 1, Color.LightBlue * (1f * 0.75f));
-        Draw.Rect(left, top, right - left + 1, width, InViewRangeColor * TasHelperSettings.RangeAlpha);
-        Draw.Rect(left, bottom - width, right - left + 1, width + 1, InViewRangeColor * TasHelperSettings.RangeAlpha);
-        Draw.Rect(left, top + width, width, bottom - top - 2 * width, InViewRangeColor * TasHelperSettings.RangeAlpha);
-        Draw.Rect(right - width, top + width, width + 1, bottom - top - 2 * width, InViewRangeColor * TasHelperSettings.RangeAlpha);
+        Draw.HollowRect(left, top, right - left + 1, bottom - top + 1, border);
+        Draw.Rect(left, top, right - left + 1, width, color);
+        Draw.Rect(left, bottom - width, right - left + 1, width + 1, color);
+        Draw.Rect(left, top + width, width, bottom - top - 2 * width, color);
+        Draw.Rect(right - width, top + width, width + 1, bottom - top - 2 * width, color);
     }
 
     public static void DrawNearPlayerRange(Vector2 PlayerPosition, Vector2 PreviousPlayerPosition, int PlayerPositionChangedCount) {
