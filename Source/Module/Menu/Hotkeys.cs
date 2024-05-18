@@ -2,6 +2,7 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework.Input;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using System.Reflection;
 using TAS.EverestInterop;
 using CMCore = Celeste.Mod.Core;
@@ -35,7 +36,10 @@ public static class TH_Hotkeys {
 
     [Load]
     public static void Load() {
-        On.Celeste.Level.Render += HotkeysPressed;
+        using (new DetourContext { After = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper Hotkeys" }) {
+            // FrameStepBack hotkey invokes a load state, and we should be after CenterCamera.RestoreCamera
+            On.Celeste.Level.Render += HotkeysPressed;
+        }
         IL.Celeste.Mod.ModuleSettingsKeyboardConfigUI.Reset += ModReload;
     }
 

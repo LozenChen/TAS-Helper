@@ -27,8 +27,13 @@ public class TASHelperSettings : EverestModuleSettings {
         CountdownFont = CountdownFonts.HiresFont;
         loadRangeMode = LoadRangeModes.Neither;
         EnforceClearSprites = SimplifiedGraphicsMode.WhenSimplifyGraphics;
+        EnableSimplifiedLightningMode = SimplifiedGraphicsMode.WhenSimplifyGraphics;
+        EnableSimplifiedTriggersMode = SimplifiedGraphicsMode.Always;
         LoadRangeColliderMode = LoadRangeColliderModes.Auto;
         TimelineFinestScale = TimelineFinestStyle.PolygonLine;
+        TimelineFineScale = TimelineScales._5;
+        TimelineCoarseScale = TimelineScales.NotApplied;
+        cassetteBlockInfoAlignment = CassetteBlockHelper.Alignments.TopRight;
     }
 
     internal void OnLoadSettings() {
@@ -282,7 +287,7 @@ public class TASHelperSettings : EverestModuleSettings {
         return mode == SimplifiedGraphicsMode.Always || (mode == SimplifiedGraphicsMode.WhenSimplifyGraphics && TasSettings.SimplifiedGraphics);
     }
 
-    public SimplifiedGraphicsMode EnforceClearSprites = SimplifiedGraphicsMode.WhenSimplifyGraphics;
+    public SimplifiedGraphicsMode EnforceClearSprites;
 
     public bool ClearSpinnerSprites => EnableSimplifiedSpinner && SGModeToBool(EnforceClearSprites);
 
@@ -312,7 +317,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool SimplifiedSpinnerDashedBorder = true;
 
-    public SimplifiedGraphicsMode EnableSimplifiedLightningMode = SimplifiedGraphicsMode.WhenSimplifyGraphics;
+    public SimplifiedGraphicsMode EnableSimplifiedLightningMode;
 
     public bool EnableSimplifiedLightning => Enabled && SGModeToBool(EnableSimplifiedLightningMode); // both inner and outline
 
@@ -322,7 +327,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ApplyActualCollideHitboxForLightning = true;
 
-    public SimplifiedGraphicsMode EnableSimplifiedTriggersMode = SimplifiedGraphicsMode.Always;
+    public SimplifiedGraphicsMode EnableSimplifiedTriggersMode;
 
     public bool EnableSimplifiedTriggers => Enabled && SGModeToBool(EnableSimplifiedTriggersMode);
 
@@ -430,11 +435,11 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public int UltraSpeedLowerLimit = 170;
 
-    public TimelineFinestStyle TimelineFinestScale = TimelineFinestStyle.HitboxPerFrame;
+    public TimelineFinestStyle TimelineFinestScale;
 
-    public TimelineScales TimelineFineScale = TimelineScales._5;
+    public TimelineScales TimelineFineScale;
 
-    public TimelineScales TimelineCoarseScale = TimelineScales.NotApplied;
+    public TimelineScales TimelineCoarseScale;
 
     public int PredictorPointSize = 8;
 
@@ -541,7 +546,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool CassetteBlockHelperShowExtraInfo = false;
 
-    public CassetteBlockHelper.Alignments cassetteBlockInfoAlignment = CassetteBlockHelper.Alignments.TopRight;
+    public CassetteBlockHelper.Alignments cassetteBlockInfoAlignment;
 
     [YamlIgnore]
     public CassetteBlockHelper.Alignments CassetteBlockInfoAlignment {

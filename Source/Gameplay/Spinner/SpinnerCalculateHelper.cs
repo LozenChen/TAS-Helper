@@ -21,12 +21,13 @@ public static class SpinnerCalculateHelper {
     public static void Load() {
         EventOnHook._Scene.BeforeUpdate += PreSpinnerCalculate;
         IL.Monocle.EntityList.UpdateLists += IL_EntityList_UpdateLists;
+        On.Celeste.WaveDashPlaybackTutorial.ctor += On_WaveDashPlaybackTutorial_ctor;
     }
-
 
     [Unload]
     public static void Unload() {
         IL.Monocle.EntityList.UpdateLists -= IL_EntityList_UpdateLists;
+        On.Celeste.WaveDashPlaybackTutorial.ctor -= On_WaveDashPlaybackTutorial_ctor;
     }
 
     [Initialize]
@@ -38,6 +39,10 @@ public static class SpinnerCalculateHelper {
         IsLightningTagValue = (int)IsLightningTag;
         IsDustTagValue = (int)IsDustTag;
         IsHazardTagValue = IsSpinnerTagValue | IsLightningTagValue | IsDustTagValue;
+
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.Entities.WallBouncePresentation.WallbouncePlayback") is { } wallbouncePlayBack && wallbouncePlayBack.GetFieldInfo("tag") is { } fieldInfo && wallbouncePlayBack.GetConstructorInfo(new Type[] { typeof(string), typeof(Vector2) }) is { } ctorInfo) {
+            ctorInfo.HookAfter<object>(x => fieldInfo.SetValue(x, (int)fieldInfo.GetValue(x) & ~IsHazardTagValue));
+        }
     }
 
     // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
@@ -85,6 +90,12 @@ public static class SpinnerCalculateHelper {
                 default: break;
             }
         }
+    }
+
+    private static void On_WaveDashPlaybackTutorial_ctor(On.Celeste.WaveDashPlaybackTutorial.orig_ctor orig, WaveDashPlaybackTutorial self, string name, Vector2 offset, Vector2 dashDirection0, Vector2 dashDirection1) {
+        orig(self, name, offset, dashDirection0, dashDirection1);
+        self.tag &= ~IsHazardTagValue;
+        self.tag = 0;
     }
 
     private static void DictionaryAdderVanilla(Type type, GetDelegate<object, float> offsetGetter, int HazardType) {

@@ -1,6 +1,5 @@
 ﻿using Celeste.Mod.TASHelper.Module.Menu;
 using TAS;
-using TAS.EverestInterop;
 using TAS.Input;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
@@ -24,9 +23,7 @@ public static class FrameStepBack {
                 delayedClear = true;
             }
             if (isLoad) {
-                CenterCamera.RestoreTheCamera();
                 Savestates.Load();
-                CenterCamera.CenterTheCamera();
             }
             else {
                 Controller.RefreshInputs(true);

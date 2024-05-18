@@ -47,11 +47,19 @@ internal static class SpinnerRenderHelper {
 #pragma warning restore CS8524
     }
 
-    public static SpinnerColorIndex GetSpinnerColorIndex(Entity Hazard, bool checkInView) {
+    public static SpinnerColorIndex GetSpinnerColorIndex(Entity hazard, bool checkInView) {
         // we assume you've checked it's a hazard
 
+        /*
+         * bugfix v1.9.13
+        if (SpinnerCalculateHelper.GetOffset(hazard) is null) {
+            object[] errors = { $"{hazard.GetEntityId()} is not a hazard" , hazard.IsHazard(), Convert.ToString(hazard.Tag, 2), Convert.ToString(SpinnerCalculateHelper.IsHazardTagValue, 2), string.Join(",", BitTag.byName.Keys) };
+            throw new Exception(string.Join(",\n", errors));
+        }
+        */
+
 #pragma warning disable CS8629
-        return checkInView ? CycleHitboxColorIndex(Hazard, SpinnerCalculateHelper.GetOffset(Hazard).Value, ActualPosition.CameraPosition) : CycleHitboxColorIndexNoInView(Hazard, SpinnerCalculateHelper.GetOffset(Hazard).Value);
+        return checkInView ? CycleHitboxColorIndex(hazard, SpinnerCalculateHelper.GetOffset(hazard).Value, ActualPosition.CameraPosition) : CycleHitboxColorIndexNoInView(hazard, SpinnerCalculateHelper.GetOffset(hazard).Value);
 #pragma warning restore CS8629
     }
 
