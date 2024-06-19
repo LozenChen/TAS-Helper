@@ -21,7 +21,7 @@ public static class RestoreSettingsExt {
     private static void SkipTASHelper() {
         if (TasSettings.RestoreSettings) {
             Dictionary<EverestModule, object> dict = (Dictionary<EverestModule, object>)origModSettingsGetter.GetValue(null);
-            dict.Remove(TASHelperModule.Instance);
+            dict?.Remove(TASHelperModule.Instance);
         }
     }
 }

@@ -198,6 +198,10 @@ TAS_HELPER_PREDICTOR_POINT_SIZE=                           点的大小
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   更多选项
+TAS_HELPER_MORE_OPTIONS_FINISHED=                          完成
+TAS_HELPER_MORE_OPTIONS_PAGE1=                             第 1 页
+TAS_HELPER_MORE_OPTIONS_PAGE2=                             第 2 页
+TAS_HELPER_MORE_OPTIONS_PAGE3=                             第 3 页
 TAS_HELPER_SPAWN_POINT=                                    显示出生点
 TAS_HELPER_CURRENT_SPAWN_POINT_OPACITY=                    当前出生点不透明度
 TAS_HELPER_OTHER_SPAWN_POINT_OPACITY=                      其他出生点不透明度
@@ -238,3 +242,4 @@ TAS_HELPER_SUBSCRIBE_WHATS_NEW_DESCRIPTION=                每次更新时, "Wha
 TAS_HELPER_MOVEMENT_OVERSHOOT_ASSISTANT=                   移动过量助手
 TAS_HELPER_MOA_ABOVE_PLAYER=                               显示在玩家上方
 TAS_HELPER_MOA_DESCRIPTION=                                这展示了如果没有墙面阻碍运动, 玩家的位置将会在何处.
+TAS_HELPER_SPEEDRUNTIMER_OPACITY_WHEN_TAS_PAUSES=          TAS 暂停时, 速通计时器的不透明度

@@ -210,6 +210,10 @@ TAS_HELPER_PREDICTOR_POINT_SIZE=                           Dot Size
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   More Options
+TAS_HELPER_MORE_OPTIONS_FINISHED=                          Finished
+TAS_HELPER_MORE_OPTIONS_PAGE1=                             Page 1
+TAS_HELPER_MORE_OPTIONS_PAGE2=                             Page 2
+TAS_HELPER_MORE_OPTIONS_PAGE3=                             Page 3
 TAS_HELPER_SPAWN_POINT=                                    Show Spawn Point
 TAS_HELPER_CURRENT_SPAWN_POINT_OPACITY=                    Current Spawn Point Opacity
 TAS_HELPER_OTHER_SPAWN_POINT_OPACITY=                      Other Spawn Point Opacity
@@ -252,3 +256,4 @@ TAS_HELPER_SUBSCRIBE_WHATS_NEW_DESCRIPTION=                "Whats's New" will sh
 TAS_HELPER_MOVEMENT_OVERSHOOT_ASSISTANT=                   Movement Overshoot Assistant
 TAS_HELPER_MOA_ABOVE_PLAYER=                               Show above Player
 TAS_HELPER_MOA_DESCRIPTION=                                Show how far player would go if there were no walls.
+TAS_HELPER_SPEEDRUNTIMER_OPACITY_WHEN_TAS_PAUSES=          SpeedrunTimer Opacity when TAS Pauses

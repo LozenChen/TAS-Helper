@@ -68,6 +68,7 @@ public static class WhatsNew {
         AddLog("1.9.11", "Bugfix: Better Invincible still persists even if a \"Set Invincible true\" command after breakpoint ***S is removed, if you use the RESTART hotkey. (Thanks @ayalyyn)");
         AddLog("1.9.12", "Bugfix: InView Range does not work properly if you are doing a bino control storage. Now InView Range will handle OoO issues properly. (Thanks @atpx8)");
         AddLog("1.9.13", "Bugfix: Game crashes in wavedash.ppt. (Thanks @trans_alexa)");
+        AddLog("1.9.14", "Feature: Make SpeedrunTimer become transparent when TAS pauses. Default is ON. Edit it in \"More Options\".", "Divide \"More Options\" into three pages", "Feature: Allow PageUp/PageDown in subMenus");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

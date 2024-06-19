@@ -7,13 +7,14 @@ using Monocle;
 using MonoMod.Cil;
 using System.Reflection;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
+using CMCore = Celeste.Mod.Core;
 
 namespace Celeste.Mod.TASHelper.Module.Menu;
 
 internal static class TASHelperMenu {
     internal static string ToDialogText(this string input) => Dialog.Clean("TAS_HELPER_" + input.ToUpper().Replace(" ", "_")).Replace("\\S", " ");
-    private static EaseInOptionSubMenuCountExt CreateColorCustomizationSubMenu(TextMenu menu, bool inGame) {
-        EaseInOptionSubMenuCountExt ColorCustomizationItem = new EaseInOptionSubMenuCountExt("Color Customization".ToDialogText());
+    private static EaseInOptionSubMenuExt CreateColorCustomizationSubMenu(TextMenu menu, bool inGame) {
+        EaseInOptionSubMenuExt ColorCustomizationItem = new EaseInOptionSubMenuExt("Color Customization".ToDialogText());
         ColorCustomizationItem.OnLeave += () => ColorCustomizationItem.MenuIndex = 0;
         ColorCustomizationItem.Add("Color Customization Finished".ToDialogText(), new List<TextMenu.Item>());
         ColorCustomizationItem.Add("Color Customization OnOff".ToDialogText(), CustomColors.Create_PageOnOff(menu, inGame));
@@ -23,8 +24,8 @@ internal static class TASHelperMenu {
         return ColorCustomizationItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 
-    private static EaseInOptionSubMenuCountExt CreatePredictorSubMenu(TextMenu menu, bool inGame) {
-        EaseInOptionSubMenuCountExt PredictorItem = new EaseInOptionSubMenuCountExt("Predictor".ToDialogText());
+    private static EaseInOptionSubMenuExt CreatePredictorSubMenu(TextMenu menu, bool inGame) {
+        EaseInOptionSubMenuExt PredictorItem = new EaseInOptionSubMenuExt("Predictor".ToDialogText());
         PredictorItem.OnLeave += () => PredictorItem.MenuIndex = 0;
         PredictorItem.Add("Predictor Finished".ToDialogText(), new List<TextMenu.Item>());
         PredictorItem.Add("Predictor OnOff".ToDialogText(), PredictorMenu.Create_PageOnOff(menu, inGame));
@@ -166,61 +167,16 @@ internal static class TASHelperMenu {
         });
     }
 
-    private static EaseInSubMenu CreateMoreOptionsSubMenu(TextMenu menu) {
-        return new EaseInSubMenu("More Options".ToDialogText(), false).Apply(subMenu => {
-            subMenu.Add(new TextMenu.OnOff("Spawn Point".ToDialogText(), TasHelperSettings.UsingSpawnPoint).Change((value) => TasHelperSettings.UsingSpawnPoint = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Current Spawn Point Opacity".ToDialogText(), 1, 9, TasHelperSettings.CurrentSpawnPointOpacity).Change((value) => TasHelperSettings.CurrentSpawnPointOpacity = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Other Spawn Point Opacity".ToDialogText(), 0, 9, TasHelperSettings.OtherSpawnPointOpacity).Change((value) => TasHelperSettings.OtherSpawnPointOpacity = value));
-            subMenu.Add(new HLine(Color.Gray));
-            TextMenu.Item moaItem;
-            subMenu.Add(moaItem = new TextMenu.OnOff("Movement Overshoot Assistant".ToDialogText(), TasHelperSettings.EnableMovementOvershootAssistant).Change((value) => TasHelperSettings.EnableMovementOvershootAssistant = value));
-            subMenu.AddDescription(menu, moaItem, "MOA Description".ToDialogText());
-            subMenu.Add(new TextMenu.OnOff("MOA Above Player".ToDialogText(), TasHelperSettings.MOAAbovePlayer).Change((value) => TasHelperSettings.MOAAbovePlayer = value));
-            subMenu.Add(new HLine(Color.Gray));
-            TextMenu.Item cassetteBlock;
-            subMenu.Add(cassetteBlock = new TextMenu.OnOff("Cassette Block Helper".ToDialogText(), TasHelperSettings.EnableCassetteBlockHelper).Change((value) => TasHelperSettings.EnableCassetteBlockHelper = value));
-            subMenu.AddDescription(menu, cassetteBlock, "Cassette Block Description".ToDialogText());
-            subMenu.Add(new TextMenu.OnOff("Cassette Block Helper Extra Info".ToDialogText(), TasHelperSettings.CassetteBlockHelperShowExtraInfo).Change((value) => {
-                TasHelperSettings.CassetteBlockHelperShowExtraInfo = value;
-                CassetteBlockHelper.CassetteBlockVisualizer.needReAlignment = true;
-            }));
-            subMenu.Add(new TextMenuExt.EnumerableSlider<CassetteBlockHelper.Alignments>("Cassette Info Alignment".ToDialogText(),
-                CreateCassetteBlockHelperAlignmentsOptions(), TasHelperSettings.CassetteBlockInfoAlignment).Change(value => TasHelperSettings.CassetteBlockInfoAlignment = value));
-            subMenu.Add(new HLine(Color.Gray));
-            subMenu.Add(new TextMenu.OnOff("Enable Pixel Grid".ToDialogText(), TasHelperSettings.EnablePixelGrid).Change(value => TasHelperSettings.EnablePixelGrid = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Pixel Grid Width".ToDialogText(), 0, 50, TasHelperSettings.PixelGridWidth).Change(value => TasHelperSettings.PixelGridWidth = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Pixel Grid Opacity".ToDialogText(), 1, 10, TasHelperSettings.PixelGridOpacity).Change(value => TasHelperSettings.PixelGridOpacity = value));
-            subMenu.Add(new HLine(Color.Gray));
-            subMenu.Add(new TextMenu.OnOff("Camera Target".ToDialogText(), TasHelperSettings.UsingCameraTarget).Change(value => TasHelperSettings.UsingCameraTarget = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Camera Target Vector Opacity".ToDialogText(), 1, 9, TasHelperSettings.CameraTargetLinkOpacity).Change(value => TasHelperSettings.CameraTargetLinkOpacity = value));
-            subMenu.Add(new HLine(Color.Gray));
-            subMenu.Add(new TextMenu.OnOff("FireBall Track".ToDialogText(), TasHelperSettings.UsingFireBallTrack).Change(value => TasHelperSettings.UsingFireBallTrack = value));
-            subMenu.Add(new TextMenu.OnOff("RotateSpinner Track".ToDialogText(), TasHelperSettings.UsingRotateSpinnerTrack).Change(value => TasHelperSettings.UsingRotateSpinnerTrack = value));
-            subMenu.Add(new TextMenu.OnOff("TrackSpinner Track".ToDialogText(), TasHelperSettings.UsingTrackSpinnerTrack).Change(value => TasHelperSettings.UsingTrackSpinnerTrack = value));
-            subMenu.Add(new HLine(Color.Gray));
-            TextMenu.Item OoOItem;
-            subMenu.Add(OoOItem = new TextMenu.OnOff("Order of Operation Stepping".ToDialogText(), TasHelperSettings.EnableOoO).Change(value => TasHelperSettings.EnableOoO = value));
-            subMenu.AddDescription(menu, OoOItem, "Order of Operation Description".ToDialogText());
-            subMenu.Add(new HLine(Color.Gray));
-            subMenu.Add(new TextMenu.OnOff("Show Wind Speed".ToDialogText(), TasHelperSettings.ShowWindSpeed).Change(value => TasHelperSettings.ShowWindSpeed = value));
-            TextMenu.Item EntityActivatorReminderItem;
-            subMenu.Add(EntityActivatorReminderItem = new TextMenu.OnOff("Entity Activator Reminder".ToDialogText(), TasHelperSettings.EntityActivatorReminder).Change((value) => TasHelperSettings.EntityActivatorReminder = value));
-            subMenu.AddDescription(menu, EntityActivatorReminderItem, "Entity Activator Reminder Description".ToDialogText());
-            subMenu.Add(new TextMenu.OnOff("Open Console In Tas".ToDialogText(), TasHelperSettings.EnableOpenConsoleInTas).Change(value => TasHelperSettings.EnableOpenConsoleInTas = value));
-            subMenu.Add(new TextMenu.OnOff("Scrollable History Log".ToDialogText(), TasHelperSettings.EnableScrollableHistoryLog).Change(value => TasHelperSettings.EnableScrollableHistoryLog = value));
-            TextMenu.Item betterInvincible;
-            subMenu.Add(betterInvincible = new TextMenu.OnOff("Better Invincibility".ToDialogText(), TasHelperSettings.BetterInvincible).Change(value => {
-                TasHelperSettings.BetterInvincible = value;
-                BetterInvincible.Invincible = false; // in case that value doesn't get reset for some unknown reason... yeah i have such bug report
-            }));
-            subMenu.AddDescription(menu, betterInvincible, "Better Invincible Description".ToDialogText());
-            subMenu.Add(new HLine(Color.Gray));
-            TextMenu.Item subscribeWhatsNew;
-            subMenu.Add(subscribeWhatsNew = new TextMenu.OnOff("Subscribe Whats New".ToDialogText(), TasHelperSettings.SubscribeWhatsNew).Change(value => TasHelperSettings.SubscribeWhatsNew = value));
-            subMenu.AddDescription(menu, subscribeWhatsNew, "Subscribe Whats New Description".ToDialogText());
-            subMenu.Add(new HLine(Color.Gray));
-        });
+    private static EaseInOptionSubMenuExt CreateMoreOptionsSubMenu(TextMenu menu) {
+        EaseInOptionSubMenuExt MoreOptionsItem = new EaseInOptionSubMenuExt("More Options".ToDialogText());
+        MoreOptionsItem.OnLeave += () => MoreOptionsItem.MenuIndex = 0;
+        MoreOptionsItem.Add("More Options Finished".ToDialogText(), new List<TextMenu.Item>());
+        MoreOptionsItem.Add("More Options Page1".ToDialogText(), MoreOptionsMenu.Create_Page1(menu));
+        MoreOptionsItem.Add("More Options Page2".ToDialogText(), MoreOptionsMenu.Create_Page2(menu));
+        MoreOptionsItem.Add("More Options Page3".ToDialogText(), MoreOptionsMenu.Create_Page3(menu));
+        return MoreOptionsItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
+
 
     /*
     private static IEnumerable<KeyValuePair<SpinnerMainSwitchModes, string>> CreateSpinnerMainSwitchOptions() {
@@ -288,16 +244,6 @@ internal static class TASHelperMenu {
         };
     }
 
-    private static IEnumerable<KeyValuePair<CassetteBlockHelper.Alignments, string>> CreateCassetteBlockHelperAlignmentsOptions() {
-        return new List<KeyValuePair<CassetteBlockHelper.Alignments, string>> {
-            new(CassetteBlockHelper.Alignments.TopRight, "Cassette Info TopRight".ToDialogText()),
-            new(CassetteBlockHelper.Alignments.BottomRight, "Cassette Info BottomRight".ToDialogText()),
-            new(CassetteBlockHelper.Alignments.TopLeft, "Cassette Info TopLeft".ToDialogText()),
-            new(CassetteBlockHelper.Alignments.BottomLeft, "Cassette Info BottomLeft".ToDialogText()),
-            new(CassetteBlockHelper.Alignments.None, "Cassette Info None".ToDialogText()),
-        };
-    }
-
     public static void AddDescription(this TextMenuExt.SubMenu subMenu, TextMenu containingMenu, TextMenu.Item subMenuItem, string description) {
         TextMenuExt.EaseInSubHeaderExt descriptionText = new(description, false, containingMenu) {
             TextColor = Color.Gray,
@@ -330,12 +276,12 @@ internal static class TASHelperMenu {
             }
             disabledItems.Clear();
 
-            EaseInOptionSubMenuCountExt colorItem = CreateColorCustomizationSubMenu(menu, inGame);
+            EaseInOptionSubMenuExt colorItem = CreateColorCustomizationSubMenu(menu, inGame);
             EaseInSubMenu countdownItem = CreateCountdownSubMenu(menu);
             EaseInSubMenu loadrangeItem = CreateLoadRangeSubMenu(menu);
             EaseInSubMenu simpspinnerItem = CreateSimplifiedGraphicSubMenu(menu);
-            EaseInOptionSubMenuCountExt predictItem = CreatePredictorSubMenu(menu, inGame);
-            EaseInSubMenu moreoptionItem = CreateMoreOptionsSubMenu(menu);
+            EaseInOptionSubMenuExt predictItem = CreatePredictorSubMenu(menu, inGame);
+            EaseInOptionSubMenuExt moreoptionItem = CreateMoreOptionsSubMenu(menu);
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
             disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, moreoptionItem, hotkeysItem };
             int N = menu.IndexOf(mainItem);
@@ -401,6 +347,25 @@ public class EaseInSubMenu : TextMenuExt.SubMenu, IEaseInItem {
         }
 
         Visible = alpha != 0;
+
+        if (Focused && ease > 0.9f) {
+            if (CMCore.CoreModule.Settings.MenuPageDown.Pressed && Selection != LastPossibleSelection) {
+                int selection = Selection;
+                float yOffsetOf = GetYOffsetOf(Current);
+                while (GetYOffsetOf(Current) < yOffsetOf + 1080f && Selection < LastPossibleSelection) {
+                    MoveSelection(1);
+                }
+                if (selection != Selection) { Audio.Play("event:/ui/main/rollover_down"); }
+            }
+            else if (CMCore.CoreModule.Settings.MenuPageUp.Pressed && Selection != FirstPossibleSelection) {
+                int selection2 = Selection;
+                float yOffsetOf2 = GetYOffsetOf(Current);
+                while (GetYOffsetOf(Current) > yOffsetOf2 - 1080f && Selection > FirstPossibleSelection) {
+                    MoveSelection(-1);
+                }
+                if (selection2 != Selection) { Audio.Play("event:/ui/main/rollover_up"); }
+            }
+        }
     }
 
     public override void Render(Vector2 position, bool highlighted) {
@@ -453,7 +418,7 @@ public class EaseInSubHeaderExtVarTitle : TextMenuExt.EaseInSubHeaderExt {
     }
 }
 
-public class EaseInOptionSubMenuCountExt : OptionSubMenuCountExt, IEaseInItem {
+public class EaseInOptionSubMenuExt : OptionSubMenuExt, IEaseInItem {
     private float alpha;
     private float unEasedAlpha;
 
@@ -462,7 +427,7 @@ public class EaseInOptionSubMenuCountExt : OptionSubMenuCountExt, IEaseInItem {
         Visible = FadeVisible = true;
     }
     public bool FadeVisible { get; set; }
-    public EaseInOptionSubMenuCountExt(string label) : base(label) {
+    public EaseInOptionSubMenuExt(string label) : base(label) {
         alpha = unEasedAlpha = 1f;
         FadeVisible = Visible = true;
     }

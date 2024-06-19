@@ -39,8 +39,11 @@ public class TASHelperSettings : EverestModuleSettings {
     internal void OnLoadSettings() {
         UpdateAuxiliaryVariable();
 
+        SpeedrunTimerDisplayOpacityToFloat = SpeedrunTimerDisplayOpacity * 0.1f;
+
         // it seems some bug can happen with deserialization
         keyMainSwitch ??= new((Buttons)0, Keys.LeftControl, Keys.E);
+        keyFrameStepBack = new((Buttons)0, Keys.LeftControl, Keys.I);
         keyCountDown ??= new((Buttons)0, Keys.LeftControl, Keys.R);
         keyLoadRange ??= new((Buttons)0, Keys.LeftControl, Keys.T);
         keyPixelGridWidth ??= new((Buttons)0, Keys.LeftControl, Keys.F);
@@ -747,6 +750,21 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    public int speedrunTimerDisplayOpacity = 5;
+
+    [YamlIgnore]
+    public int SpeedrunTimerDisplayOpacity {
+        get => speedrunTimerDisplayOpacity;
+        set {
+            speedrunTimerDisplayOpacity = value;
+            SpeedrunTimerDisplayOpacityToFloat = value * 0.1f;
+        }
+    }
+
+    [YamlIgnore]
+
+    public float SpeedrunTimerDisplayOpacityToFloat = 1f;
+
     #endregion
 
     #region HotKey
@@ -758,7 +776,7 @@ public class TASHelperSettings : EverestModuleSettings {
     public ButtonBinding keyMainSwitch { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.E);
 
     [SettingName("TAS_HELPER_FRAME_STEP_BACK")]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.Y)]
+    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.I)]
     public ButtonBinding keyFrameStepBack { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.I);
 
     [SettingName("TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY")]
