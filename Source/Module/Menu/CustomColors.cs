@@ -109,16 +109,6 @@ public static class CustomColors {
         return item;
     }
 
-    private static void AddDescriptionOnEnter(this List<TextMenu.Item> page, TextMenu menu, TextMenu.Item item, string description) {
-        EaseInSubHeaderExt descriptionText = new(description, false, menu) {
-            TextColor = Color.Gray,
-            HeightExtra = 0f
-        };
-        page.Add(descriptionText);
-        item.OnEnter += () => descriptionText.FadeVisible = true;
-        item.OnLeave += () => descriptionText.FadeVisible = false;
-    }
-
     public static void AddItemWithDescription(TextMenu menu, List<TextMenu.Item> page, bool inGame, Func<Color> getter, Action<Color> setter, string name, string cmd = "", string description = "") {
         TextMenu.Item item = CreateChangeColorItem(getter, setter, name, menu, inGame);
         page.Add(item);

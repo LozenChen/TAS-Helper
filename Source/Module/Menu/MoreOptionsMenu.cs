@@ -1,18 +1,8 @@
 ﻿using Celeste.Mod.TASHelper.Gameplay;
 using Microsoft.Xna.Framework;
-using static Celeste.TextMenuExt;
 
 namespace Celeste.Mod.TASHelper.Module.Menu;
 public static class MoreOptionsMenu {
-    private static void AddDescriptionOnEnter(this List<TextMenu.Item> page, TextMenu menu, TextMenu.Item item, string description) {
-        EaseInSubHeaderExt descriptionText = new(description, false, menu) {
-            TextColor = Color.Gray,
-            HeightExtra = 0f
-        };
-        page.Add(descriptionText);
-        item.OnEnter += () => descriptionText.FadeVisible = true;
-        item.OnLeave += () => descriptionText.FadeVisible = false;
-    }
 
     internal static List<TextMenu.Item> Create_Page1(TextMenu menu) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();

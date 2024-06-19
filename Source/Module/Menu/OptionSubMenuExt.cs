@@ -543,3 +543,16 @@ public class OptionSubMenuExt : TextMenu.Item {
         return false;
     }
 }
+
+internal static class OptionSubMenuExtensions {
+
+    internal static void AddDescriptionOnEnter(this List<TextMenu.Item> page, TextMenu menu, TextMenu.Item item, string description) {
+        TextMenuExt.EaseInSubHeaderExt descriptionText = new(description, false, menu) {
+            TextColor = Color.Gray,
+            HeightExtra = 0f
+        };
+        page.Add(descriptionText);
+        item.OnEnter += () => descriptionText.FadeVisible = true;
+        item.OnLeave += () => descriptionText.FadeVisible = false;
+    }
+}
