@@ -43,7 +43,7 @@ internal static class TASHelperMenu {
                 TextColor = Color.Gray,
                 HeightExtra = 0f
             };
-            subMenu.Add(CountdownModeItem = new TextMenuExt.EnumerableSlider<CountdownModes>("Countdown Mode".ToDialogText(), CreateCountdownOptions(),
+            subMenu.Add(CountdownModeItem = new EnumerableSliderExt<CountdownModes>("Countdown Mode".ToDialogText(), CreateCountdownOptions(),
                     TasHelperSettings.CountdownMode).Change(value => {
                         TasHelperSettings.CountdownMode = value;
                         descriptionText.SetTitle(TasHelperSettings.CountdownMode is CountdownModes.ExactGroupMod3 or CountdownModes.ExactGroupMod15);
@@ -56,11 +56,11 @@ internal static class TASHelperMenu {
             TextMenu.Item CountdownBoostItem;
             subMenu.Add(CountdownBoostItem = new TextMenu.OnOff("Countdown Boost".ToDialogText(), TasHelperSettings.CountdownBoost).Change(value => TasHelperSettings.CountdownBoost = value));
             subMenu.AddDescription(menu, CountdownBoostItem, "Countdown Boost Description".ToDialogText());
-            subMenu.Add(new TextMenuExt.EnumerableSlider<CountdownFonts>("Font".ToDialogText(), CreateCountdownFontOptions(),
+            subMenu.Add(new EnumerableSliderExt<CountdownFonts>("Font".ToDialogText(), CreateCountdownFontOptions(),
                 TasHelperSettings.CountdownFont).Change(value => TasHelperSettings.CountdownFont = value));
             subMenu.Add(new TextMenu.OnOff("Darken When Uncollidable".ToDialogText(), TasHelperSettings.DarkenWhenUncollidable).Change(value => TasHelperSettings.DarkenWhenUncollidable = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Hires Font Size".ToDialogText(), 1, 20, TasHelperSettings.HiresFontSize).Change(value => TasHelperSettings.HiresFontSize = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Hires Font Stroke".ToDialogText(), 0, 20, TasHelperSettings.HiresFontStroke).Change(value => TasHelperSettings.HiresFontStroke = value));
+            subMenu.Add(new IntSliderExt("Hires Font Size".ToDialogText(), 1, 20, TasHelperSettings.HiresFontSize).Change(value => TasHelperSettings.HiresFontSize = value));
+            subMenu.Add(new IntSliderExt("Hires Font Stroke".ToDialogText(), 0, 20, TasHelperSettings.HiresFontStroke).Change(value => TasHelperSettings.HiresFontStroke = value));
             /*
             TextMenu.Item OptimizationItem;
             subMenu.Add(OptimizationItem = new TextMenu.OnOff("Performance Optimization".ToDialogText(), TasHelperSettings.DoNotRenderWhenFarFromView).Change(value => TasHelperSettings.DoNotRenderWhenFarFromView = value));
@@ -72,19 +72,19 @@ internal static class TASHelperMenu {
     private static EaseInSubMenu CreateLoadRangeSubMenu(TextMenu menu) {
         return new EaseInSubMenu("Load Range".ToDialogText(), false).Apply(subMenu => {
             TextMenu.Item LoadRangeModeItem;
-            subMenu.Add(LoadRangeModeItem = new TextMenuExt.EnumerableSlider<LoadRangeModes>("Load Range Mode".ToDialogText(), CreateLoadRangeOptions(),
+            subMenu.Add(LoadRangeModeItem = new EnumerableSliderExt<LoadRangeModes>("Load Range Mode".ToDialogText(), CreateLoadRangeOptions(),
                 TasHelperSettings.LoadRangeMode).Change(value => TasHelperSettings.LoadRangeMode = value));
             subMenu.AddDescription(menu, LoadRangeModeItem, "Load Range Description".ToDialogText());
             TextMenu.Item InViewRangeWidthItem;
-            subMenu.Add(InViewRangeWidthItem = new TextMenuExt.IntSlider("In View Range Width".ToDialogText(), 0, 32, TasHelperSettings.InViewRangeWidth).Change(value => TasHelperSettings.InViewRangeWidth = value));
+            subMenu.Add(InViewRangeWidthItem = new IntSliderExt("In View Range Width".ToDialogText(), 0, 32, TasHelperSettings.InViewRangeWidth).Change(value => TasHelperSettings.InViewRangeWidth = value));
             subMenu.AddDescription(menu, InViewRangeWidthItem, "In View Description".ToDialogText());
-            subMenu.Add(new TextMenuExt.IntSlider("Near Player Range Width".ToDialogText(), 1, 16, TasHelperSettings.NearPlayerRangeWidth).Change(value => TasHelperSettings.NearPlayerRangeWidth = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Load Range Opacity".ToDialogText(), 0, 9, TasHelperSettings.LoadRangeOpacity).Change(value => TasHelperSettings.LoadRangeOpacity = value));
+            subMenu.Add(new IntSliderExt("Near Player Range Width".ToDialogText(), 1, 16, TasHelperSettings.NearPlayerRangeWidth).Change(value => TasHelperSettings.NearPlayerRangeWidth = value));
+            subMenu.Add(new IntSliderExt("Load Range Opacity".ToDialogText(), 0, 9, TasHelperSettings.LoadRangeOpacity).Change(value => TasHelperSettings.LoadRangeOpacity = value));
             TextMenu.Item CameraZoomItem;
             subMenu.Add(CameraZoomItem = new TextMenu.OnOff("Apply Camera Zoom".ToDialogText(), TasHelperSettings.ApplyCameraZoom).Change(value => TasHelperSettings.ApplyCameraZoom = value));
             subMenu.AddDescription(menu, CameraZoomItem, "Apply Camera Zoom Description".ToDialogText());
             TextMenu.Item LRCItem;
-            subMenu.Add(LRCItem = new TextMenuExt.EnumerableSlider<LoadRangeColliderModes>("Load Range Collider".ToDialogText(), CreateEnableLoadRangeColliderOptions(),
+            subMenu.Add(LRCItem = new EnumerableSliderExt<LoadRangeColliderModes>("Load Range Collider".ToDialogText(), CreateEnableLoadRangeColliderOptions(),
                 TasHelperSettings.LoadRangeColliderMode).Change(value => TasHelperSettings.LoadRangeColliderMode = value));
             subMenu.AddDescription(menu, LRCItem, "LRC Description".ToDialogText());
             subMenu.Add(new HLine(Color.Gray));
@@ -94,15 +94,15 @@ internal static class TASHelperMenu {
     private static EaseInSubMenu CreateSimplifiedGraphicSubMenu(TextMenu menu) {
         return new EaseInSubMenu("Simplified Graphics".ToDialogText(), false).Apply(subMenu => {
             subMenu.Add(new TextMenu.OnOff("Simplified Spinners".ToDialogText(), TasHelperSettings.EnableSimplifiedSpinner).Change(value => TasHelperSettings.EnableSimplifiedSpinner = value));
-            subMenu.Add(new TextMenuExt.EnumerableSlider<SimplifiedGraphicsMode>("Clear Spinner Sprites".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Collidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Collidable = value));
-            subMenu.Add(new TextMenuExt.IntSlider("Spinner Filler Opacity Extra".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Uncollidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Uncollidable = value));
+            subMenu.Add(new EnumerableSliderExt<SimplifiedGraphicsMode>("Clear Spinner Sprites".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnforceClearSprites).Change(value => TasHelperSettings.EnforceClearSprites = value));
+            subMenu.Add(new IntSliderExt("Spinner Filler Opacity".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Collidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Collidable = value));
+            subMenu.Add(new IntSliderExt("Spinner Filler Opacity Extra".ToDialogText(), 0, 9, TasHelperSettings.SpinnerFillerOpacity_Uncollidable).Change(value => TasHelperSettings.SpinnerFillerOpacity_Uncollidable = value));
             subMenu.Add(new TextMenu.OnOff("Spinner Dashed Border".ToDialogText(), TasHelperSettings.SimplifiedSpinnerDashedBorder).Change(value => TasHelperSettings.SimplifiedSpinnerDashedBorder = value));
             subMenu.Add(new TextMenu.OnOff("Spinner_Ignore_TAS_UncollidableAlpha".ToDialogText(), TasHelperSettings.Ignore_TAS_UnCollidableAlpha).Change(value => TasHelperSettings.Ignore_TAS_UnCollidableAlpha = value));
             subMenu.Add(new TextMenu.OnOff("ACH For Spinner".ToDialogText(), TasHelperSettings.ApplyActualCollideHitboxForSpinner).Change(value => TasHelperSettings.ApplyActualCollideHitboxForSpinner = value));
             subMenu.Add(new HLine(Color.Gray));
             TextMenu.Item simplifiedLightning;
-            subMenu.Add(simplifiedLightning = new TextMenuExt.EnumerableSlider<SimplifiedGraphicsMode>("Simplified Lightning".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnableSimplifiedLightningMode).Change(value => TasHelperSettings.EnableSimplifiedLightningMode = value));
+            subMenu.Add(simplifiedLightning = new EnumerableSliderExt<SimplifiedGraphicsMode>("Simplified Lightning".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnableSimplifiedLightningMode).Change(value => TasHelperSettings.EnableSimplifiedLightningMode = value));
             subMenu.AddDescription(menu, simplifiedLightning, "Simplified Lightning Description".ToDialogText());
             TextMenu.Item highlightItem;
             subMenu.Add(highlightItem = new TextMenu.OnOff("Highlight Load Unload".ToDialogText(), TasHelperSettings.HighlightLoadUnload).Change(value => TasHelperSettings.HighlightLoadUnload = value));
@@ -112,7 +112,7 @@ internal static class TASHelperMenu {
             subMenu.AddDescription(menu, ACH_LightningItem, "ACH Warn Lightning".ToDialogText());
             subMenu.Add(new HLine(Color.Gray));
             TextMenu.Item simplifiedTrigger;
-            subMenu.Add(simplifiedTrigger = new TextMenuExt.EnumerableSlider<SimplifiedGraphicsMode>("Simplified Triggers".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnableSimplifiedTriggersMode).Change(value => TasHelperSettings.EnableSimplifiedTriggersMode = value));
+            subMenu.Add(simplifiedTrigger = new EnumerableSliderExt<SimplifiedGraphicsMode>("Simplified Triggers".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnableSimplifiedTriggersMode).Change(value => TasHelperSettings.EnableSimplifiedTriggersMode = value));
             subMenu.Add(new TextMenu.OnOff("Hide Camera Trigger".ToDialogText(), TasHelperSettings.HideCameraTriggers).Change(value => { TasHelperSettings.HideCameraTriggers = value; SimplifiedTrigger.OnHideCameraChange(value); }));
             subMenu.Add(new TextMenu.OnOff("Hide Gold Berry".ToDialogText(), TasHelperSettings.HideGoldBerryCollectTrigger).Change(value => { TasHelperSettings.HideGoldBerryCollectTrigger = value; SimplifiedTrigger.OnHideBerryChange(value); }));
             subMenu.Add(new HLine(Color.Gray));
@@ -126,7 +126,7 @@ internal static class TASHelperMenu {
                 TextColor = Color.Gray,
                 HeightExtra = 0f
             };
-            subMenu.Add(MainSwitchStateItem = new TextMenuExt.EnumerableSlider<bool>("Main Switch State".ToDialogText(), CreateMainSwitchStatesOptions(), TasHelperSettings.MainSwitchThreeStates).Change(value => { TasHelperSettings.MainSwitchThreeStates = value; StateDescription.FadeVisible = value; StateDescription.uneasedAlpha = StateDescription.Alpha; }));
+            subMenu.Add(MainSwitchStateItem = new EnumerableSliderExt<bool>("Main Switch State".ToDialogText(), CreateMainSwitchStatesOptions(), TasHelperSettings.MainSwitchThreeStates).Change(value => { TasHelperSettings.MainSwitchThreeStates = value; StateDescription.FadeVisible = value; StateDescription.uneasedAlpha = StateDescription.Alpha; }));
             subMenu.Add(StateDescription);
             MainSwitchStateItem.OnEnter += () => StateDescription.FadeVisible = TasHelperSettings.MainSwitchThreeStates && true;
             MainSwitchStateItem.OnLeave += () => StateDescription.FadeVisible = false;
@@ -642,10 +642,59 @@ public class HLine : TextMenu.Item {
         }
         else {
             float textCenter = MathHelper.Lerp(left, right, textHorizontalAlign);
-            float haldWidth = ActiveFont.Measure(text).X / 2f * 0.6f + 10f;
+            float halfWidth = ActiveFont.Measure(text).X / 2f * 0.6f + 10f;
             ActiveFont.DrawOutline(text, new Vector2(textCenter, y), new Vector2(0.5f, 0.5f), Vector2.One * 0.6f, Color.Gray, 2f, Color.Black);
-            Monocle.Draw.Line(new Vector2(left, y), new Vector2(textCenter - haldWidth, y), lineColor, 4f);
-            Monocle.Draw.Line(new Vector2(textCenter + haldWidth, y), new Vector2(right, y), lineColor, 4f);
+            Monocle.Draw.Line(new Vector2(left, y), new Vector2(textCenter - halfWidth, y), lineColor, 4f);
+            Monocle.Draw.Line(new Vector2(textCenter + halfWidth, y), new Vector2(right, y), lineColor, 4f);
         }
+    }
+}
+
+public class EnumerableSliderExt<T> : TextMenu.Option<T> {
+
+    public EnumerableSliderExt(string label, IEnumerable<T> options, T startValue)
+        : base(label) {
+        foreach (T option in options) {
+            Add(option.ToString(), option, option.Equals(startValue));
+        }
+    }
+
+    public EnumerableSliderExt(string label, IEnumerable<KeyValuePair<T, string>> options, T startValue)
+        : base(label) {
+        foreach (KeyValuePair<T, string> option in options) {
+            Add(option.Value, option.Key, option.Key.Equals(startValue));
+        }
+    }
+
+    public override void Render(Vector2 position, bool highlighted) {
+        float alpha = Container.Alpha;
+        Color strokeColor = Color.Black * (alpha * alpha * alpha);
+        Color color = (Disabled ? Color.DarkSlateGray : ((highlighted ? Container.HighlightColor : UnselectedColor) * alpha));
+        ActiveFont.DrawOutline(Label, position, new Vector2(0f, 0.5f), Vector2.One, color, 2f, strokeColor);
+        if (Values.Count > 0) {
+            float num = RightWidth();
+            string option = Values[Index].Item1;
+            if (num > 300f) {
+                num = ActiveFont.Measure(option).X * 0.8f + 132f;
+            }
+            ActiveFont.DrawOutline(option, position + new Vector2(Container.Width - num * 0.5f + (float)lastDir * ValueWiggler.Value * 8f, 0f), new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
+            Vector2 vector = Vector2.UnitX * (highlighted ? ((float)Math.Sin(sine * 4f) * 4f) : 0f);
+            bool flag = Index > 0;
+            Color color2 = (flag ? color : (Color.DarkSlateGray * alpha));
+            Vector2 position2 = position + new Vector2(Container.Width - num + 40f + ((lastDir < 0) ? ((0f - ValueWiggler.Value) * 8f) : 0f), 0f) - (flag ? vector : Vector2.Zero);
+            ActiveFont.DrawOutline("<", position2, new Vector2(0.5f, 0.5f), Vector2.One, color2, 2f, strokeColor);
+            bool flag2 = Index < Values.Count - 1;
+            Color color3 = (flag2 ? color : (Color.DarkSlateGray * alpha));
+            Vector2 position3 = position + new Vector2(Container.Width - 40f + ((lastDir > 0) ? (ValueWiggler.Value * 8f) : 0f), 0f) + (flag2 ? vector : Vector2.Zero);
+            ActiveFont.DrawOutline(">", position3, new Vector2(0.5f, 0.5f), Vector2.One, color3, 2f, strokeColor);
+        }
+    }
+}
+
+public class IntSliderExt : TextMenuExt.IntSlider {
+    public IntSliderExt(string label, int min, int max, int value = 0) : base(label, min, max, value) { }
+
+    public override float RightWidth() {
+        return Math.Max(base.RightWidth(), 180f); // ensure 1 digits and 2 digits intSliders have same width, 170 is enough for chinese, and 180 is enough for english
     }
 }

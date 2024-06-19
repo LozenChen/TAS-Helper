@@ -17,8 +17,8 @@ public static class MoreOptionsMenu {
     internal static List<TextMenu.Item> Create_Page1(TextMenu menu) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
         page.Add(new TextMenu.OnOff("Spawn Point".ToDialogText(), TasHelperSettings.UsingSpawnPoint).Change((value) => TasHelperSettings.UsingSpawnPoint = value));
-        page.Add(new TextMenuExt.IntSlider("Current Spawn Point Opacity".ToDialogText(), 1, 9, TasHelperSettings.CurrentSpawnPointOpacity).Change((value) => TasHelperSettings.CurrentSpawnPointOpacity = value));
-        page.Add(new TextMenuExt.IntSlider("Other Spawn Point Opacity".ToDialogText(), 0, 9, TasHelperSettings.OtherSpawnPointOpacity).Change((value) => TasHelperSettings.OtherSpawnPointOpacity = value));
+        page.Add(new IntSliderExt("Current Spawn Point Opacity".ToDialogText(), 1, 9, TasHelperSettings.CurrentSpawnPointOpacity).Change((value) => TasHelperSettings.CurrentSpawnPointOpacity = value));
+        page.Add(new IntSliderExt("Other Spawn Point Opacity".ToDialogText(), 0, 9, TasHelperSettings.OtherSpawnPointOpacity).Change((value) => TasHelperSettings.OtherSpawnPointOpacity = value));
         page.Add(new HLine(Color.Gray));
         TextMenu.Item moaItem;
         page.Add(moaItem = new TextMenu.OnOff("Movement Overshoot Assistant".ToDialogText(), TasHelperSettings.EnableMovementOvershootAssistant).Change((value) => TasHelperSettings.EnableMovementOvershootAssistant = value));
@@ -32,12 +32,12 @@ public static class MoreOptionsMenu {
             TasHelperSettings.CassetteBlockHelperShowExtraInfo = value;
             CassetteBlockHelper.CassetteBlockVisualizer.needReAlignment = true;
         }));
-        page.Add(new TextMenuExt.EnumerableSlider<CassetteBlockHelper.Alignments>("Cassette Info Alignment".ToDialogText(),
+        page.Add(new EnumerableSliderExt<CassetteBlockHelper.Alignments>("Cassette Info Alignment".ToDialogText(),
             CreateCassetteBlockHelperAlignmentsOptions(), TasHelperSettings.CassetteBlockInfoAlignment).Change(value => TasHelperSettings.CassetteBlockInfoAlignment = value));
         page.Add(new HLine(Color.Gray));
         page.Add(new TextMenu.OnOff("Enable Pixel Grid".ToDialogText(), TasHelperSettings.EnablePixelGrid).Change(value => TasHelperSettings.EnablePixelGrid = value));
-        page.Add(new TextMenuExt.IntSlider("Pixel Grid Width".ToDialogText(), 0, 50, TasHelperSettings.PixelGridWidth).Change(value => TasHelperSettings.PixelGridWidth = value));
-        page.Add(new TextMenuExt.IntSlider("Pixel Grid Opacity".ToDialogText(), 1, 10, TasHelperSettings.PixelGridOpacity).Change(value => TasHelperSettings.PixelGridOpacity = value));
+        page.Add(new IntSliderExt("Pixel Grid Width".ToDialogText(), 0, 50, TasHelperSettings.PixelGridWidth).Change(value => TasHelperSettings.PixelGridWidth = value));
+        page.Add(new IntSliderExt("Pixel Grid Opacity".ToDialogText(), 1, 10, TasHelperSettings.PixelGridOpacity).Change(value => TasHelperSettings.PixelGridOpacity = value));
         page.Add(new HLine(Color.Gray));
         return page;
     }
@@ -45,9 +45,8 @@ public static class MoreOptionsMenu {
 
     internal static List<TextMenu.Item> Create_Page2(TextMenu menu) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
-
         page.Add(new TextMenu.OnOff("Camera Target".ToDialogText(), TasHelperSettings.UsingCameraTarget).Change(value => TasHelperSettings.UsingCameraTarget = value));
-        page.Add(new TextMenuExt.IntSlider("Camera Target Vector Opacity".ToDialogText(), 1, 9, TasHelperSettings.CameraTargetLinkOpacity).Change(value => TasHelperSettings.CameraTargetLinkOpacity = value));
+        page.Add(new IntSliderExt("Camera Target Vector Opacity".ToDialogText(), 1, 9, TasHelperSettings.CameraTargetLinkOpacity).Change(value => TasHelperSettings.CameraTargetLinkOpacity = value));
         page.Add(new HLine(Color.Gray));
         page.Add(new TextMenu.OnOff("FireBall Track".ToDialogText(), TasHelperSettings.UsingFireBallTrack).Change(value => TasHelperSettings.UsingFireBallTrack = value));
         page.Add(new TextMenu.OnOff("RotateSpinner Track".ToDialogText(), TasHelperSettings.UsingRotateSpinnerTrack).Change(value => TasHelperSettings.UsingRotateSpinnerTrack = value));
@@ -74,7 +73,7 @@ public static class MoreOptionsMenu {
             BetterInvincible.Invincible = false; // in case that value doesn't get reset for some unknown reason... yeah i have such bug report
         }));
         page.AddDescriptionOnEnter(menu, betterInvincible, "Better Invincible Description".ToDialogText());
-        page.Add(new TextMenuExt.IntSlider("SpeedrunTimer Opacity when TAS Pauses".ToDialogText(), 1, 10, TasHelperSettings.SpeedrunTimerDisplayOpacity).Change(value => TasHelperSettings.SpeedrunTimerDisplayOpacity = value));
+        page.Add(new IntSliderExt("SpeedrunTimer Opacity when TAS Pauses".ToDialogText(), 1, 10, TasHelperSettings.SpeedrunTimerDisplayOpacity).Change(value => TasHelperSettings.SpeedrunTimerDisplayOpacity = value));
         page.Add(new HLine(Color.Gray));
         TextMenu.Item subscribeWhatsNew;
         page.Add(subscribeWhatsNew = new TextMenu.OnOff("Subscribe Whats New".ToDialogText(), TasHelperSettings.SubscribeWhatsNew).Change(value => TasHelperSettings.SubscribeWhatsNew = value));

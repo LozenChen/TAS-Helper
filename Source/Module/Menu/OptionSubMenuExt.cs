@@ -476,7 +476,9 @@ public class OptionSubMenuExt : TextMenu.Item {
         DrawIcon(vector2, icon, justify2, outline: true, obj * alpha, 0.8f);
         ActiveFont.DrawOutline(Label, vector2, justify, Vector2.One, color, 2f, strokeColor);
         if (Menus.Count > 0) {
-            float num = RightWidth();
+            string page_title = Menus[MenuIndex].Item1;
+            float num = ActiveFont.Measure(page_title).X;
+            num = num * 0.8f + 160f; // coz our scale is 0.8f
             ActiveFont.DrawOutline(Menus[MenuIndex].Item1, vector2 + new Vector2(Container.Width - num * 0.5f + lastDir * ValueWiggler.Value * 8f, 0f), new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
             Vector2 vector3 = Vector2.UnitX * (highlighted ? (float)Math.Sin(sine * 4f) * 4f : 0f);
             Color color2 = MenuIndex > 0 ? color : Color.DarkSlateGray * alpha;

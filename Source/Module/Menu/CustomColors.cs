@@ -226,7 +226,7 @@ public static class CustomColors {
     internal static List<TextMenu.Item> Create_PageOnOff(TextMenu menu, bool inGame) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
         page.Add(new TextMenu.OnOff("Show Cycle Hitbox Colors".ToDialogText(), TasHelperSettings.ShowCycleHitboxColors).Change(value => TasHelperSettings.ShowCycleHitboxColors = value));
-        TextMenu.Item NotInViewColorItem = new EnumerableSlider<UsingNotInViewColorModes>("Using NotInView Color Modes".ToDialogText(), TASHelperMenu.CreateUsingNotInViewColorOptions(),
+        TextMenu.Item NotInViewColorItem = new EnumerableSliderExt<UsingNotInViewColorModes>("Using NotInView Color Modes".ToDialogText(), TASHelperMenu.CreateUsingNotInViewColorOptions(),
                     TasHelperSettings.UsingNotInViewColorMode).Change(value => TasHelperSettings.UsingNotInViewColorMode = value);
         page.Add(NotInViewColorItem);
         page.AddDescriptionOnEnter(menu, NotInViewColorItem, "Using NotInView Color Description".ToDialogText());

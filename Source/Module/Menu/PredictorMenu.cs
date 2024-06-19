@@ -40,7 +40,7 @@ public static class PredictorMenu {
         TextMenu.Item PredictItem;
         page.Add(PredictItem = new TextMenu.OnOff("Predictor Main Switch".ToDialogText(), TasHelperSettings.PredictFutureEnabled).Change((value) => TasHelperSettings.PredictFutureEnabled = value));
         page.AddDescriptionOnEnter(menu, PredictItem, "Predictor Description".ToDialogText());
-        page.Add(new IntSlider("Timeline Length".ToDialogText(), 1, 999, TasHelperSettings.TimelineLength).Change((value) => {
+        page.Add(new IntSliderExt("Timeline Length".ToDialogText(), 1, 999, TasHelperSettings.TimelineLength).Change((value) => {
             TasHelperSettings.TimelineLength = value;
             Predictor.PredictorCore.InitializeCachePeriod();
         }));
@@ -110,8 +110,8 @@ public static class PredictorMenu {
         TextMenu.Item fadeoutItem;
         page.Add(fadeoutItem = new TextMenu.OnOff("Timeline FadeOut".ToDialogText(), TasHelperSettings.TimelineFadeOut).Change(value => TasHelperSettings.TimelineFadeOut = value));
         page.AddDescriptionOnEnter(menu, fadeoutItem, "Only Apply To Hitbox".ToDialogText());
-        page.Add(new IntSlider("Predictor Line Width".ToDialogText(), 0, 20, TasHelperSettings.PredictorLineWidth).Change(value => TasHelperSettings.PredictorLineWidth = value));
-        page.Add(new IntSlider("Predictor Point Size".ToDialogText(), 0, 20, TasHelperSettings.PredictorPointSize).Change(value => TasHelperSettings.PredictorPointSize = value));
+        page.Add(new IntSliderExt("Predictor Line Width".ToDialogText(), 0, 20, TasHelperSettings.PredictorLineWidth).Change(value => TasHelperSettings.PredictorLineWidth = value));
+        page.Add(new IntSliderExt("Predictor Point Size".ToDialogText(), 0, 20, TasHelperSettings.PredictorPointSize).Change(value => TasHelperSettings.PredictorPointSize = value));
         page.Add(CreateHLine());
         return page;
     }
@@ -136,7 +136,7 @@ public static class PredictorMenu {
             TasHelperSettings.StopPredictWhenKeyframe = value;
             Predictor.PredictorCore.InitializeChecks();
         }));
-        TextMenu.Item ultraSpeedItem = new IntSlider("Ultra Speed Lower Limit".ToDialogText(), 0, 325, TasHelperSettings.UltraSpeedLowerLimit).Change((value) => TasHelperSettings.UltraSpeedLowerLimit = value);
+        TextMenu.Item ultraSpeedItem = new IntSliderExt("Ultra Speed Lower Limit".ToDialogText(), 0, 325, TasHelperSettings.UltraSpeedLowerLimit).Change((value) => TasHelperSettings.UltraSpeedLowerLimit = value);
         page.Add(ultraSpeedItem);
         page.AddDescriptionOnEnter(menu, ultraSpeedItem, "Ultra Speed Lower Limit Description".ToDialogText());
         page.Add(CreateHLine());
