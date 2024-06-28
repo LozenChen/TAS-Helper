@@ -84,7 +84,7 @@ public static class PauseUpdater {
 
 [Tracked]
 public class PauseUpdateComponent : Component {
-    public PauseUpdateComponent() : base(true, false) {
+    public PauseUpdateComponent() : base(false, false) {
 
     }
 }

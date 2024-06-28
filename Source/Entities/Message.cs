@@ -14,18 +14,14 @@ public static class Messenger {
 
     public static void Initialize() {
         if (ModUtils.PandorasBoxInstalled) {
-            PandorasBoxPatch();
+            Type entityActivatorType = ModUtils.GetType("PandorasBox", "Celeste.Mod.PandorasBox.EntityActivator");
+            entityActivatorType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(EntityData), typeof(Vector2) }, null).IlHook((cursor, _) => {
+                if (cursor.TryGotoNext(MoveType.Before, ins => ins.OpCode == OpCodes.Ret)) {
+                    cursor.Emit(OpCodes.Ldarg_1);
+                    cursor.EmitDelegate(WatchEntityActivator);
+                }
+            });
         }
-    }
-
-    private static void PandorasBoxPatch() {
-        Type EntityActivatorType = ModUtils.GetType("PandorasBox", "Celeste.Mod.PandorasBox.EntityActivator");
-        EntityActivatorType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(EntityData), typeof(Vector2) }, null).IlHook((cursor, _) => {
-            if (cursor.TryGotoNext(MoveType.Before, ins => ins.OpCode == OpCodes.Ret)) {
-                cursor.Emit(OpCodes.Ldarg_1);
-                cursor.EmitDelegate(WatchEntityActivator);
-            }
-        });
     }
 
     private static void WatchEntityActivator(EntityData data) {

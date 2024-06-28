@@ -12,6 +12,8 @@ public static class HiresLevelRenderer {
     // Hires but works similar with GameplayRenderer
     // Coordinate = 6 * that of Gameplay coordinate
 
+    private const string renderTargetName = "TasHelperHiresLevel";
+
     [Load]
     public static void Load() {
         On.Celeste.Level.Begin += OnLevelBegin;
@@ -28,17 +30,27 @@ public static class HiresLevelRenderer {
     }
 
     private static void OnLevelBegin(On.Celeste.Level.orig_Begin orig, Level self) {
-        HiresLevelTarget?.Dispose();
-        HiresLevelTarget = VirtualContent.CreateRenderTarget("TasHelperHiresLevel", 1920, 1080);
+        SafeDispose();
+        HiresLevelTarget = VirtualContent.CreateRenderTarget(renderTargetName, 1920, 1080);
         orig(self);
     }
 
     private static void OnLevelEnd(On.Celeste.Level.orig_End orig, Level self) {
-        HiresLevelTarget?.Dispose();
+        SafeDispose();
         list.Clear();
         toAdd.Clear();
         toRemove.Clear();
         orig(self);
+    }
+
+    private static void SafeDispose() {
+        if (HiresLevelTarget is not null && HiresLevelTarget.Name == renderTargetName) {
+            // there's bug report that StarJumpBlock.orig_Render crashes, coz StarJumpController.BlockFill get nulled, which is a VirtualRenderTarget
+            // the original code was "HiresLevelTarget?.Dispose()";
+            // maybe the un-initialized HiresLevelTarget somehow points to StarJumpController.BlockFill?
+            // though this does never happen to me
+            HiresLevelTarget.Dispose();
+        }
     }
 
     private static void OnLevelAfterUpdate(Scene self) {
@@ -51,7 +63,7 @@ public static class HiresLevelRenderer {
         }
     }
 
-    public static VirtualRenderTarget HiresLevelTarget;
+    public static VirtualRenderTarget HiresLevelTarget = null;
 
     public static Camera camera = new Camera(1920, 1080);
 
@@ -134,6 +146,10 @@ public static class HiresLevelRenderer {
         }
     }
     private static void Render(Level level) {
+        if (HiresLevelTarget is null) {
+            return;
+        }
+
         UpdateLists();
         foreach (THRenderer renderer in list) {
             renderer.BeforeRender();
@@ -160,6 +176,10 @@ public static class HiresLevelRenderer {
         }
     }
     public static void MapToScreen(Level self) {
+        if (HiresLevelTarget is null) {
+            return;
+        }
+
         float scale = self.Zoom * ((320f - self.ScreenPadding * 2f) / 320f);
         Vector2 vector = new Vector2(320f, 180f);
         Vector2 vector2 = vector / self.ZoomTarget;

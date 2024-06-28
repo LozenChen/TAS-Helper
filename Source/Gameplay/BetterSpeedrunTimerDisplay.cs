@@ -11,15 +11,18 @@ internal static class BetterSpeedrunTimerDisplay {
 
     private static void Load() {
         using (new DetourContext { Before = new List<string> { "*" }, ID = "TAS Helper BetterSpeedrunTimerDisplay" }) {
-            IL.Celeste.SpeedrunTimerDisplay.Render += ILSpeedrunTimerDisplayRender;
+            IL.Celeste.SpeedrunTimerDisplay.Render += IL_SpeedrunTimerDisplay_Render;
+            IL.Celeste.SpeedrunTimerDisplay.DrawTime += IL_SpeedrunTimerDisplay_DrawTime;
         }
     }
 
+
     private static void Unload() {
-        IL.Celeste.SpeedrunTimerDisplay.Render -= ILSpeedrunTimerDisplayRender;
+        IL.Celeste.SpeedrunTimerDisplay.Render -= IL_SpeedrunTimerDisplay_Render;
+        IL.Celeste.SpeedrunTimerDisplay.DrawTime -= IL_SpeedrunTimerDisplay_DrawTime;
     }
 
-    private static void ILSpeedrunTimerDisplayRender(ILContext il) {
+    private static void IL_SpeedrunTimerDisplay_Render(ILContext il) {
         ILCursor cursor = new ILCursor(il);
 
         if (!cursor.TryGotoNext(MoveType.After, ins => ins.OpCode == OpCodes.Ret) || cursor.Next is null) {
@@ -81,4 +84,12 @@ internal static class BetterSpeedrunTimerDisplay {
         return TasHelperSettings.SpeedrunTimerDisplayOpacityToFloat;
     }
 
+    private static void IL_SpeedrunTimerDisplay_DrawTime(ILContext il) {
+        ILCursor cursor = new ILCursor(il);
+        cursor.Goto(-1);
+        if (cursor.TryGotoPrev(MoveType.After, ins => ins.MatchCall(typeof(Color), "get_Black"))) {
+            cursor.Emit(OpCodes.Ldarg_S, (byte)6);
+            cursor.Emit(OpCodes.Call, typeof(Color).GetMethod(nameof(Color.Multiply)));
+        }
+    }
 }

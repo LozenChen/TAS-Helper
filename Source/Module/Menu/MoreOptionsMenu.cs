@@ -63,7 +63,7 @@ public static class MoreOptionsMenu {
             BetterInvincible.Invincible = false; // in case that value doesn't get reset for some unknown reason... yeah i have such bug report
         }));
         page.AddDescriptionOnEnter(menu, betterInvincible, "Better Invincible Description".ToDialogText());
-        page.Add(new IntSliderExt("SpeedrunTimer Opacity when TAS Pauses".ToDialogText(), 1, 10, TasHelperSettings.SpeedrunTimerDisplayOpacity).Change(value => TasHelperSettings.SpeedrunTimerDisplayOpacity = value));
+        page.Add(new IntSliderExt("SpeedrunTimer Opacity when TAS Pauses".ToDialogText(), 0, 10, TasHelperSettings.SpeedrunTimerDisplayOpacity).Change(value => TasHelperSettings.SpeedrunTimerDisplayOpacity = value));
         page.Add(new HLine(Color.Gray));
         TextMenu.Item subscribeWhatsNew;
         page.Add(subscribeWhatsNew = new TextMenu.OnOff("Subscribe Whats New".ToDialogText(), TasHelperSettings.SubscribeWhatsNew).Change(value => TasHelperSettings.SubscribeWhatsNew = value));
