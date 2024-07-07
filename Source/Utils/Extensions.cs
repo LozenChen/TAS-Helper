@@ -497,7 +497,9 @@ internal static class LevelExtensions {
         }
 
         if (!Tracker.TrackedEntityTypes.ContainsKey(entity)) {
-            Tracker.TrackedEntityTypes.Add(entity, new List<Type>());
+            Tracker.TrackedEntityTypes.Add(entity, new List<Type>() { entity });
+        }
+        else if (!Tracker.TrackedEntityTypes[entity].Contains(entity)) {
             Tracker.TrackedEntityTypes[entity].Add(entity);
         }
 
@@ -505,16 +507,16 @@ internal static class LevelExtensions {
             foreach (Type subclass in Tracker.GetSubclasses(entity)) {
                 if (!subclass.IsAbstract) {
                     if (!Tracker.TrackedEntityTypes.ContainsKey(subclass)) {
-                        Tracker.TrackedEntityTypes.Add(subclass, new List<Type>());
+                        Tracker.TrackedEntityTypes.Add(subclass, new List<Type>() { entity });
                     }
-                    Tracker.TrackedEntityTypes[subclass].Add(entity);
+                    else if (!Tracker.TrackedEntityTypes[subclass].Contains(entity)) {
+                        Tracker.TrackedEntityTypes[subclass].Add(entity);
+                    }
                 }
             }
         }
 
-        if (!Tracker.StoredEntityTypes.Contains(entity)) {
-            Tracker.StoredEntityTypes.Add(entity);
-        }
+        Tracker.StoredEntityTypes.Add(entity);
     }
 
     public static Vector2 ScreenToWorld(this Level level, Vector2 position) {

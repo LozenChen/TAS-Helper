@@ -39,6 +39,8 @@ internal static class LoadRangeColliderRenderer {
     public static void Initialize() {
         EventOnHook._Scene.BeforeUpdate += (_) => ClearCache();
         starShape = GFX.Game["TASHelper/SpinnerCenter/spinner_center"];
+
+        // there's bug report that starShape doesn't get initialized properly, why?
     }
 
     public struct LightningData {

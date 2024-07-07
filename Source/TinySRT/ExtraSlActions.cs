@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.SpeedrunTool.SaveLoad;
+using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
@@ -167,6 +168,9 @@ internal static class TasHelperSL {
 
     private static bool SRT_BetterInvincible = false;
 
+    private static List<AutoWatchRenderer> TH_WhenWatchedRenderers = new List<AutoWatchRenderer>();
+    private static List<AutoWatchRenderer> SRT_WhenWatchedRenderers = new List<AutoWatchRenderer>();
+
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             DashTime = GameInfo.DashTime;
@@ -183,6 +187,7 @@ internal static class TasHelperSL {
             TH_QMbeatColors = CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors.TH_DeepCloneShared();
             TH_ColorSwapTime = CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime.TH_DeepCloneShared();
             TH_offsetGroup = ExactSpinnerGroup.offsetGroup.TH_DeepCloneShared();
+            TH_WhenWatchedRenderers = Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers.TH_DeepCloneShared();
         };
         TH.SlAction load = (_, _) => {
             GameInfo.DashTime = DashTime;
@@ -209,6 +214,7 @@ internal static class TasHelperSL {
             CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors = TH_QMbeatColors.TH_DeepCloneShared();
             CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = TH_ColorSwapTime.TH_DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = TH_offsetGroup.TH_DeepCloneShared();
+            Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers = TH_WhenWatchedRenderers.TH_DeepCloneShared();
         };
         Action clear = () => {
             TH_CachedNodes = null;
@@ -221,6 +227,7 @@ internal static class TasHelperSL {
             TH_QMbeatColors.Clear();
             TH_ColorSwapTime.Clear();
             TH_offsetGroup.Clear();
+            TH_WhenWatchedRenderers.Clear();
         };
         return new TH(save, load, clear, null, null);
     }
@@ -240,6 +247,8 @@ internal static class TasHelperSL {
             SRT_offsetGroup = ExactSpinnerGroup.offsetGroup.DeepCloneShared();
 
             SRT_BetterInvincible = Manager.Running ? BetterInvincible.Invincible : false;
+
+            SRT_WhenWatchedRenderers = Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers.DeepCloneShared();
         };
         SRT.SlAction load = (_, _) => {
             Predictor.PredictorCore.FreezeTimerBeforeUpdate = SRT_freezeTimerBeforeUpdateBeforePredictLoops;
@@ -256,7 +265,8 @@ internal static class TasHelperSL {
             // note that tas will not invoke enable/disable run if it's using load state
             // so if our "Set Invincible true" is after the savepoint, invoked, and get deleted later
             // then Invincible will still be true after load state
-            // so 
+
+            Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers = SRT_WhenWatchedRenderers.DeepCloneShared();
         };
         Action clear = () => {
             SRT_CachedNodes = null;
@@ -268,6 +278,7 @@ internal static class TasHelperSL {
             SRT_ColorSwapTime = null;
             SRT_offsetGroup = null;
             SRT_BetterInvincible = false;
+            SRT_WhenWatchedRenderers = null;
         };
 
         ConstructorInfo constructor = typeof(SRT).GetConstructors()[0];

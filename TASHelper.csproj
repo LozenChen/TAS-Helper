@@ -85,6 +85,9 @@
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.playerUpdated" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.LastPositions" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.LastColldables" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.InfoHUD.UniqueEntityId" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.InfoHUD.InfoWatchEntity.GetMatchEntities" />
+		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.InfoHUD.InfoWatchEntity.RequireWatchUniqueEntityIds" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Savestates.SavedCurrentFrame" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Savestates.Load" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Savestates.Clear" />

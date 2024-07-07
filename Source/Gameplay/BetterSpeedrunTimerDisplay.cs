@@ -15,13 +15,12 @@ internal static class BetterSpeedrunTimerDisplay {
             IL.Celeste.SpeedrunTimerDisplay.DrawTime += IL_SpeedrunTimerDisplay_DrawTime;
         }
     }
-
-
+    
+    [Unload]
     private static void Unload() {
         IL.Celeste.SpeedrunTimerDisplay.Render -= IL_SpeedrunTimerDisplay_Render;
         IL.Celeste.SpeedrunTimerDisplay.DrawTime -= IL_SpeedrunTimerDisplay_DrawTime;
     }
-
     private static void IL_SpeedrunTimerDisplay_Render(ILContext il) {
         ILCursor cursor = new ILCursor(il);
 
@@ -32,8 +31,6 @@ internal static class BetterSpeedrunTimerDisplay {
         il.Body.Variables.Add(alpha);
 
         cursor.MoveAfterLabels();
-        cursor.Emit(OpCodes.Ldarg_0);
-        cursor.Emit(OpCodes.Ldloc, alpha);
         cursor.EmitDelegate(UpdateAlpha);
         cursor.Emit(OpCodes.Stloc, alpha);
 
@@ -77,7 +74,7 @@ internal static class BetterSpeedrunTimerDisplay {
         }
     }
 
-    private static float UpdateAlpha(SpeedrunTimerDisplay display, float alpha) {
+    private static float UpdateAlpha() {
         if (Settings.Instance.SpeedrunClock == SpeedrunType.Off || !FrameStep) {
             return 1f;
         }

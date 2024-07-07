@@ -256,7 +256,10 @@ internal static class EventOnHook {
             // yeah i know Everest.Events.Level.OnLoadLevel already exists
             // but my compiler throws me a CS0229 error
             // maybe the issue of publicizer, idk
-            On.Celeste.Level.LoadLevel += OnLoadLevel;
+
+            using (new DetourContext { After = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper LoadLevel" }) {
+                On.Celeste.Level.LoadLevel += OnLoadLevel;
+            }
         }
 
         [Unload]
