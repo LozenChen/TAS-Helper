@@ -15,7 +15,6 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer{
     public IEnumerator sequence;
 
     public int state => sequence.GetFieldValue<int>("<>1__state");
-    public object current => sequence.GetFieldValue("<>2__current");
     public float timer => sequence.GetFieldValue<float>("<timer>5__4");
 
     public Vector2 lastPos;
@@ -46,7 +45,7 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer{
             lastPos = pos;
             pos = block.Position + block.movementCounter;
             if (pos != lastPos) {
-                text.content = (pos - lastPos).ToSpeed();
+                text.content = (pos - lastPos).DeltaPositionToSpeed();
                 Visible = true;
             }
             else {

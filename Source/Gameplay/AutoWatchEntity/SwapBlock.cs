@@ -22,12 +22,14 @@ internal class SwapBlockRenderer : AutoWatchTextRenderer{
 
     public override void UpdateImpl() {
         text.Position = swapblock.Center;
-        text.content = swapblock.returnTimer.ToFrame();
         lastPos = pos;
         pos = swapblock.Position + swapblock.movementCounter;
+        text.Clear();
+        text.Append(swapblock.returnTimer.ToFrame());
         if (pos != lastPos) {
-            text.content += "\n" + (pos - lastPos).ToSpeed();
+            text.Append((pos - lastPos).DeltaPositionToSpeed());
         }
+        SetVisible();
     }
 
     public override void ClearHistoryData() {

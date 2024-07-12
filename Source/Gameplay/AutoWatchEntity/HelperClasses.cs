@@ -2,6 +2,7 @@
 using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.TASHelper.Entities;
+using FMOD;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -25,6 +26,19 @@ internal class HiresText : THRenderer {
     public override void Render() {
         if (DebugRendered && holder.Visible) {
             Message.RenderMessage(content, position, new Vector2(0.5f, 0.5f), new Vector2(TasHelperSettings.HiresFontSize / 10f), TasHelperSettings.HiresFontStroke * 0.4f);
+        }
+    }
+
+    public void Clear() {
+        content = "";
+    }
+
+    public void Append(string s) {
+        if (content == "") {
+            content = s;
+        }
+        else {
+            content += "\n" + s;
         }
     }
 }
@@ -51,6 +65,10 @@ internal class AutoWatchTextRenderer : AutoWatchRenderer {
             HiresLevelRenderer.Remove(text);
         }
     }
+
+    public void SetVisible() {
+        Visible = text.content != "";
+    }
 }
 
 internal static class InfoParser {
@@ -62,13 +80,56 @@ internal static class InfoParser {
         return ToCeilingFrames(seconds).ToString();
     }
 
-    internal static string ToSpeed(this Vector2 vector) {
+    internal static string DeltaPositionToSpeed(this Vector2 vector) {
         if (Format.Speed_UsePixelPerSecond) {
             return (vector.Length() / Engine.DeltaTime).ToString("0.00");
         }
-        else {
+        else { // pixel per frame
             return vector.Length().ToString("0.00");
         }
+    }
+
+    internal static string SpeedToSpeed(this float speed) { // in case we do have a speed field
+        if (Format.Speed_UsePixelPerSecond) {
+            return speed.ToString("0.00");
+        }
+        else { // pixel per frame
+            return (speed * Engine.DeltaTime).ToString("0.00");
+        }
+    }
+
+    internal static string ToDirectedSpeedX(this float f) {
+        if (IsTiny(f)) {
+            return "0.00";
+        }
+        string sign = f > 0 ? "+" : "-";
+        if (f < 0) {
+            f = -f;
+        }
+        if (Format.Speed_UsePixelPerSecond) {
+            return sign + (f/ Engine.DeltaTime).ToString("0.00");
+        }
+        else {
+            return sign + f.ToString("0.00");
+        }
+    }
+
+    internal static string ToDirectedVector2Speed(this Vector2 vector) {
+        if (IsTiny(vector.X)) {
+            return ToDirectedSpeedX(vector.Y);
+        }
+        else if (IsTiny(vector.Y)) {
+            return ToDirectedSpeedX(vector.X);
+        }
+        return $"({ToDirectedSpeedX(vector.X)}, {ToDirectedSpeedX(vector.Y)})";
+    }
+
+    internal const float epsilon = 1E-6f;
+
+    internal const float Minus_epsilon = -1E-6f;
+
+    private static bool IsTiny(float f) {
+        return f < epsilon && f > Minus_epsilon;
     }
 }
 

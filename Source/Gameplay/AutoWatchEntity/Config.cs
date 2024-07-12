@@ -7,6 +7,8 @@ internal static class Config{
 
     public static Mode SwapBlock = Mode.WhenWatched;
 
+    public static Mode MoveBlock = Mode.Always;
+
     public static Mode Refill = Mode.Always;
 
     public static Mode FallingBlock = Mode.Always;
@@ -14,6 +16,12 @@ internal static class Config{
     public static Mode Booster = Mode.Always;
 
     public static Mode ZipMover = Mode.Always;
+
+    public static Mode FloatySpaceBlock = Mode.Always;
+
+    public static Mode Glider = Mode.Always;
+
+    public static Mode Cloud = Mode.Always;
 }
 
 internal static class Format {

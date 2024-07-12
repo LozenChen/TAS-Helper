@@ -24,7 +24,7 @@ internal class ZipMoverRenderer : AutoWatchTextRenderer{
         lastPos = pos;
         pos = platform.Position + platform.movementCounter;
         if (pos != lastPos) {
-            text.content = (pos - lastPos).ToSpeed();
+            text.content = (pos - lastPos).DeltaPositionToSpeed();
             Visible = true;
         }
         else {

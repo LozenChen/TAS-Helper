@@ -1,0 +1,69 @@
+﻿
+using System.Collections;
+using Microsoft.Xna.Framework;
+using Celeste.Mod.TASHelper.Utils;
+using Monocle;
+
+namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
+
+
+internal class MoveBlockRenderer : AutoWatchTextRenderer{
+
+    public MoveBlock moveBlock;
+
+    public Coroutine coroutine;
+
+    public IEnumerator controller;
+
+    public int state => controller.GetFieldValue<int>("<>1__state");
+    public float crashTimer => controller.GetFieldValue<float>("<crashTimer>5__2");
+
+
+    public Vector2 lastPos;
+
+    public Vector2 pos;
+    public MoveBlockRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+
+    public override void Added(Entity entity) {
+        base.Added(entity);
+        moveBlock = entity as MoveBlock;
+        lastPos = pos = entity.Position;
+        Tuple<Coroutine, IEnumerator> tuple = entity.FindCoroutine("<Controller>d__45");
+        coroutine = tuple.Item1;
+        controller = tuple.Item2;
+    }
+
+    public override void UpdateImpl() {
+        text.Position = moveBlock.Center;
+        lastPos = pos;
+        pos = moveBlock.Position + moveBlock.movementCounter;
+        text.Clear();
+        if (moveBlock.state == MoveBlock.MovementState.Moving && crashTimer < 0.15f) {
+            text.Append(crashTimer.ToFrame()); // not exactly frame, coz the timer decreases if move block will collide into a wall in this frame. but if you hold the other direction, then the move block has lower speed, so it's possible that the delta position is not enough to make it collide into a wall
+        }
+        if (pos != lastPos) {
+            text.Append((pos - lastPos).ToDirectedVector2Speed());
+        }
+        SetVisible();
+    }
+
+    public override void ClearHistoryData() {
+        lastPos = pos = moveBlock.Position;
+    }
+}
+
+internal class MoveBlockFactory : IRendererFactory {
+    public Type GetTargetType() => typeof(MoveBlock);
+
+    public bool Inherited() => false;
+    public RenderMode Mode() => Config.MoveBlock;
+    public bool TryAddComponent(Entity entity) {
+        entity.Add(new MoveBlockRenderer(Mode()));
+        return true;
+    }
+}
+
+
+
+
+

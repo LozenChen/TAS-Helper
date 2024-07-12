@@ -4,6 +4,8 @@ using Celeste.Mod.TASHelper.Utils;
 using System.Reflection;
 using TAS.EverestInterop.InfoHUD;
 using System;
+using System.Linq;
+using TAS.EverestInterop;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -31,7 +33,7 @@ internal static class CoreLogic {
     }
 
     public static bool IsWatched(Entity entity) {
-        return InfoWatchEntity.WatchingEntities.Contains(entity);
+        return InfoWatchEntity.WatchingEntities.Contains(entity) || (entity.GetEntityData() is EntityData entityData && InfoWatchEntity.RequireWatchUniqueEntityIds.Contains(new UniqueEntityId(entity, entityData)));
     }
 
     public static void OnSingleWatchEntityChange(Entity entity) {
@@ -83,7 +85,7 @@ internal static class CoreLogic {
 
     private static void FakeGetInfo(Level level) {
         // basically same as InfoWatchEntity.GetInfo
-        // but remove some restrictions, so it updates even if we close the in-game info hud
+        // but remove some restrictions, so it updates even when we close the in-game info hud
         if (InfoWatchEntity.RequireWatchEntities.IsNotEmpty()) {
             InfoWatchEntity.RequireWatchEntities.Where(reference => reference.IsAlive).ToList().ForEach(
                 reference => {
