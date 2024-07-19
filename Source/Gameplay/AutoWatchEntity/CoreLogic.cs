@@ -1,16 +1,14 @@
 ﻿
-using Monocle;
 using Celeste.Mod.TASHelper.Utils;
+using Monocle;
 using System.Reflection;
-using TAS.EverestInterop.InfoHUD;
-using System;
-using System.Linq;
 using TAS.EverestInterop;
+using TAS.EverestInterop.InfoHUD;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal static class CoreLogic {
-    
+
     public static List<IRendererFactory> Factorys = new List<IRendererFactory>();
 
     public static List<AutoWatchRenderer> WhenWatchedRenderers = new List<AutoWatchRenderer>();
@@ -21,7 +19,7 @@ internal static class CoreLogic {
             typeof(CoreLogic).Assembly.GetTypesSafe().Where(
                 type => type.GetInterface(nameof(IRendererFactory)) is not null
             ).Select(
-                type => (IRendererFactory) type.GetConstructorInfo().Invoke(parameterless)
+                type => (IRendererFactory)type.GetConstructorInfo().Invoke(parameterless)
             )
         );
         foreach (IRendererFactory factory in Factorys) {
@@ -53,7 +51,7 @@ internal static class CoreLogic {
             if (factory.Mode() == RenderMode.Never) {
                 continue;
             }
-            if (level.Tracker.Entities.TryGetValue(factory.GetTargetType(), out List<Entity> entities)){
+            if (level.Tracker.Entities.TryGetValue(factory.GetTargetType(), out List<Entity> entities)) {
                 foreach (Entity entity in entities) {
                     if (entity.Components.FirstOrDefault(c => c is AutoWatchRenderer) is null) {
                         factory.TryAddComponent(entity);

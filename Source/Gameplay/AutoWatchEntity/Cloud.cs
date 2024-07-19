@@ -3,7 +3,7 @@ using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
-internal class CloudRenderer : AutoWatchTextRenderer{
+internal class CloudRenderer : AutoWatchTextRenderer {
 
     public Cloud cloud;
     public CloudRenderer(RenderMode mode, bool active = true) : base(mode, active) { }

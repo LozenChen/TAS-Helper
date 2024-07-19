@@ -4,7 +4,7 @@ using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
-internal class FloatySpaceBlockRenderer : AutoWatchTextRenderer{
+internal class FloatySpaceBlockRenderer : AutoWatchTextRenderer {
 
     public FloatySpaceBlock block;
 

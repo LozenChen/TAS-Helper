@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
-internal class FallingBlockRenderer : AutoWatchTextRenderer{
+internal class FallingBlockRenderer : AutoWatchTextRenderer {
 
     public FallingBlock block;
 
@@ -34,7 +34,7 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer{
     public override void UpdateImpl() {
         text.Position = block.Center;
         if (state == 3) {
-            text.content = "(s3) "+ coroutine.waitTimer.ToFrame();
+            text.content = "(s3) " + coroutine.waitTimer.ToFrame();
             Visible = true;
         }
         else if (state == 4) {

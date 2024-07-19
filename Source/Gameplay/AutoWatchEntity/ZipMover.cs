@@ -4,7 +4,7 @@ using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
-internal class ZipMoverRenderer : AutoWatchTextRenderer{
+internal class ZipMoverRenderer : AutoWatchTextRenderer {
 
     public Platform platform;
 

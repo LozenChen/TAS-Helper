@@ -5,7 +5,7 @@ using Monocle;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 
-internal class SwapBlockRenderer : AutoWatchTextRenderer{
+internal class SwapBlockRenderer : AutoWatchTextRenderer {
 
     public SwapBlock swapblock;
 

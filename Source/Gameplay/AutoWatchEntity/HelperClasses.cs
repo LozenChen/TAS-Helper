@@ -1,8 +1,7 @@
 ﻿
-using Monocle;
-using Microsoft.Xna.Framework;
 using Celeste.Mod.TASHelper.Entities;
-using FMOD;
+using Microsoft.Xna.Framework;
+using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -11,10 +10,10 @@ internal class HiresText : THRenderer {
     internal AutoWatchRenderer holder;
     public string content;
     private Vector2 position;
-    public Vector2 Position { 
-        set { 
-            position = value * 6f; 
-        } 
+    public Vector2 Position {
+        set {
+            position = value * 6f;
+        }
     }
 
     public HiresText(string text, Vector2 position, AutoWatchRenderer holder) {
@@ -107,7 +106,7 @@ internal static class InfoParser {
             f = -f;
         }
         if (Format.Speed_UsePixelPerSecond) {
-            return sign + (f/ Engine.DeltaTime).ToString("0.00");
+            return sign + (f / Engine.DeltaTime).ToString("0.00");
         }
         else {
             return sign + f.ToString("0.00");

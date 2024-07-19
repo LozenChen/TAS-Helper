@@ -1,13 +1,13 @@
 ﻿
-using System.Collections;
-using Microsoft.Xna.Framework;
 using Celeste.Mod.TASHelper.Utils;
+using Microsoft.Xna.Framework;
 using Monocle;
+using System.Collections;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 
-internal class MoveBlockRenderer : AutoWatchTextRenderer{
+internal class MoveBlockRenderer : AutoWatchTextRenderer {
 
     public MoveBlock moveBlock;
 

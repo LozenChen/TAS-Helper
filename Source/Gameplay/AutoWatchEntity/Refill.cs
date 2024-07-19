@@ -4,7 +4,7 @@ using Monocle;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 
-internal class RefillRenderer : AutoWatchTextRenderer{
+internal class RefillRenderer : AutoWatchTextRenderer {
 
     public Refill refill;
     public RefillRenderer(RenderMode mode, bool active = true) : base(mode, active) { }

@@ -15,7 +15,7 @@ internal static class BetterSpeedrunTimerDisplay {
             IL.Celeste.SpeedrunTimerDisplay.DrawTime += IL_SpeedrunTimerDisplay_DrawTime;
         }
     }
-    
+
     [Unload]
     private static void Unload() {
         IL.Celeste.SpeedrunTimerDisplay.Render -= IL_SpeedrunTimerDisplay_Render;

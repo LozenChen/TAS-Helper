@@ -4,7 +4,7 @@ using Monocle;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 
-internal class BoosterRenderer : AutoWatchTextRenderer{
+internal class BoosterRenderer : AutoWatchTextRenderer {
 
     public Booster booster;
     public BoosterRenderer(RenderMode mode, bool active = true) : base(mode, active) { }

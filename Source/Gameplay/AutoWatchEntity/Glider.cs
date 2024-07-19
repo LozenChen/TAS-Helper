@@ -4,7 +4,7 @@ using Monocle;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 
-internal class GliderRenderer : AutoWatchTextRenderer{
+internal class GliderRenderer : AutoWatchTextRenderer {
 
     public Glider glider;
     public GliderRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
