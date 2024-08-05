@@ -30,6 +30,7 @@ internal static class CoreLogic {
         typeof(InfoWatchEntity).GetMethodInfo("ClearWatchEntities").HookAfter(OnRemoveAllWatchEntity);
     }
 
+
     public static bool IsWatched(Entity entity) {
         return InfoWatchEntity.WatchingEntities.Contains(entity) || (entity.GetEntityData() is EntityData entityData && InfoWatchEntity.RequireWatchUniqueEntityIds.Contains(new UniqueEntityId(entity, entityData)));
     }
@@ -60,7 +61,6 @@ internal static class CoreLogic {
             }
         }
     }
-
 
     [LoadLevel]
     public static void OnLoadLevel(Level level) {

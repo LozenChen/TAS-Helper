@@ -22,6 +22,7 @@ internal static class ActualPosition {
     internal static Vector2 CameraTowards = Vector2.Zero;
     internal static Vector2 PlayerPosition = Vector2.Zero;
     // Player's position when Hazards update
+    internal static Vector2 PlayerPositionBeforeSelfUpdate = Vector2.Zero;
     internal static Vector2 PreviousPlayerPosition = Vector2.Zero;
     internal static Vector2 PlayerPositionBeforeCameraUpdate = Vector2.Zero;
     internal static int PlayerPositionChangedCount = 0;
@@ -144,6 +145,8 @@ internal static class ActualPosition {
 
     private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
         ILCursor cursor = new ILCursor(il);
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.EmitDelegate(GetPositionBeforeSelfUpdate);
         if (cursor.TryGotoNext(MoveType.After,
                 ins => ins.OpCode == OpCodes.Stfld && ins.Operand.ToString() == "System.Boolean Celeste.Player::StrawberriesBlocked"
             // stfld bool Celeste.Player::StrawberriesBlocked
@@ -153,10 +156,13 @@ internal static class ActualPosition {
         }
     }
 
+
+    private static void GetPositionBeforeSelfUpdate(Player player) {
+        PlayerPositionBeforeSelfUpdate = player.Position;
+    }
+
     private static void GetCameraPosition(Player player) {
-        if (TasHelperSettings.Enabled) {
-            PlayerPositionBeforeCameraUpdate = player.Position;
-        }
+        PlayerPositionBeforeCameraUpdate = player.Position;
     }
 
     //private static void PatchCrysSpinnerUpdate(On.Celeste.CrystalStaticSpinner.orig_Update orig, CrystalStaticSpinner self) {

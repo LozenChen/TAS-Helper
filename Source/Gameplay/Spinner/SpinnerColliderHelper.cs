@@ -49,6 +49,7 @@ public static class SpinnerColliderHelper {
         Add("C:6;0,0", 1f, new SpinnerColliderValue("C600"));
         Add("C:6;0,0|R:16,4;-8,-1", 1f, new SpinnerColliderValue("reverted"));
         Add("C:8;0,0", 1f, new SpinnerColliderValue("C800"));
+        Add("R:16,16;-8,-8", 1f, new SpinnerColliderValue("S16"));
 
         void Add(string hitboxS, float scale, SpinnerColliderValue value) {
             string[] hitboxString = hitboxS.Split('|');

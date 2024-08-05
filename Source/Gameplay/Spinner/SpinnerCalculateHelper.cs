@@ -173,6 +173,15 @@ public static class SpinnerCalculateHelper {
             });
         }
 
+        if (ModUtils.GetType("XaphanHelper", "Celeste.Mod.XaphanHelper.Entities.CustomSpinner") is { } xaphanSpinnerType) {
+            DictionaryAdderNormal(xaphanSpinnerType, "offset", spinner);
+        }
+
+        if (ModUtils.GetType("ChroniaHelper", "ChroniaHelper.Entities.SeamlessSpinner") is { } chroniaSpinnerType) {
+            ChroniaSpinnerType = chroniaSpinnerType;
+            DictionaryAdderNormal(chroniaSpinnerType, "offset", spinner);
+        }
+
         if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) {
             HazardTypesTreatNormal.Add(cassetteSpinnerType, spinner);
             OffsetGetters.Add(cassetteSpinnerType, OffsetGetters[vanillaCrysSpinnerType]);
@@ -229,6 +238,8 @@ public static class SpinnerCalculateHelper {
 
     private static Type VivSpinnerType;
 
+    private static Type ChroniaSpinnerType;
+
     public static bool NoCycle(Entity self) {
         if (NoCycleTypes.TryGetValue(self.GetType(), out Func<Entity, bool> func)) {
             return func(self);
@@ -238,6 +249,10 @@ public static class SpinnerCalculateHelper {
 
     public static bool IsVivSpinner(Entity self) {
         return self.GetType().IsSameOrSubclassOf(VivSpinnerType);
+    }
+
+    public static bool IsChroniaSpinner(Entity self) {
+        return self.GetType().IsSameOrSubclassOf(ChroniaSpinnerType);
     }
 
     public static bool GetCollidable(Entity self) {
@@ -431,5 +446,47 @@ public static class SpinnerCalculateHelper {
             return (2 + TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter) % 3;
         }
         return 3;
+    }
+
+    public static string[] GetChroniaHitboxString(Entity spinner) {
+        if (spinner.Collider is ColliderList list) {
+            switch (list.colliders.Count()) {
+                case 1: {
+                        Collider c = list.colliders.First();
+                        if (IsCircle(c, out float radius)) {
+                            if (radius == 6f) {
+                                return new string[] { "C:6;0,0" };
+                            }
+                            else if (radius == 8f) {
+                                return new string[] { "C:8;0,0" };
+                            }
+                        }
+                        else if (c is Hitbox hb && hb.width == 16f && hb.height == 16f && hb.Position.X == -8f && hb.Position.Y == -8f) {
+                            return new string[] { "R:16,16;-8,-8" };
+                        }
+                        break;
+                    }
+                case 2: {
+                        if (IsCircle(list.colliders.First(), out float radius) && radius == 6f && list.colliders[1] is Hitbox hb && hb.width == 16f && hb.height == 4f && hb.Position.X == -8f && hb.Position.Y == -3f) {
+                            return new string[] { "C:6;0,0", "R:16,4;-8,-3" };
+                        }
+                        break;
+                    }
+                default: {
+                        break;
+                    }
+            }
+        }
+        return new string[] { "UNEXPECTED" };
+
+    }
+
+    private static bool IsCircle(Collider collider, out float radius) {
+        if (collider is Circle circle) {
+            radius = circle.Radius;
+            return true;
+        }
+        radius = 0f;
+        return false;
     }
 }

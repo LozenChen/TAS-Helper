@@ -22,6 +22,19 @@ internal static class SpinnerRenderHelper {
                 cursor.Emit(OpCodes.Ret);
             });
         }
+
+        if (ModUtils.ChroniaHelperInstalled) {
+            typeof(SpinnerRenderHelper).GetMethod(nameof(DrawSpinnerCollider)).IlHook((cursor, _) => {
+                Instruction skipChronia = cursor.Next;
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.Emit(OpCodes.Ldarg_2);
+                cursor.Emit(OpCodes.Ldarg_3);
+                cursor.EmitDelegate(DrawChroniaCollider);
+                cursor.Emit(OpCodes.Brfalse, skipChronia);
+                cursor.Emit(OpCodes.Ret);
+            });
+        }
     }
 
     internal static Color DefaultColor => TasSettings.EntityHitboxColor;
@@ -139,6 +152,23 @@ internal static class SpinnerRenderHelper {
                 string[] hitboxString = SpinnerCalculateHelper.VivHitboxStringGetter.GetValue(self) as string[];
                 float scale = self.GetFieldValue<float>("scale");
                 if (SpinnerColliderHelper.TryGetValue(hitboxString, scale, out SpinnerColliderHelper.SpinnerColliderValue value)) {
+                    value.DrawOutlineAndInside(self.Position, color, collidable);
+                    return true;
+                }
+#pragma warning restore CS8600, CS8604
+            }
+            DrawComplexSpinnerCollider(self, camera, color, collidable);
+            return true;
+        }
+        return false;
+    }
+
+    public static bool DrawChroniaCollider(Entity self, Camera camera, Color color, bool collidable) {
+        if (SpinnerCalculateHelper.IsChroniaSpinner(self)) {
+            if (OnGrid(self)) {
+#pragma warning disable CS8600, CS8604
+                string[] hitboxString = SpinnerCalculateHelper.GetChroniaHitboxString(self);
+                if (SpinnerColliderHelper.TryGetValue(hitboxString, 1f, out SpinnerColliderHelper.SpinnerColliderValue value)) {
                     value.DrawOutlineAndInside(self.Position, color, collidable);
                     return true;
                 }

@@ -17,6 +17,10 @@ internal static class SimplifiedSpinner {
 
     private static List<FieldInfo> VivSpinnerExtraComponentGetter;
 
+    private static List<FieldInfo> XaphanSpinnerExtraComponentGetter;
+
+    private static List<FieldInfo> ChroniaSpinnerExtraComponentGetter;
+
     private static List<FieldInfo> ChronoSpinnerExtraComponentGetter;
 
     private static bool wasSpritesCleared = !SpritesCleared;
@@ -78,6 +82,48 @@ internal static class SimplifiedSpinner {
             ClearSpritesAction.Add(self => VivBeforeRender(self, new Type[] { vivSpinnerType, vivAnimSpinnerType, vivMoveSpinnerType }));
             OnCreateSprites(vivSpinnerType);
             OnCreateSprites(vivAnimSpinnerType);
+        }
+
+        if (ModUtils.GetType("XaphanHelper", "Celeste.Mod.XaphanHelper.Entities.CustomSpinner") is { } xaphanSpinnerType) {
+            XaphanSpinnerExtraComponentGetter = new() {
+                xaphanSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
+                xaphanSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
+            };
+            LevelExtensions.AddToTracker(xaphanSpinnerType);
+            ClearSpritesAction.Add(self => {
+                if (!self.Tracker.Entities.ContainsKey(xaphanSpinnerType)) {
+                    self.Tracker.Entities.Add(xaphanSpinnerType, new List<Entity>());
+                }
+                foreach (Entity spinner in self.Tracker.Entities[xaphanSpinnerType]) {
+                    spinner.UpdateComponentVisiblity();
+                    foreach (FieldInfo getter in XaphanSpinnerExtraComponentGetter) {
+                        object obj = getter.GetValue(spinner);
+                        if (obj != null) {
+                            obj.SetFieldValue("Visible", !SpritesCleared);
+                        }
+                    }
+                }
+            });
+            OnCreateSprites(xaphanSpinnerType);
+        }
+
+        if (ModUtils.GetType("ChroniaHelper", "ChroniaHelper.Entities.SeamlessSpinner") is { } chroniaSpinnerType) {
+            ChroniaSpinnerExtraComponentGetter = new() {
+                chroniaSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
+                chroniaSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
+            };
+            ClearSpritesAction.Add(self => {
+                foreach (Entity spinner in self.Tracker.Entities[chroniaSpinnerType]) {
+                    spinner.UpdateComponentVisiblity();
+                    foreach (FieldInfo getter in ChroniaSpinnerExtraComponentGetter) {
+                        object obj = getter.GetValue(spinner);
+                        if (obj != null) {
+                            obj.SetFieldValue("Visible", !SpritesCleared);
+                        }
+                    }
+                }
+            });
+            OnCreateSprites(chroniaSpinnerType);
         }
 
         if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
