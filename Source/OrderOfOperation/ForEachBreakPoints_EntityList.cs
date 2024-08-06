@@ -65,7 +65,6 @@ internal static class ForEachBreakPoints_EntityList {
             }
             if (IsRunNormally(entity)) {
                 if (oldData is not null) {
-
                     entity._PreUpdate();
                     if (entity.Active) {
                         entity.Update();

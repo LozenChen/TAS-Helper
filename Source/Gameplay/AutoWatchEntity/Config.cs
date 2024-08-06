@@ -3,7 +3,7 @@
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal static class Config {
-    public static bool MainEnabled = false;
+    public static bool MainEnabled = true;
 
     public static Mode SwapBlock = Mode.WhenWatched;
 

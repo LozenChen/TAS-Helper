@@ -19,6 +19,8 @@ internal static class ForEachBreakPoints_PlayerCollider {
 
     private static readonly HashSet<PlayerCollider> removed_targets = new();
 
+    private static readonly HashSet<string> autostop_targets = new();
+
     private static int passed_targets = 0;
 
     private static int expected_passed_targets = 0;
@@ -120,6 +122,10 @@ internal static class ForEachBreakPoints_PlayerCollider {
 
     private enum ReturnType { EarlyReturn, LateReturn, DeathReturn };
     private static ReturnType PCCheckCore(Player player) {
+        // whenever a pc.Check() is called, the pc should be added to removed_targets anyway
+        // even if pc.Check() is false
+        // coz it may become true after player's position change later, if we doesn't leave the loop with a DeathReturn or LateReturn
+
         if (firstEnter) {
             ActualEntityCollideHitbox.SavePlayerPosition(player);
             firstEnter = false;
@@ -134,6 +140,13 @@ internal static class ForEachBreakPoints_PlayerCollider {
         foreach (PlayerCollider pc in player.Scene.Tracker.GetComponents<PlayerCollider>()) {
             if (IsGotoContinue(pc, out bool contain, out string entityType, out string entityId)) {
                 continue;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            void HandleAutoStop() {
+                // after this pc check, player position may change, so other colliders before this pc may check player. so we need to skip them
+                autostop_targets.Add(entityId);
+                expected_passed_targets++;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -193,6 +206,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
                         return ReturnType.DeathReturn;
                     }
                     else if (autoStop) {
+                        HandleAutoStop();
                         return AfterCheckInOneStep();
                     }
                 }
@@ -206,6 +220,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
                         return ReturnType.DeathReturn;
                     }
                     else if (autoStop) {
+                        HandleAutoStop();
                         return AfterCheckInOneStep();
                     }
                 }
@@ -250,7 +265,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
         if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
             id = $"{entity.GetType().Name}[{entityID}]";
         }
-        return targets.Contains(id) || targets.Contains(type);
+        return targets.Contains(id) || targets.Contains(type) || autostop_targets.Contains(id);
     }
 
     private static bool IsGotoContinue(PlayerCollider pc, out bool contain, out string entityType, out string entityId) {
@@ -356,6 +371,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
     }
 #pragma warning disable CS8625
     public static void Reset() {
+        autostop_targets.Clear();
         removed_targets.Clear();
         expected_passed_targets = 0;
         passed_targets = 0;
