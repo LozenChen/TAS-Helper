@@ -7,7 +7,6 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
-using TAS.EverestInterop;
 using YamlDotNet.Serialization;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -772,41 +771,41 @@ public class TASHelperSettings : EverestModuleSettings {
     [SettingName("TAS_HELPER_MAIN_SWITCH_HOTKEY")]
     [SettingSubHeader("TAS_HELPER_HOTKEY_DESCRIPTION")]
     [SettingDescriptionHardcoded]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.E)]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.E })]
     public ButtonBinding keyMainSwitch { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.E);
 
     [SettingName("TAS_HELPER_FRAME_STEP_BACK")]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.I)]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.I })]
     public ButtonBinding keyFrameStepBack { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.I);
 
     [SettingName("TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY")]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.R)]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.R })]
     public ButtonBinding keyCountDown { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.R);
 
 
     [SettingName("TAS_HELPER_SWITCH_LOAD_RANGE_HOTKEY")]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.T)]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.T })]
     public ButtonBinding keyLoadRange { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.T);
 
 
     [SettingName("TAS_HELPER_SWITCH_PIXEL_GRID_WIDTH_HOTKEY")]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.F)]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.F })]
     public ButtonBinding keyPixelGridWidth { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.F);
 
     [SettingName("TAS_HELPER_PREDICT_ENABLE_HOTKEY")]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.W)]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.W })]
     public ButtonBinding keyPredictEnable { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.W);
 
     [SettingName("TAS_HELPER_PREDICT_FUTURE_HOTKEY")]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.P)]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.P })]
     public ButtonBinding keyPredictFuture { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.P);
 
     [SettingName("TAS_HELPER_OOO_STEP_HOTKEY")]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.G)]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.G })]
     public ButtonBinding keyOoO_Step { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.G);
 
     [SettingName("TAS_HELPER_OOO_FASTFORWARD_HOTKEY")]
-    [DefaultButtonBinding2(0, Keys.LeftControl, Keys.Y)]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.Y })]
     public ButtonBinding keyOoO_Fastforward { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.Y);
 
 

@@ -70,6 +70,7 @@ public static class WhatsNew {
         AddLog("1.9.13", "Bugfix: Game crashes in wavedash.ppt. (Thanks @trans_alexa)");
         AddLog("1.9.14", "Feature: Make SpeedrunTimer become transparent when TAS pauses. Default is ON. Edit it in \"More Options\".", "Divide \"More Options\" into three pages.", "Feature: Allow PageUp/PageDown in subMenus.");
         AddLog("1.9.15", "Feature: Show the hitbox of Hollow Knight Nail from FlaglinesAndSuch.", "Feature: Spinner related features now support ChroniaHelper's SeamlessSpinner.");
+        AddLog("2.0.0", "Migrate to Everest Core, and target psyGamer's branch of CelesteTAS.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
