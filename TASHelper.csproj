@@ -1,8 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net4.5.2</TargetFramework>
-	<LangVersion>10.0</LangVersion>
+	  <TargetFramework>net7.0</TargetFramework>
+	  <LangVersion>latest</LangVersion>
+
+	  <CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('../../Celeste.dll')">../..</CelestePrefix>
+	  <CelestePrefix Condition="'$(CelestePrefix)' == ''">Libs</CelestePrefix>
+	  
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>$(AssemblyName)</Authors>
@@ -25,7 +29,7 @@
 
   <ItemGroup>
     <Reference Include="Celeste">
-      <HintPath>..\..\legacyRef\Celeste.exe</HintPath>
+      <HintPath>..\..\Celeste.dll</HintPath>
     </Reference>
     <Reference Include="CelesteTAS-EverestInterop">
       <HintPath>Libs\CelesteTAS-EverestInterop.dll</HintPath>
@@ -55,6 +59,9 @@
     <PackageReference Include="NLua" Version="1.4.25" />
     <Reference Include="SpeedrunTool">
       <HintPath>Libs\SpeedrunTool.dll</HintPath>
+    </Reference>
+    <Reference Include="StudioCommunication">
+      <HintPath>Libs\StudioCommunication.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="YamlDotNet">

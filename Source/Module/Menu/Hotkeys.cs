@@ -1,10 +1,5 @@
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework.Input;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using System.Reflection;
-using TAS.EverestInterop;
 using CMCore = Celeste.Mod.Core;
 using Hotkey = TAS.EverestInterop.Hotkeys.Hotkey;
 
@@ -40,13 +35,11 @@ public static class TH_Hotkeys {
             // FrameStepBack hotkey invokes a load state, and we should be after CenterCamera.RestoreCamera
             On.Celeste.Level.Render += HotkeysPressed;
         }
-        IL.Celeste.Mod.ModuleSettingsKeyboardConfigUI.Reset += ModReload;
     }
 
     [Unload]
     public static void Unload() {
         On.Celeste.Level.Render -= HotkeysPressed;
-        IL.Celeste.Mod.ModuleSettingsKeyboardConfigUI.Reset -= ModReload;
     }
 
 
@@ -106,39 +99,5 @@ public static class TH_Hotkeys {
 
     internal static Hotkey BindingToHotkey(ButtonBinding binding, bool held = false) {
         return new(binding.Keys, binding.Buttons, true, held);
-    }
-
-    private static IEnumerable<PropertyInfo> bindingProperties;
-
-    private static FieldInfo bindingFieldInfo;
-
-    private static void ModReload(ILContext il) {
-        bindingProperties = typeof(TASHelperSettings)
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(info => info.PropertyType == typeof(ButtonBinding) &&
-                           info.GetCustomAttribute<DefaultButtonBinding2Attribute>() is { } extraDefaultKeyAttribute &&
-                           extraDefaultKeyAttribute.ExtraKey != Keys.None);
-
-        ILCursor ilCursor = new(il);
-        if (ilCursor.TryGotoNext(
-                MoveType.After,
-                ins => ins.OpCode == OpCodes.Callvirt && ins.Operand.ToString().Contains("<Microsoft.Xna.Framework.Input.Keys>::Add(T)")
-            )) {
-            ilCursor.Emit(OpCodes.Ldloc_1).EmitDelegate(AddExtraDefaultKey);
-        }
-    }
-
-    private static void AddExtraDefaultKey(object bindingEntry) {
-        if (bindingFieldInfo == null) {
-            bindingFieldInfo = bindingEntry.GetType().GetFieldInfo("Binding");
-        }
-
-        if (bindingFieldInfo?.GetValue(bindingEntry) is not ButtonBinding binding) {
-            return;
-        }
-
-        if (bindingProperties.FirstOrDefault(info => info.GetValue(TasHelperSettings) == binding) is { } propertyInfo) {
-            binding.Keys.Add(propertyInfo.GetCustomAttribute<DefaultButtonBinding2Attribute>().ExtraKey);
-        }
     }
 }

@@ -2,7 +2,9 @@
 
 https://gamebanana.com/tools/12383
 
-This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-EverestInterop) and aims to provide some extra convenience for making TASes.
+This mod is based on [CelesteTAS](https://github.com/psyGamer/CelesteTAS-EverestInterop-MonoFix) and aims to provide some extra convenience for making TASes.
+
+Note that from TAS Helper v2.0.0, we target [psyGamer's branch](https://github.com/psyGamer/CelesteTAS-EverestInterop-MonoFix) of CelesteTAS (version >= 3.40.0) instead of [DemoJameson's branch](https://github.com/EverestAPI/CelesteTAS-EverestInterop). If you are still using DemoJameson's branch (which is also the version on GameBanana), then you should use [TAS Helper v1.9.15](https://github.com/LozenChen/TAS-Helper/releases/tag/v1.9.15).
 
 # Features:
 
@@ -64,9 +66,9 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 - Push on XMinty's AutoWatch PR on CelesteTAS, to support more entities (e.g. for an entity with a re-awake timer, watch the timer if it's not zero).
 
-- SpeedrunTool multi-saveslots PR (hard afaik, even though we've effectively created a 2-nd saveslot in TAS Helper)
+- SpeedrunTool multi-saveslots PR (Update: done, PR is created but never gets merged)
 
-- Auto completion in Celeste Studio (when using something like "set invincible true"), and some other gadgets for Studio. (Update: relating codes already exist in Studio, but it seems they have not been used)
+- Auto completion in Celeste Studio (when using something like "set invincible true"), and some other gadgets for Studio. (Update: see psyGamer's Studio v3)
 
 # Known issues:
 
