@@ -4,7 +4,7 @@ https://gamebanana.com/tools/12383
 
 This mod is based on [CelesteTAS](https://github.com/psyGamer/CelesteTAS-EverestInterop) and aims to provide some extra convenience for making TASes.
 
-Note that from TAS Helper v2.0.0, we target [psyGamer's branch](https://github.com/psyGamer/CelesteTAS-EverestInterop) of CelesteTAS (version >= 3.40.0) instead of [DemoJameson's branch](https://github.com/EverestAPI/CelesteTAS-EverestInterop). If you are still using DemoJameson's branch (which is also the version on GameBanana), then you should use [TAS Helper v1.9.15](https://github.com/LozenChen/TAS-Helper/releases/tag/v1.9.15).
+Note that from TAS Helper v2.0.0, we target [psyGamer's branch](https://github.com/psyGamer/CelesteTAS-EverestInterop) of CelesteTAS (version >= 3.40.0) instead of [DemoJameson's branch](https://github.com/EverestAPI/CelesteTAS-EverestInterop). If you are still using DemoJameson's branch, then you should use [TAS Helper v1.9.15](https://github.com/LozenChen/TAS-Helper/releases/tag/v1.9.15).
 
 # Features:
 
