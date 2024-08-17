@@ -45,7 +45,7 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
             lastPos = pos;
             pos = block.Position + block.movementCounter;
             if (pos != lastPos) {
-                text.content = (pos - lastPos).DeltaPositionToSpeed();
+                text.content = (pos - lastPos).PositionToAbsoluteSpeed();
                 Visible = true;
             }
             else {

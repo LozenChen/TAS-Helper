@@ -16,15 +16,20 @@ internal class HiresText : THRenderer {
         }
     }
 
+    public float scale = 1f;
+
+    public Vector2 justify;
+
     public HiresText(string text, Vector2 position, AutoWatchRenderer holder) {
         this.content = text;
         this.position = position;
         this.holder = holder;
+        justify = new Vector2(0.5f, 0.5f);
     }
 
     public override void Render() {
         if (DebugRendered && holder.Visible) {
-            Message.RenderMessage(content, position, new Vector2(0.5f, 0.5f), new Vector2(TasHelperSettings.HiresFontSize / 10f), TasHelperSettings.HiresFontStroke * 0.4f);
+            Message.RenderMessage(content, position, justify, Config.HiresFontSize * scale, Config.HiresFontStroke * 0.4f * scale);
         }
     }
 
@@ -33,12 +38,19 @@ internal class HiresText : THRenderer {
     }
 
     public void Append(string s) {
+        if (s == "") {
+            return;
+        }
         if (content == "") {
             content = s;
         }
         else {
             content += "\n" + s;
         }
+    }
+
+    public void Newline(int lines = 1) {
+        content += new string('\n', lines);
     }
 }
 
@@ -71,15 +83,27 @@ internal class AutoWatchTextRenderer : AutoWatchRenderer {
 }
 
 internal static class InfoParser {
+
+    private static string SignedString(this float f) {
+        return f.ToString("+0.00;-0.00;0.00");
+    }
     private static int ToCeilingFrames(float seconds) {
         return (int)Math.Ceiling(seconds / Engine.DeltaTime);
     }
 
+
+    internal static int ToFrameData(this float seconds) {
+        return ToCeilingFrames(seconds);
+    }
     internal static string ToFrame(this float seconds) {
         return ToCeilingFrames(seconds).ToString();
     }
 
-    internal static string DeltaPositionToSpeed(this Vector2 vector) {
+    internal static string ToFrame(this int frames) {
+        return frames.ToString();
+    }
+
+    internal static string PositionToAbsoluteSpeed(this Vector2 vector) {
         if (Format.Speed_UsePixelPerSecond) {
             return (vector.Length() / Engine.DeltaTime).ToString("0.00");
         }
@@ -88,39 +112,61 @@ internal static class InfoParser {
         }
     }
 
+    internal static string Speed2ToSpeed2(this Vector2 speed) {
+        if (IsTiny(speed.X)) {
+            if (IsTiny(speed.Y)) {
+                return "";
+            }
+            return speed.Y.SpeedToSpeed();
+        }
+        else if (IsTiny(speed.Y)) {
+            return speed.X.SpeedToSpeed();
+        }
+        return $"({speed.X.SpeedToSpeed()}, {speed.Y.SpeedToSpeed()})";
+    }
+
+    internal static string Speed2ToSpeed2ButBreakline(this Vector2 speed) {
+        if (IsTiny(speed.X)) {
+            if (IsTiny(speed.Y)) {
+                return "";
+            }
+            return speed.Y.SpeedToSpeed();
+        }
+        else if (IsTiny(speed.Y)) {
+            return speed.X.SpeedToSpeed();
+        }
+        return $"({speed.X.SpeedToSpeed()},\n {speed.Y.SpeedToSpeed()})";
+    }
+
     internal static string SpeedToSpeed(this float speed) { // in case we do have a speed field
         if (Format.Speed_UsePixelPerSecond) {
-            return speed.ToString("0.00");
+            return speed.SignedString();
         }
         else { // pixel per frame
-            return (speed * Engine.DeltaTime).ToString("0.00");
+            return (speed * Engine.DeltaTime).SignedString();
         }
     }
 
-    internal static string ToDirectedSpeedX(this float f) {
-        if (IsTiny(f)) {
-            return "0.00";
-        }
-        string sign = f > 0 ? "+" : "-";
-        if (f < 0) {
-            f = -f;
-        }
+    private static string PositionToSignedSpeedX(this float f) {
         if (Format.Speed_UsePixelPerSecond) {
-            return sign + (f / Engine.DeltaTime).ToString("0.00");
+            return (f / Engine.DeltaTime).SignedString();
         }
         else {
-            return sign + f.ToString("0.00");
+            return f.SignedString();
         }
     }
 
-    internal static string ToDirectedVector2Speed(this Vector2 vector) {
-        if (IsTiny(vector.X)) {
-            return ToDirectedSpeedX(vector.Y);
+    internal static string Positon2ToSignedSpeed(this Vector2 deltaPosition) {
+        if (IsTiny(deltaPosition.X)) {
+            if (IsTiny(deltaPosition.Y)) {
+                return "";
+            }
+            return PositionToSignedSpeedX(deltaPosition.Y);
         }
-        else if (IsTiny(vector.Y)) {
-            return ToDirectedSpeedX(vector.X);
+        else if (IsTiny(deltaPosition.Y)) {
+            return PositionToSignedSpeedX(deltaPosition.X);
         }
-        return $"({ToDirectedSpeedX(vector.X)}, {ToDirectedSpeedX(vector.Y)})";
+        return $"({PositionToSignedSpeedX(deltaPosition.X)}, {PositionToSignedSpeedX(deltaPosition.Y)})";
     }
 
     internal const float epsilon = 1E-6f;

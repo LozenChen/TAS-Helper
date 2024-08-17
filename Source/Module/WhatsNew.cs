@@ -71,6 +71,8 @@ public static class WhatsNew {
         AddLog("1.9.14", "Feature: Make SpeedrunTimer become transparent when TAS pauses. Default is ON. Edit it in \"More Options\".", "Divide \"More Options\" into three pages.", "Feature: Allow PageUp/PageDown in subMenus.");
         AddLog("1.9.15", "Feature: Show the hitbox of Hollow Knight Nail from FlaglinesAndSuch.", "Feature: Spinner related features now support ChroniaHelper's SeamlessSpinner.");
         AddLog("2.0.0", "Migrate to Everest Core, and target psyGamer's branch of CelesteTAS.");
+        AddLog("2.0.1", "Bugfix: Game crashes when there is simplified spinner / lightning. (thanks @trans_alexa)");
+        AddLog("2.0.2", "Feature: AutoWatchEntity put into use.", "Feature: Now you can enter OptionSubMenu by just pressing down.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

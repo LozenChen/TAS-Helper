@@ -529,6 +529,17 @@ public class OptionSubMenuExt : TextMenu.Item {
                 cursor.Emit(OpCodes.Brtrue, target);
             }
         });
+
+
+        typeof(TextMenu).GetMethod("orig_Update").ILHook((cursor, _) => {
+            if (cursor.TryGotoNext(ins => ins.MatchLdsfld(typeof(Input), nameof(Input.MenuDown)), ins => ins.MatchCallvirt(typeof(VirtualButton), "get_Pressed"), ins => ins.OpCode == OpCodes.Brfalse_S)) {
+                ILLabel target = (ILLabel)cursor.Next.Next.Next.Operand;
+                cursor.MoveAfterLabels();
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate(OnMenuTryDown);
+                cursor.Emit(OpCodes.Brtrue, target);
+            }
+        });
     }
 
     private static bool OnMenuTryPageDown(TextMenu menu) {
@@ -538,6 +549,18 @@ public class OptionSubMenuExt : TextMenu.Item {
                 submenu.OnPressed();
             }
             submenu.OnPageDown();
+            return true;
+        }
+        return false;
+    }
+
+
+    private static bool OnMenuTryDown(TextMenu menu) {
+        if (Input.MenuDown.Pressed && menu.Current is OptionSubMenuExt submenu && !submenu.Focused && submenu.ThisPageEnterable) {
+            submenu.ConfirmPressed();
+            if (submenu.OnPressed != null) {
+                submenu.OnPressed();
+            }
             return true;
         }
         return false;

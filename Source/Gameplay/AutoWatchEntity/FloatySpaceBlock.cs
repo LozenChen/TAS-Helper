@@ -24,7 +24,7 @@ internal class FloatySpaceBlockRenderer : AutoWatchTextRenderer {
         lastPos = pos;
         pos = block.Position + block.movementCounter;
         if (block.MasterOfGroup || mode == RenderMode.WhenWatched) { // if RenderMode = Always, then we only render the master one
-            text.content = (pos - lastPos).ToDirectedVector2Speed();
+            text.content = (pos - lastPos).Positon2ToSignedSpeed();
             Visible = true;
         }
         else {

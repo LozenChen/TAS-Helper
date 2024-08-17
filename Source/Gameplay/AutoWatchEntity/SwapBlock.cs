@@ -25,9 +25,11 @@ internal class SwapBlockRenderer : AutoWatchTextRenderer {
         lastPos = pos;
         pos = swapblock.Position + swapblock.movementCounter;
         text.Clear();
-        text.Append(swapblock.returnTimer.ToFrame());
+        if (swapblock.returnTimer > 0f) {
+            text.Append(swapblock.returnTimer.ToFrame());
+        }
         if (pos != lastPos) {
-            text.Append((pos - lastPos).DeltaPositionToSpeed());
+            text.Append((pos - lastPos).PositionToAbsoluteSpeed());
         }
         SetVisible();
     }
