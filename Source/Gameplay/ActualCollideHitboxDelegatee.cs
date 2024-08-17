@@ -7,6 +7,7 @@ using MonoMod.Cil;
 using System.Runtime.CompilerServices;
 using TAS;
 using TAS.EverestInterop.Hitboxes;
+using StudioCommunication;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 
