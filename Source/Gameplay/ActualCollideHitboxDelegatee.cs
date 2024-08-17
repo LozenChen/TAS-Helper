@@ -4,10 +4,10 @@ using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using StudioCommunication;
 using System.Runtime.CompilerServices;
 using TAS;
 using TAS.EverestInterop.Hitboxes;
-using StudioCommunication;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 

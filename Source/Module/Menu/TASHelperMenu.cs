@@ -1,4 +1,5 @@
 using Celeste.Mod.TASHelper.Gameplay;
+using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 using Celeste.Mod.TASHelper.Utils;
 using Celeste.Mod.UI;
 using Microsoft.Xna.Framework;
@@ -34,6 +35,20 @@ internal static class TASHelperMenu {
         PredictorItem.Add("Predictor Style".ToDialogText(), PredictorMenu.Create_PageStyle(menu, inGame));
         PredictorItem.Add("Predictor Other".ToDialogText(), PredictorMenu.Create_PageOther(menu, inGame));
         return PredictorItem.Apply(item => item.IncludeWidthInMeasurement = false);
+    }
+
+    private static EaseInOptionSubMenuExt CreateAutoWatchSubMenu(TextMenu menu, bool inGame) {
+        EaseInOptionSubMenuExt AutoWatchItem = new EaseInOptionSubMenuExt("Auto Watch".ToDialogText());
+        AutoWatchItem.OnLeave += () => {
+            AutoWatchItem.MenuIndex = 0;
+            if (Engine.Scene is Level level) {
+                level.OnEndOfFrame += () => CoreLogic.OnConfigChange(TasHelperSettings.AutoWatchEnable);
+            }
+        };
+        AutoWatchItem.Add("Auto Watch Finished".ToDialogText(), new List<TextMenu.Item>());
+        AutoWatchItem.Add("Auto Watch Page OnOff".ToDialogText(), AutoWatchMenu.Create_Page_OnOff(menu));
+        AutoWatchItem.Add("Auto Watch Page 2".ToDialogText(), AutoWatchMenu.Create_Page2(menu));
+        return AutoWatchItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 
     private static EaseInSubMenu CreateCountdownSubMenu(TextMenu menu) {
@@ -281,9 +296,10 @@ internal static class TASHelperMenu {
             EaseInSubMenu loadrangeItem = CreateLoadRangeSubMenu(menu);
             EaseInSubMenu simpspinnerItem = CreateSimplifiedGraphicSubMenu(menu);
             EaseInOptionSubMenuExt predictItem = CreatePredictorSubMenu(menu, inGame);
+            EaseInOptionSubMenuExt autoWatchItem = CreateAutoWatchSubMenu(menu, inGame);
             EaseInOptionSubMenuExt moreoptionItem = CreateMoreOptionsSubMenu(menu);
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
-            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, moreoptionItem, hotkeysItem };
+            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, autoWatchItem ,moreoptionItem, hotkeysItem };
             int N = menu.IndexOf(mainItem);
             if (WhatsNew.ShouldShow) {
                 EaseInSubMenu whatsnewItem = WhatsNew.CreateWhatsNewSubMenu(menu);
@@ -296,8 +312,9 @@ internal static class TASHelperMenu {
             menu.Insert(N + 3, loadrangeItem);
             menu.Insert(N + 4, simpspinnerItem);
             menu.Insert(N + 5, predictItem);
-            menu.Insert(N + 6, moreoptionItem);
-            menu.Insert(N + 7, hotkeysItem);
+            menu.Insert(N + 6, autoWatchItem);
+            menu.Insert(N + 7, moreoptionItem);
+            menu.Insert(N + 8, hotkeysItem);
 
             foreach (IEaseInItem item in disabledItems) {
                 item.Initialize();

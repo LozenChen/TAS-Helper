@@ -243,3 +243,23 @@ TAS_HELPER_MOVEMENT_OVERSHOOT_ASSISTANT=                   移动过量助手
 TAS_HELPER_MOA_ABOVE_PLAYER=                               显示在玩家上方
 TAS_HELPER_MOA_DESCRIPTION=                                这展示了如果没有墙面阻碍运动, 玩家的位置将会在何处.
 TAS_HELPER_SPEEDRUNTIMER_OPACITY_WHEN_TAS_PAUSES=          TAS 暂停时, 速通计时器的不透明度
+
+# ============================================= AutoWatch =====================================================
+TAS_HELPER_AUTO_WATCH=                                     Auto Watch
+TAS_HELPER_AUTO_WATCH_MAINENABLE=                          主开关
+TAS_HELPER_AUTO_WATCH_FINISHED=                            完成
+TAS_HELPER_AUTO_WATCH_MODE_NEVER=                          从不
+TAS_HELPER_AUTO_WATCH_MODE_WHEN_WATCHED=                   监视时
+TAS_HELPER_AUTO_WATCH_MODE_ALWAYS=                         总是
+TAS_HELPER_AUTO_WATCH_PAGE_ONOFF=                          主开关
+TAS_HELPER_AUTO_WATCH_PAGE_2=                              第 2 页
+TAS_HELPER_AUTO_WATCH_BOOSTER=                             Booster
+TAS_HELPER_AUTO_WATCH_CLOUD=                               Cloud
+TAS_HELPER_AUTO_WATCH_FALLINGBLOCK=                        Falling Block
+TAS_HELPER_AUTO_WATCH_FLOATYSPACEBLOCK=                    Moon Block
+TAS_HELPER_AUTO_WATCH_GLIDER=                              Jelly
+TAS_HELPER_AUTO_WATCH_MOVEBLOCK=                           Move Block
+TAS_HELPER_AUTO_WATCH_REFILL=                              Refill
+TAS_HELPER_AUTO_WATCH_SWAPBLOCK=                           Swap Block
+TAS_HELPER_AUTO_WATCH_THEOCRYSTAL=                         Theo Crystal
+TAS_HELPER_AUTO_WATCH_ZIPMOVER=                            Zip Mover

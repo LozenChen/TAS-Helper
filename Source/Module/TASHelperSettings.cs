@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
 using YamlDotNet.Serialization;
+using Mode = Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity.RenderMode;
 
 namespace Celeste.Mod.TASHelper.Module;
 
@@ -531,6 +532,32 @@ public class TASHelperSettings : EverestModuleSettings {
     public Color PredictorPolygonalLineColor = CustomColors.defaultPredictorPolygonalLineColor;
 
     public Color PredictorDotColor = CustomColors.defaultPredictorDotColor;
+
+    #endregion
+
+    #region AutoWatchEntity
+
+    public bool AutoWatchEnable = true;
+
+    public Mode Booster = Mode.Always;
+
+    public Mode Cloud = Mode.Always;
+
+    public Mode FallingBlock = Mode.Always;
+
+    public Mode FloatySpaceBlock = Mode.Always;
+
+    public Mode Glider = Mode.Always;
+
+    public Mode MoveBlock = Mode.Always;
+
+    public Mode Refill = Mode.Always;
+
+    public Mode SwapBlock = Mode.Always;
+
+    public Mode TheoCrystal = Mode.Always;
+
+    public Mode ZipMover = Mode.Always;
 
     #endregion
 

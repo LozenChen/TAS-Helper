@@ -50,9 +50,15 @@ internal static class CoreLogic {
     public static void AddRenderersToLevel(Level level) {
         foreach (IRendererFactory factory in Factorys) {
             if (factory.Mode() == RenderMode.Never) {
-                continue;
+                if (level.Tracker.Entities.TryGetValue(factory.GetTargetType(), out List<Entity> entities2)) {
+                    foreach (Entity entity in entities2) {
+                        if (entity.Components.FirstOrDefault(c => c is AutoWatchRenderer) is { } component) {
+                            entity.Remove(component);
+                        }
+                    }
+                }
             }
-            if (level.Tracker.Entities.TryGetValue(factory.GetTargetType(), out List<Entity> entities)) {
+            else if (level.Tracker.Entities.TryGetValue(factory.GetTargetType(), out List<Entity> entities)) {
                 foreach (Entity entity in entities) {
                     if (entity.Components.FirstOrDefault(c => c is AutoWatchRenderer) is null) {
                         factory.TryAddComponent(entity);
@@ -115,8 +121,11 @@ internal static class CoreLogic {
         }
     }
     public static void ClearRenderers(Level level) {
-        foreach (AutoWatchRenderer renderer in level.Tracker.GetComponents<AutoWatchRenderer>()) {
-            renderer.Entity?.Remove(renderer);
+        List<Entity> list = level.Tracker.GetComponents<AutoWatchRenderer>().Select(x => x.Entity).ToList(); // to avoid CollectionModification when enumerating
+        foreach (Entity entity in list) {
+            if (entity.Components.FirstOrDefault(c => c is AutoWatchRenderer) is { } component) {
+                entity.Remove(component);
+            }
         }
         WhenWatchedRenderers.Clear();
     }
@@ -204,7 +213,7 @@ internal interface IRendererFactory {
 
 }
 
-internal enum RenderMode {
+public enum RenderMode {
     Never,
     WhenWatched,
     Always

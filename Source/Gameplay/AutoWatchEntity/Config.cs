@@ -4,31 +4,31 @@ using Mode = Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity.RenderMode;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal static class Config {
-    public static bool MainEnabled = true;
+    public static bool MainEnabled => TasHelperSettings.AutoWatchEnable;
 
     public static Vector2 HiresFontSize = new Vector2(0.8f); // settings.HiresFontSize / 10f
 
     public static int HiresFontStroke = 5; // settigns.HiresFontStroke
 
-    public static Mode SwapBlock = Mode.Always;
+    public static Mode SwapBlock => TasHelperSettings.SwapBlock;
 
-    public static Mode MoveBlock = Mode.Always;
+    public static Mode MoveBlock => TasHelperSettings.MoveBlock;
 
-    public static Mode Refill = Mode.Always;
+    public static Mode Refill => TasHelperSettings.Refill;
 
-    public static Mode FallingBlock = Mode.Always;
+    public static Mode FallingBlock => TasHelperSettings.FallingBlock;
 
-    public static Mode Booster = Mode.Always;
+    public static Mode Booster => TasHelperSettings.Booster;
 
-    public static Mode ZipMover = Mode.Always;
+    public static Mode ZipMover => TasHelperSettings.ZipMover;
 
-    public static Mode FloatySpaceBlock = Mode.Always;
+    public static Mode FloatySpaceBlock => TasHelperSettings.FloatySpaceBlock;
 
-    public static Mode Glider = Mode.Always;
+    public static Mode Glider => TasHelperSettings.Glider;
 
-    public static Mode Cloud = Mode.Always;
+    public static Mode Cloud => TasHelperSettings.Cloud;
 
-    public static Mode TheoCrystal = Mode.Always;
+    public static Mode TheoCrystal => TasHelperSettings.TheoCrystal;
 }
 
 internal static class Format {
