@@ -29,7 +29,7 @@ internal class ZipMoverRenderer : AutoWatchTextRenderer {
         base.Added(entity);
         lastPos = pos = entity.Position;
         platform = entity as Platform;
-        if (entity.FindCoroutineComponent("<Sequence>d__24", out Tuple<Coroutine, IEnumerator> tuple)) {
+        if (entity.FindCoroutineComponent("Celeste.ZipMover+<Sequence>d__24", out Tuple<Coroutine, IEnumerator> tuple)) {
             coroutine = tuple.Item1;
             sequence = tuple.Item2;
         }

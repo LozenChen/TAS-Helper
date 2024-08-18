@@ -27,8 +27,8 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
         base.Added(entity);
         lastPos = pos = entity.Position;
         block = entity as FallingBlock;
-        if (entity.FindCoroutineComponent("<Sequence>d__21", out Tuple<Coroutine, IEnumerator> tuple)) {
-            coroutine = tuple.Item1; // it's said there's a crash here
+        if (entity.FindCoroutineComponent("Celeste.FallingBlock+<Sequence>d__21", out Tuple<Coroutine, IEnumerator> tuple)) {
+            coroutine = tuple.Item1;
             sequence = tuple.Item2;
         }
         else {

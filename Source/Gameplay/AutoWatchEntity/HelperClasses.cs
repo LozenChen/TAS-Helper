@@ -1,9 +1,8 @@
-﻿
+﻿#define Test_Mod_Compatibility
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using TAS.EverestInterop;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -191,20 +190,42 @@ internal static class InfoParser {
 }
 
 internal static class CoroutineFinder {
+
+    // note that if it's hooked, then the name will change
+    // like Celeste.FallingBlock+<Sequence>d__21 -> HonlyHelper.RisingBlock+<FallingBlock_Sequence>d__5
+    // even if the block itself is a FallingBlock instead of a RisingBlock
     public static bool FindCoroutineComponent(this Entity entity, string compiler_generated_class_name, out Tuple<Coroutine, System.Collections.IEnumerator> pair) {
-        // e.g. nameof Celeste.FallingBlock+<Sequence>d__21 is "<Sequence>d__21"
+        // e.g. compiler_generated_class_name = Celeste.FallingBlock+<Sequence>d__21
+
+#if Test_Mod_Compatibility
         foreach (Component c in entity.Components) {
             if (c is not Coroutine coroutine) {
                 continue;
             }
-            if (coroutine.enumerators.FirstOrDefault(functioncall => functioncall.GetType().Name == compiler_generated_class_name) is System.Collections.IEnumerator func) {
+            if (coroutine.enumerators.FirstOrDefault(functioncall => functioncall.GetType().FullName == compiler_generated_class_name) is System.Collections.IEnumerator func) {
+                pair = Tuple.Create(coroutine, func);
+                return true;
+            }
+            //Logger.Log(LogLevel.Debug, "TASHelper", string.Join(" + ", coroutine.enumerators.Select(functionCall => functionCall.GetType().FullName)));
+        }
+        // throw new Exception($"AutoWatchEntity: can't find {compiler_generated_class_name} of {entity.GetEntityId()}");
+        Logger.Log(LogLevel.Error, "TASHelper", $"AutoWatchEntity: can't find {compiler_generated_class_name} of {entity.GetEntityId()}");
+        pair = null;
+        return false;
+
+#else
+        foreach (Component c in entity.Components) {
+            if (c is not Coroutine coroutine) {
+                continue;
+            }
+            if (coroutine.enumerators.FirstOrDefault(functioncall => functioncall.GetType().FullName == compiler_generated_class_name) is System.Collections.IEnumerator func) {
                 pair = Tuple.Create(coroutine, func);
                 return true;
             }
         }
-        Logger.Log(LogLevel.Debug, "TASHelper", $"AutoWatchEntity: can't find {compiler_generated_class_name} of {entity.GetEntityId()}");
         pair = null;
         return false;
+#endif
     }
 
     public static System.Collections.IEnumerator FindIEnumrator(this Coroutine coroutine, string compiler_generated_class_name) {

@@ -28,7 +28,7 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
         base.Added(entity);
         moveBlock = entity as MoveBlock;
         lastPos = pos = entity.Position;
-        if (entity.FindCoroutineComponent("<Controller>d__45", out Tuple<Coroutine, IEnumerator> tuple)) {
+        if (entity.FindCoroutineComponent("Celeste.MoveBlock+<Controller>d__45", out Tuple<Coroutine, IEnumerator> tuple)) {
             coroutine = tuple.Item1;
             controller = tuple.Item2;
         }
