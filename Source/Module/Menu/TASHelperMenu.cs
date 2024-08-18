@@ -42,11 +42,11 @@ internal static class TASHelperMenu {
         AutoWatchItem.OnLeave += () => {
             AutoWatchItem.MenuIndex = 0;
             if (Engine.Scene is Level level) {
-                level.OnEndOfFrame += () => CoreLogic.OnConfigChange(TasHelperSettings.AutoWatchEnable);
+                level.OnEndOfFrame += () => CoreLogic.OnConfigChange();
             }
         };
         AutoWatchItem.Add("Auto Watch Finished".ToDialogText(), new List<TextMenu.Item>());
-        AutoWatchItem.Add("Auto Watch Page OnOff".ToDialogText(), AutoWatchMenu.Create_Page_OnOff(menu));
+        AutoWatchItem.Add("Auto Watch Page OnOff".ToDialogText(), AutoWatchMenu.Create_Page_1_OnOff(menu));
         AutoWatchItem.Add("Auto Watch Page 2".ToDialogText(), AutoWatchMenu.Create_Page2(menu));
         return AutoWatchItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
@@ -299,7 +299,7 @@ internal static class TASHelperMenu {
             EaseInOptionSubMenuExt autoWatchItem = CreateAutoWatchSubMenu(menu, inGame);
             EaseInOptionSubMenuExt moreoptionItem = CreateMoreOptionsSubMenu(menu);
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
-            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, autoWatchItem ,moreoptionItem, hotkeysItem };
+            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, autoWatchItem, moreoptionItem, hotkeysItem };
             int N = menu.IndexOf(mainItem);
             if (WhatsNew.ShouldShow) {
                 EaseInSubMenu whatsnewItem = WhatsNew.CreateWhatsNewSubMenu(menu);

@@ -29,7 +29,7 @@ internal class HiresText : THRenderer {
 
     public override void Render() {
         if (DebugRendered && holder.Visible) {
-            Message.RenderMessage(content, position, justify, Config.HiresFontSize * scale, Config.HiresFontStroke * 0.4f * scale);
+            Message.RenderMessage(content, position, justify, Config.HiresFontSize * scale, Config.HiresFontStroke * scale);
         }
     }
 
@@ -64,6 +64,13 @@ internal class AutoWatchTextRenderer : AutoWatchRenderer {
         HiresLevelRenderer.Add(text = new HiresText("", entity.Position, this));
     }
 
+    public override void EntityAdded(Scene scene) {
+        base.EntityAdded(scene);
+        if (text is not null) {
+            HiresLevelRenderer.AddIfNotPresent(text); // without this, PlayerRender may get lost after EventTrigger "ch9_goto_the_future" (first two sides of Farewell)
+        }
+    }
+
     public override void Removed(Entity entity) {
         base.Removed(entity);
         if (text is not null) {
@@ -96,6 +103,9 @@ internal static class InfoParser {
         return ToCeilingFrames(seconds);
     }
     internal static string ToFrame(this float seconds) {
+        if (seconds <= 0) {
+            return "";
+        }
         return ToCeilingFrames(seconds).ToString();
     }
 
@@ -179,7 +189,7 @@ internal static class InfoParser {
 }
 
 internal static class CoroutineFinder {
-    public static Tuple<Coroutine, System.Collections.IEnumerator> FindCoroutine(this Entity entity, string compiler_generated_class_name) {
+    public static Tuple<Coroutine, System.Collections.IEnumerator> FindCoroutineComponent(this Entity entity, string compiler_generated_class_name) {
         // e.g. nameof Celeste.FallingBlock+<Sequence>d__21 is "<Sequence>d__21"
         foreach (Component c in entity.Components) {
             if (c is not Coroutine coroutine) {

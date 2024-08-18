@@ -1,3 +1,3 @@
 D:
-cd D:\Steam\steamapps\common\Celeste\Mods\TASHelper
+cd D:\SteamLibrary\steamapps\common\Celeste\Mods\TAS-Helper
 zip -r TASHelper.zip bin Dialog Graphics everest.yaml

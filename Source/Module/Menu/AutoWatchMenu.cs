@@ -4,9 +4,12 @@ using Microsoft.Xna.Framework;
 namespace Celeste.Mod.TASHelper.Module.Menu;
 public static class AutoWatchMenu {
 
-    internal static List<TextMenu.Item> Create_Page_OnOff(TextMenu menu) {
+    internal static List<TextMenu.Item> Create_Page_1_OnOff(TextMenu menu) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
         page.Add(new TextMenu.OnOff("Auto Watch MainEnable".ToDialogText(), TasHelperSettings.AutoWatchEnable).Change(value => TasHelperSettings.AutoWatchEnable = value));
+        page.Add(new IntSliderExt("Auto Watch Font Size".ToDialogText(), 1, 20, TasHelperSettings.AutoWatch_FontSize).Change(value => TasHelperSettings.AutoWatch_FontSize = value));
+        page.Add(new IntSliderExt("Auto Watch Font Stroke".ToDialogText(), 0, 20, TasHelperSettings.AutoWatch_FontStroke).Change(value => TasHelperSettings.AutoWatch_FontStroke = value));
+
         page.Add(new HLine(Color.Gray));
         return page;
     }
@@ -14,33 +17,39 @@ public static class AutoWatchMenu {
     internal static List<TextMenu.Item> Create_Page2(TextMenu menu) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Booster".ToDialogText(),
-            CreateOptions(), TasHelperSettings.Booster).Change(value => TasHelperSettings.Booster = value));
+            CreateOptions(), TasHelperSettings.AutoWatch_Booster).Change(value => TasHelperSettings.AutoWatch_Booster = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Cloud".ToDialogText(),
-            CreateOptions(), TasHelperSettings.Cloud).Change(value => TasHelperSettings.Cloud = value));
+            CreateOptions(), TasHelperSettings.AutoWatch_Cloud).Change(value => TasHelperSettings.AutoWatch_Cloud = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch FallingBlock".ToDialogText(),
-            CreateOptions(), TasHelperSettings.FallingBlock).Change(value => TasHelperSettings.FallingBlock = value));
+            CreateOptions(), TasHelperSettings.AutoWatch_FallingBlock).Change(value => TasHelperSettings.AutoWatch_FallingBlock = value));
 
-        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Glider".ToDialogText(),
-            CreateOptions(), TasHelperSettings.Glider).Change(value => TasHelperSettings.Glider = value));
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Jelly".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_Jelly).Change(value => TasHelperSettings.AutoWatch_Jelly = value));
 
-        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch FloatySpaceBlock".ToDialogText(),
-            CreateOptions(), TasHelperSettings.FloatySpaceBlock).Change(value => TasHelperSettings.FloatySpaceBlock = value));
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Kevin".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_Kevin).Change(value => TasHelperSettings.AutoWatch_Kevin = value));
+
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch MoonBlock".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_MoonBlock).Change(value => TasHelperSettings.AutoWatch_MoonBlock = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch MoveBlock".ToDialogText(),
-            CreateOptions(), TasHelperSettings.MoveBlock).Change(value => TasHelperSettings.MoveBlock = value));
+            CreateOptions(), TasHelperSettings.AutoWatch_MoveBlock).Change(value => TasHelperSettings.AutoWatch_MoveBlock = value));
+
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Player".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_Player).Change(value => TasHelperSettings.AutoWatch_Player = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Refill".ToDialogText(),
-            CreateOptions(), TasHelperSettings.Refill).Change(value => TasHelperSettings.Refill = value));
+            CreateOptions(), TasHelperSettings.AutoWatch_Refill).Change(value => TasHelperSettings.AutoWatch_Refill = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch SwapBlock".ToDialogText(),
-            CreateOptions(), TasHelperSettings.SwapBlock).Change(value => TasHelperSettings.SwapBlock = value));
+            CreateOptions(), TasHelperSettings.AutoWatch_SwapBlock).Change(value => TasHelperSettings.AutoWatch_SwapBlock = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch TheoCrystal".ToDialogText(),
-            CreateOptions(), TasHelperSettings.TheoCrystal).Change(value => TasHelperSettings.TheoCrystal = value));
+            CreateOptions(), TasHelperSettings.AutoWatch_TheoCrystal).Change(value => TasHelperSettings.AutoWatch_TheoCrystal = value));
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch ZipMover".ToDialogText(),
-            CreateOptions(), TasHelperSettings.ZipMover).Change(value => TasHelperSettings.ZipMover = value));
+            CreateOptions(), TasHelperSettings.AutoWatch_ZipMover).Change(value => TasHelperSettings.AutoWatch_ZipMover = value));
 
         page.Add(new HLine(Color.Gray));
         return page;

@@ -151,6 +151,7 @@ TAS_HELPER_PREDICT_FUTURE_HOTKEY=                          预测一次
 TAS_HELPER_OOO_STEP_HOTKEY=                                亚帧步进
 TAS_HELPER_OOO_FASTFORWARD_HOTKEY=                         亚帧快进
 TAS_HELPER_FRAME_STEP_BACK=                                步退
+TAS_HELPER_AUTOWATCH_HOTKEY=                               自动监视实体
 
 # ============================================= Predictor =====================================================
 TAS_HELPER_PREDICTOR=                                      未来视
@@ -245,20 +246,24 @@ TAS_HELPER_MOA_DESCRIPTION=                                这展示了如果没
 TAS_HELPER_SPEEDRUNTIMER_OPACITY_WHEN_TAS_PAUSES=          TAS 暂停时, 速通计时器的不透明度
 
 # ============================================= AutoWatch =====================================================
-TAS_HELPER_AUTO_WATCH=                                     Auto Watch
+TAS_HELPER_AUTO_WATCH=                                     自动监视实体
 TAS_HELPER_AUTO_WATCH_MAINENABLE=                          主开关
 TAS_HELPER_AUTO_WATCH_FINISHED=                            完成
 TAS_HELPER_AUTO_WATCH_MODE_NEVER=                          从不
 TAS_HELPER_AUTO_WATCH_MODE_WHEN_WATCHED=                   监视时
 TAS_HELPER_AUTO_WATCH_MODE_ALWAYS=                         总是
-TAS_HELPER_AUTO_WATCH_PAGE_ONOFF=                          主开关
+TAS_HELPER_AUTO_WATCH_FONT_SIZE=                           字体大小
+TAS_HELPER_AUTO_WATCH_FONT_STROKE=                         字体描边
+TAS_HELPER_AUTO_WATCH_PAGE_ONOFF=                          开关
 TAS_HELPER_AUTO_WATCH_PAGE_2=                              第 2 页
 TAS_HELPER_AUTO_WATCH_BOOSTER=                             Booster
 TAS_HELPER_AUTO_WATCH_CLOUD=                               Cloud
 TAS_HELPER_AUTO_WATCH_FALLINGBLOCK=                        Falling Block
-TAS_HELPER_AUTO_WATCH_FLOATYSPACEBLOCK=                    Moon Block
-TAS_HELPER_AUTO_WATCH_GLIDER=                              Jelly
+TAS_HELPER_AUTO_WATCH_JELLY=                               Jelly
+TAS_HELPER_AUTO_WATCH_KEVIN=                               Kevin
+TAS_HELPER_AUTO_WATCH_MOONBLOCK=                           Moon Block
 TAS_HELPER_AUTO_WATCH_MOVEBLOCK=                           Move Block
+TAS_HELPER_AUTO_WATCH_PLAYER=                              Player
 TAS_HELPER_AUTO_WATCH_REFILL=                              Refill
 TAS_HELPER_AUTO_WATCH_SWAPBLOCK=                           Swap Block
 TAS_HELPER_AUTO_WATCH_THEOCRYSTAL=                         Theo Crystal

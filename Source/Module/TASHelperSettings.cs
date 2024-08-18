@@ -1,5 +1,6 @@
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Gameplay;
+using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.OrderOfOperation;
@@ -51,6 +52,8 @@ public class TASHelperSettings : EverestModuleSettings {
         keyPredictFuture ??= new((Buttons)0, Keys.LeftControl, Keys.P);
         keyOoO_Step ??= new((Buttons)0, Keys.LeftControl, Keys.G);
         keyOoO_Fastforward ??= new((Buttons)0, Keys.LeftControl, Keys.Y);
+        keyAutoWatch ??= new((Buttons)0, Keys.LeftControl, Keys.Q);
+        AutoWatchInitialize();
     }
 
     public bool Enabled = true;
@@ -537,27 +540,66 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region AutoWatchEntity
 
-    public bool AutoWatchEnable = true;
+    public bool autoWatchEnable = true;
 
-    public Mode Booster = Mode.Always;
+    [YamlIgnore]
+    public bool AutoWatchEnable {
+        get => Enabled && autoWatchEnable;
+        set {
+            autoWatchEnable = value;
+        }
+    }
 
-    public Mode Cloud = Mode.Always;
+    public int autoWatch_FontSize = 8;
 
-    public Mode FallingBlock = Mode.Always;
+    [YamlIgnore]
+    public int AutoWatch_FontSize {
+        get => autoWatch_FontSize;
+        set {
+            autoWatch_FontSize = value;
+            Config.HiresFontSize = new Vector2(autoWatch_FontSize / 10f);
+        }
+    }
 
-    public Mode FloatySpaceBlock = Mode.Always;
+    public int autoWatch_FontStroke = 5;
 
-    public Mode Glider = Mode.Always;
+    [YamlIgnore]
+    public int AutoWatch_FontStroke {
+        get => autoWatch_FontStroke;
+        set {
+            autoWatch_FontStroke = value;
+            Config.HiresFontStroke = value * 0.4f;
+        }
+    }
 
-    public Mode MoveBlock = Mode.Always;
+    private void AutoWatchInitialize() {
+        AutoWatch_FontSize = autoWatch_FontSize;
+        AutoWatch_FontStroke = autoWatch_FontStroke;
+    }
 
-    public Mode Refill = Mode.Always;
+    public Mode AutoWatch_Booster = Mode.Always;
 
-    public Mode SwapBlock = Mode.Always;
+    public Mode AutoWatch_Cloud = Mode.Always;
 
-    public Mode TheoCrystal = Mode.Always;
+    public Mode AutoWatch_FallingBlock = Mode.Always;
 
-    public Mode ZipMover = Mode.Always;
+    public Mode AutoWatch_Jelly = Mode.Always;
+
+    public Mode AutoWatch_Kevin = Mode.Always;
+
+    public Mode AutoWatch_MoonBlock = Mode.WhenWatched;
+
+    public Mode AutoWatch_MoveBlock = Mode.Always;
+
+    public Mode AutoWatch_Player = Mode.Always;
+
+    public Mode AutoWatch_Refill = Mode.Always;
+
+    public Mode AutoWatch_SwapBlock = Mode.Always;
+
+    public Mode AutoWatch_TheoCrystal = Mode.Always;
+
+    public Mode AutoWatch_ZipMover = Mode.Always;
 
     #endregion
 
@@ -835,6 +877,10 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.Y })]
     public ButtonBinding keyOoO_Fastforward { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.Y);
 
+    [SettingName("TAS_HELPER_AUTOWATCH_HOTKEY")]
+    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.Q })]
+    public ButtonBinding keyAutoWatch { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.Q);
+
 
     // should not use a List<Hotkey> var, coz changing KeyPixelGridWidth will cause the hotkey get newed
     public bool SettingsHotkeysPressed() {
@@ -932,6 +978,17 @@ public class TASHelperSettings : EverestModuleSettings {
                 }
                 string str = !EnablePixelGrid || DebugRendered ? "" : ", but DebugRender is not turned on";
                 Refresh($"Pixel Grid Width = {PixelGridWidth}{str}");
+            }
+            else {
+                HotkeyWatcher.RefreshHotkeyDisabled();
+            }
+        }
+        else if (TH_Hotkeys.AutoWatchHotkey.Pressed) {
+            if (Enabled) {
+                changed = true;
+                AutoWatchEnable = !AutoWatchEnable;
+                Gameplay.AutoWatchEntity.CoreLogic.OnConfigChange();
+                Refresh($"Auto Watch Entity = {(AutoWatchEnable ? "ON" : "OFF")}");
             }
             else {
                 HotkeyWatcher.RefreshHotkeyDisabled();

@@ -8,27 +8,31 @@ internal static class Config {
 
     public static Vector2 HiresFontSize = new Vector2(0.8f); // settings.HiresFontSize / 10f
 
-    public static int HiresFontStroke = 5; // settigns.HiresFontStroke
+    public static float HiresFontStroke = 5 * 0.4f; // settigns.HiresFontStroke
 
-    public static Mode SwapBlock => TasHelperSettings.SwapBlock;
+    public static Mode SwapBlock => TasHelperSettings.AutoWatch_SwapBlock;
 
-    public static Mode MoveBlock => TasHelperSettings.MoveBlock;
+    public static Mode MoveBlock => TasHelperSettings.AutoWatch_MoveBlock;
 
-    public static Mode Refill => TasHelperSettings.Refill;
+    public static Mode Refill => TasHelperSettings.AutoWatch_Refill;
 
-    public static Mode FallingBlock => TasHelperSettings.FallingBlock;
+    public static Mode FallingBlock => TasHelperSettings.AutoWatch_FallingBlock;
 
-    public static Mode Booster => TasHelperSettings.Booster;
+    public static Mode Booster => TasHelperSettings.AutoWatch_Booster;
 
-    public static Mode ZipMover => TasHelperSettings.ZipMover;
+    public static Mode ZipMover => TasHelperSettings.AutoWatch_ZipMover;
 
-    public static Mode FloatySpaceBlock => TasHelperSettings.FloatySpaceBlock;
+    public static Mode FloatySpaceBlock => TasHelperSettings.AutoWatch_MoonBlock;
 
-    public static Mode Glider => TasHelperSettings.Glider;
+    public static Mode Glider => TasHelperSettings.AutoWatch_Jelly;
 
-    public static Mode Cloud => TasHelperSettings.Cloud;
+    public static Mode Cloud => TasHelperSettings.AutoWatch_Cloud;
 
-    public static Mode TheoCrystal => TasHelperSettings.TheoCrystal;
+    public static Mode TheoCrystal => TasHelperSettings.AutoWatch_TheoCrystal;
+
+    public static Mode Player => TasHelperSettings.AutoWatch_Player;
+
+    public static Mode CrushBlock => TasHelperSettings.AutoWatch_Kevin;
 }
 
 internal static class Format {
@@ -65,7 +69,7 @@ internal static class TODO {
 
     public static Mode TempleGate = Mode.Always; // 0 / n
 
-    public static Mode CrushBlock = Mode.Always; // aka Kevin // btw the 6a tricks looks cool but loses some height when kevin move upwards? is that worth? // differs if it's one-way
+    public static Mode CrushBlock = Mode.Always; // aka Kevin // differs if it's one-way
 
     public static Mode Bumper = Mode.Always;
 

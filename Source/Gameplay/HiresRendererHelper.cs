@@ -75,10 +75,18 @@ public static class HiresLevelRenderer {
 
     internal static readonly Dictionary<Type, List<THRenderer>> tracker = new();
 
+    public static int Count => list.Count;
 
     public static void Add(THRenderer renderer) {
         toAdd.Add(renderer);
     }
+
+    public static void AddIfNotPresent(THRenderer renderer) {
+        if (!Contains(renderer)) {
+            toAdd.Add(renderer);
+        }
+    }
+
 
     public static void Remove(THRenderer renderer) {
         toRemove.Add(renderer);

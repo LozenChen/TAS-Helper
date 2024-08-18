@@ -27,6 +27,8 @@ public static class TH_Hotkeys {
 
     public static Hotkey FrameStepBack { get; set; }
 
+    public static Hotkey AutoWatchHotkey { get; set; }
+
     public static List<Hotkey> Hotkeys = new();
 
     [Load]
@@ -54,6 +56,7 @@ public static class TH_Hotkeys {
         OoO_Step_Hotkey = BindingToHotkey(TasHelperSettings.keyOoO_Step);
         OoO_Fastforward_Hotkey = BindingToHotkey(TasHelperSettings.keyOoO_Fastforward);
         FrameStepBack = BindingToHotkey(TasHelperSettings.keyFrameStepBack);
+        AutoWatchHotkey = BindingToHotkey(TasHelperSettings.keyAutoWatch);
         if (typeof(CMCore.CoreModuleSettings).GetProperty("DebugConsole") is { } getDebugConsole) {
             // there's a period of time when DebugConsole get renamed
             // and before that commit, ToggleDebugConsole doesn't exist
@@ -77,7 +80,7 @@ public static class TH_Hotkeys {
             OpenConsole = new Hotkey(null, null, false, false);
         }
 
-        Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OoO_Step_Hotkey, OoO_Fastforward_Hotkey, OpenConsole, FrameStepBack };
+        Hotkeys = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OoO_Step_Hotkey, OoO_Fastforward_Hotkey, OpenConsole, FrameStepBack, AutoWatchHotkey };
 
     }
 

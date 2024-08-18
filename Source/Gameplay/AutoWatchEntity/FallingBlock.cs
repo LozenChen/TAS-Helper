@@ -26,7 +26,7 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
         base.Added(entity);
         lastPos = pos = entity.Position;
         block = entity as FallingBlock;
-        Tuple<Coroutine, IEnumerator> tuple = entity.FindCoroutine("<Sequence>d__21");
+        Tuple<Coroutine, IEnumerator> tuple = entity.FindCoroutineComponent("<Sequence>d__21");
         coroutine = tuple.Item1; // it's said there's a crash here
         sequence = tuple.Item2;
     }
@@ -34,11 +34,11 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
     public override void UpdateImpl() {
         text.Position = block.Center;
         if (state == 3) {
-            text.content = "(s3) " + coroutine.waitTimer.ToFrame();
+            text.content = coroutine.waitTimer.ToFrame();
             Visible = true;
         }
         else if (state == 4) {
-            text.content = "(s4) " + timer.ToFrame() + "~";
+            text.content = timer.ToFrame() + "~";
             Visible = true;
         }
         else {

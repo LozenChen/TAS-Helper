@@ -12,6 +12,9 @@ internal class RefillRenderer : AutoWatchTextRenderer {
     public override void Added(Entity entity) {
         base.Added(entity);
         refill = entity as Refill;
+        if (refill.oneUse) {
+            RemoveSelf();
+        }
     }
 
     public override void UpdateImpl() {

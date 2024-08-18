@@ -24,6 +24,7 @@ internal static class CoreLogic {
         );
         foreach (IRendererFactory factory in Factorys) {
             LevelExtensions.AddToTracker(factory.GetTargetType(), factory.Inherited());
+            // Logger.Log(LogLevel.Debug, "TAS Helper", $"{factory.GetTargetType()}, inherited: {factory.Inherited()}");
         }
 
         typeof(InfoWatchEntity).GetMethodInfo("AddOrRemoveWatching").HookAfter<Entity>(OnSingleWatchEntityChange);
@@ -109,11 +110,11 @@ internal static class CoreLogic {
         }
     }
 
-    public static void OnConfigChange(bool enable) {
+    public static void OnConfigChange() {
         if (Engine.Scene is not Level level) {
             return;
         }
-        if (enable) {
+        if (TasHelperSettings.AutoWatchEnable) {
             AddRenderersToLevel(level);
         }
         else {
@@ -194,6 +195,8 @@ internal class AutoWatchRenderer : Component {
         // should atmost depend on the current state and the last-frame state of entity
         // will be a bit inaccurate when you just clicked the entity if we use the data of two frames
     }
+
+    public virtual void UpdateOnTransition() { } // for some persistent entity. in case some field just get lost
 
     public virtual void ClearHistoryData() { }
 
