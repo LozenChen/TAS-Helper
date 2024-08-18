@@ -2,6 +2,7 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using System;
 using System.Collections;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
@@ -26,9 +27,13 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
         base.Added(entity);
         lastPos = pos = entity.Position;
         block = entity as FallingBlock;
-        Tuple<Coroutine, IEnumerator> tuple = entity.FindCoroutineComponent("<Sequence>d__21");
-        coroutine = tuple.Item1; // it's said there's a crash here
-        sequence = tuple.Item2;
+        if (entity.FindCoroutineComponent("<Sequence>d__21", out Tuple<Coroutine, IEnumerator> tuple)) {
+            coroutine = tuple.Item1; // it's said there's a crash here
+            sequence = tuple.Item2;
+        }
+        else {
+            RemoveSelf();
+        }
     }
 
     public override void UpdateImpl() {

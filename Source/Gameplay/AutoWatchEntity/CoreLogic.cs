@@ -71,7 +71,7 @@ internal static class CoreLogic {
 
     [LoadLevel]
     public static void OnLoadLevel(Level level) {
-        if (Config.MainEnabled) {
+        if (Config.MainEnabled && !UltraFastForwarding) {
             List<AutoWatchRenderer> longliveRenderers = new List<AutoWatchRenderer>();
             foreach (AutoWatchRenderer renderer in WhenWatchedRenderers) {
                 if (renderer.Entity?.Scene == level) {

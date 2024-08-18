@@ -1,7 +1,9 @@
 ﻿
 using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using TAS.EverestInterop;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -189,17 +191,20 @@ internal static class InfoParser {
 }
 
 internal static class CoroutineFinder {
-    public static Tuple<Coroutine, System.Collections.IEnumerator> FindCoroutineComponent(this Entity entity, string compiler_generated_class_name) {
+    public static bool FindCoroutineComponent(this Entity entity, string compiler_generated_class_name, out Tuple<Coroutine, System.Collections.IEnumerator> pair) {
         // e.g. nameof Celeste.FallingBlock+<Sequence>d__21 is "<Sequence>d__21"
         foreach (Component c in entity.Components) {
             if (c is not Coroutine coroutine) {
                 continue;
             }
             if (coroutine.enumerators.FirstOrDefault(functioncall => functioncall.GetType().Name == compiler_generated_class_name) is System.Collections.IEnumerator func) {
-                return Tuple.Create(coroutine, func);
+                pair = Tuple.Create(coroutine, func);
+                return true;
             }
         }
-        return null;
+        Logger.Log(LogLevel.Debug, "TASHelper", $"AutoWatchEntity: can't find {compiler_generated_class_name} of {entity.GetEntityId()}");
+        pair = null;
+        return false;
     }
 
     public static System.Collections.IEnumerator FindIEnumrator(this Coroutine coroutine, string compiler_generated_class_name) {
