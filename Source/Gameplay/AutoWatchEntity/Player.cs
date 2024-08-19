@@ -1,4 +1,5 @@
 ﻿
+using Celeste.Mod.TASHelper.Utils;
 using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
@@ -6,11 +7,16 @@ namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal class PlayerRenderer : AutoWatchTextRenderer {
 
+    public static bool ExcludeDashState = true;
+
+    public static bool ShowWallBoostTimer = true;
+
+
     public Player player;
 
     public StateMachine stateMachine;
 
-    public int State => stateMachine.State;
+    public int State;
 
     public Coroutine currentCoroutine => stateMachine.currentCoroutine;
 
@@ -23,9 +29,11 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
         base.Added(entity);
         player = entity as Player;
         stateMachine = player.StateMachine;
+        State = stateMachine.State;
     }
 
     public override void UpdateImpl() {
+        State = stateMachine.State;
         text.Position = player.Center;
         text.Clear();
         bool flag = false;
@@ -37,17 +45,39 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
                 text.Append(currentCoroutine.waitTimer.ToFrame());
                 flag = true;
             }
-            else {
-                if (wasWaiting) {
-                    text.Append("0");
-                }
+            else if (State == StPickup && currentCoroutine.Current.GetType().FullName == "Monocle.Tween+<Wait>d__45" && currentCoroutine.Current.GetFieldValue("<>4__this") is Tween tween) {
+                text.Append((tween.TimeLeft.ToFrameData() + 1).ToString());
+                flag = true;
+            }
+            else if (!wasWaiting && ((State == StStarFly && player.starFlyTransforming) || State == StIntroWalk || State == StIntroJump || State == StIntroMoonJump || State == StIntroThinkForABit)) {
+                text.Append("~");
+            }
+            else if (State == StIntroWakeUp && currentCoroutine.Current.GetType().FullName == "Monocle.Sprite+<PlayUtil>d__40" && currentCoroutine.Current.GetFieldValue("<>4__this") is Sprite sprite) {
+                text.Append($"{sprite.CurrentAnimationTotalFrames - sprite.CurrentAnimationFrame}|{(sprite.currentAnimation.Delay - sprite.animationTimer).ToFrame()}");
+                flag = true;
             }
         }
+        else if (State == StIntroRespawn && player.respawnTween is not null) {
+            text.Append(player.respawnTween.TimeLeft.ToFrame());
+            flag = true;
+        }
+        else if (State == StNormal && ShowWallBoostTimer && player.wallBoostTimer > 0f) {
+            text.Append($"wb:{player.wallBoostTimer.ToFrame()}");
+        }
+
+        if (!flag && State == StStarFly && !player.starFlyTransforming) {
+            text.Append(player.starFlyTimer.ToFrame());
+        }
+
+        if (!flag && wasWaiting) {
+            text.Append("0");
+        }
         wasWaiting = flag;
+
+
+
         SetVisible();
     }
-
-    public static bool ExcludeDashState = true;
 
     private const int StNormal = 0;
 
