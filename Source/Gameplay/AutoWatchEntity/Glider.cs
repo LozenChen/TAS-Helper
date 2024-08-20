@@ -8,6 +8,8 @@ internal class GliderRenderer : AutoWatchTextRenderer {
 
     public Glider glider;
 
+    public bool wasCannotHold = false;
+
     public GliderRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
 
     public override void Added(Entity entity) {
@@ -21,7 +23,17 @@ internal class GliderRenderer : AutoWatchTextRenderer {
         text.Clear();
         text.Append(glider.Speed.Speed2ToSpeed2());
         if (glider.Hold.cannotHoldTimer > 0f) {
-            text.Append($"cannotHold: {glider.Hold.cannotHoldTimer.ToFrame()}");
+            text.Append($"cannotHold: {glider.Hold.cannotHoldTimer.ToFrame()}"); // rely on Depth = -5
+            wasCannotHold = true;
+        }
+        else {
+            if (wasCannotHold) {
+                text.Append("cannotHold: 0");
+            }
+            wasCannotHold = false;
+        }
+        if (glider.Hold.Holder is { } player && player.minHoldTimer > 0f) {
+            text.Append($"minHoldTimer: {player.minHoldTimer.ToFrameMinusOne()}");
         }
         SetVisible();
     }

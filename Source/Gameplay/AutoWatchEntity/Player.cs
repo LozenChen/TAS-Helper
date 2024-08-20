@@ -7,9 +7,11 @@ namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal class PlayerRenderer : AutoWatchTextRenderer {
 
-    public static bool ExcludeDashState = true;
+    public static bool ExcludeDashState = false;
 
     public static bool ShowWallBoostTimer = true;
+
+    public static bool ShowDreamDashCanEndTimer = true;
 
 
     public Player player;
@@ -37,9 +39,16 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
         text.Position = player.Center;
         text.Clear();
         bool flag = false;
+
+        // hope in the future i can understand what these codes are
         if (currentCoroutine.Active) {
-            if (ExcludeDashState && State == StDash) {
-                // do nothing
+            if (State == StDash) {
+                if (ExcludeDashState) {
+                    // do nothing
+                }
+                else if (!player.StartedDashing){
+                    text.Append(currentCoroutine.waitTimer.ToFrameAllowZero());
+                }
             }
             else if (waitTimer > 0f) {
                 text.Append(currentCoroutine.waitTimer.ToFrame());
@@ -53,7 +62,7 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
                 text.Append("~");
             }
             else if (State == StIntroWakeUp && currentCoroutine.Current.GetType().FullName == "Monocle.Sprite+<PlayUtil>d__40" && currentCoroutine.Current.GetFieldValue("<>4__this") is Sprite sprite) {
-                text.Append($"{sprite.CurrentAnimationTotalFrames - sprite.CurrentAnimationFrame}|{(sprite.currentAnimation.Delay - sprite.animationTimer).ToFrame()}");
+                text.Append($"{sprite.CurrentAnimationTotalFrames - sprite.CurrentAnimationFrame}|{(sprite.currentAnimation.Delay - sprite.animationTimer).ToFrameMinusOne()}");
                 flag = true;
             }
         }
@@ -62,10 +71,14 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
             flag = true;
         }
         else if (State == StNormal && ShowWallBoostTimer && player.wallBoostTimer > 0f) {
-            text.Append($"wb:{player.wallBoostTimer.ToFrame()}");
+            // 约定, 计时以 0 结尾, 0 的下一帧是状态变化, 包括不能 wallboost, 可以 dreamDashEnd
+            text.Append($"wb:{player.wallBoostTimer.ToFrameMinusOne()}");
+        }
+        else if (State == StDreamDash && ShowDreamDashCanEndTimer && player.dreamDashCanEndTimer > 0f) {
+            text.Append(player.dreamDashCanEndTimer.ToFrameMinusOne());
         }
 
-        if (!flag && State == StStarFly && !player.starFlyTransforming) {
+        if (!flag && State == StStarFly && !player.starFlyTransforming) { // here the coroutine can by active, also can be inactive, that's why we don't use a "else if"
             text.Append(player.starFlyTimer.ToFrame());
         }
 
@@ -74,7 +87,7 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
         }
         wasWaiting = flag;
 
-
+        // TODO: dashAttackTimer, gliderBoostTimer
 
         SetVisible();
     }

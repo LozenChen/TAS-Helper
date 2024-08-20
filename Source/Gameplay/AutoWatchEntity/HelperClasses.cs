@@ -3,6 +3,7 @@ using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -92,9 +93,12 @@ internal class AutoWatchTextRenderer : AutoWatchRenderer {
 
 internal static class InfoParser {
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string SignedString(this float f) {
         return f.ToString("+0.00;-0.00;0.00");
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int ToCeilingFrames(float seconds) {
         return (int)Math.Ceiling(seconds / Engine.DeltaTime);
     }
@@ -108,6 +112,16 @@ internal static class InfoParser {
             return "";
         }
         return ToCeilingFrames(seconds).ToString();
+    }
+    internal static string ToFrameAllowZero(this float seconds) {
+        return ToCeilingFrames(seconds).ToString();
+    }
+
+    internal static string ToFrameMinusOne(this float seconds) {
+        if (seconds <= 0) {
+            return "";
+        }
+        return (ToCeilingFrames(seconds) - 1).ToString();
     }
 
     internal static string ToFrame(this int frames) {
