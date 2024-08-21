@@ -32,19 +32,19 @@ internal static class Config {
 
     public static Mode Player => TasHelperSettings.AutoWatch_Player;
 
-    public static bool ExcludePlayerDashState = false;
+    public static bool ShowDashTimer => TasHelperSettings.AutoWatch_ShowDashTimer;
 
-    public static bool ShowWallBoostTimer = true;
+    public static bool ShowWallBoostTimer => TasHelperSettings.AutoWatch_ShowWallBoostTimer;
 
-    public static bool ShowDreamDashCanEndTimer = true;
+    public static bool ShowDreamDashCanEndTimer => TasHelperSettings.AutoWatch_ShowDreamDashCanEndTimer;
 
-    public static bool ShowPlayerGliderBoostTimer = true;
+    public static bool ShowPlayerGliderBoostTimer => TasHelperSettings.AutoWatch_ShowPlayerGliderBoostTimer;
 
-    public static bool ShowDashAttackTimer = true;
+    public static bool ShowDashAttackTimer => TasHelperSettings.AutoWatch_ShowDashAttackTimer;
 
     public static Mode CrushBlock => TasHelperSettings.AutoWatch_Kevin;
 
-    public static Mode CutsceneEntity = Mode.Always;
+    public static Mode CutsceneEntity => TasHelperSettings.AutoWatch_Cutscene;
 }
 
 internal static class Format {

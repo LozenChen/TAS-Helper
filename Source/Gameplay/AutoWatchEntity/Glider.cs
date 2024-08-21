@@ -38,6 +38,8 @@ internal class GliderRenderer : AutoWatchTextRenderer {
                 text.Append($"minHoldTimer: {player.minHoldTimer.ToFrameMinusOne()}");
             }
             if (player.StateMachine.State == 8 && player.gliderBoostTimer > 0f && Config.ShowPlayerGliderBoostTimer) {
+                // techinically glider boost timer is associated to the player
+                // but we show it on the glider so it has enough room to render
                 text.Append($"gliderBoostTimer: {player.gliderBoostTimer.ToFrameMinusOne()}");
             }
         }

@@ -25,29 +25,47 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
     public bool flag = false;
 
     public static Vector2 offset = Vector2.UnitY * 6f; // make sure this is different to that of cutscene
+
+    public int dashAttack = 0;
     public PlayerRenderer(RenderMode mode, bool active = true, bool preActive = true) : base(mode, active, preActive) { }
 
     public override void PreUpdateImpl() {
-        State = stateMachine.State;
         text.Clear();
         textBelow.Clear();
         flag = false;
+        dashAttack = 0;
 
-        if (player.dashAttackTimer > 0f && Config.ShowDashAttackTimer && State != StRedDash && State != StDreamDash && State != StAttract) {
-            textBelow.Append($"dashAttack:{player.dashAttackTimer.ToFrameMinusOne()}");
+        State = stateMachine.State; // get the pre-update state (in case we'll need it someday), later we need to change it to post-update state
+
+        if (player.dashAttackTimer > 0f && Config.ShowDashAttackTimer) {
+            dashAttack = player.dashAttackTimer.ToFrameData();
         }
     }
 
     public override void UpdateImpl() {
         // hope in the future i can understand what these codes are
-        text.Position = player.Center;
-        textBelow.Position = player.BottomCenter + offset;
+
+        State = stateMachine.State; // re-update this field, coz it may have already changed
+
+        if (dashAttack > 0 && State != StRedDash && State != StDreamDash && State != StAttract) {
+            if (player.DashAttacking && dashAttack > 0) {
+                // if player dash attacks this frame, then we don't show the timer
+                textBelow.Append($"dashAttack: {dashAttack - 1}");
+            }
+            else if (dashAttack == 1 && player.dashAttackTimer < 0f) {
+                textBelow.Append("dashAttack: 0");
+                // techinically we should show "0" if it's last frame of dash attack, and doesn't actually collide
+                // but it's a bit hard to tell if the timer expires naturally, or by colliding
+                // we use a hacky way here
+                // if the timer expires naturally, then by Engine.DeltaTime = 0.0166667f instead of exactly 1/6, the timer will be a bit smaller than 0
+            }
+        }
+
+
         if (currentCoroutine.Active) {
             if (State == StDash) {
-                if (Config.ExcludePlayerDashState) {
-                    // do nothing
-                }
-                else if (!player.StartedDashing) {
+                // technically there's no a DashTimer... though there is a const float DashTime
+                if (Config.ShowDashTimer && !player.StartedDashing) {
                     text.Append(currentCoroutine.waitTimer.ToFrameAllowZero());
                 }
             }
@@ -73,10 +91,10 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
         }
         else if (State == StNormal && Config.ShowWallBoostTimer && player.wallBoostTimer > 0f) {
             // 约定, 计时以 0 结尾, 0 的下一帧是状态变化, 包括不能 wallboost, 可以 dreamDashEnd
-            textBelow.Append($"wallBoost:{player.wallBoostTimer.ToFrameMinusOne()}");
+            textBelow.Append($"wallBoost: {player.wallBoostTimer.ToFrameMinusOne()}");
         }
         else if (State == StDreamDash && Config.ShowDreamDashCanEndTimer && player.dreamDashCanEndTimer > 0f) {
-            textBelow.Append($"dreamDashCanEnd:{player.dreamDashCanEndTimer.ToFrameMinusOne()}");
+            textBelow.Append($"dreamDashCanEnd: {player.dreamDashCanEndTimer.ToFrameMinusOne()}");
         }
 
         if (!flag && State == StStarFly && !player.starFlyTransforming) { // here the coroutine can by active, also can be inactive, that's why we don't use a "else if"
@@ -88,6 +106,8 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
         }
         wasWaiting = flag;
 
+        text.Position = player.Center;
+        textBelow.Position = player.BottomCenter + offset;
         SetVisible();
     }
 

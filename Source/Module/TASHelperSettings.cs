@@ -591,8 +591,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public Mode AutoWatch_MoveBlock = Mode.Always;
 
-    public Mode AutoWatch_Player = Mode.Always;
-
     public Mode AutoWatch_Refill = Mode.Always;
 
     public Mode AutoWatch_SwapBlock = Mode.Always;
@@ -600,6 +598,20 @@ public class TASHelperSettings : EverestModuleSettings {
     public Mode AutoWatch_TheoCrystal = Mode.Always;
 
     public Mode AutoWatch_ZipMover = Mode.Always;
+
+    public Mode AutoWatch_Cutscene = Mode.Always;
+
+    public Mode AutoWatch_Player = Mode.Always;
+
+    public bool AutoWatch_ShowDashTimer = false;
+
+    public bool AutoWatch_ShowWallBoostTimer = true;
+
+    public bool AutoWatch_ShowDreamDashCanEndTimer = true;
+
+    public bool AutoWatch_ShowPlayerGliderBoostTimer = true;
+
+    public bool AutoWatch_ShowDashAttackTimer = true;
 
     #endregion
 

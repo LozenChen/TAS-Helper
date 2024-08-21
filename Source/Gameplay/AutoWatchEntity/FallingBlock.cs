@@ -14,8 +14,8 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
 
     public IEnumerator sequence;
 
-    public int state => sequence.GetFieldValue<int>("<>1__state");
-    public float timer => sequence.GetFieldValue<float>("<timer>5__4");
+    public int state => sequence?.GetFieldValue<int>("<>1__state") ?? -1;
+    public float timer => sequence?.GetFieldValue<float>("<timer>5__4") ?? -9999;
 
     public Vector2 lastPos;
 
@@ -31,7 +31,8 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
             sequence = tuple.Item2;
         }
         else {
-            RemoveSelf();
+            coroutine = null;
+            sequence = null;
         }
     }
 

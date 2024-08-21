@@ -19,8 +19,8 @@ internal class ZipMoverRenderer : AutoWatchTextRenderer {
 
     public IEnumerator sequence;
 
-    public int state => sequence.GetFieldValue<int>("<>1__state");
-    public float timer => sequence.GetFieldValue<float>("<>2__current");
+    public int state => sequence?.GetFieldValue<int>("<>1__state") ?? -1;
+    public float timer => sequence?.GetFieldValue<float>("<>2__current") ?? -9999;
 
     public int timerToFrame = 0;
     public ZipMoverRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
@@ -34,7 +34,8 @@ internal class ZipMoverRenderer : AutoWatchTextRenderer {
             sequence = tuple.Item2;
         }
         else {
-            RemoveSelf();
+            coroutine = null;
+            sequence = null;
         }
     }
 

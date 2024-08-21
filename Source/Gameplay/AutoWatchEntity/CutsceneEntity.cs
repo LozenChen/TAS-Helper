@@ -12,8 +12,6 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
     public CutsceneEntityRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
 
     public Coroutine coroutine;
-
-    public IEnumerator enumerator;
     public float waitTimer => coroutine.waitTimer;
 
     public bool wasWaiting = false;
@@ -21,6 +19,12 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
     public bool waitingForCoroutine = true;
 
     public static Vector2 offset = Vector2.UnitY * 12f; // make sure this is different to that of player
+
+    private static bool IsCutscene(IEnumerator func) {
+        return func is LuaCoroutine || func.GetType().Name.StartsWith("<Cutscene>d__"); // to make sure we don't get other coroutine
+    }
+
+    public static bool useFallBack = true;
 
     public override void Added(Entity entity) {
         base.Added(entity);
@@ -31,14 +35,20 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
             if (c is not Coroutine cor) {
                 continue;
             }
+            coroutine = cor;
             waitingForCoroutine = false;
-            if (cor.enumerators.FirstOrDefault(functioncall => functioncall.GetType().Name.StartsWith("<Cutscene>d__")) is IEnumerator func) {
-                coroutine = cor;
-                enumerator = func;
+            if (cor.enumerators.FirstOrDefault(IsCutscene) is not null) {
+                // great if it matches well
                 found = true;
                 break;
             }
         }
+        if (!found && !waitingForCoroutine && useFallBack) {
+            found = true;
+            // may be not that precise?
+            // Celeste.Mod.StrawberryJam2021.Cutscenes.CS_Credits use Lobby/MovieRoutine
+        }
+
         if (!found && !waitingForCoroutine) {
             RemoveSelf();
         }
@@ -51,15 +61,18 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
                 if (c is not Coroutine cor) {
                     continue;
                 }
+                coroutine = cor;
                 waitingForCoroutine = false;
-                if (cor.enumerators.FirstOrDefault(functioncall => functioncall.GetType().Name.StartsWith("<Cutscene>d__")) is IEnumerator func) {
-                    coroutine = cor;
-                    enumerator = func;
+                if (cor.enumerators.FirstOrDefault(IsCutscene) is not null) {
                     found = true;
                     break;
                 }
                 // Logger.Log("TAS Helper", string.Join(",", cor.enumerators.Select(call => call.GetType().FullName)));
             }
+            if (!found && !waitingForCoroutine && useFallBack) {
+                found = true;
+            }
+
             if (!found && !waitingForCoroutine) {
                 PostActive = hasUpdate = false; // RemoveSelf is dangerous here i guess
             }

@@ -48,6 +48,7 @@ internal static class TASHelperMenu {
         AutoWatchItem.Add("Auto Watch Finished".ToDialogText(), new List<TextMenu.Item>());
         AutoWatchItem.Add("Auto Watch Page OnOff".ToDialogText(), AutoWatchMenu.Create_Page_1_OnOff(menu));
         AutoWatchItem.Add("Auto Watch Page 2".ToDialogText(), AutoWatchMenu.Create_Page2(menu));
+        AutoWatchItem.Add("Auto Watch Page 3".ToDialogText(), AutoWatchMenu.Create_Page3(menu));
         return AutoWatchItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 

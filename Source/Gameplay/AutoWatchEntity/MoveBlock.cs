@@ -15,8 +15,8 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
 
     public IEnumerator controller;
 
-    public int state => controller.GetFieldValue<int>("<>1__state");
-    public float crashTimer => controller.GetFieldValue<float>("<crashTimer>5__2");
+    public int state => controller?.GetFieldValue<int>("<>1__state") ?? -1;
+    public float crashTimer => controller?.GetFieldValue<float>("<crashTimer>5__2") ?? -9999;
 
 
     public Vector2 lastPos;
@@ -33,7 +33,8 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
             controller = tuple.Item2;
         }
         else {
-            RemoveSelf();
+            coroutine = null;
+            controller = null;
         }
     }
 
@@ -42,7 +43,7 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
         lastPos = pos;
         pos = moveBlock.Position + moveBlock.movementCounter;
         text.Clear();
-        if (moveBlock.state == MoveBlock.MovementState.Moving && crashTimer < 0.15f) {
+        if (moveBlock.state == MoveBlock.MovementState.Moving && crashTimer < 0.15f && crashTimer != -9999) {
             text.Append(crashTimer.ToFrame()); // not exactly frame, coz the timer decreases if move block will collide into a wall in this frame. but if you hold the other direction, then the move block has lower speed, so it's possible that the delta position is not enough to make it collide into a wall
         }
         text.Append((pos - lastPos).Positon2ToSignedSpeed());

@@ -57,7 +57,7 @@ internal partial class HiresText : THRenderer {
             content = longTitle + "\n" + content;
         }
         else {
-            content = shortTitle + ":" + content;
+            content = shortTitle + ": " + content;
         }
     }
 
