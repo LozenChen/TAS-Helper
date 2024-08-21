@@ -31,9 +31,8 @@ internal class BoosterFactory : IRendererFactory {
 
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Booster;
-    public bool TryAddComponent(Entity entity) {
+    public void AddComponent(Entity entity) {
         entity.Add(new BoosterRenderer(Mode()));
-        return true;
     }
 }
 

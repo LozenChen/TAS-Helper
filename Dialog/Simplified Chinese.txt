@@ -248,6 +248,7 @@ TAS_HELPER_SPEEDRUNTIMER_OPACITY_WHEN_TAS_PAUSES=          TAS 暂停时, 速通
 # ============================================= AutoWatch =====================================================
 TAS_HELPER_AUTO_WATCH=                                     自动监视实体
 TAS_HELPER_AUTO_WATCH_MAINENABLE=                          主开关
+TAS_HELPER_AUTO_WATCH_DESCRIPTION=                         自动地展示某些实体的信息.
 TAS_HELPER_AUTO_WATCH_FINISHED=                            完成
 TAS_HELPER_AUTO_WATCH_MODE_NEVER=                          从不
 TAS_HELPER_AUTO_WATCH_MODE_WHEN_WATCHED=                   监视时

@@ -35,9 +35,8 @@ internal class RefillFactory : IRendererFactory {
 
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Refill;
-    public bool TryAddComponent(Entity entity) {
+    public void AddComponent(Entity entity) {
         entity.Add(new RefillRenderer(Mode()));
-        return true;
     }
 }
 

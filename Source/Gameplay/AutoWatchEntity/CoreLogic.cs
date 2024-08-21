@@ -62,7 +62,7 @@ internal static class CoreLogic {
             else if (level.Tracker.Entities.TryGetValue(factory.GetTargetType(), out List<Entity> entities)) {
                 foreach (Entity entity in entities) {
                     if (entity.Components.FirstOrDefault(c => c is AutoWatchRenderer) is null) {
-                        factory.TryAddComponent(entity);
+                        factory.AddComponent(entity);
                     }
                 }
             }
@@ -139,15 +139,25 @@ internal class AutoWatchRenderer : Component {
 
     public bool hasUpdate;
 
+    public bool hasPreUpdate;
+
+    public bool PreActive;
+
     public bool PostActive;
-    public AutoWatchRenderer(RenderMode mode, bool hasUpdate = false) : base(false, visible: true) {
+    public AutoWatchRenderer(RenderMode mode, bool hasUpdate = true, bool hasPreUpdate = false) : base(false, visible: true) {
+        // the component itself doesn't update (so active = false), but pass its "update" to entity.Pre/PostUpdate (to avoid some OoO issue)
         this.mode = mode;
         PostActive = this.hasUpdate = hasUpdate;
+        PreActive = this.hasPreUpdate = hasPreUpdate;
     }
 
     public void WhenWatched_UpdateOnListener() {
         Visible = CoreLogic.IsWatched(this.Entity);
         PostActive = hasUpdate && Visible;
+        PreActive = hasPreUpdate && Visible;
+        if (PreActive) {
+            PreUpdateImpl();
+        }
         if (PostActive) {
             ClearHistoryData();
             UpdateImpl();
@@ -160,13 +170,24 @@ internal class AutoWatchRenderer : Component {
             CoreLogic.WhenWatchedRenderers.Add(this);
             Visible = CoreLogic.IsWatched(entity);
             PostActive = hasUpdate && Visible;
+            PreActive = hasPreUpdate && Visible;
         }
-        entity.PostUpdate += this.UpdateWrapper;
-        // move it here so we don't need to worry about OoO
+        if (hasUpdate) {
+            entity.PostUpdate += this.UpdateWrapper;
+            // move it here so we don't need to worry about OoO
+        }
+        if (hasPreUpdate) {
+            entity.PreUpdate += this.PreUpdateWrapper;
+        }
     }
 
     public override void Removed(Entity entity) {
-        entity.PostUpdate -= this.UpdateWrapper;
+        if (hasUpdate) {
+            entity.PostUpdate -= this.UpdateWrapper;
+        }
+        if (hasPreUpdate) {
+            entity.PreUpdate -= this.PreUpdateWrapper;
+        }
         base.Removed(entity);
         if (mode == RenderMode.WhenWatched) {
             CoreLogic.WhenWatchedRenderers.Remove(this);
@@ -196,6 +217,13 @@ internal class AutoWatchRenderer : Component {
         // will be a bit inaccurate when you just clicked the entity if we use the data of two frames
     }
 
+    private void PreUpdateWrapper(Entity entity) {
+        if (PreActive) {
+            PreUpdateImpl();
+        }
+    }
+    public virtual void PreUpdateImpl() { }
+
     public virtual void UpdateOnTransition() { } // for some persistent entity. in case some field just get lost
 
     public virtual void ClearHistoryData() { }
@@ -212,7 +240,7 @@ internal interface IRendererFactory {
 
     public bool Inherited();
     public RenderMode Mode();
-    public bool TryAddComponent(Entity entity);
+    public void AddComponent(Entity entity);
 
 }
 

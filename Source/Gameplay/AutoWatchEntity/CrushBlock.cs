@@ -42,9 +42,8 @@ internal class CrushBlockFactory : IRendererFactory {
 
     public bool Inherited() => true;
     public RenderMode Mode() => Config.CrushBlock;
-    public bool TryAddComponent(Entity entity) {
+    public void AddComponent(Entity entity) {
         entity.Add(new CrushBlockRenderer(Mode()));
-        return true;
     }
 }
 

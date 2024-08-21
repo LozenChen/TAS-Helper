@@ -22,6 +22,7 @@ internal class GliderRenderer : AutoWatchTextRenderer {
         text.Position = glider.TopCenter - Vector2.UnitY * 6f;
         text.Clear();
         text.Append(glider.Speed.Speed2ToSpeed2());
+
         if (glider.Hold.cannotHoldTimer > 0f) {
             text.Append($"cannotHold: {glider.Hold.cannotHoldTimer.ToFrame()}"); // rely on Depth = -5
             wasCannotHold = true;
@@ -32,8 +33,13 @@ internal class GliderRenderer : AutoWatchTextRenderer {
             }
             wasCannotHold = false;
         }
-        if (glider.Hold.Holder is { } player && player.minHoldTimer > 0f) {
-            text.Append($"minHoldTimer: {player.minHoldTimer.ToFrameMinusOne()}");
+        if (glider.Hold.Holder is { } player) {
+            if (player.minHoldTimer > 0f) {
+                text.Append($"minHoldTimer: {player.minHoldTimer.ToFrameMinusOne()}");
+            }
+            if (player.StateMachine.State == 8 && player.gliderBoostTimer > 0f && Config.ShowPlayerGliderBoostTimer) {
+                text.Append($"gliderBoostTimer: {player.gliderBoostTimer.ToFrameMinusOne()}");
+            }
         }
         SetVisible();
     }
@@ -45,9 +51,8 @@ internal class GliderFactory : IRendererFactory {
 
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Glider;
-    public bool TryAddComponent(Entity entity) {
+    public void AddComponent(Entity entity) {
         entity.Add(new GliderRenderer(Mode()));
-        return true;
     }
 }
 

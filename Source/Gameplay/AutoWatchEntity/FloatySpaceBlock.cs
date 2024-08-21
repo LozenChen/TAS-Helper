@@ -42,9 +42,8 @@ internal class FloatySpaceBlockFactory : IRendererFactory {
 
     public bool Inherited() => true;
     public RenderMode Mode() => Config.FloatySpaceBlock;
-    public bool TryAddComponent(Entity entity) {
+    public void AddComponent(Entity entity) {
         entity.Add(new FloatySpaceBlockRenderer(Mode()));
-        return true;
     }
 }
 

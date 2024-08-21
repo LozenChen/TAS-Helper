@@ -6,7 +6,9 @@ public static class AutoWatchMenu {
 
     internal static List<TextMenu.Item> Create_Page_1_OnOff(TextMenu menu) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
-        page.Add(new TextMenu.OnOff("Auto Watch MainEnable".ToDialogText(), TasHelperSettings.AutoWatchEnable).Change(value => TasHelperSettings.AutoWatchEnable = value));
+        TextMenu.Item mainSwitch;
+        page.Add(mainSwitch = new TextMenu.OnOff("Auto Watch MainEnable".ToDialogText(), TasHelperSettings.AutoWatchEnable).Change(value => TasHelperSettings.AutoWatchEnable = value));
+        page.AddDescriptionOnEnter(menu, mainSwitch, "Auto Watch Description".ToDialogText());
         page.Add(new IntSliderExt("Auto Watch Font Size".ToDialogText(), 1, 20, TasHelperSettings.AutoWatch_FontSize).Change(value => TasHelperSettings.AutoWatch_FontSize = value));
         page.Add(new IntSliderExt("Auto Watch Font Stroke".ToDialogText(), 0, 20, TasHelperSettings.AutoWatch_FontStroke).Change(value => TasHelperSettings.AutoWatch_FontStroke = value));
 

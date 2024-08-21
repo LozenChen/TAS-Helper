@@ -1,5 +1,5 @@
-﻿using Monocle;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -39,9 +39,8 @@ internal class TheoCrystalFactory : IRendererFactory {
 
     public bool Inherited() => true;
     public RenderMode Mode() => Config.TheoCrystal;
-    public bool TryAddComponent(Entity entity) {
+    public void AddComponent(Entity entity) {
         entity.Add(new TheoCrystalRenderer(Mode()));
-        return true;
     }
 }
 

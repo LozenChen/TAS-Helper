@@ -4,10 +4,11 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
-internal class HiresText : THRenderer {
+internal partial class HiresText : THRenderer {
 
     internal AutoWatchRenderer holder;
     public string content;
@@ -23,7 +24,7 @@ internal class HiresText : THRenderer {
     public Vector2 justify;
 
     public HiresText(string text, Vector2 position, AutoWatchRenderer holder) {
-        this.content = text;
+        content = text;
         this.position = position;
         this.holder = holder;
         justify = new Vector2(0.5f, 0.5f);
@@ -51,15 +52,26 @@ internal class HiresText : THRenderer {
         }
     }
 
+    public void AppendAtFirst(string shortTitle, string longTitle) {
+        if (FindLines.Count(content) > 0) {
+            content = longTitle + "\n" + content;
+        }
+        else {
+            content = shortTitle + ":" + content;
+        }
+    }
+
     public void Newline(int lines = 1) {
         content += new string('\n', lines);
     }
+
+    private static readonly Regex FindLines = new Regex("\n", RegexOptions.Compiled);
 }
 
 internal class AutoWatchTextRenderer : AutoWatchRenderer {
 
     public HiresText text;
-    public AutoWatchTextRenderer(RenderMode mode, bool active) : base(mode, active) { }
+    public AutoWatchTextRenderer(RenderMode mode, bool active, bool preActive = false) : base(mode, active, preActive) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

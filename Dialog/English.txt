@@ -262,6 +262,7 @@ TAS_HELPER_SPEEDRUNTIMER_OPACITY_WHEN_TAS_PAUSES=          SpeedrunTimer Opacity
 # ============================================= AutoWatch =====================================================
 TAS_HELPER_AUTO_WATCH=                                     Auto Watch Entity
 TAS_HELPER_AUTO_WATCH_MAINENABLE=                          Main Switch
+TAS_HELPER_AUTO_WATCH_DESCRIPTION=                         Automatically show info of some entities in predefined formats.
 TAS_HELPER_AUTO_WATCH_FINISHED=                            Finished
 TAS_HELPER_AUTO_WATCH_MODE_NEVER=                          Never
 TAS_HELPER_AUTO_WATCH_MODE_WHEN_WATCHED=                   When Watched

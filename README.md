@@ -40,6 +40,8 @@ Note that from TAS Helper v2.0.0, we target [psyGamer's branch](https://github.c
 
 - Main Switch hotkey -> Settings are memorized in a way that, ActualSettings = MainSwitch state && MemorizedSettings (if both sides are boolean. Similar for other types). The Main Switch hotkey just modifies MainSwitch state, and will not modify MemorizedSettings. Editing settings in menu or using other hotkeys will modify MemorizedSettings.
 
+- Auto Watch Entity -> "~" means it's waiting until some condition is satisified (e.g. Player.DummyWalkTo needs player's position to be close enough to the target), and "\[num\]\~" means we need to either wait until the timer expires, or when some condition is satisfied. (e.g. FallingBlock will wait some extra time before falling, until we are no longer climbing it or the timer expires.)
+
 - Add some commands -> Currently we have, spinner_freeze cmd, nearest_timeactive cmd, setting-related cmd, OoO config cmd. Check [Commands](https://github.com/LozenChen/TAS-Helper/blob/main/Docs/Commands.md)
 
 - ...
@@ -64,11 +66,7 @@ Note that from TAS Helper v2.0.0, we target [psyGamer's branch](https://github.c
 
 - Key cycle indicator.
 
-- Push on XMinty's AutoWatch PR on CelesteTAS, to support more entities (e.g. for an entity with a re-awake timer, watch the timer if it's not zero).
-
 - SpeedrunTool multi-saveslots PR (Update: done, PR is created but never gets merged)
-
-- Auto completion in Celeste Studio (when using something like "set invincible true"), and some other gadgets for Studio. (Update: see psyGamer's Studio v3)
 
 # Known issues:
 

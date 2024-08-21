@@ -1,5 +1,6 @@
 ﻿
 using Celeste.Mod.TASHelper.Utils;
+using Microsoft.Xna.Framework;
 using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
@@ -7,12 +8,7 @@ namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal class PlayerRenderer : AutoWatchTextRenderer {
 
-    public static bool ExcludeDashState = false;
-
-    public static bool ShowWallBoostTimer = true;
-
-    public static bool ShowDreamDashCanEndTimer = true;
-
+    public HiresText textBelow;
 
     public Player player;
 
@@ -25,28 +21,33 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
     public float waitTimer => stateMachine.currentCoroutine.waitTimer;
 
     public bool wasWaiting = false;
-    public PlayerRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
 
-    public override void Added(Entity entity) {
-        base.Added(entity);
-        player = entity as Player;
-        stateMachine = player.StateMachine;
+    public bool flag = false;
+
+    public static Vector2 offset = Vector2.UnitY * 6f; // make sure this is different to that of cutscene
+    public PlayerRenderer(RenderMode mode, bool active = true, bool preActive = true) : base(mode, active, preActive) { }
+
+    public override void PreUpdateImpl() {
         State = stateMachine.State;
+        text.Clear();
+        textBelow.Clear();
+        flag = false;
+
+        if (player.dashAttackTimer > 0f && Config.ShowDashAttackTimer && State != StRedDash && State != StDreamDash && State != StAttract) {
+            textBelow.Append($"dashAttack:{player.dashAttackTimer.ToFrameMinusOne()}");
+        }
     }
 
     public override void UpdateImpl() {
-        State = stateMachine.State;
-        text.Position = player.Center;
-        text.Clear();
-        bool flag = false;
-
         // hope in the future i can understand what these codes are
+        text.Position = player.Center;
+        textBelow.Position = player.BottomCenter + offset;
         if (currentCoroutine.Active) {
             if (State == StDash) {
-                if (ExcludeDashState) {
+                if (Config.ExcludePlayerDashState) {
                     // do nothing
                 }
-                else if (!player.StartedDashing){
+                else if (!player.StartedDashing) {
                     text.Append(currentCoroutine.waitTimer.ToFrameAllowZero());
                 }
             }
@@ -70,12 +71,12 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
             text.Append(player.respawnTween.TimeLeft.ToFrame());
             flag = true;
         }
-        else if (State == StNormal && ShowWallBoostTimer && player.wallBoostTimer > 0f) {
+        else if (State == StNormal && Config.ShowWallBoostTimer && player.wallBoostTimer > 0f) {
             // 约定, 计时以 0 结尾, 0 的下一帧是状态变化, 包括不能 wallboost, 可以 dreamDashEnd
-            text.Append($"wb:{player.wallBoostTimer.ToFrameMinusOne()}");
+            textBelow.Append($"wallBoost:{player.wallBoostTimer.ToFrameMinusOne()}");
         }
-        else if (State == StDreamDash && ShowDreamDashCanEndTimer && player.dreamDashCanEndTimer > 0f) {
-            text.Append(player.dreamDashCanEndTimer.ToFrameMinusOne());
+        else if (State == StDreamDash && Config.ShowDreamDashCanEndTimer && player.dreamDashCanEndTimer > 0f) {
+            textBelow.Append($"dreamDashCanEnd:{player.dreamDashCanEndTimer.ToFrameMinusOne()}");
         }
 
         if (!flag && State == StStarFly && !player.starFlyTransforming) { // here the coroutine can by active, also can be inactive, that's why we don't use a "else if"
@@ -86,8 +87,6 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
             text.Append("0");
         }
         wasWaiting = flag;
-
-        // TODO: dashAttackTimer, gliderBoostTimer
 
         SetVisible();
     }
@@ -143,6 +142,49 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
     private const int StFlingBird = 24;
 
     private const int StIntroThinkForABit = 25;
+
+    public override void Added(Entity entity) {
+        base.Added(entity);
+        HiresLevelRenderer.Add(text = new HiresText("", entity.Position, this));
+        HiresLevelRenderer.Add(textBelow = new HiresText("", entity.Position, this));
+        player = entity as Player;
+        stateMachine = player.StateMachine;
+        State = stateMachine.State;
+        textBelow.justify = new Microsoft.Xna.Framework.Vector2(0.5f, 0f);
+    }
+
+    public override void EntityAdded(Scene scene) {
+        base.EntityAdded(scene);
+        if (text is not null) {
+            HiresLevelRenderer.AddIfNotPresent(text); // without this, PlayerRender may get lost after EventTrigger "ch9_goto_the_future" (first two sides of Farewell)
+        }
+        if (textBelow is not null) {
+            HiresLevelRenderer.AddIfNotPresent(textBelow);
+        }
+    }
+
+    public override void Removed(Entity entity) {
+        base.Removed(entity);
+        if (text is not null) {
+            HiresLevelRenderer.Remove(text);
+        }
+        if (textBelow is not null) {
+            HiresLevelRenderer.Remove(textBelow);
+        }
+    }
+    public override void EntityRemoved(Scene scene) {
+        base.EntityRemoved(scene);
+        if (text is not null) {
+            HiresLevelRenderer.Remove(text);
+        }
+        if (textBelow is not null) {
+            HiresLevelRenderer.Remove(textBelow);
+        }
+    }
+
+    public void SetVisible() {
+        Visible = (text.content != "" || textBelow.content != "");
+    }
 }
 
 internal class PlayerFactory : IRendererFactory {
@@ -150,9 +192,8 @@ internal class PlayerFactory : IRendererFactory {
 
     public bool Inherited() => false;
     public RenderMode Mode() => Config.Player;
-    public bool TryAddComponent(Entity entity) {
+    public void AddComponent(Entity entity) {
         entity.Add(new PlayerRenderer(Mode()));
-        return true;
     }
 }
 

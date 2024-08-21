@@ -37,9 +37,8 @@ internal class CloudFactory : IRendererFactory {
 
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Cloud;
-    public bool TryAddComponent(Entity entity) {
+    public void AddComponent(Entity entity) {
         entity.Add(new CloudRenderer(Mode()));
-        return true;
     }
 }
 

@@ -68,9 +68,8 @@ internal class FallingBlockFactory : IRendererFactory {
 
     public bool Inherited() => false;
     public RenderMode Mode() => Config.FallingBlock;
-    public bool TryAddComponent(Entity entity) {
+    public void AddComponent(Entity entity) {
         entity.Add(new FallingBlockRenderer(Mode()));
-        return true;
     }
 }
 
