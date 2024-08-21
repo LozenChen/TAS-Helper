@@ -60,7 +60,11 @@ internal static class CoreLogic {
                 }
             }
             else if (level.Tracker.Entities.TryGetValue(factory.GetTargetType(), out List<Entity> entities)) {
-                foreach (Entity entity in entities) {
+                Type type = factory.GetTargetType();
+                bool inherited = factory.Inherited();
+
+                foreach (Entity entity in entities.Where(x => inherited || x.GetType() == type)) {
+                    // if not inherited, then we nned to filter out those entities which use "TrackedAs" (e.g. HonlyHelper.RisingBlock)
                     if (entity.Components.FirstOrDefault(c => c is AutoWatchRenderer) is null) {
                         factory.AddComponent(entity);
                     }
@@ -238,7 +242,8 @@ internal class AutoWatchRenderer : Component {
 internal interface IRendererFactory {
     public Type GetTargetType();
 
-    public bool Inherited();
+    public bool Inherited(); // if the entity does not have a "Tracked" attribute, then we can assign arbitrary bool value here
+    // but if the entity has a "Tracked(false)", then we must assign false here. so we don't change game logic and thus avoid tas desync
     public RenderMode Mode();
     public void AddComponent(Entity entity);
 

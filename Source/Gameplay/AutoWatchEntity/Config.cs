@@ -53,6 +53,14 @@ internal static class Format {
 }
 
 internal static class TODO {
+    public static bool PlayerDummyStateAndLaunchState = true;
+
+    public static Mode BadelineBoost = Mode.Always;
+
+    public static Mode BounceBlock = Mode.Always;
+
+    public static Mode FlingBird = Mode.Always;
+
     public static Mode CrumblePlatform = Mode.Always;
 
     public static Mode Lookout = Mode.Always;
@@ -64,12 +72,6 @@ internal static class TODO {
     public static Mode LockBlock = Mode.Always;
 
     public static Mode DustTrackSpinner = Mode.Always;
-
-    public static Mode PlayerIntro = Mode.Always;
-
-    public static Mode PlayerWallBoost = Mode.Always;
-
-    public static Mode PlayerStarFlyDuration = Mode.Always;
 
     public static Mode OshiroBoss = Mode.Always; // engine timerate shown on him
 
@@ -89,15 +91,13 @@ internal static class TODO {
 
     public static Mode FinalBossMovingBlock = Mode.Always;
 
-    public static Mode BounceBlock = Mode.Always;
-
     public static Mode Puffer = Mode.Always;
 
     public static Mode LightningBreakerBox = Mode.Always;
 
     public static Mode NPC = Mode.Always;
 
-    public static Mode Cutscene = Mode.Always;
+    public static Mode Camera = Mode.Always;
 
     public static Mode Triggers = Mode.Always;
 

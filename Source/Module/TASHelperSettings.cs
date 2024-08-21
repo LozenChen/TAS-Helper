@@ -603,15 +603,15 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public Mode AutoWatch_Player = Mode.Always;
 
-    public bool AutoWatch_ShowDashTimer = false;
+    public bool AutoWatch_ShowDashAttackTimer = false;
 
-    public bool AutoWatch_ShowWallBoostTimer = true;
+    public bool AutoWatch_ShowDashTimer = false;
 
     public bool AutoWatch_ShowDreamDashCanEndTimer = true;
 
     public bool AutoWatch_ShowPlayerGliderBoostTimer = true;
 
-    public bool AutoWatch_ShowDashAttackTimer = true;
+    public bool AutoWatch_ShowWallBoostTimer = true;
 
     #endregion
 

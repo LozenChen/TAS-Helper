@@ -40,7 +40,7 @@ internal class FloatySpaceBlockRenderer : AutoWatchTextRenderer {
 internal class FloatySpaceBlockFactory : IRendererFactory {
     public Type GetTargetType() => typeof(FloatySpaceBlock);
 
-    public bool Inherited() => true;
+    public bool Inherited() => false;
     public RenderMode Mode() => Config.FloatySpaceBlock;
     public void AddComponent(Entity entity) {
         entity.Add(new FloatySpaceBlockRenderer(Mode()));

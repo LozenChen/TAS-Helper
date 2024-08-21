@@ -37,7 +37,7 @@ internal class TheoCrystalFactory : IRendererFactory {
     public Type GetTargetType() => typeof(TheoCrystal);
 
 
-    public bool Inherited() => true;
+    public bool Inherited() => false;
     public RenderMode Mode() => Config.TheoCrystal;
     public void AddComponent(Entity entity) {
         entity.Add(new TheoCrystalRenderer(Mode()));

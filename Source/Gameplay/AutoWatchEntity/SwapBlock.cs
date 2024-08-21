@@ -42,7 +42,7 @@ internal class SwapBlockRenderer : AutoWatchTextRenderer {
 internal class SwapBlockFactory : IRendererFactory {
     public Type GetTargetType() => typeof(SwapBlock);
 
-    public bool Inherited() => true;
+    public bool Inherited() => false;
     public RenderMode Mode() => Config.SwapBlock;
     public void AddComponent(Entity entity) {
         entity.Add(new SwapBlockRenderer(Mode()));
