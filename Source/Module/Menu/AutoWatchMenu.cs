@@ -35,6 +35,9 @@ public static class AutoWatchMenu {
     }
     internal static List<TextMenu.Item> Create_Page3(TextMenu menu) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch BadelineOrb".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_BadelineOrb).Change(value => TasHelperSettings.AutoWatch_BadelineOrb = value));
+
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Booster".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_Booster).Change(value => TasHelperSettings.AutoWatch_Booster = value));
 
@@ -55,7 +58,6 @@ public static class AutoWatchMenu {
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch MoveBlock".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_MoveBlock).Change(value => TasHelperSettings.AutoWatch_MoveBlock = value));
-
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Refill".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_Refill).Change(value => TasHelperSettings.AutoWatch_Refill = value));

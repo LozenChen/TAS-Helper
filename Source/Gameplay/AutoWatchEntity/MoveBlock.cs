@@ -15,7 +15,7 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
 
     public IEnumerator controller;
 
-    public int state => controller?.GetFieldValue<int>("<>1__state") ?? -1;
+    public int state => controller?.GetFieldValue<int>("<>1__state") ?? -42; // -1 is used by the ienumrator itself, so we use other number
     public float crashTimer => controller?.GetFieldValue<float>("<crashTimer>5__2") ?? -9999;
 
 

@@ -20,6 +20,8 @@ internal static class ModUtils {
         return FakeAssembly.GetFakeEntryAssembly().GetType(name, throwOnError, ignoreCase);
     }
 
+    // custom entity catalog
+    // https://maddie480.ovh/celeste/custom-entity-catalog
     public static Type[] GetTypes() {
         return FakeAssembly.GetFakeEntryAssembly().GetTypes();
     }

@@ -45,6 +45,8 @@ internal static class Config {
     public static Mode CrushBlock => TasHelperSettings.AutoWatch_Kevin;
 
     public static Mode CutsceneEntity => TasHelperSettings.AutoWatch_Cutscene;
+
+    public static Mode BadelineBoost => TasHelperSettings.AutoWatch_BadelineOrb;
 }
 
 internal static class Format {
@@ -99,6 +101,6 @@ internal static class TODO {
 
     public static Mode Camera = Mode.Always;
 
-    public static Mode Triggers = Mode.Always;
+    public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers
 
 }

@@ -2,13 +2,12 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System.Collections;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal class ZipMoverRenderer : AutoWatchTextRenderer {
 
-    public Platform platform;
+    public ZipMover zipMover;
 
     public Vector2 lastPos;
 
@@ -17,53 +16,77 @@ internal class ZipMoverRenderer : AutoWatchTextRenderer {
 
     public Coroutine coroutine;
 
-    public IEnumerator sequence;
+    public bool wasWaiting = false;
 
-    public int state => sequence?.GetFieldValue<int>("<>1__state") ?? -1;
-    public float timer => sequence?.GetFieldValue<float>("<>2__current") ?? -9999;
+    public float waitTimer => coroutine.waitTimer;
 
-    public int timerToFrame = 0;
+    public static bool useFallBack = true;
     public ZipMoverRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);
         lastPos = pos = entity.Position;
-        platform = entity as Platform;
-        if (entity.FindCoroutineComponent("Celeste.ZipMover+<Sequence>d__24", out Tuple<Coroutine, IEnumerator> tuple)) {
-            coroutine = tuple.Item1;
-            sequence = tuple.Item2;
+        zipMover = entity as ZipMover;
+        bool found = false;
+        bool hasCoroutine = false;
+        foreach (Component c in zipMover.Components) {
+            if (c is not Coroutine cor) {
+                continue;
+            }
+            coroutine = cor;
+            hasCoroutine = true;
+            if (cor.enumerators.FirstOrDefault(x => x.GetType().Name.StartsWith("<Sequence>d__")) is not null) {
+                // great if it matches well
+                found = true;
+                break;
+            }
         }
-        else {
-            coroutine = null;
-            sequence = null;
+        if (!found && hasCoroutine && useFallBack) {
+            found = true;
+        }
+
+        if (!found) {
+            // a zipmover should always have a coroutine when loaded, so we remove it immediately if nothing is found
+            RemoveSelf();
         }
     }
 
     public override void UpdateImpl() {
-        text.Position = platform.Center;
+        text.Position = zipMover.Center;
         lastPos = pos;
-        pos = platform.Position + platform.movementCounter;
+        pos = zipMover.Position + zipMover.movementCounter;
+        bool flag = false;
+        text.Clear();
         if (pos != lastPos) {
-            text.content = (pos - lastPos).PositionToAbsoluteSpeed();
-            Visible = true;
+            text.Append((pos - lastPos).PositionToAbsoluteSpeed());
         }
-        else if (timerToFrame > 0) {
-            timerToFrame--;
-            text.content = timerToFrame.ToFrame();
-            Visible = true;
+        else if (coroutine is not null){
+            if (coroutine.Active) {
+                if (waitTimer > 0f) {
+                    text.Append(waitTimer.ToFrame());
+                    flag = true;
+                }
+                else if (coroutine.Current.GetType().FullName == "Monocle.Tween+<Wait>d__45" && coroutine.Current.GetFieldValue("<>4__this") is Tween tween) {
+                    text.Append((tween.TimeLeft.ToFrameData() + 1).ToString());
+                    flag = true;
+                }
+                else if (!wasWaiting) {
+                    text.Append("~");
+                }
+            }
+
+            if (!flag && wasWaiting) {
+                text.Append("0");
+            }
         }
-        else if (timer > 0f) {
-            timerToFrame = timer.ToFrameData();
-            text.content = timerToFrame.ToFrame();
-            Visible = true;
-        }
-        else {
-            Visible = false;
-        }
+
+        wasWaiting = flag;
+
+        SetVisible();
     }
 
     public override void ClearHistoryData() {
-        lastPos = pos = platform.Position;
+        lastPos = pos = zipMover.Position;
     }
 }
 

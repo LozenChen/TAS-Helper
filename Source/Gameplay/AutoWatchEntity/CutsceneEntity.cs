@@ -43,14 +43,17 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
                 break;
             }
         }
-        if (!found && !waitingForCoroutine && useFallBack) {
-            found = true;
-            // may be not that precise?
-            // Celeste.Mod.StrawberryJam2021.Cutscenes.CS_Credits use Lobby/MovieRoutine
-        }
-
         if (!found && !waitingForCoroutine) {
-            RemoveSelf();
+            if (useFallBack) {
+                found = true;
+                // may be not that precise?
+                // Celeste.Mod.StrawberryJam2021.Cutscenes.CS_Credits use Lobby/MovieRoutine
+            }
+            else {
+                // if it has coroutine but that does not match (and we don't use fallBack), remove it
+                // but if it does not have coroutine (possible for a cutscene entity), then it's okay
+                RemoveSelf();
+            }
         }
     }
 
@@ -69,14 +72,19 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
                 }
                 // Logger.Log("TAS Helper", string.Join(",", cor.enumerators.Select(call => call.GetType().FullName)));
             }
-            if (!found && !waitingForCoroutine && useFallBack) {
-                found = true;
+            if (!found && !waitingForCoroutine) {
+                if (useFallBack) {
+                    found = true;
+                }
+                else {
+                    waitingForCoroutine = true;
+                    Visible = PostActive = hasUpdate = false; // RemoveSelf is dangerous here i guess
+                }
             }
 
-            if (!found && !waitingForCoroutine) {
-                PostActive = hasUpdate = false; // RemoveSelf is dangerous here i guess
+            if (!found) {
+                return;
             }
-            return;
         }
         if (playerInstance is not { } player) {
             Visible = false;

@@ -577,6 +577,8 @@ public class TASHelperSettings : EverestModuleSettings {
         AutoWatch_FontStroke = autoWatch_FontStroke;
     }
 
+    public Mode AutoWatch_BadelineOrb = Mode.Always;
+
     public Mode AutoWatch_Booster = Mode.Always;
 
     public Mode AutoWatch_Cloud = Mode.Always;
