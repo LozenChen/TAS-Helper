@@ -206,6 +206,19 @@ internal static class InfoParser {
         return $"({PositionToSignedSpeedX(deltaPosition.X)}, {PositionToSignedSpeedX(deltaPosition.Y)})";
     }
 
+    internal static string OffsetToString(this Vector2 deltaPosition) {
+        if (IsTiny(deltaPosition.X)) {
+            if (IsTiny(deltaPosition.Y)) {
+                return "";
+            }
+            return SignedString(deltaPosition.Y);
+        }
+        else if (IsTiny(deltaPosition.Y)) {
+            return SignedString(deltaPosition.X);
+        }
+        return $"({SignedString(deltaPosition.X)}, {SignedString(deltaPosition.Y)})";
+    }
+
     internal const float epsilon = 1E-6f;
 
     internal const float Minus_epsilon = -1E-6f;

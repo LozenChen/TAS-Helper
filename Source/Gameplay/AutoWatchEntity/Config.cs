@@ -24,6 +24,8 @@ internal static class Config {
 
     public static Mode FloatySpaceBlock => TasHelperSettings.AutoWatch_MoonBlock;
 
+    public static bool UseOffsetInsteadOfVelocity = true;
+
     public static Mode Glider => TasHelperSettings.AutoWatch_Jelly;
 
     public static Mode Cloud => TasHelperSettings.AutoWatch_Cloud;
@@ -35,6 +37,8 @@ internal static class Config {
     public static bool ShowDashTimer => TasHelperSettings.AutoWatch_ShowDashTimer;
 
     public static bool ShowWallBoostTimer => TasHelperSettings.AutoWatch_ShowWallBoostTimer;
+
+    public static bool ShowStLaunchSpeed => TasHelperSettings.AutoWatch_ShowStLaunchSpeed;
 
     public static bool ShowDreamDashCanEndTimer => TasHelperSettings.AutoWatch_ShowDreamDashCanEndTimer;
 
@@ -55,9 +59,6 @@ internal static class Format {
 }
 
 internal static class TODO {
-    public static bool PlayerDummyStateAndLaunchState = true;
-
-    public static Mode BadelineBoost = Mode.Always;
 
     public static Mode BounceBlock = Mode.Always;
 
@@ -101,6 +102,6 @@ internal static class TODO {
 
     public static Mode Camera = Mode.Always;
 
-    public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers
+    public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
 
 }

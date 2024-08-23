@@ -60,7 +60,7 @@ internal class ZipMoverRenderer : AutoWatchTextRenderer {
         if (pos != lastPos) {
             text.Append((pos - lastPos).PositionToAbsoluteSpeed());
         }
-        else if (coroutine is not null){
+        else if (coroutine is not null) {
             if (coroutine.Active) {
                 if (waitTimer > 0f) {
                     text.Append(waitTimer.ToFrame());

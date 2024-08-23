@@ -267,6 +267,7 @@ TAS_HELPER_AUTO_WATCH_DASHTIMER=                           > 显示 dashTimer
 TAS_HELPER_AUTO_WATCH_DREAMDASHCANENDTIMER=                > 显示 dreamDashCanEndTimer
 TAS_HELPER_AUTO_WATCH_GLIDERBOOSTTIMER=                    > 显示 gliderBoostTimer
 TAS_HELPER_AUTO_WATCH_WALLBOOSTTIMER=                      > 显示 wallBoostTimer
+TAS_HELPER_AUTO_WATCH_STLAUNCHSPEED=                       > 显示 StLaunch 速度
 TAS_HELPER_AUTO_WATCH_PAGE_3=                              第 3 页
 TAS_HELPER_AUTO_WATCH_BADELINEORB=                         Badeline Orb
 TAS_HELPER_AUTO_WATCH_BOOSTER=                             Booster

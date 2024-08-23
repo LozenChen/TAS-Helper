@@ -613,6 +613,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool AutoWatch_ShowPlayerGliderBoostTimer = true;
 
+    public bool AutoWatch_ShowStLaunchSpeed = true;
+
     public bool AutoWatch_ShowWallBoostTimer = true;
 
     #endregion

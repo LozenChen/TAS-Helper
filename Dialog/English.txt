@@ -278,6 +278,7 @@ TAS_HELPER_AUTO_WATCH_DASHTIMER=                           > Show dashTimer
 TAS_HELPER_AUTO_WATCH_DREAMDASHCANENDTIMER=                > Show dreamDashCanEndTimer
 TAS_HELPER_AUTO_WATCH_GLIDERBOOSTTIMER=                    > Show gliderBoostTimer
 TAS_HELPER_AUTO_WATCH_WALLBOOSTTIMER=                      > Show wallBoostTimer
+TAS_HELPER_AUTO_WATCH_STLAUNCHSPEED=                       > Show StLaunch speed
 TAS_HELPER_AUTO_WATCH_PAGE_3=                              Page 3
 TAS_HELPER_AUTO_WATCH_BADELINEORB=                         Badeline Orb
 TAS_HELPER_AUTO_WATCH_BOOSTER=                             Booster

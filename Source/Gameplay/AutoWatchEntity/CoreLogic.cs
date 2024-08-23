@@ -159,11 +159,13 @@ internal class AutoWatchRenderer : Component {
         Visible = CoreLogic.IsWatched(this.Entity);
         PostActive = hasUpdate && Visible;
         PreActive = hasPreUpdate && Visible;
+        if (PreActive || PostActive) {
+            ClearHistoryData();
+        }
         if (PreActive) {
             PreUpdateImpl();
         }
         if (PostActive) {
-            ClearHistoryData();
             UpdateImpl();
         }
     }

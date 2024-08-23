@@ -26,6 +26,7 @@ public static class AutoWatchMenu {
         page.Add(new TextMenu.OnOff("Auto Watch DreamDashCanEndTimer".ToDialogText(), TasHelperSettings.AutoWatch_ShowDreamDashCanEndTimer).Change(value => TasHelperSettings.AutoWatch_ShowDreamDashCanEndTimer = value));
         page.Add(new TextMenu.OnOff("Auto Watch GliderBoostTimer".ToDialogText(), TasHelperSettings.AutoWatch_ShowPlayerGliderBoostTimer).Change(value => TasHelperSettings.AutoWatch_ShowPlayerGliderBoostTimer = value));
         page.Add(new TextMenu.OnOff("Auto Watch WallBoostTimer".ToDialogText(), TasHelperSettings.AutoWatch_ShowWallBoostTimer).Change(value => TasHelperSettings.AutoWatch_ShowWallBoostTimer = value));
+        page.Add(new TextMenu.OnOff("Auto Watch StLaunchSpeed".ToDialogText(), TasHelperSettings.AutoWatch_ShowStLaunchSpeed).Change(value => TasHelperSettings.AutoWatch_ShowStLaunchSpeed = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Cutscene".ToDialogText(),
             CreateOnlyTwoOptions(), TasHelperSettings.AutoWatch_Cutscene).Change(value => TasHelperSettings.AutoWatch_Cutscene = value));

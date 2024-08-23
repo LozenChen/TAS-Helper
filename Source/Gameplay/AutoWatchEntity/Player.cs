@@ -79,6 +79,7 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
             }
             else if (!wasWaiting && ((State == StStarFly && player.starFlyTransforming) || State == StIntroWalk || State == StIntroJump || State == StIntroMoonJump || State == StIntroThinkForABit)) {
                 text.Append("~");
+                // if it's a player.DummyWalkToExact, then we show it on the cutscene / NPC / lookout ... instead
             }
             else if (State == StIntroWakeUp && currentCoroutine.Current.GetType().FullName == "Monocle.Sprite+<PlayUtil>d__40" && currentCoroutine.Current.GetFieldValue("<>4__this") is Sprite sprite) {
                 text.Append($"{sprite.CurrentAnimationTotalFrames - sprite.CurrentAnimationFrame}|{(sprite.currentAnimation.Delay - sprite.animationTimer).ToFrameMinusOne()}");
@@ -92,6 +93,14 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
         else if (State == StNormal && Config.ShowWallBoostTimer && player.wallBoostTimer > 0f) {
             // 约定, 计时以 0 结尾, 0 的下一帧是状态变化, 包括不能 wallboost, 可以 dreamDashEnd
             textBelow.Append($"wallBoost: {player.wallBoostTimer.ToFrameMinusOne()}");
+        }
+        else if (State == StLaunch && Config.ShowStLaunchSpeed) {
+            if (CanDash(player)) {
+                textBelow.Append($"StLaunch: {player.Speed.Length():F0}~ > 220");
+            }
+            else {
+                textBelow.Append($"StLaunch: {player.Speed.Length():F0} > 220");
+            }
         }
         else if (State == StDreamDash && Config.ShowDreamDashCanEndTimer && player.dreamDashCanEndTimer > 0f) {
             textBelow.Append($"dreamDashCanEnd: {player.dreamDashCanEndTimer.ToFrameMinusOne()}");
@@ -109,6 +118,17 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
         text.Position = player.Center;
         textBelow.Position = player.BottomCenter + offset;
         SetVisible();
+    }
+
+    private static bool CanDash(Player player) {
+        // without button check
+        if (player.dashCooldownTimer <= 0f && player.Dashes > 0 && (TalkComponent.PlayerOver == null || !Input.Talk.Pressed)) {
+            if (player.LastBooster != null && player.LastBooster.Ch9HubTransition) {
+                return !player.LastBooster.BoostingPlayer;
+            }
+            return true;
+        }
+        return false;
     }
 
     private const int StNormal = 0;
