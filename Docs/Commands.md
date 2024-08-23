@@ -61,3 +61,10 @@
 ### nearest_timeactive
 - `nearest_timeactive targetTime startTime`
 - Return the nearest possible timeactive of the target time, starting from startTime
+
+### mainmenu
+- Goto main menu quickly.
+
+### oui_mod_options / oui_mod_toggler / oui_update_list / oui_map_list
+- Goto mod options / mod toggler / mod update list / map list.
+- Some of them may not be stable. Check [ConsoleCommands](Source/Gameplay/ConsoleCommands.cs).

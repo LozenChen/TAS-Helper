@@ -28,7 +28,7 @@ Note that from TAS Helper v2.0.0, we target [psyGamer's branch](https://github.c
 
 - Camera Target -> show which direction the camera moves towards. Basically *CameraTarget = Player's position + CameraOffset*, plus CameraTarget should be bounded in room and some other modification, then *CameraPosition = (1-r)\*PreviousCameraPosition + r\*CameraTarget*, where *r = 0.074*. We visualize this by drawing the points Position, PreviousPosition and CameraTarget, and drawing a link from PreviousPosition to CameraTarget.
 
-- CustomInfoHelper -> provide some fields / properties which are not easy to compute in CelesteTAS's CustomInfo. Check [CustomInfoHelper](Source/Gameplay/CustomInfoHelper.cs)
+- CustomInfoHelper -> provide some fields / properties which are not easy to compute in CelesteTAS's CustomInfo. Check [CustomInfoHelper](Source/Gameplay/CustomInfoHelper.cs).
 
 - Order-of-Operation Stepping -> just like frame advance, but in a subframe scale, thus visualize order of operations in a frame. The bottom-left message indicates the next action (if there's no "begin/end" postfix) / current action (if there is) of the game engine.
 
@@ -42,7 +42,7 @@ Note that from TAS Helper v2.0.0, we target [psyGamer's branch](https://github.c
 
 - Auto Watch Entity -> Mainly 2 kinds of auto watch, show timer / show speed. If the entity is moving around slowly, then we can also show its offset from its origin. Notations: "~" means it's waiting until some condition is satisified (e.g. Player.DummyWalkTo needs player's position to be close enough to the target), and "\[num\]\~" means we need to either wait until the timer expires, or when some condition is satisfied. (e.g. FallingBlock will wait some extra time before falling, until we are no longer climbing it or the timer expires.)
 
-- Add some commands -> Currently we have, spinner_freeze cmd, nearest_timeactive cmd, setting-related cmd, OoO config cmd. Check [Commands](Docs/Commands.md)
+- Add some commands -> Currently we have, spinner_freeze cmd, nearest_timeactive cmd, setting-related cmd, OoO config cmd. Check [Commands](Docs/Commands.md).
 
 - ...
 
