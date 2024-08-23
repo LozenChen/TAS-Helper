@@ -67,4 +67,4 @@
 
 ### oui_mod_options / oui_mod_toggler / oui_update_list / oui_map_list
 - Goto mod options / mod toggler / mod update list / map list.
-- Some of them may not be stable. Check [ConsoleCommands](Source/Gameplay/ConsoleCommands.cs).
+- Some of them may not be stable. Check [ConsoleCommands](../Source/Gameplay/ConsoleCommands.cs).
