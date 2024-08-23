@@ -24,7 +24,11 @@ internal static class Config {
 
     public static Mode FloatySpaceBlock => TasHelperSettings.AutoWatch_MoonBlock;
 
-    public static bool UseOffsetInsteadOfVelocity = true;
+    public static bool FloatySpaceBlock_UseOffsetInsteadOfVelocity => TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset == SlowMovingRenderMode.Offset;
+
+    public static Mode Bumper => TasHelperSettings.AutoWatch_Bumper;
+
+    public static SlowMovingRenderMode Bumper_ChooseOffsetVelocity => TasHelperSettings.AutoWatch_Bumper_NoneOrVelocityOrOffset;
 
     public static Mode Glider => TasHelperSettings.AutoWatch_Jelly;
 
@@ -52,13 +56,14 @@ internal static class Config {
 
     public static Mode BadelineBoost => TasHelperSettings.AutoWatch_BadelineOrb;
 }
-
+public enum SlowMovingRenderMode { None, Offset, Velocity }
 internal static class Format {
 
     public static bool Speed_UsePixelPerSecond = true; // instead of PixelPerFrame
 }
 
 internal static class TODO {
+    // todo: moon block support offset / velo switch
 
     public static Mode BounceBlock = Mode.Always;
 

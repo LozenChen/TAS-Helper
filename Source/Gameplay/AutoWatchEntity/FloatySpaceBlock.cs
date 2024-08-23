@@ -19,7 +19,7 @@ internal class FloatySpaceBlockRenderer : AutoWatchTextRenderer {
         base.Added(entity);
         lastPos = pos = entity.Position;
         block = entity as FloatySpaceBlock;
-        useOffsetInsteadOfVelocity = Config.UseOffsetInsteadOfVelocity;
+        useOffsetInsteadOfVelocity = Config.FloatySpaceBlock_UseOffsetInsteadOfVelocity;
     }
 
     public override void UpdateImpl() {
@@ -47,7 +47,7 @@ internal class FloatySpaceBlockRenderer : AutoWatchTextRenderer {
 
     public override void ClearHistoryData() {
         lastPos = pos = block.Position;
-        useOffsetInsteadOfVelocity = Config.UseOffsetInsteadOfVelocity;
+        useOffsetInsteadOfVelocity = Config.FloatySpaceBlock_UseOffsetInsteadOfVelocity;
     }
 }
 

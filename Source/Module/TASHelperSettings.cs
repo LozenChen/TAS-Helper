@@ -581,6 +581,10 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public Mode AutoWatch_Booster = Mode.Always;
 
+    public Mode AutoWatch_Bumper = Mode.Always;
+
+    public SlowMovingRenderMode AutoWatch_Bumper_NoneOrVelocityOrOffset = SlowMovingRenderMode.Offset;
+
     public Mode AutoWatch_Cloud = Mode.Always;
 
     public Mode AutoWatch_FallingBlock = Mode.Always;
@@ -590,6 +594,8 @@ public class TASHelperSettings : EverestModuleSettings {
     public Mode AutoWatch_Kevin = Mode.Always;
 
     public Mode AutoWatch_MoonBlock = Mode.WhenWatched;
+
+    public SlowMovingRenderMode AutoWatch_MoonBlock_VelocityOrOffset = SlowMovingRenderMode.Offset;
 
     public Mode AutoWatch_MoveBlock = Mode.Always;
 

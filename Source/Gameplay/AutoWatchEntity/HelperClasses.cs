@@ -206,6 +206,10 @@ internal static class InfoParser {
         return $"({PositionToSignedSpeedX(deltaPosition.X)}, {PositionToSignedSpeedX(deltaPosition.Y)})";
     }
 
+    internal static string Positon2ToSignedSpeedAllowZero(this Vector2 deltaPosition) {
+        return $"({PositionToSignedSpeedX(deltaPosition.X)}, {PositionToSignedSpeedX(deltaPosition.Y)})";
+    }
+
     internal static string OffsetToString(this Vector2 deltaPosition) {
         if (IsTiny(deltaPosition.X)) {
             if (IsTiny(deltaPosition.Y)) {
@@ -216,6 +220,10 @@ internal static class InfoParser {
         else if (IsTiny(deltaPosition.Y)) {
             return SignedString(deltaPosition.X);
         }
+        return $"({SignedString(deltaPosition.X)}, {SignedString(deltaPosition.Y)})";
+    }
+
+    internal static string OffsetToStringAllowZero(this Vector2 deltaPosition) {
         return $"({SignedString(deltaPosition.X)}, {SignedString(deltaPosition.Y)})";
     }
 
