@@ -8,7 +8,7 @@ internal class TheoCrystalRenderer : AutoWatchTextRenderer {
 
     public TheoCrystal theo;
 
-    public TheoCrystalRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public TheoCrystalRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

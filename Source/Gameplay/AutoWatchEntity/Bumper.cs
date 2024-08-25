@@ -12,14 +12,19 @@ internal class BumperRenderer : AutoWatchTextRenderer {
 
     public Vector2 pos;
 
-    public SlowMovingRenderMode chooseOffsetVelocity;
-    public BumperRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public ShakeRenderMode chooseOffsetVelocity;
+
+    private const bool allowZero = true;
+
+    private const bool breakline = true;
+    public BumperRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);
         lastPos = pos = entity.Position;
         bumper = entity as Bumper;
         chooseOffsetVelocity = Config.Bumper_ChooseOffsetVelocity;
+        text.scale = 0.8f;
     }
 
     public override void UpdateImpl() {
@@ -29,19 +34,22 @@ internal class BumperRenderer : AutoWatchTextRenderer {
         text.Clear();
 
         switch (chooseOffsetVelocity) {
-            case SlowMovingRenderMode.None: break;
-            case SlowMovingRenderMode.Offset: {
-                    text.Append(new Vector2((float)(bumper.sine.Value * 3.0), (float)(bumper.sine.ValueOverTwo * 2.0)).OffsetToStringAllowZero());
+            case ShakeRenderMode.None: break;
+            case ShakeRenderMode.Offset: {
+                    // it would be a bit weird if it has node
+                    text.Append((bumper.Position - bumper.anchor).OffsetToString(allowZero, breakline)); // we can use bumper.sine.Value/ValueOverTwo here, but for mod compatibility, we use this
                     break;
                 }
-            case SlowMovingRenderMode.Velocity: {
-                    text.Append((pos - lastPos).Positon2ToSignedSpeedAllowZero());
+            case ShakeRenderMode.Velocity: {
+                    text.Append((pos - lastPos).Positon2ToSignedSpeed(allowZero, breakline));
                     break;
                 }
             default: break;
         };
 
-        text.Append(bumper.respawnTimer.ToFrameMinusOne()); // depth 0 so it depends on actualDepth...
+        if (!bumper.fireMode) {
+            text.Append(bumper.respawnTimer.ToFrameMinusOne()); // depth 0 so it depends on actualDepth...
+        }
 
         SetVisible();
     }

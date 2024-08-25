@@ -13,7 +13,11 @@ internal class FloatySpaceBlockRenderer : AutoWatchTextRenderer {
     public Vector2 pos;
 
     public bool useOffsetInsteadOfVelocity = true;
-    public FloatySpaceBlockRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+
+    private const bool allowZero = false;
+
+    private const bool breakline = true;
+    public FloatySpaceBlockRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);
@@ -29,14 +33,14 @@ internal class FloatySpaceBlockRenderer : AutoWatchTextRenderer {
         if (block.MasterOfGroup || mode == RenderMode.WhenWatched) { // if RenderMode = Always, then we only render the master one
             if (useOffsetInsteadOfVelocity) {
                 if (block.MasterOfGroup) {
-                    text.content = (pos - block.Moves[block]).OffsetToString();
+                    text.content = (pos - block.Moves[block]).OffsetToString(allowZero, breakline);
                 }
                 else {
-                    text.content = (pos - block.master.Moves[block]).OffsetToString();
+                    text.content = (pos - block.master.Moves[block]).OffsetToString(allowZero, breakline);
                 }
             }
             else {
-                text.content = (pos - lastPos).Positon2ToSignedSpeed();
+                text.content = (pos - lastPos).Positon2ToSignedSpeed(allowZero, breakline);
             }
             Visible = true;
         }

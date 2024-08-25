@@ -22,7 +22,7 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
     public Vector2 lastPos;
 
     public Vector2 pos;
-    public MoveBlockRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public MoveBlockRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);
@@ -46,7 +46,7 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
         if (moveBlock.state == MoveBlock.MovementState.Moving && crashTimer < 0.15f && crashTimer != -9999) {
             text.Append(crashTimer.ToFrame()); // not exactly frame, coz the timer decreases if move block will collide into a wall in this frame. but if you hold the other direction, then the move block has lower speed, so it's possible that the delta position is not enough to make it collide into a wall
         }
-        text.Append((pos - lastPos).Positon2ToSignedSpeed());
+        text.Append((pos - lastPos).Positon2ToSignedSpeed(allowZero: false, breakline: true));
         SetVisible();
     }
 

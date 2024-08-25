@@ -6,7 +6,7 @@ namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 internal class CloudRenderer : AutoWatchTextRenderer {
 
     public Cloud cloud;
-    public CloudRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public CloudRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

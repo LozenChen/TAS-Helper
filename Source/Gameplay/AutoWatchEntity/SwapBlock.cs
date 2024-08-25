@@ -12,7 +12,7 @@ internal class SwapBlockRenderer : AutoWatchTextRenderer {
     public Vector2 lastPos;
 
     public Vector2 pos;
-    public SwapBlockRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public SwapBlockRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

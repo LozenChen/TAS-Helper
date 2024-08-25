@@ -9,7 +9,7 @@ namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
 
     public CutsceneEntity cs;
-    public CutsceneEntityRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public CutsceneEntityRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public Coroutine coroutine;
     public float waitTimer => coroutine.waitTimer;

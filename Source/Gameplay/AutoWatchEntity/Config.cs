@@ -10,31 +10,31 @@ internal static class Config {
 
     public static float HiresFontStroke = 5 * 0.4f; // settigns.HiresFontStroke
 
-    public static Mode SwapBlock => TasHelperSettings.AutoWatch_SwapBlock;
-
-    public static Mode MoveBlock => TasHelperSettings.AutoWatch_MoveBlock;
-
-    public static Mode Refill => TasHelperSettings.AutoWatch_Refill;
-
-    public static Mode FallingBlock => TasHelperSettings.AutoWatch_FallingBlock;
+    public static Mode BadelineBoost => TasHelperSettings.AutoWatch_BadelineOrb;
 
     public static Mode Booster => TasHelperSettings.AutoWatch_Booster;
 
-    public static Mode ZipMover => TasHelperSettings.AutoWatch_ZipMover;
-
-    public static Mode FloatySpaceBlock => TasHelperSettings.AutoWatch_MoonBlock;
-
-    public static bool FloatySpaceBlock_UseOffsetInsteadOfVelocity => TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset == SlowMovingRenderMode.Offset;
-
     public static Mode Bumper => TasHelperSettings.AutoWatch_Bumper;
 
-    public static SlowMovingRenderMode Bumper_ChooseOffsetVelocity => TasHelperSettings.AutoWatch_Bumper_NoneOrVelocityOrOffset;
-
-    public static Mode Glider => TasHelperSettings.AutoWatch_Jelly;
+    public static ShakeRenderMode Bumper_ChooseOffsetVelocity => TasHelperSettings.AutoWatch_Bumper_NoneOrVelocityOrOffset;
 
     public static Mode Cloud => TasHelperSettings.AutoWatch_Cloud;
 
-    public static Mode TheoCrystal => TasHelperSettings.AutoWatch_TheoCrystal;
+    public static Mode CrushBlock => TasHelperSettings.AutoWatch_Kevin;
+
+    public static Mode CutsceneEntity => TasHelperSettings.AutoWatch_Cutscene;
+
+    public static Mode FallingBlock => TasHelperSettings.AutoWatch_FallingBlock;
+
+    public static Mode FlingBird => TasHelperSettings.AutoWatch_FlingBird;
+
+    public static Mode FloatySpaceBlock => TasHelperSettings.AutoWatch_MoonBlock;
+
+    public static bool FloatySpaceBlock_UseOffsetInsteadOfVelocity => TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset == ShakeRenderMode.Offset;
+
+    public static Mode Glider => TasHelperSettings.AutoWatch_Jelly;
+
+    public static Mode MoveBlock => TasHelperSettings.AutoWatch_MoveBlock;
 
     public static Mode Player => TasHelperSettings.AutoWatch_Player;
 
@@ -50,21 +50,22 @@ internal static class Config {
 
     public static bool ShowDashAttackTimer => TasHelperSettings.AutoWatch_ShowDashAttackTimer;
 
-    public static Mode CrushBlock => TasHelperSettings.AutoWatch_Kevin;
+    public static Mode Refill => TasHelperSettings.AutoWatch_Refill;
 
-    public static Mode CutsceneEntity => TasHelperSettings.AutoWatch_Cutscene;
+    public static Mode SwapBlock => TasHelperSettings.AutoWatch_SwapBlock;
 
-    public static Mode BadelineBoost => TasHelperSettings.AutoWatch_BadelineOrb;
+    public static Mode TheoCrystal => TasHelperSettings.AutoWatch_TheoCrystal;
+
+    public static Mode ZipMover => TasHelperSettings.AutoWatch_ZipMover;
+
 }
-public enum SlowMovingRenderMode { None, Offset, Velocity }
+public enum ShakeRenderMode { None, Offset, Velocity } // 我在近义词里面纠结了很久, 最终将其定为 中文名定为 摇摆, 英文名定为 Shake
 internal static class Format {
 
     public static bool Speed_UsePixelPerSecond = true; // instead of PixelPerFrame
 }
 
 internal static class TODO {
-    // todo: moon block support offset / velo switch
-
     public static Mode BounceBlock = Mode.Always;
 
     public static Mode FlingBird = Mode.Always;

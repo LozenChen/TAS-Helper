@@ -3,7 +3,6 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Collections;
-
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal class FallingBlockRenderer : AutoWatchTextRenderer {
@@ -20,7 +19,7 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
     public Vector2 lastPos;
 
     public Vector2 pos;
-    public FallingBlockRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public FallingBlockRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

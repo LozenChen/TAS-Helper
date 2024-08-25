@@ -10,7 +10,7 @@ internal class GliderRenderer : AutoWatchTextRenderer {
 
     public bool wasCannotHold = false;
 
-    public GliderRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public GliderRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

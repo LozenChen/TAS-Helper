@@ -21,7 +21,7 @@ internal class ZipMoverRenderer : AutoWatchTextRenderer {
     public float waitTimer => coroutine.waitTimer;
 
     public static bool useFallBack = true;
-    public ZipMoverRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public ZipMoverRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

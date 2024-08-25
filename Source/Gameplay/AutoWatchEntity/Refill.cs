@@ -7,7 +7,7 @@ namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 internal class RefillRenderer : AutoWatchTextRenderer {
 
     public Refill refill;
-    public RefillRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public RefillRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

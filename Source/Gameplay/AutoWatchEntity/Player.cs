@@ -27,7 +27,7 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
     public static Vector2 offset = Vector2.UnitY * 6f; // make sure this is different to that of cutscene
 
     public int dashAttack = 0;
-    public PlayerRenderer(RenderMode mode, bool active = true, bool preActive = true) : base(mode, active, preActive) { }
+    public PlayerRenderer(RenderMode mode) : base(mode, active: true, preActive: true) { }
 
     public override void PreUpdateImpl() {
         text.Clear();

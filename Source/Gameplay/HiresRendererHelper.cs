@@ -1,5 +1,3 @@
-using Celeste.Mod.TASHelper.Entities;
-using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -217,73 +215,4 @@ public class THRenderer {
     public virtual void AfterRender() { }
 
     public virtual void Update() { }
-}
-
-public class TempTextRenderer : THRenderer {
-    // use for those texts that appear and die quickly
-
-    public string text;
-    public Vector2 position;
-    public string label;
-
-    public TempTextRenderer(string text, Vector2 position, string label) {
-        this.text = text;
-        this.position = position;
-        this.label = label;
-    }
-
-    public override void Render() {
-        Message.RenderMessage(text, position, new Vector2(0.5f, 0.2f), new Vector2(TasHelperSettings.HiresFontSize / 10f), TasHelperSettings.HiresFontStroke * 0.4f);
-    }
-
-    public static void Clear(string label) {
-        foreach (TempTextRenderer tmp in HiresLevelRenderer.GetRenderers<TempTextRenderer>()) {
-            if (tmp.label == label) {
-                HiresLevelRenderer.Remove(tmp);
-            }
-        }
-    }
-}
-
-public class PolygonalLineRenderer : THRenderer {
-    public Dictionary<int, List<Vector2>> lists = new();
-
-    public PolygonalLineRenderer(Dictionary<int, List<Vector2>> lists) {
-        this.lists = lists;
-    }
-
-    public override void Render() {
-        float lineWidth = TasHelperSettings.PredictorLineWidth;
-        float pointWidth = TasHelperSettings.PredictorPointSize;
-        if (lineWidth == 0f && pointWidth == 0f) {
-            return;
-        }
-        int count = lists.Keys.Count;
-        int index = 0;
-        Color colorLine = CustomColors.Predictor_PolygonalLineColor;
-        Color colorPoint = CustomColors.Predictor_DotColor;
-        bool drawPoint = pointWidth > 0 && TasHelperSettings.TimelineFinestScale == Module.TASHelperSettings.TimelineFinestStyle.DottedPolygonLine;
-        for (int i = 0; i < count; i++) {
-            List<Vector2> nodes = lists[i];
-            for (int j = 0; j < nodes.Count - 1; j++) {
-                if (drawPoint) {
-                    nodes[j].MonocleDrawPoint(colorPoint, pointWidth);
-                }
-                if (lineWidth > 0) {
-                    Monocle.Draw.Line(nodes[j], nodes[j + 1], colorLine, lineWidth);
-                }
-                index++;
-            }
-            if (drawPoint) {
-                nodes.Last().MonocleDrawPoint(colorPoint, pointWidth);
-            }
-        }
-    }
-
-    public static void Clear() {
-        foreach (PolygonalLineRenderer renderer in HiresLevelRenderer.GetRenderers<PolygonalLineRenderer>()) {
-            HiresLevelRenderer.Remove(renderer);
-        }
-    }
-
 }

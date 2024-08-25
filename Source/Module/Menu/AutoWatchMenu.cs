@@ -45,8 +45,8 @@ public static class AutoWatchMenu {
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Bumper".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_Bumper).Change(value => TasHelperSettings.AutoWatch_Bumper = value));
 
-        page.Add(new EnumerableSliderExt<SlowMovingRenderMode>("Auto Watch Bumper VelocityOrOffset".ToDialogText(),
-            CreateSlowMovingOptions(), TasHelperSettings.AutoWatch_Bumper_NoneOrVelocityOrOffset).Change(value => TasHelperSettings.AutoWatch_Bumper_NoneOrVelocityOrOffset = value));
+        page.Add(new EnumerableSliderExt<ShakeRenderMode>("Auto Watch Shake".ToDialogText(),
+            CreateShakeOptions(), TasHelperSettings.AutoWatch_Bumper_NoneOrVelocityOrOffset).Change(value => TasHelperSettings.AutoWatch_Bumper_NoneOrVelocityOrOffset = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Cloud".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_Cloud).Change(value => TasHelperSettings.AutoWatch_Cloud = value));
@@ -54,17 +54,27 @@ public static class AutoWatchMenu {
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch FallingBlock".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_FallingBlock).Change(value => TasHelperSettings.AutoWatch_FallingBlock = value));
 
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch FlingBird".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_FlingBird).Change(value => TasHelperSettings.AutoWatch_FlingBird = value));
+
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Jelly".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_Jelly).Change(value => TasHelperSettings.AutoWatch_Jelly = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Kevin".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_Kevin).Change(value => TasHelperSettings.AutoWatch_Kevin = value));
 
+        page.Add(new HLine(Color.Gray));
+        return page;
+    }
+
+    internal static List<TextMenu.Item> Create_Page4(TextMenu menu) {
+        List<TextMenu.Item> page = new List<TextMenu.Item>();
+
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch MoonBlock".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_MoonBlock).Change(value => TasHelperSettings.AutoWatch_MoonBlock = value));
 
-        page.Add(new EnumerableSliderExt<SlowMovingRenderMode>("Auto Watch MoonBlock VelocityOrOffset".ToDialogText(),
-            CreateSlowMovingOnly2Options(), TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset).Change(value => TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset = value));
+        page.Add(new EnumerableSliderExt<ShakeRenderMode>("Auto Watch Shake".ToDialogText(),
+            CreateShakeOnly2Options(), TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset).Change(value => TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch MoveBlock".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_MoveBlock).Change(value => TasHelperSettings.AutoWatch_MoveBlock = value));
@@ -100,18 +110,18 @@ public static class AutoWatchMenu {
         };
     }
 
-    private static IEnumerable<KeyValuePair<SlowMovingRenderMode, string>> CreateSlowMovingOptions() {
-        return new List<KeyValuePair<SlowMovingRenderMode, string>> {
-            new(SlowMovingRenderMode.None, "Auto Watch Slow Moving None".ToDialogText()),
-            new(SlowMovingRenderMode.Velocity, "Auto Watch Slow Moving Velocity".ToDialogText()),
-            new(SlowMovingRenderMode.Offset, "Auto Watch Slow Moving Offset".ToDialogText()),
+    private static IEnumerable<KeyValuePair<ShakeRenderMode, string>> CreateShakeOptions() {
+        return new List<KeyValuePair<ShakeRenderMode, string>> {
+            new(ShakeRenderMode.None, "Auto Watch Shake None".ToDialogText()),
+            new(ShakeRenderMode.Velocity, "Auto Watch Shake Velocity".ToDialogText()),
+            new(ShakeRenderMode.Offset, "Auto Watch Shake Offset".ToDialogText()),
         };
     }
 
-    private static IEnumerable<KeyValuePair<SlowMovingRenderMode, string>> CreateSlowMovingOnly2Options() {
-        return new List<KeyValuePair<SlowMovingRenderMode, string>> {
-            new(SlowMovingRenderMode.Velocity, "Auto Watch Slow Moving Velocity".ToDialogText()),
-            new(SlowMovingRenderMode.Offset, "Auto Watch Slow Moving Offset".ToDialogText()),
+    private static IEnumerable<KeyValuePair<ShakeRenderMode, string>> CreateShakeOnly2Options() {
+        return new List<KeyValuePair<ShakeRenderMode, string>> {
+            new(ShakeRenderMode.Velocity, "Auto Watch Shake Velocity".ToDialogText()),
+            new(ShakeRenderMode.Offset, "Auto Watch Shake Offset".ToDialogText()),
         };
     }
 }

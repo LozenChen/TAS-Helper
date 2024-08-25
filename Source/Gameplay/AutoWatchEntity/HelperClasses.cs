@@ -193,38 +193,45 @@ internal static class InfoParser {
         }
     }
 
-    internal static string Positon2ToSignedSpeed(this Vector2 deltaPosition) {
-        if (IsTiny(deltaPosition.X)) {
-            if (IsTiny(deltaPosition.Y)) {
-                return "";
+    internal static string Positon2ToSignedSpeed(this Vector2 deltaPosition, bool allowZero = false, bool breakline = false) {
+        if (!allowZero) {
+            if (IsTiny(deltaPosition.X)) {
+                if (IsTiny(deltaPosition.Y)) {
+                    return "";
+                }
+                return PositionToSignedSpeedX(deltaPosition.Y);
             }
-            return PositionToSignedSpeedX(deltaPosition.Y);
-        }
-        else if (IsTiny(deltaPosition.Y)) {
-            return PositionToSignedSpeedX(deltaPosition.X);
-        }
-        return $"({PositionToSignedSpeedX(deltaPosition.X)}, {PositionToSignedSpeedX(deltaPosition.Y)})";
-    }
-
-    internal static string Positon2ToSignedSpeedAllowZero(this Vector2 deltaPosition) {
-        return $"({PositionToSignedSpeedX(deltaPosition.X)}, {PositionToSignedSpeedX(deltaPosition.Y)})";
-    }
-
-    internal static string OffsetToString(this Vector2 deltaPosition) {
-        if (IsTiny(deltaPosition.X)) {
-            if (IsTiny(deltaPosition.Y)) {
-                return "";
+            else if (IsTiny(deltaPosition.Y)) {
+                return PositionToSignedSpeedX(deltaPosition.X);
             }
-            return SignedString(deltaPosition.Y);
         }
-        else if (IsTiny(deltaPosition.Y)) {
-            return SignedString(deltaPosition.X);
+
+        if (breakline) {
+            return $"X: {PositionToSignedSpeedX(deltaPosition.X)}\nY: {PositionToSignedSpeedX(deltaPosition.Y)}";
         }
-        return $"({SignedString(deltaPosition.X)}, {SignedString(deltaPosition.Y)})";
+        else {
+            return $"({PositionToSignedSpeedX(deltaPosition.X)}, {PositionToSignedSpeedX(deltaPosition.Y)})";
+        }
     }
 
-    internal static string OffsetToStringAllowZero(this Vector2 deltaPosition) {
-        return $"({SignedString(deltaPosition.X)}, {SignedString(deltaPosition.Y)})";
+    internal static string OffsetToString(this Vector2 deltaPosition, bool allowZero = false, bool breakline = false) {
+        if (!allowZero) {
+            if (IsTiny(deltaPosition.X)) {
+                if (IsTiny(deltaPosition.Y)) {
+                    return "";
+                }
+                return SignedString(deltaPosition.Y);
+            }
+            else if (IsTiny(deltaPosition.Y)) {
+                return SignedString(deltaPosition.X);
+            }
+        }
+        if (breakline) {
+            return $"X: {SignedString(deltaPosition.X)}\nY: {SignedString(deltaPosition.Y)}";
+        }
+        else {
+            return $"({SignedString(deltaPosition.X)}, {SignedString(deltaPosition.Y)})";
+        }
     }
 
     internal const float epsilon = 1E-6f;

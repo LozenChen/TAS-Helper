@@ -23,7 +23,7 @@ internal class BadelineBoostRenderer : AutoWatchTextRenderer {
     public float loopTimer => boostRoutine?.GetFieldValue<float>("<p>5__9") ?? -9999f;
 
     public static bool useFallBack = true;
-    public BadelineBoostRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public BadelineBoostRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

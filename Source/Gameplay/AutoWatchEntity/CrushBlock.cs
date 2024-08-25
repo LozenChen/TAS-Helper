@@ -11,7 +11,7 @@ internal class CrushBlockRenderer : AutoWatchTextRenderer {
     public Vector2 lastPos;
 
     public Vector2 pos;
-    public CrushBlockRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public CrushBlockRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);

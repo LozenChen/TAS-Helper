@@ -7,7 +7,7 @@ namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 internal class BoosterRenderer : AutoWatchTextRenderer {
 
     public Booster booster;
-    public BoosterRenderer(RenderMode mode, bool active = true) : base(mode, active) { }
+    public BoosterRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);
