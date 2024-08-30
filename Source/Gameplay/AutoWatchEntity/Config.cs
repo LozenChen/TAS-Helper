@@ -68,9 +68,9 @@ internal static class Format {
 internal static class TODO {
     public static Mode BounceBlock = Mode.Always;
 
-    public static Mode FlingBird = Mode.Always;
+    public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
 
-    public static Mode CrumblePlatform = Mode.Always;
+    public static Mode CrumblePlatform = Mode.Always; // disappear and respawn
 
     public static Mode Lookout = Mode.Always;
 
@@ -94,8 +94,6 @@ internal static class TODO {
 
     public static Mode CrushBlock = Mode.Always; // aka Kevin // differs if it's one-way
 
-    public static Mode Bumper = Mode.Always;
-
     public static Mode FinalBoss = Mode.Always; // 6a boss, timerate?
 
     public static Mode FinalBossMovingBlock = Mode.Always;
@@ -107,7 +105,5 @@ internal static class TODO {
     public static Mode NPC = Mode.Always;
 
     public static Mode Camera = Mode.Always;
-
-    public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
 
 }
