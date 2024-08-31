@@ -15,6 +15,17 @@ public static class CassetteBlockHelper {
 
     public static bool ShowExtraInfo => TasHelperSettings.CassetteBlockHelperShowExtraInfo;
 
+    public static void OnEnabledChanged() {
+        if (Engine.Scene is Level level) {
+            if (Enabled) {
+                if (level.Tracker.GetEntity<CassetteBlockVisualizer>() is null) {
+                    CassetteBlockVisualizer.AddToScene(level);
+                    CassetteBlockVisualizer.BuildBeatColors(level);
+                }
+            }
+        }
+    }
+
     public enum Alignments { TopRight, BottomRight, TopLeft, BottomLeft, None };
     // the difference between TopRight and None :
     // if None, then we just use DefaultPosition (which can be modified by user)
@@ -129,6 +140,10 @@ public static class CassetteBlockHelper {
         }
 
         public static bool AddToScene(Level level) {
+            if (Instance is not null) {
+                Instance.RemoveSelf();
+                Instance.Visible = Instance.Active = false;
+            }
             Instance = new CassetteBlockVisualizer();
             level.Add(Instance);
             needReAlignment = true;
@@ -189,6 +204,10 @@ public static class CassetteBlockHelper {
         private const int loop = 512; // contains two full cycles
         public override void Update() {
             if (Predictor.PredictorCore.InPredict) {
+                return;
+            }
+            if (!Enabled) {
+                RemoveSelf();
                 return;
             }
             if (!findCBM) {

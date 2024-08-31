@@ -96,7 +96,7 @@ internal class ZipMoverFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.ZipMover;
     public void AddComponent(Entity entity) {
-        entity.Add(new ZipMoverRenderer(Mode()));
+        entity.Add(new ZipMoverRenderer(Mode()).SleepWhenUltraFastforward());
     }
 }
 

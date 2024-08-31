@@ -75,7 +75,7 @@ internal static class CoreLogic {
 
     [LoadLevel]
     public static void OnLoadLevel(Level level) {
-        if (Config.MainEnabled && !UltraFastForwarding) {
+        if (Config.MainEnabled) {
             List<AutoWatchRenderer> longliveRenderers = new List<AutoWatchRenderer>();
             foreach (AutoWatchRenderer renderer in WhenWatchedRenderers) {
                 if (renderer.Entity?.Scene == level) {
@@ -170,6 +170,15 @@ internal class AutoWatchRenderer : Component {
         }
     }
 
+    public void UpdateOnStopUltraforwarding() {
+        Visible = mode == RenderMode.Always || CoreLogic.IsWatched(this.Entity);
+        PostActive = hasUpdate && Visible;
+        PreActive = hasPreUpdate && Visible;
+        if (PreActive || PostActive) {
+            ClearHistoryData();
+        }
+    }
+
     public override void Added(Entity entity) {
         base.Added(entity);
         if (mode == RenderMode.WhenWatched) {
@@ -239,6 +248,41 @@ internal class AutoWatchRenderer : Component {
     }
 
     public virtual void DebugRenderImpl() { }
+
+    public AutoWatchRenderer SleepWhenUltraFastforward() {
+        if (UltraFastForwarding) {
+            Visible = false;
+            PostActive = PreActive = false;
+        }
+        return this;
+    }
+
+    [Load]
+    private static void Load() {
+        EventOnHook._Scene.AfterUpdate += PatchAfterUpdate;
+    }
+
+    [Unload]
+    private static void Unload() {
+        EventOnHook._Scene.AfterUpdate -= PatchAfterUpdate;
+    }
+
+    private static bool wasUltraFastforwarding = false;
+    private static void PatchAfterUpdate(Scene self) {
+        if (self is Level level) {
+            if (UltraFastForwarding) {
+                wasUltraFastforwarding = true;
+            }
+            else {
+                if (wasUltraFastforwarding) {
+                    foreach (AutoWatchRenderer renderer in level.Tracker.GetComponents<AutoWatchRenderer>()) {
+                        renderer.UpdateOnStopUltraforwarding();
+                    }
+                }
+                wasUltraFastforwarding = false;
+            }
+        }
+    }
 }
 
 internal interface IRendererFactory {
@@ -248,7 +292,6 @@ internal interface IRendererFactory {
     // but if the entity has a "Tracked(false)", then we must assign false here. so we don't change game logic and thus avoid tas desync
     public RenderMode Mode();
     public void AddComponent(Entity entity);
-
 }
 
 public enum RenderMode {

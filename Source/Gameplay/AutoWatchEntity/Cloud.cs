@@ -38,7 +38,7 @@ internal class CloudFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Cloud;
     public void AddComponent(Entity entity) {
-        entity.Add(new CloudRenderer(Mode()));
+        entity.Add(new CloudRenderer(Mode()).SleepWhenUltraFastforward());
     }
 }
 

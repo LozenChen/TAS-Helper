@@ -61,7 +61,7 @@ internal class MoveBlockFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.MoveBlock;
     public void AddComponent(Entity entity) {
-        entity.Add(new MoveBlockRenderer(Mode()));
+        entity.Add(new MoveBlockRenderer(Mode()).SleepWhenUltraFastforward());
     }
 }
 

@@ -394,6 +394,8 @@ public class TASHelperSettings : EverestModuleSettings {
         LoadRangeColliderRenderer.ClearCache();
         CountdownRenderer.ClearCache();
         MovementOvershootAssistant.UpdateDetourState();
+        CassetteBlockHelper.OnEnabledChanged();
+        Gameplay.AutoWatchEntity.CoreLogic.OnConfigChange();
     }
     public bool UsingCountDown = false;
     public bool UsingLoadRange = true;
@@ -636,6 +638,7 @@ public class TASHelperSettings : EverestModuleSettings {
         get => Enabled && enableCassetteBlockHelper;
         set {
             enableCassetteBlockHelper = value;
+            CassetteBlockHelper.OnEnabledChanged();
         }
     }
 

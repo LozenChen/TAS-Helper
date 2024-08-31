@@ -52,6 +52,7 @@ internal static class Config {
 
     public static Mode Refill => TasHelperSettings.AutoWatch_Refill;
 
+    public static Mode Seeker = Mode.Always;
     public static Mode SwapBlock => TasHelperSettings.AutoWatch_SwapBlock;
 
     public static Mode TheoCrystal => TasHelperSettings.AutoWatch_TheoCrystal;
@@ -71,6 +72,10 @@ internal static class TODO {
     public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
 
     public static Mode CrumblePlatform = Mode.Always; // disappear and respawn
+
+    public static Mode Seeker = Mode.Always;
+
+    public static Mode HeartGem = Mode.Always;
 
     public static Mode Lookout = Mode.Always;
 

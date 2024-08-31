@@ -116,7 +116,7 @@ internal class FlingBirdFactory : IRendererFactory {
     public bool Inherited() => false; // it's not compatible with DJMapHelper's FlingBirdReversed
     public RenderMode Mode() => Config.FlingBird;
     public void AddComponent(Entity entity) {
-        entity.Add(new FlingBirdRenderer(Mode()));
+        entity.Add(new FlingBirdRenderer(Mode()).SleepWhenUltraFastforward());
     }
 }
 

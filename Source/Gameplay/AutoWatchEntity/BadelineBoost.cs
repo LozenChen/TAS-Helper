@@ -134,7 +134,7 @@ internal class BadelineBoostFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.BadelineBoost;
     public void AddComponent(Entity entity) {
-        entity.Add(new BadelineBoostRenderer(Mode()));
+        entity.Add(new BadelineBoostRenderer(Mode()).SleepWhenUltraFastforward());
     }
 }
 

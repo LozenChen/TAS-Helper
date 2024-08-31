@@ -45,7 +45,7 @@ internal class SwapBlockFactory : IRendererFactory {
     public bool Inherited() => false;
     public RenderMode Mode() => Config.SwapBlock;
     public void AddComponent(Entity entity) {
-        entity.Add(new SwapBlockRenderer(Mode()));
+        entity.Add(new SwapBlockRenderer(Mode()).SleepWhenUltraFastforward());
     }
 }
 

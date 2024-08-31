@@ -66,7 +66,7 @@ internal class BumperFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Bumper;
     public void AddComponent(Entity entity) {
-        entity.Add(new BumperRenderer(Mode()));
+        entity.Add(new BumperRenderer(Mode()).SleepWhenUltraFastforward());
     }
 }
 
