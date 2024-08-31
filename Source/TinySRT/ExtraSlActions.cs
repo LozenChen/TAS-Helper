@@ -215,6 +215,7 @@ internal static class TasHelperSL {
             CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = TH_ColorSwapTime.TH_DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = TH_offsetGroup.TH_DeepCloneShared();
             Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers = TH_WhenWatchedRenderers.TH_DeepCloneShared();
+            AutoWatchRenderer.WakeUpAllAutoWatchRenderer();
         };
         Action clear = () => {
             TH_CachedNodes = null;
@@ -267,6 +268,8 @@ internal static class TasHelperSL {
             // then Invincible will still be true after load state
 
             Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers = SRT_WhenWatchedRenderers.DeepCloneShared();
+
+            AutoWatchRenderer.WakeUpAllAutoWatchRenderer();
         };
         Action clear = () => {
             SRT_CachedNodes = null;

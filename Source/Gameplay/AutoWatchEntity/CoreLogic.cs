@@ -159,9 +159,7 @@ internal class AutoWatchRenderer : Component {
         Visible = CoreLogic.IsWatched(this.Entity);
         PostActive = hasUpdate && Visible;
         PreActive = hasPreUpdate && Visible;
-        if (PreActive || PostActive) {
-            ClearHistoryData();
-        }
+        ClearHistoryData();
         if (PreActive) {
             PreUpdateImpl();
         }
@@ -170,13 +168,12 @@ internal class AutoWatchRenderer : Component {
         }
     }
 
-    public void UpdateOnStopUltraforwarding() {
+    public void UpdateOnStopUltraforwardingOrClone() {
         Visible = mode == RenderMode.Always || CoreLogic.IsWatched(this.Entity);
         PostActive = hasUpdate && Visible;
         PreActive = hasPreUpdate && Visible;
-        if (PreActive || PostActive) {
-            ClearHistoryData();
-        }
+        ClearHistoryData();
+        OnClone();
     }
 
     public override void Added(Entity entity) {
@@ -239,8 +236,6 @@ internal class AutoWatchRenderer : Component {
     }
     public virtual void PreUpdateImpl() { }
 
-    public virtual void UpdateOnTransition() { } // for some persistent entity. in case some field just get lost
-
     public virtual void ClearHistoryData() { }
 
     public override void DebugRender(Camera camera) {
@@ -248,6 +243,8 @@ internal class AutoWatchRenderer : Component {
     }
 
     public virtual void DebugRenderImpl() { }
+
+    public virtual void OnClone() { }
 
     public AutoWatchRenderer SleepWhenUltraFastforward() {
         if (UltraFastForwarding) {
@@ -269,17 +266,23 @@ internal class AutoWatchRenderer : Component {
 
     private static bool wasUltraFastforwarding = false;
     private static void PatchAfterUpdate(Scene self) {
-        if (self is Level level) {
+        if (self is Level) {
             if (UltraFastForwarding) {
                 wasUltraFastforwarding = true;
             }
             else {
                 if (wasUltraFastforwarding) {
-                    foreach (AutoWatchRenderer renderer in level.Tracker.GetComponents<AutoWatchRenderer>()) {
-                        renderer.UpdateOnStopUltraforwarding();
-                    }
+                    WakeUpAllAutoWatchRenderer();
                 }
                 wasUltraFastforwarding = false;
+            }
+        }
+    }
+
+    internal static void WakeUpAllAutoWatchRenderer() {
+        if (Engine.Scene is { } self) {
+            foreach (AutoWatchRenderer renderer in self.Tracker.GetComponents<AutoWatchRenderer>()) {
+                renderer.UpdateOnStopUltraforwardingOrClone();
             }
         }
     }

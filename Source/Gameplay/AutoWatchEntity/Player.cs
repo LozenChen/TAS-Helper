@@ -222,7 +222,14 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
         }
     }
 
-    public void SetVisible() {
+    public override void OnClone() {
+        base.OnClone();
+        if (textBelow is not null) {
+            HiresLevelRenderer.AddIfNotPresent(textBelow);
+        }
+    }
+
+    public new void SetVisible() {
         Visible = (text.content != "" || textBelow.content != "");
     }
 }

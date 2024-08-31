@@ -101,6 +101,13 @@ internal class AutoWatchTextRenderer : AutoWatchRenderer {
     public void SetVisible() {
         Visible = text.content != "";
     }
+
+    public override void OnClone() {
+        base.OnClone();
+        if (text is not null) {
+            HiresLevelRenderer.AddIfNotPresent(text);
+        }
+    }
 }
 
 internal static class InfoParser {
