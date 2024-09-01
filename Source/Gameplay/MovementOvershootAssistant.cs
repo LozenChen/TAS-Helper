@@ -128,7 +128,7 @@ internal static class MovementOvershootAssistant {
 
     internal class MOA_Renderer : Entity {
 
-        public static MOA_Renderer Instance;
+        public static MOA_Renderer Instance = null;
 
         public static Color HitboxColor => CustomColors.MovementOvershootAssistantColor;
 
@@ -139,6 +139,11 @@ internal static class MovementOvershootAssistant {
             unselectableCollider = new Hitbox(8f, 11f, -4f, -11f); // we use this to avoid captured by FindClickedEntities
             Collidable = false;
             Visible = false;
+            if (Instance is not null) {
+                Instance.Visible = false;
+                Engine.Scene.Remove(Instance);
+            }
+
             // bug report: https://discord.com/channels/403698615446536203/666197738026827786/1233483296827117618
             if (this is not null) {
                 Instance = this;

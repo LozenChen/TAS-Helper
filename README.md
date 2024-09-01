@@ -54,6 +54,8 @@ Note that from TAS Helper v2.0.0, we target [psyGamer's branch](https://github.c
 
 # Some details:
 
+- The number shown in AutoWatch may change dramatically when Engine.TimeRate changes, e.g. when you bounce on an attacking seeker.
+
 - FrostHelper's CustomSpinner may have "no cycle", which means they will turn on/off collidable every frame.
 
 - BrokemiaHelper's CassetteSpinner, is considered as "no cycle", since its collidablity is completely determined by cassette music. However, its visibility do have a 15f cycle (useless, it can't interact with collidablity).

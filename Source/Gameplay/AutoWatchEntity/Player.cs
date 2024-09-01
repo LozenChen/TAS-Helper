@@ -6,9 +6,7 @@ using Monocle;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 
-internal class PlayerRenderer : AutoWatchTextRenderer {
-
-    public HiresText textBelow;
+internal class PlayerRenderer : AutoWatchText2Renderer {
 
     public Player player;
 
@@ -24,7 +22,7 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
 
     public bool flag = false;
 
-    public static Vector2 offset = Vector2.UnitY * 6f; // make sure this is different to that of cutscene
+    public static Vector2 default_offset = Vector2.UnitY * 6f; // make sure this is different to that of cutscene
 
     public int dashAttack = 0;
     public PlayerRenderer(RenderMode mode) : base(mode, active: true, preActive: true) { }
@@ -185,52 +183,10 @@ internal class PlayerRenderer : AutoWatchTextRenderer {
 
     public override void Added(Entity entity) {
         base.Added(entity);
-        HiresLevelRenderer.Add(text = new HiresText("", entity.Position, this));
-        HiresLevelRenderer.Add(textBelow = new HiresText("", entity.Position, this));
         player = entity as Player;
         stateMachine = player.StateMachine;
         State = stateMachine.State;
-        textBelow.justify = new Microsoft.Xna.Framework.Vector2(0.5f, 0f);
-    }
-
-    public override void EntityAdded(Scene scene) {
-        base.EntityAdded(scene);
-        if (text is not null) {
-            HiresLevelRenderer.AddIfNotPresent(text); // without this, PlayerRender may get lost after EventTrigger "ch9_goto_the_future" (first two sides of Farewell)
-        }
-        if (textBelow is not null) {
-            HiresLevelRenderer.AddIfNotPresent(textBelow);
-        }
-    }
-
-    public override void Removed(Entity entity) {
-        base.Removed(entity);
-        if (text is not null) {
-            HiresLevelRenderer.Remove(text);
-        }
-        if (textBelow is not null) {
-            HiresLevelRenderer.Remove(textBelow);
-        }
-    }
-    public override void EntityRemoved(Scene scene) {
-        base.EntityRemoved(scene);
-        if (text is not null) {
-            HiresLevelRenderer.Remove(text);
-        }
-        if (textBelow is not null) {
-            HiresLevelRenderer.Remove(textBelow);
-        }
-    }
-
-    public override void OnClone() {
-        base.OnClone();
-        if (textBelow is not null) {
-            HiresLevelRenderer.AddIfNotPresent(textBelow);
-        }
-    }
-
-    public new void SetVisible() {
-        Visible = (text.content != "" || textBelow.content != "");
+        offset = default_offset;
     }
 }
 

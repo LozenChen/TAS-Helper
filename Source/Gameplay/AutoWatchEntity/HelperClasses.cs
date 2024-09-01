@@ -110,6 +110,50 @@ internal class AutoWatchTextRenderer : AutoWatchRenderer {
     }
 }
 
+internal class AutoWatchText2Renderer : AutoWatchTextRenderer {
+    public HiresText textBelow;
+
+    public Vector2 offset = Vector2.UnitY * 6f;
+    public AutoWatchText2Renderer(RenderMode mode, bool active, bool preActive = false) : base(mode, active, preActive) { }
+
+    public override void Added(Entity entity) {
+        base.Added(entity);
+        HiresLevelRenderer.Add(textBelow = new HiresText("", entity.Position, this));
+        textBelow.justify = new Vector2(0.5f, 0f);
+    }
+
+    public override void EntityAdded(Scene scene) {
+        base.EntityAdded(scene);
+        if (textBelow is not null) {
+            HiresLevelRenderer.AddIfNotPresent(textBelow);
+        }
+    }
+
+    public override void Removed(Entity entity) {
+        base.Removed(entity);
+        if (textBelow is not null) {
+            HiresLevelRenderer.Remove(textBelow);
+        }
+    }
+    public override void EntityRemoved(Scene scene) {
+        base.EntityRemoved(scene);
+        if (textBelow is not null) {
+            HiresLevelRenderer.Remove(textBelow);
+        }
+    }
+
+    public override void OnClone() {
+        base.OnClone();
+        if (textBelow is not null) {
+            HiresLevelRenderer.AddIfNotPresent(textBelow);
+        }
+    }
+
+    public new void SetVisible() {
+        Visible = (text.content != "" || textBelow.content != "");
+    }
+}
+
 internal static class InfoParser {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
