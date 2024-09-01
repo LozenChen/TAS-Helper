@@ -84,6 +84,9 @@ internal class PlayerRenderer : AutoWatchText2Renderer {
                 flag = true;
             }
         }
+        else if (State == StHitSquash) {
+            text.Append(player.hitSquashNoMoveTimer.ToFrameAllowZero());
+        }
         else if (State == StIntroRespawn && player.respawnTween is not null) {
             text.Append(player.respawnTween.TimeLeft.ToFrame());
             flag = true;

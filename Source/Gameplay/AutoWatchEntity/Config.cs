@@ -75,6 +75,8 @@ internal static class TODO {
 
     public static Mode Seeker = Mode.Always;
 
+    public static Mode EntityCollisionLine = Mode.Always; // show a line when two entities collide and pass momentum, e.g. Seeker hit Theo, e.g. ExplodeLaunch
+
     public static Mode HeartGem = Mode.Always;
 
     public static Mode Lookout = Mode.Always;

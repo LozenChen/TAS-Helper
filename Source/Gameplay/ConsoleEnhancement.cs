@@ -8,6 +8,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using TAS;
 using TAS.EverestInterop;
+using TAS.EverestInterop.InfoHUD;
 using CMCore = Celeste.Mod.Core;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
@@ -132,9 +133,8 @@ public static class ConsoleEnhancement {
         if (historyScrollEnabled) {
             bool controlPressed = commands.currentState[Keys.LeftControl] == KeyState.Down || commands.currentState[Keys.RightControl] == KeyState.Down;
 
-            // btw, mouseScroll is already used by Everest to adjust cursor scale
-            MouseState mouseState = Mouse.GetState();
-            int mouseScrollDelta = mouseState.ScrollWheelValue - commands.mouseScroll;
+            // btw, mouseScroll is already used by Everest to adjust cursor scale, in Monocle.Commands.Render
+            int mouseScrollDelta = MouseButtons.Wheel;
             if (mouseScrollDelta / 120 != 0) {
                 // i dont know how ScrollWheelValue is calculated, for me, it's always a multiple of 120
                 // in case for other people, it's lower than 120, we provide Math.Sign as a compensation
@@ -182,6 +182,7 @@ public static class ConsoleEnhancement {
             */
         }
     }
+
 
     [TasDisableRun]
     private static void MinorBugFixer() {
