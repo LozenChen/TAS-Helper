@@ -9,6 +9,7 @@ public static class AutoWatchMenu {
         TextMenu.Item mainSwitch;
         page.Add(mainSwitch = new TextMenu.OnOff("Auto Watch MainEnable".ToDialogText(), TasHelperSettings.AutoWatchEnable).Change(value => TasHelperSettings.AutoWatchEnable = value));
         page.AddDescriptionOnEnter(menu, mainSwitch, "Auto Watch Description".ToDialogText());
+        page.Add(new EnumerableSliderExt<bool>("Auto Watch Speed Unit".ToDialogText(), CreateSpeedUnitOptions(), TasHelperSettings.AutoWatch_Speed_PixelPerSecond).Change(value => TasHelperSettings.AutoWatch_Speed_PixelPerSecond = value));
         page.Add(new IntSliderExt("Auto Watch Font Size".ToDialogText(), 1, 20, TasHelperSettings.AutoWatch_FontSize).Change(value => TasHelperSettings.AutoWatch_FontSize = value));
         page.Add(new IntSliderExt("Auto Watch Font Stroke".ToDialogText(), 0, 20, TasHelperSettings.AutoWatch_FontStroke).Change(value => TasHelperSettings.AutoWatch_FontStroke = value));
 
@@ -79,14 +80,24 @@ public static class AutoWatchMenu {
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch MoveBlock".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_MoveBlock).Change(value => TasHelperSettings.AutoWatch_MoveBlock = value));
 
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Puffer".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_Puffer).Change(value => TasHelperSettings.AutoWatch_Puffer = value));
+
+        page.Add(new EnumerableSliderExt<ShakeRenderMode>("Auto Watch Shake".ToDialogText(),
+            CreateShakeOptions(), TasHelperSettings.AutoWatch_Puffer_NoneOrVelocityOrOffset).Change(value => TasHelperSettings.AutoWatch_Puffer_NoneOrVelocityOrOffset = value));
+
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Refill".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_Refill).Change(value => TasHelperSettings.AutoWatch_Refill = value));
+
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Seeker".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_Seeker).Change(value => TasHelperSettings.AutoWatch_Seeker = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch SwapBlock".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_SwapBlock).Change(value => TasHelperSettings.AutoWatch_SwapBlock = value));
 
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch TheoCrystal".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_TheoCrystal).Change(value => TasHelperSettings.AutoWatch_TheoCrystal = value));
+
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch ZipMover".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_ZipMover).Change(value => TasHelperSettings.AutoWatch_ZipMover = value));
 
@@ -122,6 +133,13 @@ public static class AutoWatchMenu {
         return new List<KeyValuePair<ShakeRenderMode, string>> {
             new(ShakeRenderMode.Velocity, "Auto Watch Shake Velocity".ToDialogText()),
             new(ShakeRenderMode.Offset, "Auto Watch Shake Offset".ToDialogText()),
+        };
+    }
+
+    private static IEnumerable<KeyValuePair<bool, string>> CreateSpeedUnitOptions() {
+        return new List<KeyValuePair<bool, string>> {
+            new(true, "Pixel/Second"),
+            new(false, "Pixel/Frame"),
         };
     }
 }

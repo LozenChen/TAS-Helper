@@ -50,9 +50,12 @@ internal static class Config {
 
     public static bool ShowDashAttackTimer => TasHelperSettings.AutoWatch_ShowDashAttackTimer;
 
+    public static Mode Puffer => TasHelperSettings.AutoWatch_Puffer;
+
+    public static ShakeRenderMode Puffer_ChooseOffsetVelocity => TasHelperSettings.AutoWatch_Puffer_NoneOrVelocityOrOffset;
     public static Mode Refill => TasHelperSettings.AutoWatch_Refill;
 
-    public static Mode Seeker = Mode.Always;
+    public static Mode Seeker => TasHelperSettings.AutoWatch_Seeker;
     public static Mode SwapBlock => TasHelperSettings.AutoWatch_SwapBlock;
 
     public static Mode TheoCrystal => TasHelperSettings.AutoWatch_TheoCrystal;
@@ -67,19 +70,20 @@ internal static class Format {
 }
 
 internal static class TODO {
-    public static Mode BounceBlock = Mode.Always;
+
+    public static Mode Lookout = Mode.Always;
 
     public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
 
     public static Mode CrumblePlatform = Mode.Always; // disappear and respawn
 
-    public static Mode Seeker = Mode.Always;
+    public static Mode Seeker = Mode.Always; // more info
 
     public static Mode EntityCollisionLine = Mode.Always; // show a line when two entities collide and pass momentum, e.g. Seeker hit Theo, e.g. ExplodeLaunch
 
-    public static Mode HeartGem = Mode.Always;
+    public static Mode HeartGem = Mode.Always; // the collect routine
 
-    public static Mode Lookout = Mode.Always;
+    public static Mode BounceBlock = Mode.Always;
 
     public static Mode CornerBoostBlock = Mode.Always;
 

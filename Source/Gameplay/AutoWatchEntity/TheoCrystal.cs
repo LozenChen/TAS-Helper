@@ -16,8 +16,11 @@ internal class TheoCrystalRenderer : AutoWatchTextRenderer {
         text.justify = new Vector2(0.5f, 1f);
     }
 
-    public override void UpdateImpl() {
+    public override void DelayedUpdatePosition() {
         text.Position = theo.TopCenter - Vector2.UnitY * 6f;
+    }
+    public override void UpdateImpl() {
+        DelayedUpdatePosition();
         text.Clear();
         text.Append(theo.Speed.Speed2ToSpeed2());
         if (theo.Hold.cannotHoldTimer > 0f) {

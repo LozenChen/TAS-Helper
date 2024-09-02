@@ -246,6 +246,8 @@ internal class AutoWatchRenderer : Component {
 
     public virtual void OnClone() { }
 
+    public virtual void DelayedUpdatePosition() { }
+
     public AutoWatchRenderer SleepWhenUltraFastforward() {
         if (UltraFastForwarding) {
             Visible = false;

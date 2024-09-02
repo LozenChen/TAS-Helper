@@ -119,6 +119,12 @@ internal class PlayerRenderer : AutoWatchText2Renderer {
         text.Position = player.Center;
         textBelow.Position = player.BottomCenter + offset;
         SetVisible();
+
+        if (player.Holding?.Entity?.Components?.FirstOrDefault(c => c is AutoWatchRenderer) is AutoWatchRenderer component) {
+            // only makes sense for TheoCrystal coz it's of depth 100
+            // though we make it also update glider
+            component.DelayedUpdatePosition();
+        }
     }
 
     private static bool CanDash(Player player) {

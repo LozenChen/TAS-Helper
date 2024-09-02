@@ -54,7 +54,7 @@ internal class SeekerRenderer : AutoWatchText2Renderer {
                 // StStunned: it's switched to by theo's hitSeeker, theo is Depth 100, so StStunned coroutine does not have this issue
                 // StSkidding: it's switched to when attack update
                 // StRegenerate: it's switched to by GotBouncedOn <- OnBouncePlayer <- PlayerCollider, depth 0, so it's ok
-                text.Append((0.3f.ToFrameData() + 1).ToString()); 
+                text.Append((0.3f.ToFrameData() + 1).ToString());
                 flag = true;
             }
             else if (!wasWaiting) {

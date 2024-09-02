@@ -542,7 +542,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     #region AutoWatchEntity
 
-    public bool autoWatchEnable = true;
+    public bool autoWatchEnable = false;
 
     [YamlIgnore]
     public bool AutoWatchEnable {
@@ -574,9 +574,21 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
+    public bool autoWatch_Speed_PixelPerSecond = true;
+
+    [YamlIgnore]
+    public bool AutoWatch_Speed_PixelPerSecond {
+        get => autoWatch_Speed_PixelPerSecond;
+        set {
+            autoWatch_Speed_PixelPerSecond = value;
+            Format.Speed_UsePixelPerSecond = value;
+        }
+    }
+
     private void AutoWatchInitialize() {
         AutoWatch_FontSize = autoWatch_FontSize;
         AutoWatch_FontStroke = autoWatch_FontStroke;
+        AutoWatch_Speed_PixelPerSecond = autoWatch_Speed_PixelPerSecond;
     }
 
     public Mode AutoWatch_BadelineOrb = Mode.Always;
@@ -603,7 +615,13 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public Mode AutoWatch_MoveBlock = Mode.Always;
 
+    public Mode AutoWatch_Puffer = Mode.Always;
+
+    public ShakeRenderMode AutoWatch_Puffer_NoneOrVelocityOrOffset = ShakeRenderMode.Offset;
+
     public Mode AutoWatch_Refill = Mode.Always;
+
+    public Mode AutoWatch_Seeker = Mode.WhenWatched;
 
     public Mode AutoWatch_SwapBlock = Mode.Always;
 

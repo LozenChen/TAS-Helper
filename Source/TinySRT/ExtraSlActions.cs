@@ -267,7 +267,7 @@ internal static class TasHelperSL {
             CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors = SRT_QMbeatColors.DeepCloneShared();
             CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = SRT_offsetGroup.DeepCloneShared();
-             MovementOvershootAssistant.MOA_Renderer.Instance = SRT_MOA.DeepCloneShared();
+            MovementOvershootAssistant.MOA_Renderer.Instance = SRT_MOA.DeepCloneShared();
             BetterInvincible.Invincible = Manager.Running ? SRT_BetterInvincible : false;
             // note that tas will not invoke enable/disable run if it's using load state
             // so if our "Set Invincible true" is after the savepoint, invoked, and get deleted later

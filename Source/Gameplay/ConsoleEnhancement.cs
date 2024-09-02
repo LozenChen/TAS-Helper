@@ -8,7 +8,6 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using TAS;
 using TAS.EverestInterop;
-using TAS.EverestInterop.InfoHUD;
 using CMCore = Celeste.Mod.Core;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
@@ -35,6 +34,7 @@ public static class ConsoleEnhancement {
         }
     }
     public static bool GetOpenConsole() { // openConsole.getter may not be called (e.g. when there's a shortcut), so we can't modify its value here
+        // Logger.Log("TAS Helper", $"{openConsole} {CoreModule.Settings.DebugConsole.Pressed} {TH_Hotkeys.OpenConsole} {string.Join(",", CoreModule.Settings.DebugConsole.Keys.Select(x => x.ToString()))}");
         return openConsole;
     }
 
@@ -183,7 +183,7 @@ public static class ConsoleEnhancement {
         }
     }
 
-
+    // it seems this bug is gone?
     [TasDisableRun]
     private static void MinorBugFixer() {
         // if open debugconsole and close it when in tas, then exit tas (without running any frame), debugconsole will show up
@@ -197,10 +197,13 @@ public static class ConsoleEnhancement {
 
         // don't know why these bindings get pressed... at least the bug is fixed
 
+
         if (TasHelperSettings.EnableOpenConsoleInTas && (CoreModule.Settings.DebugConsole.Pressed || CoreModule.Settings.ToggleDebugConsole.Pressed) && !Engine.Commands.Open) {
             Engine.Commands.canOpen = false;
         }
+
     }
+
     private static void OnLevelBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level level) {
         openConsole = false;
         orig(level);

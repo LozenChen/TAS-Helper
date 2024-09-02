@@ -18,9 +18,21 @@ internal class GliderRenderer : AutoWatchTextRenderer {
         text.justify = new Vector2(0.5f, 1f);
     }
 
-    public override void UpdateImpl() {
+    public override void DelayedUpdatePosition() {
         text.Position = glider.TopCenter - Vector2.UnitY * 6f;
+    }
+
+    public override void UpdateImpl() {
         text.Clear();
+
+        if (glider.destroyed) {
+            // by OoO, it first detects SeekerBarrier, then MoveH/V. so if it's destroyed this frame, it's already inside seeker barrier before this frame update
+            Visible = false;
+            return;
+        }
+
+        DelayedUpdatePosition();
+
         text.Append(glider.Speed.Speed2ToSpeed2());
 
         if (glider.Hold.cannotHoldTimer > 0f) {
