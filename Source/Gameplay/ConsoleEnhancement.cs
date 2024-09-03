@@ -183,7 +183,6 @@ public static class ConsoleEnhancement {
         }
     }
 
-    // it seems this bug is gone?
     [TasDisableRun]
     private static void MinorBugFixer() {
         // if open debugconsole and close it when in tas, then exit tas (without running any frame), debugconsole will show up

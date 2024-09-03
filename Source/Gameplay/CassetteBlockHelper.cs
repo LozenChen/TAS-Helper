@@ -699,10 +699,12 @@ public static class CassetteBlockHelper {
             jungle_SwingBlockType = ModUtils.GetType("JungleHelper", "Celeste.Mod.JungleHelper.Entities.SwingCassetteBlock");
         }
 
+        private const int infiniteLoopPreventer = 2048;
         public static bool GetLoopCount(float advanceTime, out int count) {
             count = 0;
             float time = Engine.DeltaTime * tempoMult;
-            while (advanceTime > 0) {
+            // if tempoMult = 0, then infinite loop
+            while (advanceTime > 0 && count < infiniteLoopPreventer) {
                 advanceTime -= time;
                 count++;
             }
