@@ -2,6 +2,7 @@
 
 #if Maintenance
 using Celeste.Mod.TASHelper.Utils;
+using Monocle;
 
 namespace Celeste.Mod.TASHelper.Maintenance;
 internal static class MaintenaceRoutine {
@@ -22,6 +23,16 @@ internal static class MaintenaceRoutine {
 
     private static void CheckTasSync() {
         // run tases of the most popular maps
+    }
+
+    private static void CheckSpinners() {
+        // check if there are new custom spinners
+        Type spinner = typeof(CrystalStaticSpinner);
+        foreach (KeyValuePair<Type, List<Type>> pair in Tracker.TrackedEntityTypes) {
+            if (pair.Value.Contains(spinner)) {
+                Logger.Log("TAS Helper", pair.Key.FullName);
+            }
+        }
     }
 }
 #endif

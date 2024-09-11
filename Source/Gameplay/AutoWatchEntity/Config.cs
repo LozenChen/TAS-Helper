@@ -60,6 +60,8 @@ internal static class Config {
 
     public static Mode TheoCrystal => TasHelperSettings.AutoWatch_TheoCrystal;
 
+    public static Mode Trigger = Mode.Never;
+
     public static Mode ZipMover => TasHelperSettings.AutoWatch_ZipMover;
 
 }

@@ -118,7 +118,7 @@ internal static class CoreLogic {
         if (Engine.Scene is not Level level) {
             return;
         }
-        if (TasHelperSettings.AutoWatchEnable) {
+        if (Config.MainEnabled) {
             AddRenderersToLevel(level);
         }
         else {

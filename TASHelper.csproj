@@ -32,9 +32,12 @@
       <HintPath>..\..\Celeste.dll</HintPath>
     </Reference>
     <Reference Include="CelesteTAS-EverestInterop">
-      <HintPath>Libs\CelesteTAS-EverestInterop.dll</HintPath>
+      <HintPath>Libs\bin\CelesteTAS-EverestInterop.dll</HintPath>
       <Private>False</Private>
     </Reference>
+	<Reference Include="StudioCommunication">
+		<HintPath>Libs\bin\StudioCommunication.dll</HintPath>
+	</Reference>
     <Reference Include="DeepCloner">
       <HintPath>Libs\DeepCloner.dll</HintPath>
       <Private>False</Private>
@@ -59,9 +62,6 @@
     <PackageReference Include="NLua" Version="1.4.25" />
     <Reference Include="SpeedrunTool">
       <HintPath>Libs\SpeedrunTool.dll</HintPath>
-    </Reference>
-    <Reference Include="StudioCommunication">
-      <HintPath>Libs\StudioCommunication.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="YamlDotNet">

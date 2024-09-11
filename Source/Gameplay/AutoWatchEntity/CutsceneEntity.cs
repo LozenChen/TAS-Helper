@@ -144,7 +144,7 @@ internal class CutsceneEntityFactory : IRendererFactory {
     private static void CutsceneEntity_Added(On.Celeste.CutsceneEntity.orig_Added orig, CutsceneEntity self, Scene scene) {
         // CS are usually not present when loading level, e.g. CS06_Campfire
         orig(self, scene);
-        if (scene is Level level && self.Components.FirstOrDefault(c => c is AutoWatchRenderer) is null) {
+        if (scene is Level level && Config.MainEnabled && factory?.Mode() == RenderMode.Always && self.Components.FirstOrDefault(c => c is AutoWatchRenderer) is null) {
             factory.AddComponent(self);
         }
     }

@@ -74,7 +74,8 @@ public static class WhatsNew {
         AddLog("2.0.1", "Bugfix: Game crashes when there is simplified spinner / lightning. (thanks @trans_alexa)");
         AddLog("2.0.2", "Feature: AutoWatchEntity put into use. (the name comes from @XMinty77)", "Optimization: Now you can enter OptionSubMenu by just pressing down.");
         AddLog("2.0.3", "Bugfix: resolve incompatibility with SpeedrunTool", "Addition: Add more options to AutoWatch.");
-        AddLog("2.0.4", "Bugfix: If Cassette tempo = 0 and there's freeze frame, then game gets stuck (Thanks @trans_alexa)");
+        AddLog("2.0.4", "Bugfix: If Cassette tempo = 0 and there's freeze frame, then game gets stuck (thanks @trans_alexa)");
+        AddLog("2.0.5", "Bugfix: Cutscene is auto-watched even if Auto Watch is not enabled. (thanks @socksygen");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
