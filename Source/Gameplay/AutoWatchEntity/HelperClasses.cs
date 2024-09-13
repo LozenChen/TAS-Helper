@@ -13,7 +13,21 @@ internal partial class HiresText : THRenderer {
     internal AutoWatchRenderer holder;
     public string content;
     private Vector2 position;
+
+    public float X {
+        get => position.X / 6f;
+        set => position.X = value * 6f;
+    }
+
+    public float Y {
+        get => position.Y / 6f;
+        set => position.Y = value * 6f;
+    }
+
     public Vector2 Position {
+        get {
+            return position / 6f;
+        }
         set {
             position = value * 6f;
         }
@@ -22,6 +36,10 @@ internal partial class HiresText : THRenderer {
     public float scale = 1f;
 
     public Vector2 justify;
+
+    public Color colorInside = Color.White;
+
+    public Color colorOutside = Color.Black;
 
     public HiresText(string text, Vector2 position, AutoWatchRenderer holder) {
         content = text;
@@ -32,7 +50,7 @@ internal partial class HiresText : THRenderer {
 
     public override void Render() {
         if (DebugRendered && holder.Visible) {
-            Message.RenderMessage(content, position, justify, Config.HiresFontSize * scale, Config.HiresFontStroke * scale);
+            Message.RenderMessage(content, position, justify, Config.HiresFontSize * scale, Config.HiresFontStroke * scale, colorInside, colorOutside);
         }
     }
 
@@ -162,6 +180,11 @@ internal static class InfoParser {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string IntSignedString(this float f) {
+        return f.ToString("+0;-0;0");
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int ToCeilingFrames(float seconds) {
         return (int)Math.Ceiling(seconds / Engine.DeltaTime);
     }
@@ -283,6 +306,24 @@ internal static class InfoParser {
         else {
             return $"({SignedString(deltaPosition.X)}, {SignedString(deltaPosition.Y)})";
         }
+    }
+
+    internal static string FloatVector2ToString(this Vector2 vector2) {
+        return $"({SignedString(vector2.X)}, {SignedString(vector2.Y)})";
+    }
+    internal static string IntVector2ToString(this Vector2 vector2) {
+        return $"({IntSignedString(vector2.X)}, {IntSignedString(vector2.Y)})";
+    }
+
+    internal static string AbsoluteFloatToString(this float f) {
+        return f.ToString("0.00");
+    }
+    internal static string SignedFloatToString(this float f) {
+        return SignedString(f);
+    }
+
+    internal static string SignedIntToString(this float f) {
+        return IntSignedString(f);
     }
 
     internal const float epsilon = 1E-6f;

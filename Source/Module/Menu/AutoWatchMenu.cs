@@ -32,6 +32,9 @@ public static class AutoWatchMenu {
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Cutscene".ToDialogText(),
             CreateOnlyTwoOptions(), TasHelperSettings.AutoWatch_Cutscene).Change(value => TasHelperSettings.AutoWatch_Cutscene = value));
 
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Trigger".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_Trigger).Change(value => TasHelperSettings.AutoWatch_Trigger = value));
+
         page.Add(new HLine(Color.Gray));
         return page;
     }

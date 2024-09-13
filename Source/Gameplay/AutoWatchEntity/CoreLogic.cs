@@ -239,7 +239,9 @@ internal class AutoWatchRenderer : Component {
     public virtual void ClearHistoryData() { }
 
     public override void DebugRender(Camera camera) {
-        DebugRenderImpl();
+        if (Visible) {
+            DebugRenderImpl();
+        }
     }
 
     public virtual void DebugRenderImpl() { }

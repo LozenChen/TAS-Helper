@@ -60,7 +60,7 @@ internal static class Config {
 
     public static Mode TheoCrystal => TasHelperSettings.AutoWatch_TheoCrystal;
 
-    public static Mode Trigger = Mode.Never;
+    public static Mode Trigger => TasHelperSettings.AutoWatch_Trigger;
 
     public static Mode ZipMover => TasHelperSettings.AutoWatch_ZipMover;
 
@@ -76,6 +76,8 @@ internal static class TODO {
     public static Mode Lookout = Mode.Always;
 
     public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
+
+    public static Mode RespawnTargetTrigger = Mode.Always; // techinically it's not a trigger
 
     public static Mode CrumblePlatform = Mode.Always; // disappear and respawn
 

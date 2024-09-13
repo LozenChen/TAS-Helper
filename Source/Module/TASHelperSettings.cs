@@ -627,6 +627,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public Mode AutoWatch_TheoCrystal = Mode.Always;
 
+    public Mode AutoWatch_Trigger = Mode.Never;
+
     public Mode AutoWatch_ZipMover = Mode.Always;
 
     public Mode AutoWatch_Cutscene = Mode.Always;

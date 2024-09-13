@@ -279,6 +279,7 @@ TAS_HELPER_AUTO_WATCH_PAGE_6=                              Page 6
 TAS_HELPER_AUTO_WATCH_PAGE_7=                              Page 7
 TAS_HELPER_AUTO_WATCH_PLAYER=                              Player
 TAS_HELPER_AUTO_WATCH_CUTSCENE=                            Cutscene
+TAS_HELPER_AUTO_WATCH_TRIGGER=                             Trigger
 TAS_HELPER_AUTO_WATCH_DASHATTACKTIMER=                     \S    > Show dashAttackTimer
 TAS_HELPER_AUTO_WATCH_DASHTIMER=                           \S    > Show dashTimer
 TAS_HELPER_AUTO_WATCH_DREAMDASHCANENDTIMER=                \S    > Show dreamDashCanEndTimer

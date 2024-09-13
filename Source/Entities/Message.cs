@@ -332,4 +332,8 @@ public class Message : Entity {
     public static void RenderMessageJetBrainsMono(string str, Vector2 Position, Vector2 justify, Vector2 scale, float stroke, Color colorInside, Color colorOutline) {
         TAS.EverestInterop.InfoHUD.JetBrainsMonoFont.DrawOutline(str, Position, justify, scale, colorInside, stroke, colorOutline);
     }
+
+    public static Vector2 Measure(string str) {
+        return Font.Get(BaseSize).Measure(str);
+    }
 }

@@ -14,6 +14,8 @@ public static class SimplifiedTrigger {
 
     public static bool Enabled => TasHelperSettings.EnableSimplifiedTriggers;
 
+    public static bool MaybeEnabled => TasHelperSettings.Enabled && TasHelperSettings.EnableSimplifiedTriggersMode != Module.TASHelperSettings.SimplifiedGraphicsMode.Off;
+
     public static bool HideCameraTriggers => TasHelperSettings.HideCameraTriggers;
 
     public static bool HideGoldBerryCollectTrigger => TasHelperSettings.HideGoldBerryCollectTrigger;
@@ -38,7 +40,7 @@ public static class SimplifiedTrigger {
         HandleVanillaTrigger();
         HandleEverestTrigger();
         HandleBerryTrigger();
-        HandleCameraTrigger();
+        HandleCameraTrigger(); // now that Loenn 0.8 supports trigger color, should we somehow use that?
         HandleExtendedVariantTrigger();
         HandleContortHelperTrigger();
         HandleOtherMods();
@@ -131,7 +133,7 @@ public static class SimplifiedTrigger {
 
         [LoadLevel]
         public static void Build(Level level) {
-            if (!Enabled) {
+            if (!MaybeEnabled) {
                 level.Tracker.GetEntities<TriggerInfoBuilder>().ForEach(x => x.RemoveSelf());
                 UnimportantTriggers.Clear();
                 RemainingTriggersList.Clear();
