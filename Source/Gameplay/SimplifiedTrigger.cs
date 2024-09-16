@@ -179,6 +179,7 @@ public static class SimplifiedTrigger {
 
     public static string GetTriggerInfo(Entity trigger) {
         // todo: provide more info for e.g. FlagTrigger, CameraTriggers, TriggerTrigger
+        // update: Done, see AutoWatch
         return trigger.GetEntityId();
     }
 

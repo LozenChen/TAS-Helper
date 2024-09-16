@@ -187,6 +187,7 @@ internal class AutoWatchRenderer : Component {
         if (hasUpdate) {
             entity.PostUpdate += this.UpdateWrapper;
             // move it here so we don't need to worry about OoO
+            // updates even if the entity itself is not active
         }
         if (hasPreUpdate) {
             entity.PreUpdate += this.PreUpdateWrapper;

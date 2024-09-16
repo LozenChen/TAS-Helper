@@ -77,7 +77,7 @@ internal static class TODO {
 
     public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
 
-    public static Mode RespawnTargetTrigger = Mode.Always; // techinically it's not a trigger
+    public static Mode RumbleTrigger = Mode.Always; // show its RumbleRoutine
 
     public static Mode CrumblePlatform = Mode.Always; // disappear and respawn
 

@@ -6,31 +6,35 @@ using System.Text;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 
-internal class TriggerRenderer : AutoWatchTextRenderer {
+internal class AbstractTriggerRenderer : AutoWatchTextRenderer {
 
-    private static Color textcolorWhenInside = new Color(0f, 0f, 0f, 0.5f);
+    internal static Color textcolorWhenInside = new Color(0f, 0f, 0f, 0.5f);
 
-    private static Color innerRegionDefault = Color.White * 0.15f;
+    internal static Color innerRegionDefault = Color.White * 0.15f;
 
-    private static Color innerRegionTransparent = innerRegionDefault * 0.3f;
+    internal static Color innerRegionTransparent = innerRegionDefault * 0.3f;
 
-    public Trigger trigger;
+    internal static float defaultTextScale = 0.8f;
+
+    public Entity abstractTrigger;
 
     public Hitbox hitbox;
 
     public Level level;
 
-    public string static_info;
+    public string staticInfo;
 
     private Color innerRegion;
 
     public Hitbox nearPlayerDetector;
 
-    public bool position_initialized = false;
+    private bool positionInitialized = false;
 
     public bool orig_Visible;
 
     public Vector2 measure;
+
+    public bool hasDynamicInfo = false;
     public float TextTop => text.Position.Y - measure.Y / 2f;
 
     public float TextBottom => text.Position.Y + measure.Y / 2f;
@@ -39,30 +43,39 @@ internal class TriggerRenderer : AutoWatchTextRenderer {
 
     public float TextRight => text.Position.X + measure.X / 2f;
 
-    public TriggerRenderer(RenderMode mode) : base(mode, active: true) { }
+    public AbstractTriggerRenderer(RenderMode mode) : base(mode, active: true) { }
+
+    public virtual string Name() => abstractTrigger.GetType().Name;
+    public virtual string GetStaticInfo() => throw new Exception("NotImplemented"); // as an abstract class, we should not implement it
+
+    public virtual bool HasDynamicInfo() => false;
+    public virtual string GetDynamicInfo() => "";
 
     public override void Added(Entity entity) {
         base.Added(entity);
         orig_Visible = Visible;
         Visible = false;
-        trigger = entity as Trigger;
-        hitbox = trigger.collider as Hitbox;
-        level = trigger.Scene as Level;
+        abstractTrigger = entity;
+        hitbox = abstractTrigger.collider as Hitbox;
+        level = abstractTrigger.Scene as Level;
 
-        text.scale = 0.8f;
+        text.scale = defaultTextScale;
         SetAlphaText(false);
         SetAlphaRegion(false);
 
-        string name_raw = trigger.GetType().Name;
-        text.content = NameSplitter(name_raw, hitbox.Width / text.scale * 6f);
-        text.Append(TriggerHelper.GetStaticInfo(trigger));
-        static_info = text.content;
-        text.Append(TriggerHelper.GetDynamicInfo(trigger));
+        text.content = NameSplitter(Name(), hitbox.Width / text.scale * 6f);
+        text.Append(GetStaticInfo()); // we'll not split info
+        staticInfo = text.content;
+        hasDynamicInfo = HasDynamicInfo();
+        if (hasDynamicInfo) {
+            text.Append(GetDynamicInfo());
+        }
 
         measure = Measure(text.content) * text.scale / 6f;
         nearPlayerDetector = new Hitbox(measure.X + 6f, measure.Y + 6f, 0f, 0f);
+        // even if the dynamicInfo change later, we will still not change the near player detector
 
-        text.Position = trigger.Center;
+        text.Position = abstractTrigger.Center;
         SetNearPlayerDetector();
     }
 
@@ -113,7 +126,7 @@ internal class TriggerRenderer : AutoWatchTextRenderer {
             int expectedLines = ((name.Length - 1) / numbersWithinLine) + 1;
             int start = 0;
 
-            // split at word
+            // split at capital letters
             StringBuilder sb = new();
             int startOfThisLine = 0;
             int lastCapital = 0;
@@ -164,21 +177,23 @@ internal class TriggerRenderer : AutoWatchTextRenderer {
     }
 
     public override void UpdateImpl() {
-        Visible = orig_Visible && !SimplifiedTrigger.IsUnimportantTrigger(trigger);
+        Visible = orig_Visible && !SimplifiedTrigger.IsUnimportantTrigger(abstractTrigger);
         if (Visible) {
-            text.content = static_info;
-            text.Append(TriggerHelper.GetDynamicInfo(trigger));
+            if (hasDynamicInfo) {
+                text.content = staticInfo;
+                text.Append(GetDynamicInfo());
+            }
 
-            if (!position_initialized) {
-                position_initialized = true;
+            if (!positionInitialized) {
+                positionInitialized = true;
                 SetVerticallyClampedCenter();
                 SetNearPlayerDetector();
             }
             bool flag1 = false;
             bool flag2 = false;
             if (playerInstance is { } player) {
-                flag1 = trigger.CollideCheck(player);
-                flag2 = !CoreLogic.IsWatched(trigger) && nearPlayerDetector.Collide(player.collider);
+                flag1 = abstractTrigger.CollideCheck(player);
+                flag2 = !CoreLogic.IsWatched(abstractTrigger) && nearPlayerDetector.Collide(player.collider);
             }
             SetAlphaRegion(flag1);
             SetAlphaText(flag2);
@@ -196,23 +211,23 @@ internal class TriggerRenderer : AutoWatchTextRenderer {
     }
 
     public void SetVerticallyClampedCenter() {
-        if (trigger.Top > level.Camera.Top && trigger.Bottom < level.Camera.Bottom) {
+        if (abstractTrigger.Top > level.Camera.Top && abstractTrigger.Bottom < level.Camera.Bottom) {
             // the trigger is completely inside the screen, we can do nothing better than just set the text in the center
             return;
         }
-        if (level.Camera.Top > trigger.Bottom) {
+        if (level.Camera.Top > abstractTrigger.Bottom) {
             // if the trigger is completely outside of screen, we put the text inside the trigger + as near the screen as possible
-            text.Y = trigger.Bottom;
+            text.Y = abstractTrigger.Bottom;
             text.justify.Y = 1f;
             return;
         }
-        if (level.Camera.Bottom < trigger.Top) {
-            text.Y = trigger.Top;
+        if (level.Camera.Bottom < abstractTrigger.Top) {
+            text.Y = abstractTrigger.Top;
             text.justify.Y = 0f;
             return;
         }
-        float top = Math.Max(trigger.Top, level.Camera.Top);
-        float bottom = Math.Min(trigger.Bottom, level.Camera.Bottom);
+        float top = Math.Max(abstractTrigger.Top, level.Camera.Top);
+        float bottom = Math.Min(abstractTrigger.Bottom, level.Camera.Bottom);
 
         text.Y = (top + bottom) / 2f;
         if (measure.Y <= bottom - top) {
@@ -236,17 +251,6 @@ internal class TriggerRenderer : AutoWatchTextRenderer {
         text.Y = top;
         text.justify.Y = 0f;
         return;
-    }
-}
-
-internal class TriggerFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Trigger);
-
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.Trigger;
-    public void AddComponent(Entity entity) {
-        entity.Add(new TriggerRenderer(Mode()).SleepWhenUltraFastforward());
     }
 }
 
