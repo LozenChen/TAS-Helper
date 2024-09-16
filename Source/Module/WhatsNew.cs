@@ -76,6 +76,7 @@ public static class WhatsNew {
         AddLog("2.0.3", "Bugfix: resolve incompatibility with SpeedrunTool", "Addition: Add more options to AutoWatch.");
         AddLog("2.0.4", "Bugfix: If Cassette tempo = 0 and there's freeze frame, then game gets stuck (thanks @trans_alexa)");
         AddLog("2.0.5", "Bugfix: Cutscene is auto-watched even if Auto Watch is not enabled. (thanks @socksygen)");
+        AddLog("2.0.6", "Feature: Auto-Watch now supports Triggers, and vanilla / Everest ones are handled well.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
