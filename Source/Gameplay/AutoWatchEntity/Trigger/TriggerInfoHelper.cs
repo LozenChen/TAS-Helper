@@ -7,18 +7,23 @@ internal static class TriggerInfoHelper {
 
     public delegate string TriggerStaticHandler(Trigger trigger, Level level);
 
-    public delegate string TriggerDynamicHandler(Trigger trigger, Level level, Player player);
+    public delegate string TriggerDynamicPlayerlessHandler(Trigger trigger, Level level);
+
+    public delegate string TriggerDynamicPlayerHandler(Trigger trigger, Level level, Player player);
 
     public static Dictionary<Type, TriggerStaticHandler> StaticInfoGetters = new Dictionary<Type, TriggerStaticHandler>();
 
-    public static Dictionary<Type, TriggerDynamicHandler> DynamicInfoGetters = new Dictionary<Type, TriggerDynamicHandler>();
+    public static Dictionary<Type, TriggerDynamicPlayerlessHandler> DynamicInfoPlayerlessGetters = new Dictionary<Type, TriggerDynamicPlayerlessHandler>();
+
+    public static Dictionary<Type, TriggerDynamicPlayerHandler> DynamicInfoPlayerGetters = new Dictionary<Type, TriggerDynamicPlayerHandler>();
 
     private static HashSet<string> implementedMods = new HashSet<string>() { "Celeste" };
 
     [Initialize]
     public static void Initialize() {
         StaticInfoGetters = new();
-        DynamicInfoGetters = new();
+        DynamicInfoPlayerlessGetters = new();
+        DynamicInfoPlayerGetters = new();
         foreach (MethodInfo method in typeof(TriggerStaticInfoGetter)
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)) {
             if (TryCreateStaticHandler(method, out TriggerStaticHandler handler)) {
@@ -27,9 +32,7 @@ internal static class TriggerInfoHelper {
         }
         foreach (MethodInfo method in typeof(TriggerDynamicInfoGetter)
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)) {
-            if (TryCreateDynamicHandler(method, out TriggerDynamicHandler handler)) {
-                DynamicInfoGetters.Add(method.GetParameters()[0].ParameterType, handler);
-            }
+            TryAddDynamicHandler(method);
         }
         ModTriggerStaticInfo.AddToDictionary();
 #if ForMaintenance
@@ -64,21 +67,21 @@ internal static class TriggerInfoHelper {
     }
 
 
-    public static bool TryCreateDynamicHandler(MethodInfo method, out TriggerDynamicHandler handler) {
+    public static bool TryAddDynamicHandler(MethodInfo method) {
+        TriggerDynamicPlayerHandler handler = null;
+        TriggerDynamicPlayerlessHandler handler2 = null;
         if (method.GetParameters().Length == 1 && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))) {
-            handler = (trigger, _, _) => {
+            handler2 = (trigger, _) => {
                 return (string)method.Invoke(null, new object[] { trigger });
             };
-            return true;
         }
         else if (method.GetParameters().Length == 2
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
             && method.GetParameters()[1].ParameterType == typeof(Level)
         ) {
-            handler = (trigger, level, _) => {
+            handler2 = (trigger, level) => {
                 return (string)method.Invoke(null, new object[] { trigger, level });
             };
-            return true;
         }
         else if (method.GetParameters().Length == 2
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
@@ -87,7 +90,6 @@ internal static class TriggerInfoHelper {
             handler = (trigger, _, player) => {
                 return (string)method.Invoke(null, new object[] { trigger, player });
             };
-            return true;
         }
         else if (method.GetParameters().Length == 3
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
@@ -97,7 +99,6 @@ internal static class TriggerInfoHelper {
             handler = (trigger, level, player) => {
                 return (string)method.Invoke(null, new object[] { trigger, level, player });
             };
-            return true;
         }
         else if (method.GetParameters().Length == 3
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
@@ -107,10 +108,19 @@ internal static class TriggerInfoHelper {
             handler = (trigger, level, player) => {
                 return (string)method.Invoke(null, new object[] { trigger, player, level });
             };
+        }
+
+        if (handler is not null) {
+            DynamicInfoPlayerGetters.Add(method.GetParameters()[0].ParameterType, handler);
             return true;
         }
-        Logger.Log(LogLevel.Debug, "TASHelper", $"{nameof(TriggerInfoHelper)}.{nameof(TryCreateDynamicHandler)}: unexpected parameters: {nameof(TriggerDynamicInfoGetter)}/{method.Name}");
-        handler = null;
+
+        if (handler2 is not null) {
+            DynamicInfoPlayerlessGetters.Add(method.GetParameters()[0].ParameterType, handler2);
+            return true;
+        }
+
+        Logger.Log(LogLevel.Debug, "TASHelper", $"{nameof(TriggerInfoHelper)}.{nameof(TryAddDynamicHandler)}: unexpected parameters: {nameof(TriggerDynamicInfoGetter)}/{method.Name}");
         return false;
     }
 
@@ -125,16 +135,23 @@ internal static class TriggerInfoHelper {
     }
 
     public static string GetDynamicInfo(Trigger trigger) {
-        if (trigger.Scene is not Level level || playerInstance is not { } player || player.StateMachine.State == 18 || !trigger.CollideCheck(player)) {
+        if (trigger.Scene is not Level level) {
             return "";
         }
-        if (DynamicInfoGetters.TryGetValue(trigger.GetType(), out TriggerDynamicHandler handler)) {
-            return handler(trigger, level, player);
+        if (DynamicInfoPlayerlessGetters.TryGetValue(trigger.GetType(), out TriggerDynamicPlayerlessHandler handler)) {
+            return handler(trigger, level);
+        }
+
+        if (playerInstance is not { } player || player.StateMachine.State == 18 || !trigger.CollideCheck(player)) {
+            return "";
+        }
+        if (DynamicInfoPlayerGetters.TryGetValue(trigger.GetType(), out TriggerDynamicPlayerHandler handler2)) {
+            return handler2(trigger, level, player);
         }
         return "";
     }
 
     public static bool HasDynamicInfo(Trigger trigger) {
-        return DynamicInfoGetters.ContainsKey(trigger.GetType());
+        return DynamicInfoPlayerGetters.ContainsKey(trigger.GetType()) || DynamicInfoPlayerlessGetters.ContainsKey(trigger.GetType());
     }
 }

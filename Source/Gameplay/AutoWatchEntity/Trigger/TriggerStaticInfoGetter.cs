@@ -2,17 +2,12 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System.Runtime.CompilerServices;
 using static Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity.TriggerInfoHelper;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal static class TriggerStaticInfoGetter {
-
-    public static string FlagTrigger(FlagTrigger flagTrigger) {
-        return (flagTrigger.state ? "Add: " : "Remove: ") + flagTrigger.flag;
-    }
-
+    
     public static string EventTrigger(EventTrigger eventTrigger) {
         return eventTrigger.Event;
     }
