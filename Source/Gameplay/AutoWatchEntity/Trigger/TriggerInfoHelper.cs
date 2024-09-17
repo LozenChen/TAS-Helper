@@ -1,5 +1,5 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿//#define ForMaintenance
+using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -12,6 +12,8 @@ internal static class TriggerInfoHelper {
     public static Dictionary<Type, TriggerStaticHandler> StaticInfoGetters = new Dictionary<Type, TriggerStaticHandler>();
 
     public static Dictionary<Type, TriggerDynamicHandler> DynamicInfoGetters = new Dictionary<Type, TriggerDynamicHandler>();
+
+    private static HashSet<string> implementedMods = new HashSet<string>() { "Celeste" };
 
     [Initialize]
     public static void Initialize() {
@@ -29,11 +31,15 @@ internal static class TriggerInfoHelper {
                 DynamicInfoGetters.Add(method.GetParameters()[0].ParameterType, handler);
             }
         }
-
-        /*
+        ModTriggerStaticInfo.AddToDictionary();
+#if ForMaintenance
         Logger.Log(LogLevel.Debug, $"TASHelper/{nameof(TriggerInfoHelper)}:NotImplementedTriggers",
-            string.Join("\n", ModUtils.GetTypes().Where(x => x.IsSubclassOf(typeof(Trigger)) && !StaticInfoGetters.ContainsKey(x)).Select(x => x.FullName)));
-        */
+            string.Join("\n", Utils.ModUtils.GetTypes().Where(x => 
+                x.IsSubclassOf(typeof(Trigger))
+                && !StaticInfoGetters.ContainsKey(x)
+                && !implementedMods.Contains(x.Assembly.GetName().Name)
+            ).Select(x => x.Assembly.GetName().Name + " @ " + x.FullName)));
+#endif        
     }
 
     public static bool TryCreateStaticHandler(MethodInfo method, out TriggerStaticHandler handler) {
@@ -47,7 +53,7 @@ internal static class TriggerInfoHelper {
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
             && method.GetParameters()[1].ParameterType == typeof(Level)
         ) {
-            handler = [MethodImpl(MethodImplOptions.AggressiveInlining)] (trigger, level) => {
+            handler = (trigger, level) => {
                 return (string)method.Invoke(null, new object[] { trigger, level });
             };
             return true;

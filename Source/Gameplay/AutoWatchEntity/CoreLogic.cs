@@ -62,10 +62,15 @@ internal static class CoreLogic {
             else if (level.Tracker.Entities.TryGetValue(factory.GetTargetType(), out List<Entity> entities)) {
                 Type type = factory.GetTargetType();
                 bool inherited = factory.Inherited();
+                RenderMode mode = factory.Mode();
 
                 foreach (Entity entity in entities.Where(x => inherited || x.GetType() == type)) {
                     // if not inherited, then we nned to filter out those entities which use "TrackedAs" (e.g. HonlyHelper.RisingBlock)
-                    if (entity.Components.FirstOrDefault(c => c is AutoWatchRenderer) is null) {
+                    if (entity.Components.FirstOrDefault(c => c is AutoWatchRenderer) is AutoWatchRenderer renderer) {
+                        renderer.mode = mode;
+                        renderer.UpdateOn_ConfigChange_Or_StopUltraforwarding_Or_Clone();
+                    }
+                    else {
                         factory.AddComponent(entity);
                     }
                 }
@@ -168,7 +173,7 @@ internal class AutoWatchRenderer : Component {
         }
     }
 
-    public void UpdateOnStopUltraforwardingOrClone() {
+    public void UpdateOn_ConfigChange_Or_StopUltraforwarding_Or_Clone() {
         Visible = mode == RenderMode.Always || CoreLogic.IsWatched(this.Entity);
         PostActive = hasUpdate && Visible;
         PreActive = hasPreUpdate && Visible;
@@ -287,7 +292,7 @@ internal class AutoWatchRenderer : Component {
     internal static void WakeUpAllAutoWatchRenderer() {
         if (Engine.Scene is { } self) {
             foreach (AutoWatchRenderer renderer in self.Tracker.GetComponents<AutoWatchRenderer>()) {
-                renderer.UpdateOnStopUltraforwardingOrClone();
+                renderer.UpdateOn_ConfigChange_Or_StopUltraforwarding_Or_Clone();
             }
         }
     }

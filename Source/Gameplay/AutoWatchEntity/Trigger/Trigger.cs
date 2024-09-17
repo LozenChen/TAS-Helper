@@ -9,7 +9,17 @@ internal class TriggerRenderer : AbstractTriggerRenderer {
     public Trigger trigger;
     public TriggerRenderer(RenderMode mode) : base(mode) { }
 
-    public override string Name() => trigger.GetType().Name;
+    public override string Name() => ShowModName ? GetNameWithModName(trigger.GetType()) : trigger.GetType().Name;
+
+    public static bool ShowModName = true;
+    public static string GetNameWithModName(Type type) {
+        if (type.Assembly == typeof(Celeste).Assembly) {
+            return type.Name;
+        }
+        else {
+            return type.Name + "@" + type.Assembly.GetName().Name;
+        }
+    }
 
     public override string GetStaticInfo() => TriggerInfoHelper.GetStaticInfo(trigger);
 
