@@ -108,12 +108,44 @@ internal static class ModTriggerStaticInfo {
         if (ModUtils.GetType("VivHelper", "VivHelper.Triggers.TeleportTarget") is not { } teleportTargetType) {
             return;
         }
+        if (ModUtils.GetType("VivHelper", "VivHelper.Triggers.InstantTeleportTrigger") is not { } instantTeleportType) {
+            return;
+        }
         if (ModUtils.GetType("VivHelper", "VivHelper.Triggers.InstantTeleportTrigger1Way") is not { } teleport1wayType) {
             return;
         }
 
+        Add(teleportTargetType, (trigger, _) => {
+            return "id: " + trigger.GetFieldValue<string>("targetID");
+        });
+
+        Add(instantTeleportType, (trigger, level) => {
+            string newRoom = trigger.GetFieldValue<string>("newRoom");
+            Vector2 newPos = trigger.GetFieldValue<Vector2>("newPos");
+            Vector2 array0 = trigger.Position - level.LevelOffset; // assume player's position = trigger's position
+            LevelData targetLevel = level.Session.MapData.Get(newRoom);
+            if (targetLevel is null) {
+                return "";
+            }
+            Rectangle Bounds = targetLevel.Bounds;
+            Vector2 LevelOffset = new Vector2(Bounds.Left, Bounds.Top);
+            Vector2 vector;
+            if (newPos.X < 0f || (newPos.X > (float)(Bounds.X + Bounds.Width) - LevelOffset.X) || newPos.Y < 0f || (newPos.Y > (float)(Bounds.Y + Bounds.Height) - LevelOffset.Y)) {
+                vector = ((array0.X < 0f) || (array0.X > (float)(Bounds.X + Bounds.Width) - LevelOffset.X) || (array0.Y < 0f) || (array0.Y > (float)(Bounds.Y + Bounds.Height) - LevelOffset.Y)) ? (LevelOffset + new Vector2(1f, 1f)) : (LevelOffset + array0);
+            }
+            else {
+                vector = LevelOffset + newPos; // we ignore "triggerAddOffset"
+            }
+            string result = vector.IntVector2ToString();
+            string[] flags = trigger.GetFieldValue<string[]>("flags");
+            if (flags.IsNotNullOrEmpty() && string.Join("", flags).IsNotNullOrEmpty()) {
+                result += $"\nNeedFlag: {string.Join(", ", flags)}"; // techinically we need string.Join(" && ", flags)
+            }
+            return result;
+        });
+
         Add(teleport1wayType, (trigger, level) => {
-            if (!level.Tracker.Entities.ContainsKey(teleportTargetType)) {
+            if (!level.Tracker.Entities.TryGetValue(teleportTargetType, out List<Entity> list)) {
                 return "";
             }
             string targetLevel = trigger.GetFieldValue<string>("specificRoom");
@@ -129,11 +161,11 @@ internal static class ModTriggerStaticInfo {
 
             string teleportTarget;
             if (level.Session.Level == targetLevel) {
-                foreach (Entity e in level.Tracker.Entities[teleportTargetType]) {
+                foreach (Entity e in list) {
                     if (e.GetFieldValue<string>("targetID") == targetID) {
                         if (e.GetFieldValue<bool>("addTriggerOffset")) {
-                            // we align to the bottom of maddy, which is, the position of maddy
-                            teleportTarget = (e.TopLeft + new Vector2(4f, 11f) + (trigger.Center - trigger.TopLeft)).IntVector2ToString() + " + offset";
+                            // we assume maddy's position = trigger's position
+                            teleportTarget = (e.TopLeft + new Vector2(4f, 11f) + (trigger.Center - trigger.TopLeft)).IntVector2ToString();
                         }
                         else {
                             teleportTarget = (e.Center + new Vector2(0f, 5.5f)).IntVector2ToString();
@@ -146,6 +178,7 @@ internal static class ModTriggerStaticInfo {
             else {
                 teleportTarget = $"[{targetLevel}] {targetID}";
             }
+
             if (setFlag != "") {
                 teleportTarget += "\n" + setFlag;
             }

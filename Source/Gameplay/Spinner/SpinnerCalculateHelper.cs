@@ -95,7 +95,6 @@ public static class SpinnerCalculateHelper {
     private static void On_WaveDashPlaybackTutorial_ctor(On.Celeste.WaveDashPlaybackTutorial.orig_ctor orig, WaveDashPlaybackTutorial self, string name, Vector2 offset, Vector2 dashDirection0, Vector2 dashDirection1) {
         orig(self, name, offset, dashDirection0, dashDirection1);
         self.tag &= ~IsHazardTagValue;
-        self.tag = 0;
     }
 
     private static void DictionaryAdderVanilla(Type type, GetDelegate<object, float> offsetGetter, int HazardType) {
@@ -175,6 +174,8 @@ public static class SpinnerCalculateHelper {
 
         if (ModUtils.GetType("XaphanHelper", "Celeste.Mod.XaphanHelper.Entities.CustomSpinner") is { } xaphanSpinnerType) {
             DictionaryAdderNormal(xaphanSpinnerType, "offset", spinner);
+            // techinically we need to handle its "Hidden" / "AlwaysCollidable" fields, but ... "AlwaysCollidable" is actually just no near player check
+            // and "Hidden" is sort of FreezedNeverActivate, but it seems this only happen when some cutscene occurs?
         }
 
         if (ModUtils.GetType("ChroniaHelper", "ChroniaHelper.Entities.SeamlessSpinner") is { } chroniaSpinnerType) {
