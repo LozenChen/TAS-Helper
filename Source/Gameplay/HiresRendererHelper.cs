@@ -80,7 +80,7 @@ public static class HiresLevelRenderer {
     }
 
     public static void AddIfNotPresent(THRenderer renderer) {
-        if (!Contains(renderer)) {
+        if (!Contains(renderer) && !toAdd.Contains(renderer)) {
             toAdd.Add(renderer);
         }
     }
@@ -104,7 +104,6 @@ public static class HiresLevelRenderer {
     public static void UpdateLists() {
         foreach (THRenderer renderer in toAdd) {
             list.Add(renderer);
-
             if (tracker.TryGetValue(renderer.GetType(), out List<THRenderer> list_of_this_type)) {
                 list_of_this_type.Add(renderer);
             }

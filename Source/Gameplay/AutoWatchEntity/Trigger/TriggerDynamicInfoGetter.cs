@@ -3,7 +3,7 @@
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal static class TriggerDynamicInfoGetter {
-    
+
     // rule : if it does not have a "Player" parameter, then it will show even if player is not inside
     public static string FlagTrigger(FlagTrigger flagTrigger, Level level) {
         string str;

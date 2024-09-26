@@ -7,7 +7,7 @@ using static Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity.TriggerInfoHelper;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 internal static class TriggerStaticInfoGetter {
-    
+
     public static string EventTrigger(EventTrigger eventTrigger) {
         return eventTrigger.Event;
     }
