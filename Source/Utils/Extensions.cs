@@ -460,8 +460,6 @@ internal static class LevelExtensions {
     }
 
     public static void RemoveImmediately(this Scene scene, Entity entity) {
-        // ensure entity is added even if the regular engine update loop is interrupted, e.g. TAS stop
-        // such entities may be added during gameplay instead of when load level
         toRemove.Add(entity);
     }
 

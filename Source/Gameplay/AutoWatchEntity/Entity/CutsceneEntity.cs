@@ -58,6 +58,10 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
     }
 
     public override void UpdateImpl() {
+        if (!cs.Running) {
+            Visible = false;
+            return;
+        }
         if (waitingForCoroutine) { // CS06_Campfire adds its coroutine when OnBegin is called
             bool found = false;
             foreach (Component c in cs.Components) {

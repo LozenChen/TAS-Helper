@@ -55,6 +55,9 @@ public static class AutoWatchMenu {
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch Cloud".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_Cloud).Change(value => TasHelperSettings.AutoWatch_Cloud = value));
 
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch CrumbleWallOnRumble".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_CrumbleWallOnRumble).Change(value => TasHelperSettings.AutoWatch_CrumbleWallOnRumble = value));
+
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch FallingBlock".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_FallingBlock).Change(value => TasHelperSettings.AutoWatch_FallingBlock = value));
 

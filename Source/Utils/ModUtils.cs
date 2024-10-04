@@ -43,6 +43,8 @@ internal static class ModUtils {
 
     public static bool VivHelperInstalled = false;
 
+    public static bool CommunalHelperInstalled = false;
+
     public static bool PandorasBoxInstalled = false;
 
     public static bool ExtendedVariantInstalled = false;
@@ -64,6 +66,7 @@ internal static class ModUtils {
     public static void InitializeAtFirst() {
         FrostHelperInstalled = IsInstalled("FrostHelper");
         VivHelperInstalled = IsInstalled("VivHelper");
+        CommunalHelperInstalled = IsInstalled("CommunalHelper");
         PandorasBoxInstalled = IsInstalled("PandorasBox");
         ExtendedVariantInstalled = IsInstalled("ExtendedVariantMode");
         ChronoHelperInstalled = IsInstalled("ChronoHelper");

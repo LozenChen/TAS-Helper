@@ -20,6 +20,8 @@ internal static class Config {
 
     public static Mode Cloud => TasHelperSettings.AutoWatch_Cloud;
 
+    public static Mode CrumbleWallOnRumble => TasHelperSettings.AutoWatch_CrumbleWallOnRumble;
+
     public static Mode CrushBlock => TasHelperSettings.AutoWatch_Kevin;
 
     public static Mode CutsceneEntity => TasHelperSettings.AutoWatch_Cutscene;
@@ -76,8 +78,6 @@ internal static class TODO {
     public static Mode Lookout = Mode.Always;
 
     public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
-
-    public static Mode RumbleTrigger = Mode.Always; // show its RumbleRoutine
 
     public static Mode CrumblePlatform = Mode.Always; // disappear and respawn
 

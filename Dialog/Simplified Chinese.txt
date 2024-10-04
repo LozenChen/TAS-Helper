@@ -279,6 +279,7 @@ TAS_HELPER_AUTO_WATCH_BADELINEORB=                         Badeline Orb
 TAS_HELPER_AUTO_WATCH_BOOSTER=                             Booster
 TAS_HELPER_AUTO_WATCH_BUMPER=                              Bumper
 TAS_HELPER_AUTO_WATCH_CLOUD=                               Cloud
+TAS_HELPER_AUTO_WATCH_CRUMBLEWALLONRUMBLE=                 Crumble Wall On Rumble
 TAS_HELPER_AUTO_WATCH_FALLINGBLOCK=                        Falling Block
 TAS_HELPER_AUTO_WATCH_FLINGBIRD=                           Fling Bird
 TAS_HELPER_AUTO_WATCH_JELLY=                               Jelly

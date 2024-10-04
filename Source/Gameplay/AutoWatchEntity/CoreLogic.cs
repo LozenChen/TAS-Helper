@@ -153,6 +153,15 @@ internal class AutoWatchRenderer : Component {
     public bool PreActive;
 
     public bool PostActive;
+
+    public new bool Active {
+        get {
+            throw new Exception("Use Pre/PostActive Instead!");
+        }
+        set {
+            throw new Exception("Use Pre/PostActive Instead!");
+        }
+    }
     public AutoWatchRenderer(RenderMode mode, bool hasUpdate = true, bool hasPreUpdate = false) : base(false, visible: true) {
         // the component itself doesn't update (so active = false), but pass its "update" to entity.Pre/PostUpdate (to avoid some OoO issue)
         this.mode = mode;
@@ -193,6 +202,7 @@ internal class AutoWatchRenderer : Component {
             entity.PostUpdate += this.UpdateWrapper;
             // move it here so we don't need to worry about OoO
             // updates even if the entity itself is not active
+            // though this will not be called when level is transitioning, frozen, or paused
         }
         if (hasPreUpdate) {
             entity.PreUpdate += this.PreUpdateWrapper;
