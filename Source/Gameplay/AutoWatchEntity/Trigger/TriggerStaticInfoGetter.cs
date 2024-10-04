@@ -96,6 +96,7 @@ internal static class ModTriggerStaticInfo {
         HandleVivHelper();
         HandleXaphanHelper();
         HandleFlagslinesAndSuch();
+        HandleMemorialHelper();
     }
 
     public static void Add(Type type, TriggerStaticHandler handler) {
@@ -220,22 +221,40 @@ internal static class ModTriggerStaticInfo {
             bool case11 = logicTable[3];
             return (case00, case01, case10, case11) switch {
                 (false, false, false, false) => "Never",
-                (false, false, false, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: Flag1 && Flag2",
-                (false, false, true, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: Flag1 && !Flag2",
-                (false, true, false, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: !Flag1 && Flag2",
-                (true, false, false, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: !Flag1 && !Flag2",
-                (true, true, false, false) => $"Flag: {flag1}\nWhen: !Flag",
-                (false, false, true, true) => $"Flag: {flag1}\nWhen: Flag",
-                (true, false, true, false) => $"Flag: {flag2}\nWhen: !Flag",
-                (false, true, false, true) => $"Flag: {flag2}\nWhen: Flag",
-                (true, false, false, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: Flag1 == Flag2",
-                (false, true, true, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: Flag1 Xor Flag2",
-                (true, true, true, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: !Flag1 || !Flag2",
-                (true, true, false, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: !Flag1 || Flag2",
-                (true, false, true, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: Flag1 || !Flag2",
-                (false, true, true, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nWhen: Flag1 || Flag2",
+                (false, false, false, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: Flag1 && Flag2",
+                (false, false, true, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: Flag1 && !Flag2",
+                (false, true, false, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: !Flag1 && Flag2",
+                (true, false, false, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: !Flag1 && !Flag2",
+                (true, true, false, false) => $"Flag: {flag1}\nIf: !Flag",
+                (false, false, true, true) => $"Flag: {flag1}\nIf: Flag",
+                (true, false, true, false) => $"Flag: {flag2}\nIf: !Flag",
+                (false, true, false, true) => $"Flag: {flag2}\nIf: Flag",
+                (true, false, false, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: Flag1 == Flag2",
+                (false, true, true, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: Flag1 Xor Flag2",
+                (true, true, true, false) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: !Flag1 || !Flag2",
+                (true, true, false, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: !Flag1 || Flag2",
+                (true, false, true, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: Flag1 || !Flag2",
+                (false, true, true, true) => $"Flag1: {flag1}\nFlag2: {flag2}\nIf: Flag1 || Flag2",
                 (true, true, true, true) => "Always",
             };
+        }
+
+        if (ModUtils.GetType("FlaglinesAndSuch", "FlaglinesAndSuch.FlagIfFlag") is { } flagIfFlag) {
+            Add(flagIfFlag, (trigger, _) => {
+                string ifFlag = trigger.GetFieldValue<string>("ifFlag");
+                string setFlag = trigger.GetFieldValue<string>("setFlag");
+                bool ifState = trigger.GetFieldValue<bool>("ifState");
+                bool setState = trigger.GetFieldValue<bool>("setState");
+                return $"{(ifState ? "If: " : "If not: ")}{ifFlag}\n{(setState ? "Add: " : "Remove: ")}{setFlag}";
+            });
+        }
+    }
+
+    public static void HandleMemorialHelper() {
+        if (ModUtils.GetType("memorialHelper", "Celeste.Mod.MemorialHelper.DashSequenceFlagTrigger") is { } dashSequence) {
+            Add(dashSequence, (trigger, _) => {
+                return string.Join(",", trigger.GetFieldValue<List<int>>("dashList").Select(x => DashCode.ToCode(x, DashCode.MemorialHelperOffset)));
+            });
         }
     }
 }

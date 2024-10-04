@@ -1,4 +1,6 @@
 ﻿using Celeste.Mod.Entities;
+using Celeste.Mod.TASHelper.Utils;
+using static Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity.TriggerInfoHelper;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -43,5 +45,58 @@ internal static class TriggerDynamicInfoGetter {
             return "";
         }
         return "Lerp: " + smoothCameraOffsetTrigger.GetPositionLerp(player, smoothCameraOffsetTrigger.positionMode).AbsoluteFloatToString();
+    }
+}
+
+
+internal static class ModTriggerDynamicInfo {
+
+    public static void AddToDictionary() {
+        HandleMemorialHelper();
+    }
+    public static void Add(Type type, TriggerDynamicPlayerlessHandler handler) {
+        TriggerInfoHelper.DynamicInfoPlayerlessGetters.TryAdd(type, handler);
+    }
+
+    public static void Add(Type type, TriggerDynamicPlayerHandler handler) {
+        TriggerInfoHelper.DynamicInfoPlayerGetters.TryAdd(type, handler);
+    }
+
+    public static void HandleMemorialHelper() {
+        if (ModUtils.GetType("memorialHelper", "Celeste.Mod.MemorialHelper.DashSequenceFlagTrigger") is { } dashSequence) {
+            Add(dashSequence, (trigger, level, _) => {
+                string flag = trigger.GetFieldValue<string>("flag");
+                if (trigger.GetFieldValue<bool>("triggered")) {
+                    if (trigger.GetFieldValue<bool>("persistent")) {
+                        return "Added: " + flag + "_dashFlag";
+                    }
+                    else {
+                        return "Added: " + flag;
+                    }
+                }
+                int currentPoint = trigger.GetFieldValue<int>("currentPoint");
+                List<int> dashList = trigger.GetFieldValue<List<int>>("dashList");
+                string codeState = (currentPoint >= dashList.Count || currentPoint < 0)
+                    ? $"[{currentPoint}/{dashList.Count}], Next: ?"
+                    : $"[{currentPoint}/{dashList.Count}], Next: {DashCode.ToCode(dashList[currentPoint], DashCode.MemorialHelperOffset)}";
+
+                if (trigger.GetFieldValue<bool>("repeatable")) {
+                    if (level.Session.GetFlag(flag)) {
+                        return codeState + "\nRemove: " + flag;
+                    }
+                    else {
+                        return codeState + "\nAdd: " + flag;
+                    }
+                }
+                else {
+                    if (trigger.GetFieldValue<bool>("persistent")) {
+                        return codeState + "\nAdd: " + flag + "_dashFlag";
+                    }
+                    else {
+                        return codeState + "\nAdd: " + flag;
+                    }
+                }
+            });
+        }
     }
 }

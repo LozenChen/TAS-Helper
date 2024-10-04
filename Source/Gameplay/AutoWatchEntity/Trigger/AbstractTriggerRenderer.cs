@@ -56,14 +56,14 @@ internal class AbstractTriggerRenderer : AutoWatchTextRenderer {
         orig_Visible = Visible;
         Visible = false;
         abstractTrigger = entity;
-        hitbox = abstractTrigger.collider as Hitbox;
+        hitbox = abstractTrigger.Collider as Hitbox;
         level = abstractTrigger.Scene as Level;
 
         text.scale = defaultTextScale;
         SetAlphaText(false);
         SetAlphaRegion(false);
 
-        text.content = NameSplitter(Name(), hitbox.Width / text.scale * 6f);
+        text.content = NameSplitter(Name(), entity.Width / text.scale * 6f);
         text.Append(GetStaticInfo()); // we'll not split info
         staticInfo = text.content;
         hasDynamicInfo = HasDynamicInfo();
@@ -206,7 +206,9 @@ internal class AbstractTriggerRenderer : AutoWatchTextRenderer {
 
     public override void DebugRenderImpl() {
         base.DebugRenderImpl();
-        Draw.Rect(hitbox.AbsoluteX, hitbox.AbsoluteY, hitbox.Width, hitbox.Height, innerRegion);
+        if (hitbox is not null) {
+            Draw.Rect(hitbox.AbsoluteX, hitbox.AbsoluteY, hitbox.Width, hitbox.Height, innerRegion);
+        }
         // Draw.HollowRect(nearPlayerDetector.AbsoluteX, nearPlayerDetector.AbsoluteY, nearPlayerDetector.Width, nearPlayerDetector.Height, Color.Pink);
     }
 

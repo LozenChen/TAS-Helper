@@ -1,4 +1,4 @@
-﻿//#define ForMaintenance
+﻿#define ForMaintenance
 using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
@@ -35,6 +35,7 @@ internal static class TriggerInfoHelper {
             TryAddDynamicHandler(method);
         }
         ModTriggerStaticInfo.AddToDictionary();
+        ModTriggerDynamicInfo.AddToDictionary();
 #if ForMaintenance
         Logger.Log(LogLevel.Debug, $"TASHelper/{nameof(TriggerInfoHelper)}:NotImplementedTriggers",
             string.Join("\n", Utils.ModUtils.GetTypes().Where(x => 

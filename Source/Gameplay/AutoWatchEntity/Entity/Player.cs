@@ -80,8 +80,11 @@ internal class PlayerRenderer : AutoWatchText2Renderer {
                 // if it's a player.DummyWalkToExact, then we show it on the cutscene / NPC / lookout ... instead
             }
             else if (State == StIntroWakeUp && currentCoroutine.Current.GetType().FullName == "Monocle.Sprite+<PlayUtil>d__40" && currentCoroutine.Current.GetFieldValue("<>4__this") is Sprite sprite) {
-                text.Append($"{sprite.CurrentAnimationTotalFrames - sprite.CurrentAnimationFrame}|{((sprite.currentAnimation?.Delay ?? 0f) - sprite.animationTimer).ToFrameMinusOne()}");
-                flag = true;
+                int remain = sprite.CurrentAnimationTotalFrames - sprite.CurrentAnimationFrame;
+                if (remain >= 0) { // there may be some bug when SkinModHelperPlus is present? e.g. SSC3-an_artificers_ascent
+                    text.Append($"{remain}|{((sprite.currentAnimation?.Delay ?? 0f) - sprite.animationTimer).ToFrameMinusOne()}");
+                    flag = true;
+                }
             }
         }
         else if (State == StHitSquash) {
