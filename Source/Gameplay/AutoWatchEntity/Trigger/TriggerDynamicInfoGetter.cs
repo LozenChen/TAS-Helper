@@ -53,6 +53,7 @@ internal static class ModTriggerDynamicInfo {
 
     public static void AddToDictionary() {
         HandleMemorialHelper();
+        HandleSardine7();
     }
     public static void Add(Type type, TriggerDynamicPlayerlessHandler handler) {
         TriggerInfoHelper.DynamicInfoPlayerlessGetters.TryAdd(type, handler);
@@ -63,8 +64,8 @@ internal static class ModTriggerDynamicInfo {
     }
 
     public static void HandleMemorialHelper() {
-        if (ModUtils.GetType("memorialHelper", "Celeste.Mod.MemorialHelper.DashSequenceFlagTrigger") is { } dashSequence) {
-            Add(dashSequence, (trigger, level, _) => {
+        if (ModUtils.GetType("memorialHelper", "Celeste.Mod.MemorialHelper.DashSequenceFlagTrigger") is { } dashSequenceFlagTrigger) {
+            Add(dashSequenceFlagTrigger, (trigger, level, _) => {
                 string flag = trigger.GetFieldValue<string>("flag");
                 if (trigger.GetFieldValue<bool>("triggered")) {
                     if (trigger.GetFieldValue<bool>("persistent")) {
@@ -95,6 +96,26 @@ internal static class ModTriggerDynamicInfo {
                     else {
                         return codeState + "\nAdd: " + flag;
                     }
+                }
+            });
+        }
+    }
+
+    public static void HandleSardine7() {
+        if (ModUtils.GetType("Sardine7", "Celeste.Mod.Sardine7.Triggers.DashCodeTrigger") is { } dashCodeTrigger) {
+            Add(dashCodeTrigger, (trigger, level) => {
+                string flag = trigger.GetFieldValue<string>("flag");
+                bool flagValue = trigger.GetFieldValue<bool>("flagValue");
+                if (level.Session.GetFlag(flag) == flagValue) {
+                    return $"{(flagValue ? "Added: " : "Removed: ")}{flag}";
+                }
+                List<string> currentInputs = trigger.GetFieldValue<List<string>>("currentInputs");
+                // techinically, your last dash need to be inside the trigger (so the trigger will be enabled)
+                if (flagValue) {
+                    return "Current: " + string.Join(",", currentInputs.Select(DashCode.ToCode)) + "\nAdd: " + flag;
+                }
+                else {
+                    return "Current: " + string.Join(",", currentInputs.Select(DashCode.ToCode)) + "\nRemove: " + flag;
                 }
             });
         }

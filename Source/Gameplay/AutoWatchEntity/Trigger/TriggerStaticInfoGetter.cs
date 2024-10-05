@@ -97,6 +97,7 @@ internal static class ModTriggerStaticInfo {
         HandleXaphanHelper();
         HandleFlagslinesAndSuch();
         HandleMemorialHelper();
+        HandleSardine7();
     }
 
     public static void Add(Type type, TriggerStaticHandler handler) {
@@ -104,7 +105,6 @@ internal static class ModTriggerStaticInfo {
     }
 
     public static void HandleVivHelper() {
-        // not finished
 
         if (ModUtils.GetType("VivHelper", "VivHelper.Triggers.TeleportTarget") is not { } teleportTargetType) {
             return;
@@ -190,8 +190,6 @@ internal static class ModTriggerStaticInfo {
         });
     }
     public static void HandleXaphanHelper() {
-        // not finished
-
         /* just for test
         if (ModUtils.GetType("XaphanHelper", "Celeste.Mod.XaphanHelper.Triggers.TextTrigger") is { } textTrigger) {
             Add(textTrigger, (trigger, _) => {
@@ -202,8 +200,6 @@ internal static class ModTriggerStaticInfo {
     }
 
     public static void HandleFlagslinesAndSuch() {
-        // not finished
-
         if (ModUtils.GetType("FlaglinesAndSuch", "FlaglinesAndSuch.FlagLogicGate") is { } flagLogicGate) {
             Add(flagLogicGate, (trigger, _) => {
                 string flag1 = trigger.GetFieldValue<string>("flag1");
@@ -251,9 +247,17 @@ internal static class ModTriggerStaticInfo {
     }
 
     public static void HandleMemorialHelper() {
-        if (ModUtils.GetType("memorialHelper", "Celeste.Mod.MemorialHelper.DashSequenceFlagTrigger") is { } dashSequence) {
-            Add(dashSequence, (trigger, _) => {
+        if (ModUtils.GetType("memorialHelper", "Celeste.Mod.MemorialHelper.DashSequenceFlagTrigger") is { } dashSequenceFlagTrigger) {
+            Add(dashSequenceFlagTrigger, (trigger, _) => {
                 return string.Join(",", trigger.GetFieldValue<List<int>>("dashList").Select(x => DashCode.ToCode(x, DashCode.MemorialHelperOffset)));
+            });
+        }
+    }
+
+    public static void HandleSardine7() {
+        if (ModUtils.GetType("Sardine7", "Celeste.Mod.Sardine7.Triggers.DashCodeTrigger") is { } dashCodeTrigger) {
+            Add(dashCodeTrigger, (trigger, _) => {
+                return "DashCode: " + string.Join(",", trigger.GetFieldValue<string[]>("code").Select(DashCode.ToCode));
             });
         }
     }

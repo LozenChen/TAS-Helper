@@ -169,11 +169,24 @@ internal static class InfoParser {
 }
 
 internal static class DashCode {
-    public static readonly string[] DashCodes = new string[9]{ "L", "UL", "U", "UR", "R", "DR", "D", "DL", "_" };
+    public static readonly string[] DashCodes = ["L", "UL", "U", "UR", "R", "DR", "D", "DL", "_"];
 
-    public static readonly Vector2[] Directions = new Vector2[9] { -Vector2.UnitX, -Vector2.One, -Vector2.UnitY, new Vector2(1f, -1f), Vector2.UnitX, Vector2.One, Vector2.UnitY, new Vector2(-1f, 1f), Vector2.Zero };
+    public static readonly Vector2[] Directions = [-Vector2.UnitX, -Vector2.One, -Vector2.UnitY, new Vector2(1f, -1f), Vector2.UnitX, Vector2.One, Vector2.UnitY, new Vector2(-1f, 1f), Vector2.Zero];
 
     public const int MemorialHelperOffset = 0;
+
+    public static string ToCode(string str) {
+        // return a standard form
+        return str switch {
+            "L" or "UL" or "U" or "UR" or "R" or "DR" or "D" or "DL" or "_" => str,
+            "LU" => "UL",
+            "RU" => "UR",
+            "LD" => "DL",
+            "RD" => "DR",
+            "" => "_",
+            _ => "?"
+        };
+    }
     public static string ToCode(Vector2 vec) {
         // this assumes vec = Calc.Sign(vec);
         vec = Calc.Sign(vec);

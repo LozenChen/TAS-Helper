@@ -1,4 +1,4 @@
-﻿#define ForMaintenance
+﻿//#define ForMaintenance
 using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
