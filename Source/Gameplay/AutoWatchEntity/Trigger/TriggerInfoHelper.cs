@@ -1,5 +1,4 @@
-﻿//#define ForMaintenance
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -17,7 +16,7 @@ internal static class TriggerInfoHelper {
 
     public static Dictionary<Type, TriggerDynamicPlayerHandler> DynamicInfoPlayerGetters = new Dictionary<Type, TriggerDynamicPlayerHandler>();
 
-    private static HashSet<string> implementedMods = new HashSet<string>() { "Celeste" };
+    internal static HashSet<string> implementedMods = new HashSet<string>() { "Celeste", "SkinModHelper", "SkinModHelperPlus" };
 
     [Initialize]
     public static void Initialize() {
@@ -36,14 +35,6 @@ internal static class TriggerInfoHelper {
         }
         ModTriggerStaticInfo.AddToDictionary();
         ModTriggerDynamicInfo.AddToDictionary();
-#if ForMaintenance
-        Logger.Log(LogLevel.Debug, $"TASHelper/{nameof(TriggerInfoHelper)}:NotImplementedTriggers",
-            string.Join("\n", Utils.ModUtils.GetTypes().Where(x => 
-                x.IsSubclassOf(typeof(Trigger))
-                && !StaticInfoGetters.ContainsKey(x)
-                && !implementedMods.Contains(x.Assembly.GetName().Name)
-            ).Select(x => x.Assembly.GetName().Name + " @ " + x.FullName)));
-#endif        
     }
 
     public static bool TryCreateStaticHandler(MethodInfo method, out TriggerStaticHandler handler) {

@@ -78,6 +78,7 @@ public static class WhatsNew {
         AddLog("2.0.5", "Bugfix: Cutscene is auto-watched even if Auto Watch is not enabled. (thanks @socksygen)");
         AddLog("2.0.6", "Feature: Auto-Watch now supports Triggers, and vanilla / Everest ones are handled well.");
         AddLog("2.0.7", "Feature: Auto-Watch now supports CrumbleWallOnRumble.");
+        AddLog("2.0.8", "Change: Target CelesteTAS v3.41.0", "Feature: Auto-Watch supports more triggers.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

@@ -19,10 +19,10 @@ public static class InputManager {
     }
 
     public static void ExecuteCommands(int frame) {
-        if (Manager.Controller.Commands.GetValueOrDefault(Manager.Controller.CurrentFrameInTas + frame) is { } CurrentCommands) {
-            foreach (var command in CurrentCommands) {
+        if (Manager.Controller.Commands.GetValueOrDefault(Manager.Controller.CurrentFrameInTas + frame) is List<Command> CurrentCommands) {
+            foreach (Command command in CurrentCommands) {
                 if (SupportedRuntimeCommands.Contains(command.Attribute.Name) &&
-                    (!EnforceLegalCommand.EnabledWhenRunning || command.Attribute.LegalInMainGame)) {
+                    (!EnforceLegalCommand.EnabledWhenRunning || command.Attribute.LegalInFullGame)) {
                     command.Invoke();
                 }
             }
@@ -39,7 +39,7 @@ public static class InputManager {
         EmptyInput = emptyInput;
         SupportedRuntimeCommands.Clear();
         foreach (string str in _supportedRuntimeCommands) {
-            if (TasCommandAttribute.MethodInfos.Keys.Where(x => x.Name == str) is { } commands && commands.IsNotNullOrEmpty() && commands.First().ExecuteTiming.Has(ExecuteTiming.Runtime)) {
+            if (Command.Commands.Where(x => x.Name == str) is { } commands && commands.IsNotNullOrEmpty() && commands.First().ExecuteTiming.Has(ExecuteTiming.Runtime)) {
                 SupportedRuntimeCommands.Add(str);
             }
         }
