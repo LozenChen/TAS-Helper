@@ -98,6 +98,7 @@ internal static class ModTriggerStaticInfo {
         HandleFlagslinesAndSuch();
         HandleMemorialHelper();
         HandleSardine7();
+        HandleContortHelper();
     }
 
     public static void Add(Type type, TriggerStaticHandler handler) {
@@ -258,6 +259,34 @@ internal static class ModTriggerStaticInfo {
         if (ModUtils.GetType("Sardine7", "Celeste.Mod.Sardine7.Triggers.DashCodeTrigger") is { } dashCodeTrigger) {
             Add(dashCodeTrigger, (trigger, _) => {
                 return "DashCode: " + string.Join(",", trigger.GetFieldValue<string[]>("code").Select(DashCode.ToCode));
+            });
+        }
+    }
+
+    public static void HandleContortHelper() {
+        // not finished
+
+        if (ModUtils.GetType("ContortHelper", "ContortHelper.TeleportationTrigger") is { } teleportationTrigger) {
+            Add(teleportationTrigger, (trigger, _) => {
+                Vector2? toTeleportTo = trigger.GetFieldValue<Vector2?>("toTeleportTo");
+                if (toTeleportTo.HasValue) {
+                    return ""; // when in same room, the mod itself already debugrender its target
+                }
+                string roomName = trigger.GetFieldValue<string>("roomName");
+                string roomNameForGolden = trigger.GetFieldValue<string>("roomNameForGolden");
+                string TargetTag = trigger.GetFieldValue<string>("TargetTag");
+                string result;
+                if (string.IsNullOrWhiteSpace(TargetTag)) {
+                    result = (string.IsNullOrWhiteSpace(roomNameForGolden) || roomName == roomNameForGolden) ? $"[{roomName}]" : $"[{roomName}]\nIfGolden: [{roomNameForGolden}]";
+                }
+                else {
+                    result = (string.IsNullOrWhiteSpace(roomNameForGolden) || roomName == roomNameForGolden) ? $"[{roomName}] {TargetTag}" : $"[{roomName}] {TargetTag}\nIfGolden: [{roomNameForGolden}]";
+                }
+                string[] flags = trigger.GetFieldValue<string[]>("neededFlags");
+                if (flags.IsNotNullOrEmpty() && string.Join("", flags).IsNotNullOrEmpty()) {
+                    result += $"\nNeedFlag: {string.Join(", ", flags)}";
+                }
+                return result;
             });
         }
     }

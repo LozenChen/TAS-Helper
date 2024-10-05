@@ -6,7 +6,7 @@ using System.Text;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
 
-internal class AbstractTriggerRenderer : AutoWatchTextRenderer {
+internal abstract class AbstractTriggerRenderer : AutoWatchTextRenderer {
 
     internal static Color textcolorWhenInside = new Color(0f, 0f, 0f, 0.5f);
 
@@ -45,11 +45,11 @@ internal class AbstractTriggerRenderer : AutoWatchTextRenderer {
 
     public AbstractTriggerRenderer(RenderMode mode) : base(mode, active: true) { }
 
-    public virtual string Name() => abstractTrigger.GetType().Name;
-    public virtual string GetStaticInfo() => throw new Exception("NotImplemented"); // as an abstract class, we should not implement it
+    public abstract string Name();
+    public abstract string GetStaticInfo();
 
-    public virtual bool HasDynamicInfo() => false;
-    public virtual string GetDynamicInfo() => "";
+    public abstract bool HasDynamicInfo();
+    public abstract string GetDynamicInfo();
 
     public override void Added(Entity entity) {
         base.Added(entity);
@@ -193,7 +193,7 @@ internal class AbstractTriggerRenderer : AutoWatchTextRenderer {
             bool flag2 = false;
             if (playerInstance is { } player) {
                 flag1 = abstractTrigger.CollideCheck(player);
-                flag2 = !CoreLogic.IsWatched(abstractTrigger) && nearPlayerDetector.Collide(player.collider);
+                flag2 = mode == RenderMode.Always && nearPlayerDetector.Collide(player.collider) && !CoreLogic.IsWatched(abstractTrigger); // if watched, then do not set transparent text
             }
             SetAlphaRegion(flag1);
             SetAlphaText(flag2);

@@ -154,11 +154,11 @@ internal class AutoWatchRenderer : Component {
 
     public bool PostActive;
 
-    public new bool Active {
+    public new bool Active { // hide the original "Active" field
         get {
             throw new Exception("Use Pre/PostActive Instead!");
         }
-        set {
+        private set {
             throw new Exception("Use Pre/PostActive Instead!");
         }
     }
@@ -193,6 +193,7 @@ internal class AutoWatchRenderer : Component {
     public override void Added(Entity entity) {
         base.Added(entity);
         if (mode == RenderMode.WhenWatched) {
+            // if it's not watched, the renderer is still there, but just hidden and inactive
             CoreLogic.WhenWatchedRenderers.Add(this);
             Visible = CoreLogic.IsWatched(entity);
             PostActive = hasUpdate && Visible;
