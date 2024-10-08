@@ -119,6 +119,10 @@ public class OptionSubMenuExt : TextMenu.Item {
         }
     }
 
+    public override string SearchLabel() {
+        return Label;
+    }
+
     public float TitleHeight { get; private set; }
 
     public float MenuHeight { get; private set; }
