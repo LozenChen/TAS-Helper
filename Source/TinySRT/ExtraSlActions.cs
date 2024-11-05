@@ -3,6 +3,7 @@ using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Predictor;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -276,6 +277,10 @@ internal static class TasHelperSL {
             Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers = SRT_WhenWatchedRenderers.DeepCloneShared();
 
             AutoWatchRenderer.WakeUpAllAutoWatchRenderer();
+
+            PredictorCore.delayedClearFutures = true;
+            PredictorCore.HasCachedFutures = false;
+            PredictorCore.delayedClearState = true;
         };
         Action clear = () => {
             SRT_CachedNodes = null;

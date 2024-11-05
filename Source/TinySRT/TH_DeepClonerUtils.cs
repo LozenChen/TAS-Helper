@@ -31,8 +31,14 @@ public static class TH_DeepClonerUtils {
 
     public static PostCloneProcessor SRT_postCloneProcessor;
 
-    [Load]
+    private static bool Initialized = false;
+
     private static void Config() {
+        if (Initialized) {
+            return;
+        }
+        Initialized = true;
+
         SRT_preCloneProcessor = DeepCloner._preCloneProcessor;
         SRT_postCloneProcessor = DeepCloner._postCloneProcessor;
         TH_preCloneProcessor =
@@ -233,11 +239,13 @@ public static class TH_DeepClonerUtils {
     }
 
     public static void PushProcessor() {
+        Config();
         DeepCloner._preCloneProcessor = TH_preCloneProcessor;
         DeepCloner._postCloneProcessor = TH_postCloneProcessor;
     }
 
     public static void PopProcessor() {
+        Config();
         DeepCloner._preCloneProcessor = SRT_preCloneProcessor;
         DeepCloner._postCloneProcessor = SRT_postCloneProcessor;
     }
