@@ -62,7 +62,7 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
   Here lists some ideas, which I may not work on recently. Feel free if you like that idea and want to implement that in your mod (tell me when you've implemented it so i needn't work on them).
 
-- SpeedrunTool multi-saveslots PR (Update: done, PR is created but never gets merged)
+- SpeedrunTool multi-saveslots PR (Update2: plan to put effort on this some time later)(Update: done, PR is created but never gets merged)
 
 - Predictor combined with Brute Forcer: previous brute forcers simulate game logic so can be wrong if there are some complex mod logics, so in our way it should be better? (but also slower for sure)
 
