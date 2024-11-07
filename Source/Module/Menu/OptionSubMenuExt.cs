@@ -1,9 +1,10 @@
 ﻿using Celeste.Mod.Core;
-using Celeste.Mod.SpeedrunTool.Utils;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using Celeste.Mod.UI;
 using CMCore = Celeste.Mod.Core;
 namespace Celeste.Mod.TASHelper.Module.Menu;
 
@@ -524,7 +525,7 @@ public class OptionSubMenuExt : TextMenu.Item {
 
     [Initialize]
     private static void InitializeHook() {
-        typeof(TextMenu).GetMethod("Update").ILHook((cursor, _) => {
+        typeof(TextMenu).GetMethod("Update").IlHook((cursor, _) => {
             if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Call, ins => ins.MatchCallvirt(typeof(CoreModuleSettings), "get_MenuPageDown"), ins => true, ins => ins.OpCode == OpCodes.Brfalse)) {
                 ILLabel target = (ILLabel)cursor.Next.Next.Next.Next.Operand;
                 cursor.MoveAfterLabels();
@@ -535,7 +536,7 @@ public class OptionSubMenuExt : TextMenu.Item {
         });
 
 
-        typeof(TextMenu).GetMethod("orig_Update").ILHook((cursor, _) => {
+        typeof(TextMenu).GetMethod("orig_Update").IlHook((cursor, _) => {
             if (cursor.TryGotoNext(ins => ins.MatchLdsfld(typeof(Input), nameof(Input.MenuDown)), ins => ins.MatchCallvirt(typeof(VirtualButton), "get_Pressed"), ins => ins.OpCode == OpCodes.Brfalse_S)) {
                 ILLabel target = (ILLabel)cursor.Next.Next.Next.Operand;
                 cursor.MoveAfterLabels();
@@ -544,6 +545,8 @@ public class OptionSubMenuExt : TextMenu.Item {
                 cursor.Emit(OpCodes.Brtrue, target);
             }
         });
+
+        typeof(OuiModOptions).GetMethod("Update").IlHook(PreventGotoMainMenu);
     }
 
     private static bool OnMenuTryPageDown(TextMenu menu) {
@@ -568,6 +571,25 @@ public class OptionSubMenuExt : TextMenu.Item {
             return true;
         }
         return false;
+    }
+
+    private static void PreventGotoMainMenu(ILContext il) {
+        ILCursor cursor = new ILCursor(il);
+        if (cursor.TryGotoNext(ins => ins.MatchLdsfld(typeof(Input), nameof(Input.MenuCancel)), ins => ins.MatchCallvirt<VirtualButton>("get_Pressed"))) {
+            cursor.Index += 2;
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate(GetShouldGotoMainMenu);
+        }
+    }
+
+    private static bool GetShouldGotoMainMenu(bool input, OuiModOptions oui) {
+        if (!input) {
+            return false;
+        }
+        if (oui?.menu?.Current is OptionSubMenuExt subMenu && subMenu.Visible && subMenu.MenuIndex != 0) {
+            return false;
+        }
+        return true;
     }
 }
 

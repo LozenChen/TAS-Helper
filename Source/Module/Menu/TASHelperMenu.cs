@@ -462,38 +462,12 @@ public class EaseInOptionSubMenuExt : OptionSubMenuExt, IEaseInItem {
         }
 
         Visible = alpha != 0;
-
-        shouldGotoMainMenu &= !Visible || MenuIndex == 0;
     }
     public override void Render(Vector2 position, bool highlighted) {
         float c = Container.Alpha;
         Container.Alpha = alpha;
         base.Render(position, highlighted);
         Container.Alpha = c;
-    }
-
-    [Initialize]
-
-    private static void InitializeHook() {
-        typeof(OuiModOptions).GetMethod("Update").IlHook(PreventGotoMainMenu);
-    }
-
-    private static void PreventGotoMainMenu(ILContext il) {
-        ILCursor cursor = new ILCursor(il);
-        if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Brfalse_S)) {
-            ILLabel label = (ILLabel)cursor.Next.Operand;
-            cursor.Index -= 2;
-            cursor.EmitDelegate(GetShouldGotoMainMenu);
-            cursor.Emit(OpCodes.Brfalse, label);
-        }
-    }
-
-    private static bool shouldGotoMainMenu = true;
-
-    private static bool GetShouldGotoMainMenu() {
-        bool result = shouldGotoMainMenu;
-        shouldGotoMainMenu = true;
-        return result;
     }
 }
 
