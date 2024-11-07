@@ -1,11 +1,8 @@
 using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 using Celeste.Mod.TASHelper.Utils;
-using Celeste.Mod.UI;
 using Microsoft.Xna.Framework;
-using Mono.Cecil.Cil;
 using Monocle;
-using MonoMod.Cil;
 using System.Reflection;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 using CMCore = Celeste.Mod.Core;
