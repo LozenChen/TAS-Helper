@@ -279,6 +279,13 @@ public static class PredictorCore {
         hasDelayedPredict = true;
         delayedMustRedo = mustRedo;
     }
+
+    [TasEnableRun]
+    private static void OnTasRerun() {
+        futures.Clear();
+        PredictorRenderer.ClearCachedMessage();
+        HasCachedFutures = false;
+    }
     private static void DelayedActions() {
         DelayedClearFutures();
         DelayedClearState();

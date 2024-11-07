@@ -80,6 +80,7 @@ public static class WhatsNew {
         AddLog("2.0.7", "Feature: Auto-Watch now supports CrumbleWallOnRumble.");
         AddLog("2.0.8", "Change: Target CelesteTAS v3.41.0", "Feature: Auto-Watch supports more triggers.");
         AddLog("2.0.9", "Feature: SubMenus support Mod Options' Search Box.", "Bugfix: Predictor results are not cleared after loadstate.", "Change: Don't initialize predictor unless necessary."); // note items inside submenus can't be fetched, coz they are not items of the main menu.
+        AddLog("2.0.10", "Bugfix: Predictor results are not cleared after re-run the tas.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
