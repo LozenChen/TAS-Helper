@@ -99,6 +99,7 @@ internal static class ModTriggerStaticInfo {
         HandleMemorialHelper();
         HandleSardine7();
         HandleContortHelper();
+        HandleAurorasHelper();
     }
 
     public static void Add(Type type, TriggerStaticHandler handler) {
@@ -287,6 +288,21 @@ internal static class ModTriggerStaticInfo {
                     result += $"\nNeedFlag: {string.Join(", ", flags)}";
                 }
                 return result;
+            });
+        }
+    }
+
+    public static void HandleAurorasHelper() {
+        // not finished
+
+        if (ModUtils.GetType("AurorasHelper", "Celeste.Mod.AurorasHelper.DashcodeHashTrigger") is { } hashedDashCode) {
+            Add(hashedDashCode, (trigger, _) => {
+                string hashedCode = trigger.GetFieldValue<string>("hashedCode");
+                int length = trigger.GetFieldValue<int>("codeLength");
+                if (DashCode.AurorasHashedDashCode.TryGetInputs(hashedCode, length, out string inputs)) {
+                    return "DashCode: " + inputs;
+                }
+                return "";
             });
         }
     }

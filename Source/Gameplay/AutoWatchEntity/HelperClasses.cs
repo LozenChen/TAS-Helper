@@ -1,7 +1,10 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using System.Security.Cryptography;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Diagnostics;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -210,6 +213,73 @@ internal static class DashCode {
         }
         return DashCodes[num];
     }
+
+    public static class AurorasHashedDashCode {
+
+        public static int AcceptableLengthUpperBound = 8;
+
+        private static readonly Dictionary<string, string> results = new Dictionary<string, string>();
+
+        private static readonly HashSet<string> failures = new HashSet<string>();
+
+        private static readonly string[] DashCodesWithoutBlank = ["L", "UL", "U", "UR", "R", "DR", "D", "DL"]; // we assume "" is not used
+        private static byte[] AurorasGetHash(string inputString) {
+            using HashAlgorithm hashAlgorithm = SHA256.Create();
+            return hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes("AURORAWASHERE" + inputString));
+        }
+
+        private static string AurorasGetHashString(string inputString) {
+            StringBuilder stringBuilder = new StringBuilder();
+            byte[] hash = AurorasGetHash(inputString);
+            foreach (byte b in hash) {
+                stringBuilder.Append(b.ToString("X2"));
+            }
+            return stringBuilder.ToString();
+        }
+
+        public static bool TryGetInputs(string hash, int length, out string inputs) {
+            if (results.TryGetValue(hash.ToLowerInvariant(), out string input)) {
+                inputs = input;
+                return true;
+            }
+            if (failures.Contains(hash.ToLowerInvariant())) {
+                inputs = "";
+                return false;
+            }
+            if (length > AcceptableLengthUpperBound) {
+                inputs = "";
+                return false;
+            }
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            Logger.Log(LogLevel.Warn, "TASHelper", "Trying to decrypt Auroras' DashcodeHashTrigger, please wait...");
+            string lower = hash.ToLowerInvariant();
+            uint upperBound = (uint)2 << (3 * length - 1);
+            for (uint i = 0; i < upperBound; i++) {
+                if (AurorasGetHashString(CastToDashCode(i, length)).ToLowerInvariant() == lower) {
+                    inputs = CastToDashCode(i, length);
+                    results.Add(lower, inputs);
+                    stopwatch.Stop();
+                    Logger.Log(LogLevel.Warn, "TASHelper", $"Found! {inputs} match, costs {stopwatch.ElapsedMilliseconds} ms.");
+                    return true;
+                }
+            }
+            inputs = "";
+            failures.Add(lower);
+            stopwatch.Stop();
+            Logger.Log(LogLevel.Warn, "TASHelper", $"Not Found! Costs {stopwatch.ElapsedMilliseconds} ms.");
+            return false;
+        }
+
+        private static string CastToDashCode(uint num, int length) {
+            List<string> list = new();
+            for (int loop = 0; loop < length; loop++) {
+                list.Add(DashCodesWithoutBlank[num % 8]);
+                num >>= 3;
+            }
+            return string.Join(",", list);
+        }
+    }
+    
 }
 
 internal static class CoroutineFinder {

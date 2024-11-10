@@ -209,7 +209,7 @@ internal abstract class AbstractTriggerRenderer : AutoWatchTextRenderer {
         if (hitbox is not null) {
             Draw.Rect(hitbox.AbsoluteX, hitbox.AbsoluteY, hitbox.Width, hitbox.Height, innerRegion);
         }
-        // Draw.HollowRect(nearPlayerDetector.AbsoluteX, nearPlayerDetector.AbsoluteY, nearPlayerDetector.Width, nearPlayerDetector.Height, Color.Pink);
+        Draw.HollowRect(nearPlayerDetector.AbsoluteX, nearPlayerDetector.AbsoluteY, nearPlayerDetector.Width, nearPlayerDetector.Height, Color.Pink);
     }
 
     public void SetVerticallyClampedCenter() {
