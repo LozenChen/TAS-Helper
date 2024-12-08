@@ -214,9 +214,9 @@ internal static class DashCode {
         return DashCodes[num];
     }
 
-    public static class AurorasHashedDashCode {
+    public static class AurorasDashCode {
 
-        public static int AcceptableLengthUpperBound = 8;
+        public static int AcceptableLengthUpperBound = 9;
 
         private static readonly Dictionary<string, string> results = new Dictionary<string, string>();
 
@@ -276,6 +276,28 @@ internal static class DashCode {
                 list.Add(DashCodesWithoutBlank[num % 8]);
                 num >>= 3;
             }
+            return string.Join(",", list);
+        }
+
+        private static readonly string[] flagDashCode = ["U", "UR", "R", "DR", "D", "DL", "L", "UL"];
+        public static string DashCodeFlagGetCurrentCode(string baseFlag, int length, Level level, out bool success) {
+            List<string> list = new List<string>();
+            Session session = level.Session;
+            for (int i = 1; i <= length; i++) {
+                bool flag = true;
+                foreach (string text in flagDashCode) {
+                    if (session.GetFlag(baseFlag + "_" + i + "_" + text)) {
+                        list.Add(text);
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    success = false;
+                    return $"NeedFlag: {baseFlag}_{i}_[dir]";
+                }
+            }
+            success = true;
             return string.Join(",", list);
         }
     }

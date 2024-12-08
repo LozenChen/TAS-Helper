@@ -18,6 +18,8 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
 
     public bool waitingForCoroutine = true;
 
+    public string name;
+
     public static Vector2 offset = Vector2.UnitY * 12f; // make sure this is different to that of player
 
     private static bool IsCutscene(IEnumerator func) {
@@ -26,9 +28,12 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
 
     public static bool useFallBack = true;
 
+    public static bool useCSTypeName = true;
+
     public override void Added(Entity entity) {
         base.Added(entity);
         cs = entity as CutsceneEntity;
+        name = useCSTypeName ? cs.GetType().Name : "Cutscene";
         text.justify = new Vector2(0.5f, 0f);
         bool found = false;
         foreach (Component c in cs.Components) {
@@ -117,7 +122,7 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
         wasWaiting = flag;
 
         if (text.content != "") {
-            text.AppendAtFirst("Cutscene", "Cutscene");
+            text.AppendAtFirst(name, name);
         }
 
         SetVisible();

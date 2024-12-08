@@ -299,7 +299,7 @@ internal static class ModTriggerStaticInfo {
             Add(hashedDashCode, (trigger, _) => {
                 string hashedCode = trigger.GetFieldValue<string>("hashedCode");
                 int length = trigger.GetFieldValue<int>("codeLength");
-                if (DashCode.AurorasHashedDashCode.TryGetInputs(hashedCode, length, out string inputs)) {
+                if (DashCode.AurorasDashCode.TryGetInputs(hashedCode, length, out string inputs)) {
                     return "DashCode: " + inputs;
                 }
                 return "";

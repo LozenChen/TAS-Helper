@@ -64,6 +64,8 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 - SpeedrunTool multi-saveslots PR (Update2: plan to put effort on this some time later)(Update: done, PR is created but never gets merged)
 
+- CollabPartialLoader: when loading a single map of a collab, only need to load necessary dependencies instead of all dependencies of the collab.
+
 - Predictor combined with Brute Forcer: previous brute forcers simulate game logic so can be wrong if there are some complex mod logics, so in our way it should be better? (but also slower for sure)
 
 - Slowdown indicator (note there's 1 frame delay between DeltaTime and TimeRate)

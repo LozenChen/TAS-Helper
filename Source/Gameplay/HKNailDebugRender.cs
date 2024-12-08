@@ -6,6 +6,7 @@ using System.Reflection;
 namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class HKNailDebugRender {
 
+    // Kepler mod also has hk nail, but it has a good DebugRender
     [Initialize]
     private static void Initialize() {
         prepared = true;

@@ -205,6 +205,18 @@ public static class SpinnerCalculateHelper {
             OffsetGetters.Add(acidLightningType, OffsetGetters[vanillaLightningType]);
         }
 
+        if (ModUtils.GetType("StunningHelper", "Celeste.Mod.StunningHelper.CustomOffsetSpinner") is { } stunSpinnerType) {
+            DictionaryAdderVanilla(stunSpinnerType, e => (e as CrystalStaticSpinner)!.offset, spinner);
+        }
+
+        if (ModUtils.GetType("StunningHelper", "Celeste.Mod.StunningHelper.CustomOffsetLightning") is { } stunLightningType) {
+            DictionaryAdderVanilla(stunLightningType, e => (e as Lightning)!.toggleOffset, lightning);
+        }
+
+        if (ModUtils.GetType("StunningHelper", "Celeste.Mod.StunningHelper.CustomOffsetDustBunny") is { } stunDustType) {
+            DictionaryAdderVanilla(stunDustType, e => (e as DustStaticSpinner)!.offset, dust);
+        }
+
         //if (ModUtils.GetType("Scuffed Helper", "ScuffedHelperCode.RandomSpinner") is { } randomSpinnerType) {
         //    DictionaryAdderNormal(randomSpinnerType, "offset", spinner);
         //}

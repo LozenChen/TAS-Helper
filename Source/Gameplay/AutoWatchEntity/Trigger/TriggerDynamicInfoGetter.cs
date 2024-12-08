@@ -140,5 +140,29 @@ internal static class ModTriggerDynamicInfo {
                 }
             });
         }
+
+        if (ModUtils.GetType("AurorasHelper", "Celeste.Mod.AurorasHelper.DashcodeFlagTrigger") is { } dashCodeTrigger) {
+            Add(dashCodeTrigger, (trigger, level) => {
+                string flag = trigger.GetFieldValue<string>("flag");
+                bool flagState = trigger.GetFieldValue<bool>("flag_state");
+                if (level.Session.GetFlag(flag) == flagState) {
+                    return $"{(flagState ? "Added: " : "Removed: ")}{flag}";
+                }
+                string baseFlag = trigger.GetFieldValue<string>("baseFlag");
+                int codeLength = trigger.GetFieldValue<int>("codeLength");
+                string dashCode = DashCode.AurorasDashCode.DashCodeFlagGetCurrentCode(baseFlag, codeLength, level, out bool success);
+                if (!success) {
+                    return dashCode;
+                }
+
+                List<string> currentInputs = trigger.GetFieldValue<List<string>>("currentInputs");
+                if (flagState) {
+                    return $"DashCode: {dashCode}\nCurrent: {string.Join(",", currentInputs.Select(DashCode.ToCode))}\nAdd: {flag}";
+                }
+                else {
+                    return $"DashCode: {dashCode}\nCurrent: {string.Join(",", currentInputs.Select(DashCode.ToCode))}\nRemove: {flag}";
+                }
+            });
+        }
     }
 }
