@@ -1,10 +1,10 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System.Security.Cryptography;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -301,7 +301,7 @@ internal static class DashCode {
             return string.Join(",", list);
         }
     }
-    
+
 }
 
 internal static class CoroutineFinder {
