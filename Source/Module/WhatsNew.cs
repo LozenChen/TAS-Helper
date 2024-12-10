@@ -82,7 +82,8 @@ public static class WhatsNew {
         AddLog("2.0.9", "Feature: SubMenus support Mod Options' Search Box.", "Bugfix: Predictor results are not cleared after loadstate.", "Change: Don't initialize predictor unless necessary."); // note items inside submenus can't be fetched, coz they are not items of the main menu.
         AddLog("2.0.10", "Bugfix: Predictor results are not cleared after re-run the tas.");
         AddLog("2.0.11", "Rewrite some codes to be compatible with ghost mod.");
-        AddLog("2.0.12", "Feature: Auto-Watch now decrypts Auroras Hashed DashCode Trigger", "Support Stunning Helper's hazards. (thanks @trans_alexa)");
+        AddLog("2.0.12", "Feature: Auto-Watch now decrypts Auroras Hashed DashCode Trigger.", "Support Stunning Helper's hazards. (thanks @trans_alexa)");
+        AddLog("2.0.13", "Feature: Auto-Watch supports SwitchGate.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
