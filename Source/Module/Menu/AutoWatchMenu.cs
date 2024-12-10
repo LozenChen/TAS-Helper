@@ -101,6 +101,9 @@ public static class AutoWatchMenu {
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch SwapBlock".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_SwapBlock).Change(value => TasHelperSettings.AutoWatch_SwapBlock = value));
 
+        page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch SwitchGate".ToDialogText(),
+            CreateOptions(), TasHelperSettings.AutoWatch_SwitchGate).Change(value => TasHelperSettings.AutoWatch_SwitchGate = value));
+
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch TheoCrystal".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_TheoCrystal).Change(value => TasHelperSettings.AutoWatch_TheoCrystal = value));
 

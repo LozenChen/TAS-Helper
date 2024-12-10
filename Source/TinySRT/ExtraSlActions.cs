@@ -221,7 +221,7 @@ internal static class TasHelperSL {
             ExactSpinnerGroup.offsetGroup = TH_offsetGroup.TH_DeepCloneShared();
             MovementOvershootAssistant.MOA_Renderer.Instance = TH_MOA.TH_DeepCloneShared();
             Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers = TH_WhenWatchedRenderers.TH_DeepCloneShared();
-            AutoWatchRenderer.WakeUpAllAutoWatchRenderer();
+            AutoWatchRenderer.EverythingOnClone();
         };
         Action clear = () => {
             TH_CachedNodes = null;
@@ -276,7 +276,7 @@ internal static class TasHelperSL {
 
             Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers = SRT_WhenWatchedRenderers.DeepCloneShared();
 
-            AutoWatchRenderer.WakeUpAllAutoWatchRenderer();
+            AutoWatchRenderer.EverythingOnClone();
 
             PredictorCore.delayedClearFutures = true;
             PredictorCore.HasCachedFutures = false;

@@ -301,6 +301,7 @@ TAS_HELPER_AUTO_WATCH_PUFFER=                              Puffer
 TAS_HELPER_AUTO_WATCH_REFILL=                              Refill
 TAS_HELPER_AUTO_WATCH_SEEKER=                              Seeker
 TAS_HELPER_AUTO_WATCH_SWAPBLOCK=                           Swap Block
+TAS_HELPER_AUTO_WATCH_SWITCHGATE=                          Switch Gate
 TAS_HELPER_AUTO_WATCH_THEOCRYSTAL=                         Theo Crystal
 TAS_HELPER_AUTO_WATCH_ZIPMOVER=                            Zip Mover
 TAS_HELPER_AUTO_WATCH_SHAKE=                               \S    > Show Shake

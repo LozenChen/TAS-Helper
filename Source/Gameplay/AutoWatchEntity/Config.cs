@@ -60,6 +60,8 @@ internal static class Config {
     public static Mode Seeker => TasHelperSettings.AutoWatch_Seeker;
     public static Mode SwapBlock => TasHelperSettings.AutoWatch_SwapBlock;
 
+    public static Mode SwitchGate => TasHelperSettings.AutoWatch_SwitchGate;
+
     public static Mode TheoCrystal => TasHelperSettings.AutoWatch_TheoCrystal;
 
     public static Mode Trigger => TasHelperSettings.AutoWatch_Trigger;

@@ -300,12 +300,17 @@ internal class AutoWatchRenderer : Component {
         }
     }
 
-    internal static void WakeUpAllAutoWatchRenderer() {
+    private static void WakeUpAllAutoWatchRenderer() {
         if (Engine.Scene is { } self) {
             foreach (AutoWatchRenderer renderer in self.Tracker.GetComponents<AutoWatchRenderer>()) {
                 renderer.UpdateOn_ConfigChange_Or_StopUltraforwarding_Or_Clone();
             }
         }
+    }
+
+    internal static void EverythingOnClone() {
+        HiresLevelRenderer.RemoveRenderers<SwitchGateRenderer.SwitchLinker>();
+        WakeUpAllAutoWatchRenderer();
     }
 }
 

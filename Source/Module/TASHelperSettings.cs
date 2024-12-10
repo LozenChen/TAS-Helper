@@ -627,6 +627,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public Mode AutoWatch_SwapBlock = Mode.Always;
 
+    public Mode AutoWatch_SwitchGate = Mode.Always;
+
     public Mode AutoWatch_TheoCrystal = Mode.Always;
 
     public Mode AutoWatch_Trigger = Mode.WhenWatched;

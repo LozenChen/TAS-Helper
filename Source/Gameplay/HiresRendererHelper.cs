@@ -85,7 +85,6 @@ public static class HiresLevelRenderer {
         }
     }
 
-
     public static void Remove(THRenderer renderer) {
         toRemove.Add(renderer);
     }
@@ -99,6 +98,15 @@ public static class HiresLevelRenderer {
             return list.Select(x => (T)x).ToList();
         }
         return new List<T>();
+    }
+
+    public static void RemoveRenderers<T>() where T : THRenderer {
+        if (tracker.TryGetValue(typeof(T), out List<THRenderer> removingType)) {
+            foreach (THRenderer renderer in removingType) {
+                list.Remove(renderer);
+            }
+            removingType.Clear();
+        }
     }
 
     public static void UpdateLists() {
