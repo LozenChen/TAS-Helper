@@ -66,7 +66,7 @@ internal class GliderFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Glider;
     public void AddComponent(Entity entity) {
-        entity.Add(new GliderRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new GliderRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 

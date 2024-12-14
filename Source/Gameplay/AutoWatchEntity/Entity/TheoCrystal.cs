@@ -43,7 +43,7 @@ internal class TheoCrystalFactory : IRendererFactory {
     public bool Inherited() => false;
     public RenderMode Mode() => Config.TheoCrystal;
     public void AddComponent(Entity entity) {
-        entity.Add(new TheoCrystalRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new TheoCrystalRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 

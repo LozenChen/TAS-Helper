@@ -193,7 +193,7 @@ internal static class ActualPosition {
 
 
     private static void PatchHazardUpdate(Entity self) {
-        if (TasHelperSettings.Enabled && !UltraFastForwarding && self.IsHazard() && playerInstance is Player player) {
+        if (TasHelperSettings.Enabled && !FastForwarding && self.IsHazard() && playerInstance is Player player) {
             if (InViewBoost && !self.IsDust() && !CameraPositionDict.ContainsKey(self.Depth) && self.Scene is Level level) {
                 TrackCameraPosition(self.Depth, level.Camera.Position);
             }

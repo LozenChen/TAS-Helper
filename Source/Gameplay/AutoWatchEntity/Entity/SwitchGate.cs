@@ -122,7 +122,7 @@ internal class SwitchGateFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.SwitchGate;
     public void AddComponent(Entity entity) {
-        entity.Add(new SwitchGateRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new SwitchGateRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 

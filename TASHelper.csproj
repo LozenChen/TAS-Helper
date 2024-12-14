@@ -6,13 +6,14 @@
 
 	  <CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('../../Celeste.dll')">../..</CelestePrefix>
 	  <CelestePrefix Condition="'$(CelestePrefix)' == ''">Libs</CelestePrefix>
-	  
+
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>$(AssemblyName)</Authors>
     <RootNamespace>Celeste.Mod.TASHelper</RootNamespace>
-    <Configurations>Release</Configurations>
+    <Configurations>Release;Debug</Configurations>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -32,12 +33,12 @@
       <HintPath>..\..\Celeste.dll</HintPath>
     </Reference>
     <Reference Include="CelesteTAS-EverestInterop">
-      <HintPath>Libs\bin\CelesteTAS-EverestInterop.dll</HintPath>
+      <HintPath>..\CelesteTAS-EverestInterop\bin\CelesteTAS-EverestInterop.dll</HintPath>
       <Private>False</Private>
     </Reference>
-	<Reference Include="StudioCommunication">
-		<HintPath>Libs\bin\StudioCommunication.dll</HintPath>
-	</Reference>
+    <Reference Include="StudioCommunication">
+      <HintPath>..\CelesteTAS-EverestInterop\bin\StudioCommunication.dll</HintPath>
+    </Reference>
     <Reference Include="DeepCloner">
       <HintPath>Libs\DeepCloner.dll</HintPath>
       <Private>False</Private>
@@ -70,7 +71,7 @@
     </Reference>
 
   </ItemGroup>
-	
+
 	<PropertyGroup>
 		<PublicizerRuntimeStrategies>Unsafe;IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
 	</PropertyGroup>
@@ -111,7 +112,7 @@
 	<PropertyGroup>
 		<PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>
 	</PropertyGroup>
-	
+
   <ItemGroup>
     <Compile Remove="Libs\**" />
   </ItemGroup>
@@ -125,5 +126,5 @@
   </ItemGroup>
 
 
-			
+
 </Project>

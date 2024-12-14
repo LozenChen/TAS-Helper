@@ -280,7 +280,7 @@ public static class PredictorCore {
         delayedMustRedo = mustRedo;
     }
 
-    [TasEnableRun]
+    [EnableRun]
     private static void OnTasRerun() {
         futures.Clear();
         PredictorRenderer.ClearCachedMessage();
@@ -319,36 +319,31 @@ public static class PredictorCore {
             InputController c = Manager.Controller;
             c.NeedsReload = true;
             preventSendStateToStudio = true;
-            string lastChecksum = c.Checksum;
+
+            int lastChecksum = c.Checksum;
             bool firstRun = c.UsedFiles.IsEmpty();
-            if (c.NeedsReload) {
-                c.Clear();
-                int tryCount = 5;
-                while (tryCount > 0) {
-                    if (c.ReadFile(InputController.TasFilePath)) {
-                        if (Manager.NextStates.Has(StudioCommunication.States.Disable)) {
-                            c.Clear();
-                            Manager.DisableRun();
-                            preventSendStateToStudio = true;
-                        }
-                        else {
-                            c.NeedsReload = false;
-                            c.ParseFileEnd();
-                            if (!firstRun && lastChecksum != c.Checksum) {
-                                MetadataCommands.UpdateRecordCount(c);
-                            }
-                        }
-                        break;
-                    }
-                    else {
-                        System.Threading.Thread.Sleep(50);
-                        tryCount--;
-                        c.Clear();
+
+            c.Clear();
+            if (c.ReadFile(c.FilePath)) {
+                if (Manager.NextState == Manager.State.Disabled) {
+                    // The TAS contains something invalid
+                    c.Clear();
+                    Manager.DisableRun();
+                } else {
+                    c.NeedsReload = false;
+                    c.StartWatchers();
+                    AttributeUtils.Invoke<ParseFileEndAttribute>();
+
+                    if (!firstRun && lastChecksum != c.Checksum) {
+                        MetadataCommands.UpdateRecordCount(c);
                     }
                 }
-
-                c.CurrentFrameInTas = Math.Min(c.Inputs.Count, c.CurrentFrameInTas);
+            } else {
+                // Something failed while trying to parse
+                c.Clear();
             }
+
+            c.CurrentFrameInTas = Math.Min(c.Inputs.Count, c.CurrentFrameInTas);
         }
     }
 
@@ -358,9 +353,8 @@ public static class PredictorCore {
         return preventSendStateToStudio;
     }
 
-    [TasEnableRun]
-    [TasDisableRun]
-
+    [EnableRun]
+    [DisableRun]
     private static void ClearPreventSendStateToStudio() {
         preventSendStateToStudio = false;
     }
