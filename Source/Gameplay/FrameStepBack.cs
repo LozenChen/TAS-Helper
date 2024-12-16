@@ -24,7 +24,7 @@ public static class FrameStepBack {
                 delayedClear = true;
             }
             if (isLoad) {
-                Savestates.Load();
+                Savestates.LoadState();
             }
             else {
                 Controller.RefreshInputs(true);

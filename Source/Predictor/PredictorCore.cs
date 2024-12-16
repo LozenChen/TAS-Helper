@@ -187,7 +187,7 @@ public static class PredictorCore {
         SJ_CassetteHookFreeze = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlockController")?.GetMethod("FreezeUpdate", BindingFlags.NonPublic | BindingFlags.Static);
 #pragma warning restore CS8601
         HookHelper.SkipMethod(typeof(PredictorCore), nameof(InPredictMethod), typeof(GameInfo).GetMethod("Update", BindingFlags.Public | BindingFlags.Static));
-        HookHelper.SkipMethod(typeof(PredictorCore), nameof(PreventSendStateToStudio), typeof(TAS.Manager).GetMethod("SendStateToStudio", BindingFlags.Public | BindingFlags.Static));
+        HookHelper.SkipMethod(typeof(PredictorCore), nameof(PreventSendStateToStudio), typeof(TAS.Manager).GetMethod("SendStudioState", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
 
         InitializeChecks();
         InitializeCachePeriod();
@@ -332,7 +332,8 @@ public static class PredictorCore {
                 } else {
                     c.NeedsReload = false;
                     c.StartWatchers();
-                    AttributeUtils.Invoke<ParseFileEndAttribute>();
+                    TAS.Utils.AttributeUtils.Invoke<ParseFileEndAttribute>();
+                    // it's collected by TAS's AttributeUtils instead of ours, so we shouldn't use our own AttributeUtils
 
                     if (!firstRun && lastChecksum != c.Checksum) {
                         MetadataCommands.UpdateRecordCount(c);

@@ -38,6 +38,10 @@ internal static class Loader {
     }
 
     public static void OnReload() {
+        if (ModUtils.GetType("CelesteTAS-EverestInterop", "TAS.EverestInterop.TargetQuery")?.GetMethodInfo("CollectAllTypes") is { } methodInfo) {
+            methodInfo.Invoke(null, parameterless);
+            // InfoCustom loses some mod info after hot reload
+        }
         AttributeUtils.Invoke<ReloadAttribute>();
     }
 

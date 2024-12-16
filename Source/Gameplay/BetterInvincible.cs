@@ -39,14 +39,14 @@ internal static class BetterInvincible {
         return origValue || (Invincible && Manager.Running && TasHelperSettings.BetterInvincible); // safe guard, in case that disable run thing doesn't work somehow
     }
 
-    private static void HookSetCommand(Action<string[]> orig, string[] args) {
+    private static void HookSetCommand(Action<string, string[]> orig, string settingName, string[] args) {
         if (SaveData.Instance is null || !Manager.Running || !TasHelperSettings.BetterInvincible) {
-            orig(args);
+            orig(settingName, args);
             return;
         }
 
         bool beforeInvincible = SaveData.Instance.Assists.Invincible;
-        orig(args);
+        orig(settingName, args);
         if (beforeInvincible != SaveData.Instance.Assists.Invincible) {
             if (!beforeInvincible) {
                 SaveData.Instance.Assists.Invincible = false;

@@ -292,7 +292,7 @@ internal static class OoO_Core {
         SpringBoard.Create(PlayerUpdate);
         SpringBoard.Create(PlayerOrigUpdate);
 
-        hookTASIsPaused = new ILHook(typeof(TAS.EverestInterop.Core).GetMethod("IsPause", BindingFlags.NonPublic | BindingFlags.Static), il => {
+        hookTASIsPaused = new ILHook(typeof(TAS.EverestInterop.Core).GetMethod("IsPaused", BindingFlags.NonPublic | BindingFlags.Static), il => {
             ILCursor cursor = new ILCursor(il);
             cursor.Emit(OpCodes.Ldc_I4_0);
             cursor.Emit(OpCodes.Ret);

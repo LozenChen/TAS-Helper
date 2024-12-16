@@ -27,7 +27,7 @@ internal class FlagTouchSwitchRenderer : AutoWatchTextRenderer {
 
     internal static int breaklineLimit = 4;
     public FlagTouchSwitchRenderer(RenderMode mode) : base(mode, active: true) { }
-
+    
     /*
 
     public override void Added(Entity entity) {
@@ -78,7 +78,7 @@ internal class FlagTouchSwitchFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.FlagTouchSwitch;
     public void AddComponent(Entity entity) {
-        entity.Add(new FlagTouchSwitchRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new FlagTouchSwitchRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 

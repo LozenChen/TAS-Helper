@@ -33,8 +33,9 @@ internal static class AttributeUtils {
                 try {
                     methodInfo.Invoke(null, Parameterless);
                 }
-                catch {
-                    Celeste.Commands.Log($"AttributeUtils Invoke {debugDict[methodInfo]}.{methodInfo} failed");
+                catch (Exception e){
+                    Logger.Log(LogLevel.Error, "TASHelper", $"AttributeUtils Invoke {debugDict[methodInfo]}.{methodInfo} failed");
+                    Logger.Log(LogLevel.Error, "TASHelper", $"Inner Exception: {e}");
                 }
             }
         }
