@@ -204,7 +204,7 @@ internal class CrumbleWallOnRumbleFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.CrumbleWallOnRumble;
     public void AddComponent(Entity entity) {
-        entity.Add(new CrumbleWallOnRumbleRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new CrumbleWallOnRumbleRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 

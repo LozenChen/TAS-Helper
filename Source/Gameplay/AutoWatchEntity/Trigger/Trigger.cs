@@ -39,7 +39,7 @@ internal class TriggerFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Trigger;
     public void AddComponent(Entity entity) {
-        entity.Add(new TriggerRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new TriggerRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 
@@ -68,7 +68,7 @@ internal class RespawnTargetTriggerFactory : IRendererFactory {
     public bool Inherited() => false;
     public RenderMode Mode() => Config.Trigger;
     public void AddComponent(Entity entity) {
-        entity.Add(new RespawnTargetTriggerRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new RespawnTargetTriggerRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 
@@ -96,7 +96,7 @@ internal class SpawnFacingTriggerFactory : IRendererFactory {
     public bool Inherited() => false;
     public RenderMode Mode() => Config.Trigger;
     public void AddComponent(Entity entity) {
-        entity.Add(new SpawnFacingTriggerRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new SpawnFacingTriggerRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 

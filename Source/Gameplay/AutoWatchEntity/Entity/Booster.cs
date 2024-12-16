@@ -32,11 +32,6 @@ internal class BoosterFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Booster;
     public void AddComponent(Entity entity) {
-        entity.Add(new BoosterRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new BoosterRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
-
-
-
-
-

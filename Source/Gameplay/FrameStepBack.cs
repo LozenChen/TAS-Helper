@@ -1,6 +1,7 @@
 ﻿using Celeste.Mod.TASHelper.Module.Menu;
 using TAS;
 using TAS.Input;
+using TAS.ModInterop;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 public static class FrameStepBack {
@@ -11,14 +12,14 @@ public static class FrameStepBack {
         SetupNextFastForward(-1);
     }
     public static void SetupNextFastForward(int relativeMove) {
-        if (Manager.Running && !Manager.Recording) {
+        if (Manager.Running && !TASRecorderInterop.Recording) {
             int frame = Controller.CurrentFrameInTas + relativeMove;
             if (frame <= 0) {
                 return;
             }
             bool isLoad = false;
             bool delayedClear = false;
-            if (Savestates.IsSaved_Safe()) {
+            if (Savestates.IsSaved_Safe) {
                 isLoad = Savestates.SavedCurrentFrame <= frame;
                 delayedClear = true;
             }
@@ -29,12 +30,11 @@ public static class FrameStepBack {
                 Controller.RefreshInputs(true);
             }
             if (delayedClear) {
-                Savestates.Clear(); // the savestate is after us, clear it after RefreshInputs, so we will not run to the savestate breakpoint instead
+                Savestates.ClearState(); // the savestate is after us, clear it after RefreshInputs, so we will not run to the savestate breakpoint instead
             }
 
-            Controller.NextCommentFastForward = new FastForward(frame, "", 0);
-            Manager.States &= ~StudioCommunication.States.FrameStep;
-            Manager.NextStates &= ~StudioCommunication.States.FrameStep;
+            Controller.NextLabelFastForward = new FastForward(frame, "", 0);
+            Manager.NextState = Manager.State.Running;
             ForwardTarget = frame;
         }
     }
@@ -56,7 +56,7 @@ public static class FrameStepBack {
         }
         else {
             frameStepBackHoldTimer = 0;
-            if (!Manager.UltraFastForwarding) {
+            if (!Manager.FastForwarding) {
                 ForwardTarget = 0;
             }
         }

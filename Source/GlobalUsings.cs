@@ -29,10 +29,11 @@ internal static class GlobalVariables {
 
         private set { }
     }
-    public static bool UltraFastForwarding => TAS.Manager.UltraFastForwarding;
-    public static bool FrameStep => Manager.Running && (Manager.States.Has(StudioCommunication.States.FrameStep) || Manager.NextStates.Has(StudioCommunication.States.FrameStep));
 
-    public static bool StrictFrameStep => Manager.Running && ((Manager.LastStates.Has(StudioCommunication.States.FrameStep) ? 1 : 0) + (Manager.States.Has(StudioCommunication.States.FrameStep) ? 1 : 0) + (Manager.NextStates.Has(StudioCommunication.States.FrameStep) ? 1 : 0) > 1);
+    public static bool FastForwarding => Manager.FastForwarding;
+    public static bool FrameStep => Manager.Running && Manager.CurrState is Manager.State.Paused or Manager.State.FrameAdvance;
+    public static bool StrictFrameStep => Manager.Running && Manager.CurrState is Manager.State.FrameAdvance;
+
     // i haven't check how these states are set, but this just works well
     public static Player? playerInstance => Engine.Scene.Tracker.GetEntity<Player>();
 

@@ -98,7 +98,7 @@ internal class SeekerFactory : IRendererFactory {
     public bool Inherited() => false;
     public RenderMode Mode() => Config.Seeker;
     public void AddComponent(Entity entity) {
-        entity.Add(new SeekerRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new SeekerRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 

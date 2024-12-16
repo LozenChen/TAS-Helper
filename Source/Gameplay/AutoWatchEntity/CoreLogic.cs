@@ -269,8 +269,8 @@ internal class AutoWatchRenderer : Component {
 
     public virtual void DelayedUpdatePosition() { }
 
-    public AutoWatchRenderer SleepWhenUltraFastforward() {
-        if (UltraFastForwarding) {
+    public AutoWatchRenderer SleepWhileFastForwarding() {
+        if (FastForwarding) {
             Visible = false;
             PostActive = PreActive = false;
         }
@@ -287,17 +287,17 @@ internal class AutoWatchRenderer : Component {
         EventOnHook._Scene.AfterUpdate -= PatchAfterUpdate;
     }
 
-    private static bool wasUltraFastforwarding = false;
+    private static bool wasFastForwarding = false;
     private static void PatchAfterUpdate(Scene self) {
         if (self is Level) {
-            if (UltraFastForwarding) {
-                wasUltraFastforwarding = true;
+            if (FastForwarding) {
+                wasFastForwarding = true;
             }
             else {
-                if (wasUltraFastforwarding) {
+                if (wasFastForwarding) {
                     WakeUpAllAutoWatchRenderer();
                 }
-                wasUltraFastforwarding = false;
+                wasFastForwarding = false;
             }
         }
     }
@@ -330,8 +330,3 @@ public enum RenderMode {
     WhenWatched,
     Always
 }
-
-
-
-
-

@@ -107,7 +107,7 @@ internal class PufferFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.Puffer;
     public void AddComponent(Entity entity) {
-        entity.Add(new PufferRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new PufferRenderer(Mode()).SleepWhileFastForwarding());
     }
 }
 

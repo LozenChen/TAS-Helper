@@ -79,7 +79,7 @@ internal static class ActualCollideHitboxDelegatee {
     private static void DrawLastFrameHitboxImpl(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig) {
         // currently we don't need an actualCamera...?
 
-        if (Manager.UltraFastForwarding
+        if (Manager.FastForwarding
             || !TasSettings.ShowHitboxes
             || skipCondition
             || TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Off
@@ -120,4 +120,3 @@ internal static class ActualCollideHitboxDelegatee {
         return LastCollidables.TryGetValue(entity, out bool result) ? result : null;
     }
 }
-

@@ -29,8 +29,7 @@ internal static class BetterInvincible {
     }
 
 
-    [TasDisableRun]
-
+    [DisableRun]
     private static void OnDisableRun() {
         Invincible = false;
     }

@@ -135,7 +135,7 @@ internal class CutsceneEntityFactory : IRendererFactory {
     public bool Inherited() => true;
     public RenderMode Mode() => Config.CutsceneEntity;
     public void AddComponent(Entity entity) {
-        entity.Add(new CutsceneEntityRenderer(Mode()).SleepWhenUltraFastforward());
+        entity.Add(new CutsceneEntityRenderer(Mode()).SleepWhileFastForwarding());
     }
 
 

@@ -24,8 +24,6 @@ internal static class Loader {
         ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();
         AttributeUtils.Invoke<EventOnHookAttribute>();
-        typeof(TAS.Manager).GetMethod(nameof(Manager.DisableRun)).HookAfter(() => AttributeUtils.Invoke<TasDisableRunAttribute>());
-        typeof(TAS.Manager).GetMethod(nameof(Manager.EnableRun)).HookBefore(() => AttributeUtils.Invoke<TasEnableRunAttribute>());
         TasHelperSettings.FirstInstall = false;
         TASHelperModule.Instance.SaveSettings();
         CILCodeHelper.InitializeAtLast();
@@ -40,7 +38,6 @@ internal static class Loader {
     }
 
     public static void OnReload() {
-        typeof(TAS.EverestInterop.InfoHUD.InfoCustom).InvokeMethod("CollectAllTypeInfo"); // InfoCustom loses some mod info after hot reload
         AttributeUtils.Invoke<ReloadAttribute>();
     }
 
