@@ -20,6 +20,8 @@ internal static class CoreLogic {
                 type => type.GetInterface(nameof(IRendererFactory)) is not null
             ).Select(
                 type => (IRendererFactory)type.GetConstructorInfo().Invoke(parameterless)
+            ).Where(
+                factory => factory.GetTargetType() is not null
             )
         );
         foreach (IRendererFactory factory in Factorys) {
@@ -315,7 +317,7 @@ internal class AutoWatchRenderer : Component {
 }
 
 internal interface IRendererFactory {
-    public Type GetTargetType();
+    public Type GetTargetType(); // make it null if it's from an unloaded mod
 
     public bool Inherited(); // if the entity does not have a "Tracked" attribute, then we can assign arbitrary bool value here
     // but if the entity has a "Tracked(false)", then we must assign false here. so we don't change game logic and thus avoid tas desync

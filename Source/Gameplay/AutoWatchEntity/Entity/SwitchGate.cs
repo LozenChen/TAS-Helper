@@ -45,8 +45,9 @@ internal class SwitchGateRenderer : AutoWatchRenderer {
     public override void Added(Entity entity) {
         base.Added(entity);
         gate = entity as SwitchGate;
-        if (gate.icon?.Color == gate.finishColor || InPosition(gate)) {
+        if (Switch.CheckLevelFlag(gate.SceneAs<Level>())) {
             RemoveSelf();
+            return;
         }
         Initialized = false;
     }

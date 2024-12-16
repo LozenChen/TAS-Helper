@@ -28,6 +28,8 @@ internal static class Config {
 
     public static Mode FallingBlock => TasHelperSettings.AutoWatch_FallingBlock;
 
+    public static Mode FlagTouchSwitch => Mode.Always;
+
     public static Mode FlingBird => TasHelperSettings.AutoWatch_FlingBird;
 
     public static Mode FloatySpaceBlock => TasHelperSettings.AutoWatch_MoonBlock;
@@ -77,9 +79,11 @@ internal static class Format {
 
 internal static class TODO {
 
-    public static Mode Lookout = Mode.Always;
+    public static Mode Lookout = Mode.Always; // show conditions of interaction
 
     public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
+
+    public static Mode FlagTouchSwitch = Mode.Always;
 
     public static Mode CrumblePlatform = Mode.Always; // disappear and respawn
 
