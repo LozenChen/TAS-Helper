@@ -118,6 +118,7 @@ internal class RandomStuff {
         });
         */
 
+        Logger.Log(LogLevel.Warn, "TAS Helper", "TAS Helper Random Stuff loaded! Please contact the author to disable these codes.");
         Celeste.Commands.Log("WARNING: TAS Helper Random Stuff loaded! Please contact the author to disable these codes.");
     }
 
