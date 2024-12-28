@@ -329,7 +329,8 @@ public static class PredictorCore {
                     // The TAS contains something invalid
                     c.Clear();
                     Manager.DisableRun();
-                } else {
+                }
+                else {
                     c.NeedsReload = false;
                     c.StartWatchers();
                     TAS.Utils.AttributeUtils.Invoke<ParseFileEndAttribute>();
@@ -339,7 +340,8 @@ public static class PredictorCore {
                         MetadataCommands.UpdateRecordCount(c);
                     }
                 }
-            } else {
+            }
+            else {
                 // Something failed while trying to parse
                 c.Clear();
             }

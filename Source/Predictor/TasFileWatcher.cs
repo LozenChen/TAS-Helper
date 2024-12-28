@@ -1,6 +1,4 @@
-﻿using Celeste.Mod.TASHelper.Utils;
-using Monocle;
-using TAS;
+﻿using Monocle;
 using TAS.Input;
 
 namespace Celeste.Mod.TASHelper.Predictor;

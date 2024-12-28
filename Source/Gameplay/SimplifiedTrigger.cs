@@ -122,7 +122,7 @@ public static class SimplifiedTrigger {
         private static bool lastInstanceRemoved = false;
         public TriggerInfoBuilder() {
             Tag = Tags.FrozenUpdate | Tags.PauseUpdate | Tags.TransitionUpdate;
-            lastInstanceRemoved = Engine.Scene.Tracker.GetEntities<TriggerInfoBuilder>().IsEmpty();
+            lastInstanceRemoved = Engine.Scene.Tracker.SafeGetEntities<TriggerInfoBuilder>().IsEmpty();
             Add(new Coroutine(CreateRemainingTriggerList()));
         }
 
@@ -134,7 +134,7 @@ public static class SimplifiedTrigger {
         [LoadLevel]
         public static void Build(Level level) {
             if (!MaybeEnabled) {
-                level.Tracker.GetEntities<TriggerInfoBuilder>().ForEach(x => x.RemoveSelf());
+                level.Tracker.SafeGetEntities<TriggerInfoBuilder>().ForEach(x => x.RemoveSelf());
                 UnimportantTriggers.Clear();
                 RemainingTriggersList.Clear();
                 lastInstanceRemoved = true;

@@ -42,7 +42,7 @@ internal class CrumbleWallOnRumbleRenderer : AutoWatchTextRenderer {
 
         text.Position = crumble.Center;
         rumbleTriggers.Clear();
-        foreach (RumbleTrigger trigger in crumble.Scene.Tracker.GetEntities<RumbleTrigger>()) {
+        foreach (RumbleTrigger trigger in crumble.Scene.Tracker.SafeGetEntities<RumbleTrigger>()) {
             int index = trigger.crumbles.IndexOf(crumble);
             if (index != -1) {
                 rumbleTriggers.Add(trigger, index);

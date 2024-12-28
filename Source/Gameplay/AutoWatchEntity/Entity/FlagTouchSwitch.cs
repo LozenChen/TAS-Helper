@@ -1,6 +1,4 @@
-﻿
-using Celeste.Mod.TASHelper.Utils;
-using Monocle;
+﻿using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -27,7 +25,7 @@ internal class FlagTouchSwitchRenderer : AutoWatchTextRenderer {
 
     internal static int breaklineLimit = 4;
     public FlagTouchSwitchRenderer(RenderMode mode) : base(mode, active: true) { }
-    
+
     /*
 
     public override void Added(Entity entity) {

@@ -120,13 +120,16 @@ internal static class SimplifiedLightning {
         Monocle.Draw.Rect(rectangle, color);
     }
 
-    public static void DrawOutline(Entity self, Camera camera, Color color, bool collidable) {
+    public static void DrawOutline(Entity self, Camera camera, Color color, bool collidable, bool _) {
         if (!collidable) {
             DashedLine.DrawRect(self.Position + Vector2.One, self.Width, self.Height, color * 0.8f);
         }
         else {
-            self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
+            HitboxRender(self.Collider, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
         }
     }
 
+    private static void HitboxRender(this Collider collider, Color color) { // avoid using Hitbox.Render which is hooked by celeste tas' actual collide hitbox
+        Draw.HollowRect(collider.AbsoluteX, collider.AbsoluteY, collider.Width, collider.Height, color);
+    }
 }

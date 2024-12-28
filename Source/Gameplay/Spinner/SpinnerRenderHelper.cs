@@ -136,7 +136,7 @@ internal static class SpinnerRenderHelper {
 #pragma warning restore CS8509
     }
 
-    public static void DrawSpinnerCollider(Entity self, Camera camera, Color color, bool collidable) {
+    public static void DrawSpinnerCollider(Entity self, Camera camera, Color color, bool collidable, bool _) {
         if (OnGrid(self)) {
             DrawVanillaCollider(self.Position, color, collidable);
         }
