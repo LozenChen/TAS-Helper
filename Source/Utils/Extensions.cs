@@ -528,6 +528,17 @@ internal static class LevelExtensions {
         return new List<Entity>();
     }
 
+    public static List<Entity> SafeGetEntities(this Tracker tracker, Type type) {
+        if (tracker.Entities.TryGetValue(type, out List<Entity> list)) {
+            return list;
+        }
+        AddToTracker(type);
+        // our add to tracker may get lost if some other mods hot reload, leading to crashes if we use GetEntities
+        // it's after initialize so we need to do more thing
+        tracker.Entities.Add(type, new List<Entity>());
+        return new List<Entity>();
+    }
+
     public static Vector2 ScreenToWorld(this Level level, Vector2 position) {
         Vector2 size = new Vector2(320f, 180f);
         Vector2 scaledSize = size / level.ZoomTarget;
