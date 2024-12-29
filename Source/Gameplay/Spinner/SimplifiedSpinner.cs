@@ -185,10 +185,7 @@ internal static class SimplifiedSpinner {
         if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinnerRenderer") is { } dreamSpinnerRendererType) {
             LevelExtensions.AddToTracker(dreamSpinnerRendererType);
             ClearSpritesAction.Add(self => {
-                if (!self.Tracker.Entities.ContainsKey(dreamSpinnerRendererType)) {
-                    self.Tracker.Entities.Add(dreamSpinnerRendererType, new List<Entity>());
-                }
-                foreach (Entity renderer in self.Tracker.Entities[dreamSpinnerRendererType]) {
+                foreach (Entity renderer in self.Tracker.SafeGetEntities(dreamSpinnerRendererType)) {
                     renderer.Visible = !SpritesCleared;
                 }
             });

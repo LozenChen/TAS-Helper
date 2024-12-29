@@ -185,7 +185,7 @@ internal static class TasHelperSL {
             TH_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.TH_DeepCloneShared();
             TH_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.TH_DeepCloneShared();
             TH_LastPositions = ActualEntityCollideHitbox.LastPositions.TH_DeepCloneShared();
-            TH_LastCollidables = ActualEntityCollideHitbox.LastColldables.TH_DeepCloneShared();
+            TH_LastCollidables = ActualEntityCollideHitbox.LastCollidables.TH_DeepCloneShared();
             TH_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.TH_DeepCloneShared();
             TH_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors.TH_DeepCloneShared();
             TH_QMbeatColors = CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors.TH_DeepCloneShared();
@@ -206,12 +206,12 @@ internal static class TasHelperSL {
             Dictionary<Entity, Vector2> lastPos = TH_LastPositions.TH_DeepCloneShared();
             Dictionary<Entity, bool> lastCollide = TH_LastCollidables.TH_DeepCloneShared();
             ActualEntityCollideHitbox.LastPositions.Clear();
-            ActualEntityCollideHitbox.LastColldables.Clear();
+            ActualEntityCollideHitbox.LastCollidables.Clear();
             foreach (Entity key in lastPos.Keys) {
                 ActualEntityCollideHitbox.LastPositions[key] = lastPos[key]; // AECH.LastPositions is readonly... so it has to work like this
             }
             foreach (Entity key in lastCollide.Keys) {
-                ActualEntityCollideHitbox.LastColldables[key] = lastCollide[key];
+                ActualEntityCollideHitbox.LastCollidables[key] = lastCollide[key];
             }
             SimplifiedTrigger.UnimportantTriggers = TH_UnimportantTriggers.TH_DeepCloneShared();
 

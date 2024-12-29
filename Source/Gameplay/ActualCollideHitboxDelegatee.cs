@@ -1,6 +1,4 @@
-﻿using Celeste.Mod.TASHelper.Gameplay.Spinner;
-using Celeste.Mod.TASHelper.Utils;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 using StudioCommunication;
 using TAS;
@@ -10,24 +8,7 @@ namespace Celeste.Mod.TASHelper.Gameplay;
 
 internal static class ActualCollideHitboxDelegatee {
 
-    [Initialize]
-    private static void Initiailize() {
-
-        typeof(ActualEntityCollideHitbox).GetMethod("SaveActualCollidable", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter<Entity>(
-            e => {
-                if (TasHelperSettings.Enabled && e.IsLightning()) {
-                    LastCollidables[e] = SpinnerCalculateHelper.GetCollidable(e);
-                }
-            }
-        );
-
-        typeof(ActualEntityCollideHitbox).GetMethod("Clear", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).HookAfter(() => {
-            LastCollidables.Clear();
-        });
-    }
-
-    private static readonly Dictionary<Entity, bool> LastCollidables = new();
-
+    // WARN: invokeOrig must contain no Hitbox.Render / Circle.Render / ColliderList.Render
     public static void DrawLastFrameHitbox(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig) {
         // currently we don't need an actualCamera...?
 
@@ -38,9 +19,8 @@ internal static class ActualCollideHitboxDelegatee {
             // || entity.Get<PlayerCollider>() == null
             || entity.Scene?.Tracker.GetEntity<Player>() == null
             || entity.LoadActualCollidePosition() is not { } actualCollidePosition
-            || entity.LoadActualCollidable_TH() is not { } actualCollidable
             || TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Append && entity.Position == actualCollidePosition &&
-            collidable == actualCollidable
+            collidable == entity.LoadActualCollidable()
            ) {
             invokeOrig(entity, camera, color, collidable, true);
             return;
@@ -53,7 +33,7 @@ internal static class ActualCollideHitboxDelegatee {
 
         if (TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Append) {
             if (entity.Position == actualCollidePosition) {
-                invokeOrig(entity, camera, lastFrameColor, actualCollidable, false);
+                invokeOrig(entity, camera, lastFrameColor, entity.LoadActualCollidable(), false);
                 return;
             }
 
@@ -64,11 +44,7 @@ internal static class ActualCollideHitboxDelegatee {
 
         // we assert: invokeOrig only draws player collider, so there's no extra check here
         entity.Position = actualCollidePosition;
-        invokeOrig(entity, camera, lastFrameColor, actualCollidable, false);
+        invokeOrig(entity, camera, lastFrameColor, entity.LoadActualCollidable(), false);
         entity.Position = currentPosition;
-    }
-
-    public static bool? LoadActualCollidable_TH(this Entity entity) {
-        return LastCollidables.TryGetValue(entity, out bool result) ? result : null;
     }
 }
