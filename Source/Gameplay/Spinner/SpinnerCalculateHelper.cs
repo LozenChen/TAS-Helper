@@ -165,8 +165,11 @@ public static class SpinnerCalculateHelper {
         if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.DarkLightning") is { } chronoLightningType) {
             DictionaryAdderNormal(chronoLightningType, "toggleOffset", lightning);
             LightningCollidable.Add(chronoLightningType, e => {
+                if (!e.Collidable) {
+                    return false;
+                }
                 if (chronoLightningType.GetFieldInfo("disappearing").GetValue(e) is bool b) {
-                    return b;
+                    return !b;
                 }
                 return true;
             });
@@ -201,8 +204,17 @@ public static class SpinnerCalculateHelper {
         }
 
         if (ModUtils.GetType("Glyph", "Celeste.Mod.AcidHelper.Entities.AcidLightning") is { } acidLightningType) {
-            HazardTypesTreatNormal.Add(acidLightningType, lightning);
-            OffsetGetters.Add(acidLightningType, OffsetGetters[vanillaLightningType]);
+            DictionaryAdderNormal(acidLightningType, "toggleOffset", lightning);
+            // this class inherits from Lightning but has its own "toggleOffset"
+            LightningCollidable.Add(acidLightningType, e => {
+                if (!e.Collidable) {
+                    return false;
+                }
+                if (acidLightningType.GetFieldInfo("disappearing").GetValue(e) is bool b) {
+                    return !b;
+                }
+                return true;
+            });
         }
 
         if (ModUtils.GetType("StunningHelper", "Celeste.Mod.StunningHelper.CustomOffsetSpinner") is { } stunSpinnerType) {
