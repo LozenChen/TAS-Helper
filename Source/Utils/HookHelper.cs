@@ -90,20 +90,6 @@ internal static class HookHelper {
             });
         }
     }
-
-    public static void ReturnZeroMethod(Type conditionType, string conditionMethodName, params MethodInfo[] methods) {
-        foreach (MethodInfo methodInfo in methods) {
-            if (methodInfo != null && !methodInfo.IsGenericMethod && methodInfo.DeclaringType?.IsGenericType != true &&
-                methodInfo.ReturnType == typeof(float)) {
-                methodInfo.IlHook(il => {
-                    ILCursor ilCursor = new(il);
-                    Instruction start = ilCursor.Next;
-                    ilCursor.Emit(OpCodes.Call, conditionType.GetMethodInfo(conditionMethodName));
-                    ilCursor.Emit(OpCodes.Brfalse, start).Emit(OpCodes.Ldc_R4, 0f).Emit(OpCodes.Ret);
-                });
-            }
-        }
-    }
 }
 
 internal static class EventOnHook {

@@ -187,6 +187,8 @@ public static class PredictorCore {
         SJ_CassetteHookFreeze = ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.Entities.WonkyCassetteBlockController")?.GetMethod("FreezeUpdate", BindingFlags.NonPublic | BindingFlags.Static);
 #pragma warning restore CS8601
         HookHelper.SkipMethod(typeof(PredictorCore), nameof(InPredictMethod), typeof(GameInfo).GetMethod("Update", BindingFlags.Public | BindingFlags.Static));
+
+        // todo: try remove hook on tas
         HookHelper.SkipMethod(typeof(PredictorCore), nameof(PreventSendStateToStudio), typeof(TAS.Manager).GetMethod("SendStudioState", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static));
 
         InitializeChecks();

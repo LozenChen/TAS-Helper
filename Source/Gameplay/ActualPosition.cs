@@ -66,6 +66,8 @@ internal static class ActualPosition {
             // do nothing
         }
 
+        // todo: try remove hook on tas
+
         typeof(CenterCamera).GetMethod("CenterTheCamera", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).HookAfter(() => {
             if (Engine.Scene is Level level) {
                 CenterCameraPosition = level.Camera.Position;

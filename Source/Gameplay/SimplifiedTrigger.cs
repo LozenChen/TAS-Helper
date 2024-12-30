@@ -45,7 +45,11 @@ public static class SimplifiedTrigger {
         HandleContortHelperTrigger();
         HandleOtherMods();
         HandleNonTriggerTrigger();
+
+        // todo: try remove hook on tas
         typeof(HitboxColor).GetMethodInfo("GetCustomColor", new Type[] { typeof(Color), typeof(Entity) }).IlHook(ModGetCustomColor);
+
+        // todo: try remove hook on tas
         typeof(InfoWatchEntity).GetMethod("FindClickedEntities", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(ModFindClickedEntities);
     }
 

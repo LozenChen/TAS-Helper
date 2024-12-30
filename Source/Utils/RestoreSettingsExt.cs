@@ -12,6 +12,8 @@ public static class RestoreSettingsExt {
     [Initialize]
     public static void Initialize() {
         origModSettingsGetter = typeof(TAS.EverestInterop.RestoreSettings).GetField("origModSettings", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // todo: try remove hook on tas
         typeof(TAS.Manager).GetMethod("EnableRun").IlHook((cursor, _) => {
             cursor.Index = cursor.Context.Instrs.Count - 1;
             cursor.EmitDelegate<Action>(SkipTASHelper);

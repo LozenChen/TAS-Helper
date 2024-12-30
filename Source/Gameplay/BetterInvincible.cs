@@ -25,6 +25,7 @@ internal static class BetterInvincible {
             }
         });
 
+        // todo: try remove hook on tas
         typeof(SetCommand).GetMethod("SetGameSetting", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).OnHook(HookSetCommand);
     }
 

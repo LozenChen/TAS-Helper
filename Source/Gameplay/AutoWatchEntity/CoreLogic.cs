@@ -29,7 +29,10 @@ internal static class CoreLogic {
             // Logger.Log(LogLevel.Debug, "TAS Helper", $"{factory.GetTargetType()}, inherited: {factory.Inherited()}");
         }
 
+        // todo: try remove hook on tas
         typeof(InfoWatchEntity).GetMethodInfo("AddOrRemoveWatching").HookAfter<Entity>(OnSingleWatchEntityChange);
+
+        // todo: try remove hook on tas
         typeof(InfoWatchEntity).GetMethodInfo("ClearWatchEntities").HookAfter(OnRemoveAllWatchEntity);
     }
 

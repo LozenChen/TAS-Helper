@@ -59,7 +59,10 @@ public static class ConsoleEnhancement {
         using (new DetourContext { Before = new List<string> { "*" }, ID = "TAS Helper ConsoleEnhancement" }) {
             typeof(Monocle.Commands).GetMethod("UpdateClosed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).IlHook(ILCommandUpdateClosed);
         }
+        // todo: try remove hook on tas
         typeof(Manager).GetMethod("Update").HookAfter(UpdateCommands);
+
+        // todo: try remove hook on tas
         typeof(CenterCamera).GetMethod("ZoomCamera", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(il => {
             ILCursor cursor = new ILCursor(il);
             if (cursor.TryGotoNext(MoveType.After, ins => ins.MatchCallOrCallvirt(typeof(MouseButtons).FullName, "get_Wheel"))) {
