@@ -282,11 +282,6 @@ internal class AutoWatchRenderer : Component {
         EventOnHook._Scene.AfterUpdate += PatchAfterUpdate;
     }
 
-    [Unload]
-    private static void Unload() {
-        EventOnHook._Scene.AfterUpdate -= PatchAfterUpdate;
-    }
-
     private static bool wasFastForwarding = false;
     private static void PatchAfterUpdate(Scene self) {
         if (self is Level) {

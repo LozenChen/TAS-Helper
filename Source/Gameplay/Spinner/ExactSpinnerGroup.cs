@@ -12,6 +12,8 @@ public static class ExactSpinnerGroup {
     // hazard with offset group in (LevelGroup, LevelGroup + 1] will activate this frame (when TimeRate = 1)
     public static double ExactLevelGroup => ((double)Engine.Scene.TimeActive * 60 - 1 + GroupPeriod) % GroupPeriod;
 
+    public static double LastExactLevelGroup;
+
     internal static Dictionary<Entity, Tuple<bool, string>> offsetGroup = new();
 
     public static int GroupPeriod = -1; // initial state need to be different from 3, 15 in order to activate later
@@ -25,12 +27,12 @@ public static class ExactSpinnerGroup {
 
     public static void SetModulo(int modulo) {
         if (Enabled && modulo < 0) {
-            UnloadExactSpinnerGroup();
             Enabled = false;
+            UnloadExactSpinnerGroup();
         }
         else if (!Enabled && modulo > 0) {
-            Enable();
             Enabled = true;
+            Enable();
         }
         else if (Enabled && modulo > 0) {
             if (modulo != GroupPeriod) {
@@ -74,7 +76,22 @@ public static class ExactSpinnerGroup {
     }
 
     public static void LoadExactLevelGroup() {
+        if (!Enabled && GroupPeriod < 0) {
+            // impossible in normal cases, but do this
+            // so if someone wants to have both LevelGroup and CountdownModes._3fCycle
+            // they can just Invoke this method
+            GroupPeriod = TasHelperSettings.CountdownMode == Module.TASHelperSettings.CountdownModes._15fCycle ? 15 : 3;
+        }
         ExactLevelGroupRenderer.AddIfNecessary();
+    }
+
+    [Load]
+    private static void Load() {
+        EventOnHook._Scene.AfterUpdate += PatchAfterUpdate;
+    }
+
+    private static void PatchAfterUpdate(Scene scene) {
+        LastExactLevelGroup = ExactLevelGroup;
     }
 
     private class ExactLevelGroupRenderer : Message {
@@ -96,6 +113,9 @@ public static class ExactSpinnerGroup {
                 Instance = new();
                 level.AddImmediately(Instance);
             }
+            else {
+                Instance.Visible = true;
+            }
             return true;
         }
 
@@ -116,6 +136,23 @@ public static class ExactSpinnerGroup {
             if (ShowTimeRateTimer > 0) {
                 text += $"\nTimeRate {Engine.TimeRate:0.00}";
             }
+            if (TasHelperSettings.ShowDriftSpeed) {
+                text += $"\nDriftSpeed: {ToMinimumAbsResidue(ExactLevelGroup - LastExactLevelGroup - 1, GroupPeriod).ToString(DriftSpeedFormat)}";
+            }
+        }
+
+        private const string DriftSpeedFormat = "+0.0000000000;-0.0000000000;+0.0000000000";
+
+        private static double ToMinimumAbsResidue(double d, double modulo) {
+            // this assumes (- modulo < d < modulo)
+            // otherwise, you should first do (d % modulo)
+            if (d > modulo / 2) {
+                return d - modulo;
+            }
+            else if (d < -modulo / 2) {
+                return d + modulo;
+            }
+            return d;
         }
 
         public override void Render() {
