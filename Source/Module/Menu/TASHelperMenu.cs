@@ -70,6 +70,11 @@ internal static class TASHelperMenu {
             TextMenu.Item CountdownBoostItem;
             subMenu.Add(CountdownBoostItem = new TextMenu.OnOff("Countdown Boost".ToDialogText(), TasHelperSettings.CountdownBoost).Change(value => TasHelperSettings.CountdownBoost = value));
             subMenu.AddDescription(menu, CountdownBoostItem, "Countdown Boost Description".ToDialogText());
+
+            TextMenu.Item DriftSpeedItem;
+            subMenu.Add(DriftSpeedItem = new TextMenu.OnOff("Show Drift Speed".ToDialogText(), TasHelperSettings.ShowDriftSpeed).Change(value => TasHelperSettings.ShowDriftSpeed = value));
+            subMenu.AddDescription(menu, DriftSpeedItem, "Drift Speed Description".ToDialogText());
+
             subMenu.Add(new EnumerableSliderExt<CountdownFonts>("Font".ToDialogText(), CreateCountdownFontOptions(),
                 TasHelperSettings.CountdownFont).Change(value => TasHelperSettings.CountdownFont = value));
             subMenu.Add(new TextMenu.OnOff("Darken When Uncollidable".ToDialogText(), TasHelperSettings.DarkenWhenUncollidable).Change(value => TasHelperSettings.DarkenWhenUncollidable = value));

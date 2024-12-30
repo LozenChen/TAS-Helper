@@ -76,6 +76,7 @@ TAS_HELPER_COUNTDOWN_MODE_DESCRIPTION=                     每 3 帧一次, 检�
                                                            每 15 帧一次, 检测以下行为的条件:{n}
                                                               - Spinner become invisible (InView),{n}
                                                               - Lightning turn off collision (InView).
+TAS_HELPER_SHOW_DRIFT_SPEED=                               显示 Spinner Drift 速度
 TAS_HELPER_FONT=                                           字体
 TAS_HELPER_HIRES_FONT=                                     高清字体
 TAS_HELPER_PIXEL_FONT=                                     像素字体

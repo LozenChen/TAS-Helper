@@ -206,6 +206,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool DarkenWhenUncollidable = true;
 
+    public bool ShowDriftSpeed = false;
+
     #endregion
 
     #region LoadRange

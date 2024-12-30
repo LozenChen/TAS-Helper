@@ -82,6 +82,10 @@ TAS_HELPER_COUNTDOWN_EXACT_GROUP_DESCRIPTION=              ExactGroup % 3/15: ma
                                                            \S                   Hazard turn on/off on this frame.{n}
                                                            Equivalently, hazards with ExactGroup lying in (y, y + 1) are temporarily in one group.
                                                            (Doesn't work when TimeActive is too large)
+TAS_HELPER_SHOW_DRIFT_SPEED=                               Show Hazard Cycle Drift Speed
+TAS_HELPER_DRIFT_SPEED_DESCRIPTION=                        Only works when in ExactGroup % 3/15 mode.{n}
+                                                           The formula of Drift Speed is:{n}
+                                                           \S                   (ExactGroup of this frame) - (ExactGroup of last frame) - 1
 TAS_HELPER_FONT=                                           Font
 TAS_HELPER_HIRES_FONT=                                     Hires Font
 TAS_HELPER_PIXEL_FONT=                                     Pixel Font
