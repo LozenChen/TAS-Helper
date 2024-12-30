@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.RuntimeDetour;
+using System.Collections;
 using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
 
@@ -17,7 +18,9 @@ internal static class SimplifiedSpinner {
 
     private static List<FieldInfo> VivSpinnerExtraComponentGetter;
 
-    private static List<FieldInfo> XaphanSpinnerExtraComponentGetter;
+    private static FieldInfo XaphanSpinnerBorderGetter;
+
+    private static FieldInfo XaphanSpinnerFillerGetter;
 
     private static List<FieldInfo> ChroniaSpinnerExtraComponentGetter;
 
@@ -85,26 +88,34 @@ internal static class SimplifiedSpinner {
         }
 
         if (ModUtils.GetType("XaphanHelper", "Celeste.Mod.XaphanHelper.Entities.CustomSpinner") is { } xaphanSpinnerType) {
-            XaphanSpinnerExtraComponentGetter = new() {
-                xaphanSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
-                xaphanSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
-            };
-            LevelExtensions.AddToTracker(xaphanSpinnerType);
+            XaphanSpinnerBorderGetter = xaphanSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance);
             ClearSpritesAction.Add(self => {
-                if (!self.Tracker.Entities.ContainsKey(xaphanSpinnerType)) {
-                    self.Tracker.Entities.Add(xaphanSpinnerType, new List<Entity>());
-                }
-                foreach (Entity spinner in self.Tracker.Entities[xaphanSpinnerType]) {
+                foreach (Entity spinner in self.Tracker.SafeGetEntities(xaphanSpinnerType)) {
                     spinner.UpdateComponentVisiblity();
-                    foreach (FieldInfo getter in XaphanSpinnerExtraComponentGetter) {
-                        object obj = getter.GetValue(spinner);
-                        if (obj != null) {
-                            obj.SetFieldValue("Visible", !SpritesCleared);
-                        }
+                    object obj = XaphanSpinnerBorderGetter.GetValue(spinner);
+                    if (obj is Entity e) {
+                        e.Visible = SpritesCleared;
                     }
                 }
             });
             OnCreateSprites(xaphanSpinnerType);
+
+            XaphanSpinnerFillerGetter = xaphanSpinnerType.GetField("fillers", BindingFlags.Public | BindingFlags.Instance) ?? (xaphanSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance));
+            // after v1.0.64 (i.e. after the Secret of Celeste Mountain chap 3), "fillers" instead of "filler"
+            xaphanSpinnerType.GetMethod("Update", BindingFlags.Public | BindingFlags.Instance).HookAfter<Entity>((spinner) => {
+                if (!spinner.GetFieldValue<bool>("Hidden")) {
+                    object obj = XaphanSpinnerFillerGetter.GetValue(spinner);
+                    if (obj is IEnumerable list) {
+                        foreach (object o in list) {
+                            ((Entity)o).Visible = !SpritesCleared;
+                        }
+                    }
+                    else if (obj is Entity e) {
+                        e.Visible = !SpritesCleared;
+                    }
+                }
+            });
+            // coz xaphanSpinner sets its Visible every frame
         }
 
         if (ModUtils.GetType("ChroniaHelper", "ChroniaHelper.Entities.SeamlessSpinner") is { } chroniaSpinnerType) {
@@ -117,8 +128,8 @@ internal static class SimplifiedSpinner {
                     spinner.UpdateComponentVisiblity();
                     foreach (FieldInfo getter in ChroniaSpinnerExtraComponentGetter) {
                         object obj = getter.GetValue(spinner);
-                        if (obj != null) {
-                            obj.SetFieldValue("Visible", !SpritesCleared);
+                        if (obj is Entity e) {
+                            e.Visible = !SpritesCleared;
                         }
                     }
                 }
@@ -136,8 +147,8 @@ internal static class SimplifiedSpinner {
                     spinner.UpdateComponentVisiblity();
                     foreach (FieldInfo getter in ChronoSpinnerExtraComponentGetter) {
                         object obj = getter.GetValue(spinner);
-                        if (obj != null) {
-                            obj.SetFieldValue("Visible", !SpritesCleared);
+                        if (obj is Entity e) {
+                            e.Visible = !SpritesCleared;
                         }
                     }
                 }
@@ -148,6 +159,7 @@ internal static class SimplifiedSpinner {
         if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) { // we use this as a mod version check
             LevelExtensions.AddToTracker(cassetteSpinnerType);
             ClearSpritesAction.Add(self => {
+                /*
                 if (!self.Tracker.Entities.ContainsKey(cassetteSpinnerType)) {
                     // there's report that here's a KeyNotFoundException
                     // https://discord.com/channels/403698615446536203/754495709872521287/1180852881369350295
@@ -156,12 +168,13 @@ internal static class SimplifiedSpinner {
                     // anyway, we add a redundant check
                     self.Tracker.Entities.Add(cassetteSpinnerType, new List<Entity>());
                 }
-                foreach (Entity spinner in self.Tracker.Entities[cassetteSpinnerType]) {
+                */
+                foreach (Entity spinner in self.Tracker.SafeGetEntities(cassetteSpinnerType)) {
                     spinner.UpdateComponentVisiblity();
                     foreach (FieldInfo getter in CrysExtraComponentGetter) {
                         object obj = getter.GetValue(spinner);
-                        if (obj != null) {
-                            obj.SetFieldValue("Visible", !SpritesCleared);
+                        if (obj is Entity e) {
+                            e.Visible = !SpritesCleared;
                         }
                     }
                 }
@@ -231,8 +244,8 @@ internal static class SimplifiedSpinner {
             spinner.UpdateComponentVisiblity();
             foreach (FieldInfo getter in CrysExtraComponentGetter) {
                 object obj = getter.GetValue(spinner);
-                if (obj != null) {
-                    obj.SetFieldValue("Visible", !SpritesCleared);
+                if (obj is Entity e) {
+                    e.Visible = !SpritesCleared;
                 }
             }
         }
@@ -255,8 +268,8 @@ internal static class SimplifiedSpinner {
                 customSpinner.UpdateComponentVisiblity();
                 foreach (FieldInfo getter in VivSpinnerExtraComponentGetter) {
                     object obj = getter.GetValue(customSpinner);
-                    if (obj != null) {
-                        obj.SetFieldValue("Visible", !SpritesCleared);
+                    if (obj is Entity e) {
+                        e.Visible = !SpritesCleared;
                     }
                 }
             }
