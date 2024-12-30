@@ -1,6 +1,4 @@
-﻿
-using Celeste.Mod.TASHelper.Utils;
-using Monocle;
+﻿using Monocle;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 

@@ -48,7 +48,7 @@ public static class SpinnerCalculateHelper {
     // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
     [MethodImpl(MethodImplOptions.NoOptimization)]
     internal static void PreSpinnerCalculate(Scene self) {
-        if (!TasHelperSettings.Enabled || FastForwarding || self is not Level) {
+        if (!TasHelperSettings.Enabled || UltraFastForwarding || self is not Level) {
             return;
         }
         float time = TimeActive = self.TimeActive;
