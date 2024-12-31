@@ -57,7 +57,7 @@ public static class MoreOptionsMenu {
         page.AddDescriptionOnEnter(menu, EntityActivatorReminderItem, "Entity Activator Reminder Description".ToDialogText());
         // page.Add(new TextMenu.OnOff("Open Console In Tas".ToDialogText(), TasHelperSettings.EnableOpenConsoleInTas).Change(value => TasHelperSettings.EnableOpenConsoleInTas = value));
         // page.Add(new TextMenu.OnOff("Scrollable History Log".ToDialogText(), TasHelperSettings.EnableScrollableHistoryLog).Change(value => TasHelperSettings.EnableScrollableHistoryLog = value));
-        
+
         /*
         TextMenu.Item betterInvincible;
         page.Add(betterInvincible = new TextMenu.OnOff("Better Invincibility".ToDialogText(), TasHelperSettings.BetterInvincible).Change(value => {

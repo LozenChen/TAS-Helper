@@ -5,7 +5,6 @@ using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using TAS.EverestInterop;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class ActualPosition {
@@ -27,7 +26,6 @@ internal static class ActualPosition {
     internal static Vector2 PreviousPlayerPosition = Vector2.Zero;
     internal static Vector2 PlayerPositionBeforeCameraUpdate = Vector2.Zero;
     internal static int PlayerPositionChangedCount = 0;
-    internal static Vector2 CenterCameraPosition => CenterCamera.CenterCameraPosition;
 
     [Initialize]
     public static void Initialize() {

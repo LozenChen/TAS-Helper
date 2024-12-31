@@ -407,29 +407,6 @@ public static class SpinnerCalculateHelper {
         }
     }
 
-    public static bool FarFromRange(Entity self, Vector2 PlayerPosition, float scale) {
-        if (TasSettings.CenterCamera) {
-            return FarFromRangeImpl(self, PlayerPosition, ActualPosition.CenterCameraPosition, scale) && FarFromRangeImpl(self, PlayerPosition, ActualPosition.CameraPosition, scale);
-        }
-        else {
-            return FarFromRangeImpl(self, PlayerPosition, ActualPosition.CameraPosition, scale);
-        }
-    }
-
-    private static bool FarFromRangeImpl(Entity self, Vector2 PlayerPosition, Vector2 CameraPos, float scale) {
-        if (self.IsLightning()) {
-            if (self.X > CameraPos.X + 320f * scale + 320f + 16f || self.Y > CameraPos.Y + 180f * scale + 180f + 16f || self.Y + self.Height < CameraPos.Y - 180f * scale - 16f || self.X + self.Width < CameraPos.X - 320f * scale - 16f) {
-                return true;
-            }
-        }
-        else {
-            if (self.X > CameraPos.X + 320f * scale + 336f || self.Y > CameraPos.Y + 180f * scale + 196f || self.Y < CameraPos.Y - 180f * scale - 16f || self.X < CameraPos.X - 320f * scale - 16f) {
-                return Math.Abs(self.X - PlayerPosition.X) > 128f + 256f * scale || Math.Abs(self.Y - PlayerPosition.Y) > 128f + 256f * scale;
-            }
-        }
-        return false;
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool OnInterval(float TimeActive, float interval, float offset, float DeltaTime) {
         return Math.Floor(((double)TimeActive - offset - DeltaTime) / interval) < Math.Floor(((double)TimeActive - offset) / interval);

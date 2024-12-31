@@ -350,7 +350,7 @@ public static class PredictorCore {
 
     private static bool preventSendStateToStudio {
         get => Manager.PreventSendStudioState;
-        set { 
+        set {
             Manager.PreventSendStudioState = value;
         }
     }

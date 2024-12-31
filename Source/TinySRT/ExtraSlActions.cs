@@ -268,7 +268,7 @@ internal static class TasHelperSL {
             CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = SRT_offsetGroup.DeepCloneShared();
             MovementOvershootAssistant.MOA_Renderer.Instance = SRT_MOA.DeepCloneShared();
-            
+
 
             Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers = SRT_WhenWatchedRenderers.DeepCloneShared();
 
@@ -288,7 +288,7 @@ internal static class TasHelperSL {
             SRT_ColorSwapTime = null;
             SRT_offsetGroup = null;
             SRT_MOA = null;
-            
+
             SRT_WhenWatchedRenderers = null;
         };
 

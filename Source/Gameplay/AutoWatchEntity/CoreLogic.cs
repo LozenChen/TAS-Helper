@@ -1,7 +1,6 @@
 ﻿
 using Celeste.Mod.TASHelper.Utils;
 using Monocle;
-using System.Reflection;
 using TAS.EverestInterop;
 using TAS.EverestInterop.InfoHUD;
 

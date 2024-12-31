@@ -1,15 +1,3 @@
-using Celeste.Mod.Core;
-using Celeste.Mod.TASHelper.Utils;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using Mono.Cecil.Cil;
-using Monocle;
-using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
-using TAS;
-using TAS.EverestInterop;
-using CMCore = Celeste.Mod.Core;
-
 namespace Celeste.Mod.TASHelper.Gameplay;
 
 #if NOT_MERGED

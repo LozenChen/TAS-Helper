@@ -1,9 +1,4 @@
-﻿using Celeste.Mod.TASHelper.Utils;
-using MonoMod.Cil;
-using TAS;
-using TAS.Input.Commands;
-
-namespace Celeste.Mod.TASHelper.Gameplay;
+﻿namespace Celeste.Mod.TASHelper.Gameplay;
 
 #if NOT_MERGED
 internal static class BetterInvincible {
