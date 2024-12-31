@@ -29,6 +29,6 @@ public static class TASHelperExports {
         return SimplifiedTrigger.GetUnimportantTriggers();
     }
 
-    public static bool InPrediciton => PredictorCore.InPredict;
+    public static bool InPrediciton() => PredictorCore.InPredict;
 
 }
