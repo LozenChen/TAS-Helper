@@ -7,7 +7,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Runtime.CompilerServices;
 using TAS.EverestInterop;
-using TAS.EverestInterop.Hitboxes;
+using TAS.Gameplay.Hitboxes;
 using static Celeste.Mod.TASHelper.OrderOfOperation.OoO_Core;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
@@ -127,7 +127,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
         // coz it may become true after player's position change later, if we doesn't leave the loop with a DeathReturn or LateReturn
 
         if (firstEnter) {
-            ActualEntityCollideHitbox.SavePlayerPosition(player);
+            ActualCollideHitbox.StoreCollider(player);
             firstEnter = false;
             stored_Hitbox = player.Collider;
             player.Collider = player.hurtbox;
@@ -185,7 +185,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
                 }
             }
 
-            ActualEntityCollideHitbox.SaveEntityPosition(pc);
+            ActualCollideHitbox.StoreCollider(pc.Entity);
 
             if (ultraFastForwarding) {
                 if (pc.Check(player) && player.Dead) {

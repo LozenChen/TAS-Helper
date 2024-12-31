@@ -396,7 +396,7 @@ internal static class OoO_Core {
     }
     private static void OnLevelRender(On.Celeste.Level.orig_Render orig, Level self) {
         if (Applied) {
-            TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.playerUpdated = playerUpdated; // may remove it if we change SpringBoard to IL.Monocle/Celeste hooks
+            TAS.Gameplay.Hitboxes.ActualCollideHitbox.playerUpdated = playerUpdated; // may remove it if we change SpringBoard to IL.Monocle/Celeste hooks
             if (prepareToUndoAll) {
                 UndoAll();
             }

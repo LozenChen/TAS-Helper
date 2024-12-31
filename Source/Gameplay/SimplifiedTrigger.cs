@@ -43,7 +43,9 @@ public static class SimplifiedTrigger {
     }
 
     public static bool IsUnimportantTrigger(Entity entity) {
-        return Enabled && UnimportantTriggers.Contains(entity) && !TAS.EverestInterop.InfoHUD.InfoWatchEntity.WatchingEntities.Contains(entity);
+        return Enabled && UnimportantTriggers.Contains(entity);
+        // return Enabled && UnimportantTriggers.Contains(entity) && !TAS.EverestInterop.InfoHUD.InfoWatchEntity.WatchingEntities.Contains(entity);
+        // to be merged into CelesteTAS, so temporarily we omit the visibility issue
     }
 
     public static HashSet<Entity> GetUnimportantTriggers() {

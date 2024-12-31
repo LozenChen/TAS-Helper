@@ -8,7 +8,7 @@ internal static class Loader {
     // order: all mods (load settings -> load) -> all mods initialize ~= all mods load content
 
     public static void Load() {
-        typeof(ModExports.TASHelperExports).ModInterop();
+        typeof(ModInterop.TASHelperExports).ModInterop();
         Reloading = GFX.Loaded; // Tas Helper load -> GFX load -> Tas Helper unload -> Tas Helper reload. So GFX.Loaded can be used to detect this
         AttributeUtils.Invoke<LoadAttribute>();
     }
@@ -19,6 +19,7 @@ internal static class Loader {
     }
 
     public static void Initialize() {
+        typeof(ModInterop.CelesteTasImports).ModInterop();
         HookHelper.InitializeAtFirst();
         ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();

@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.RuntimeDetour;
 using TAS.EverestInterop;
-using TAS.EverestInterop.Hitboxes;
+using TAS.Gameplay.Hitboxes;
 using static Celeste.Mod.TASHelper.OrderOfOperation.OoO_Core;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
@@ -48,7 +48,7 @@ internal static class ForEachBreakPoints_EntityList {
 
     private static void MainBody(EntityList entityList) {
         if (firstEnter) {
-            ActualEntityCollideHitbox.Clear();
+            ActualCollideHitbox.Clear();
             firstEnter = false;
             return;
         }

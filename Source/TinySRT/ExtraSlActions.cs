@@ -12,7 +12,7 @@ using System.Reflection;
 using TAS;
 using TAS.EverestInterop;
 using TAS.EverestInterop.Hitboxes;
-using TAS.EverestInterop.InfoHUD;
+using TAS.InfoHUD;
 using TAS.Input.Commands;
 using SRT = Celeste.Mod.SpeedrunTool.SaveLoad.SaveLoadAction;
 using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
@@ -93,7 +93,7 @@ internal static class TasModSL {
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             savedEntityData = EntityDataHelper.CachedEntityData.TH_DeepCloneShared();
-            InfoWatchEntity.SavedRequireWatchEntities = InfoWatchEntity.RequireWatchEntities.TH_DeepCloneShared();
+
             groupCounter = CycleHitboxColor.GroupCounter;
             simulatePauses = StunPauseCommand.SimulatePauses;
             pauseOnCurrentFrame = StunPauseCommand.PauseOnCurrentFrame;
@@ -108,7 +108,7 @@ internal static class TasModSL {
         };
         TH.SlAction load = (_, _) => {
             EntityDataHelper.CachedEntityData = savedEntityData.TH_DeepCloneShared();
-            InfoWatchEntity.RequireWatchEntities = InfoWatchEntity.SavedRequireWatchEntities.TH_DeepCloneShared();
+
             CycleHitboxColor.GroupCounter = groupCounter;
             StunPauseCommand.SimulatePauses = simulatePauses;
             StunPauseCommand.PauseOnCurrentFrame = pauseOnCurrentFrame;
@@ -130,7 +130,6 @@ internal static class TasModSL {
             savedEntityData = null;
             pressKeys = null;
             followers = null;
-            InfoWatchEntity.SavedRequireWatchEntities.Clear();
         };
 
         saveLoadAction = new TH(save, load, clear, null, null);
@@ -152,8 +151,6 @@ internal static class TasHelperSL {
     private static HashSet<Gameplay.MovingEntityTrack.StartEnd> SRT_CachedStartEnd;
     private static Dictionary<Gameplay.MovingEntityTrack.RotateData, int> SRT_CachedCircle;
 
-    private static Dictionary<Entity, Vector2> TH_LastPositions = new();
-    private static Dictionary<Entity, bool> TH_LastCollidables = new();
     private static HashSet<Entity> TH_UnimportantTriggers = new();
     private static HashSet<Entity> SRT_UnimportantTriggers = new();
 
@@ -184,8 +181,7 @@ internal static class TasHelperSL {
             TH_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.TH_DeepCloneShared();
             TH_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.TH_DeepCloneShared();
             TH_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.TH_DeepCloneShared();
-            TH_LastPositions = ActualEntityCollideHitbox.LastPositions.TH_DeepCloneShared();
-            TH_LastCollidables = ActualEntityCollideHitbox.LastCollidables.TH_DeepCloneShared();
+
             TH_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.TH_DeepCloneShared();
             TH_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors.TH_DeepCloneShared();
             TH_QMbeatColors = CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors.TH_DeepCloneShared();
@@ -203,16 +199,6 @@ internal static class TasHelperSL {
             Gameplay.MovingEntityTrack.CachedNodes = TH_CachedNodes.TH_DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedStartEnd = TH_CachedStartEnd.TH_DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedCircle = TH_CachedCircle.TH_DeepCloneShared();
-            Dictionary<Entity, Vector2> lastPos = TH_LastPositions.TH_DeepCloneShared();
-            Dictionary<Entity, bool> lastCollide = TH_LastCollidables.TH_DeepCloneShared();
-            ActualEntityCollideHitbox.LastPositions.Clear();
-            ActualEntityCollideHitbox.LastCollidables.Clear();
-            foreach (Entity key in lastPos.Keys) {
-                ActualEntityCollideHitbox.LastPositions[key] = lastPos[key]; // AECH.LastPositions is readonly... so it has to work like this
-            }
-            foreach (Entity key in lastCollide.Keys) {
-                ActualEntityCollideHitbox.LastCollidables[key] = lastCollide[key];
-            }
             SimplifiedTrigger.UnimportantTriggers = TH_UnimportantTriggers.TH_DeepCloneShared();
 
             CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors = TH_beatColors.TH_DeepCloneShared();
@@ -227,8 +213,6 @@ internal static class TasHelperSL {
             TH_CachedNodes = null;
             TH_CachedStartEnd = null;
             TH_CachedCircle = null;
-            TH_LastPositions.Clear();
-            TH_LastCollidables.Clear();
             TH_UnimportantTriggers.Clear();
             TH_beatColors.Clear();
             TH_QMbeatColors.Clear();

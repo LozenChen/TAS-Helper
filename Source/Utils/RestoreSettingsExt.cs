@@ -30,6 +30,6 @@ public static class RestoreSettingsExt {
 
     [Initialize]
     public static void Initialize() {
-        TAS.EverestInterop.RestoreSettings.AddToBlacklist(TASHelperModule.Instance);
+        ModInterop.CelesteTasImports.AddSettingsRestoreHandler(TASHelperModule.Instance, null);
     }
 }

@@ -1,27 +1,24 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
 using StudioCommunication;
-using TAS;
-using TAS.EverestInterop.Hitboxes;
+using TAS.Gameplay.Hitboxes;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 
 internal static class ActualCollideHitboxDelegatee {
 
-    // WARN: invokeOrig must contain no Hitbox.Render / Circle.Render / ColliderList.Render
+    public static bool Disabled => ActualCollideHitbox.Disabled;
     public static void DrawLastFrameHitbox(bool skipCondition, Entity entity, Camera camera, Color color, bool collidable, Action<Entity, Camera, Color, bool, bool> invokeOrig) {
         // currently we don't need an actualCamera...?
 
-        if (Manager.FastForwarding
-            || !TasSettings.ShowHitboxes
-            || skipCondition
+        if (skipCondition
+            || Disabled
             || TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Off
-            // || entity.Get<PlayerCollider>() == null
             || entity.Scene?.Tracker.GetEntity<Player>() == null
             || entity.LoadActualCollidePosition() is not { } actualCollidePosition
             || TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Append && entity.Position == actualCollidePosition &&
             collidable == entity.LoadActualCollidable()
-           ) {
+        ) {
             invokeOrig(entity, camera, color, collidable, true);
             return;
         }
@@ -31,9 +28,11 @@ internal static class ActualCollideHitboxDelegatee {
         ? color.Invert()
                 : color;
 
+        bool actualCollidable = entity.LoadActualCollidable() ?? false;
+
         if (TasSettings.ShowActualCollideHitboxes == ActualCollideHitboxType.Append) {
             if (entity.Position == actualCollidePosition) {
-                invokeOrig(entity, camera, lastFrameColor, entity.LoadActualCollidable(), false);
+                invokeOrig(entity, camera, lastFrameColor, actualCollidable, false);
                 return;
             }
 
@@ -44,7 +43,7 @@ internal static class ActualCollideHitboxDelegatee {
 
         // we assert: invokeOrig only draws player collider, so there's no extra check here
         entity.Position = actualCollidePosition;
-        invokeOrig(entity, camera, lastFrameColor, entity.LoadActualCollidable(), false);
+        invokeOrig(entity, camera, lastFrameColor, actualCollidable, false);
         entity.Position = currentPosition;
     }
 }

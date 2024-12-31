@@ -4,7 +4,7 @@ using Celeste.Mod.TASHelper.TinySRT;
 using Monocle;
 using MonoMod.ModInterop;
 
-namespace Celeste.Mod.TASHelper.ModExports;
+namespace Celeste.Mod.TASHelper.ModInterop;
 
 [ModExportName("TASHelper")]
 public static class TASHelperExports {

@@ -1,8 +1,9 @@
 ﻿
 using Celeste.Mod.TASHelper.Utils;
 using Monocle;
+using System;
 using TAS.EverestInterop;
-using TAS.EverestInterop.InfoHUD;
+using TAS.InfoHUD; 
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -28,20 +29,20 @@ internal static class CoreLogic {
             // Logger.Log(LogLevel.Debug, "TAS Helper", $"{factory.GetTargetType()}, inherited: {factory.Inherited()}");
         }
 
-        InfoWatchEntity.OnAddOrRemoveWatching += OnSingleWatchEntityChange;
-        InfoWatchEntity.OnClearWatchEntities += OnRemoveAllWatchEntity;
+        InfoWatchEntity.StartWatching += OnSingleWatchEntityChange;
+        InfoWatchEntity.StopWatching += OnSingleWatchEntityChange;
+        InfoWatchEntity.ClearWatching += OnRemoveAllWatchEntity;
     }
 
     [Unload]
     private static void Unload() {
-        InfoWatchEntity.OnAddOrRemoveWatching -= OnSingleWatchEntityChange;
-        InfoWatchEntity.OnClearWatchEntities -= OnRemoveAllWatchEntity;
+        InfoWatchEntity.StartWatching -= OnSingleWatchEntityChange;
+        InfoWatchEntity.StopWatching -= OnSingleWatchEntityChange;
+        InfoWatchEntity.ClearWatching -= OnRemoveAllWatchEntity;
     }
 
 
-    public static bool IsWatched(Entity entity) {
-        return InfoWatchEntity.WatchingEntities.Contains(entity) || (entity.GetEntityData() is EntityData entityData && InfoWatchEntity.RequireWatchUniqueEntityIds.Contains(new UniqueEntityId(entity, entityData)));
-    }
+    public static bool IsWatching(Entity entity) => InfoWatchEntity.IsWatching(entity);
 
     public static void OnSingleWatchEntityChange(Entity entity) {
         if (entity.Components.FirstOrDefault(c => c is AutoWatchRenderer) is AutoWatchRenderer renderer && renderer.mode == RenderMode.WhenWatched) {
@@ -104,27 +105,12 @@ internal static class CoreLogic {
         }
     }
 
-    // todo: try refactor? currently it's a bit hacky
+    
     private static void FakeGetInfo(Level level) {
         // basically same as InfoWatchEntity.GetInfo
         // but remove some restrictions, so it updates even when we close the in-game info hud
-        if (InfoWatchEntity.RequireWatchEntities.IsNotEmpty()) {
-            InfoWatchEntity.RequireWatchEntities.Where(reference => reference.IsAlive).ToList().ForEach(
-                reference => {
-                    Entity entity = (Entity)reference.Target;
-                    InfoWatchEntity.WatchingEntities.Add(entity);
-                }
-            );
-        }
 
-        if (InfoWatchEntity.RequireWatchUniqueEntityIds.IsNotEmpty()) {
-            Dictionary<UniqueEntityId, Entity> matchEntities = InfoWatchEntity.GetMatchEntities(level);
-            if (matchEntities.IsNotEmpty()) {
-                matchEntities.Values.ToList().ForEach(entity => {
-                    InfoWatchEntity.WatchingEntities.Add(entity);
-                });
-            }
-        }
+        // todo: try refactor? currently it's a bit hacky
     }
 
     public static void OnConfigChange() {
@@ -178,7 +164,7 @@ internal class AutoWatchRenderer : Component {
     }
 
     public void WhenWatched_UpdateOnListener() {
-        Visible = CoreLogic.IsWatched(this.Entity);
+        Visible = CoreLogic.IsWatching(this.Entity);
         PostActive = hasUpdate && Visible;
         PreActive = hasPreUpdate && Visible;
         ClearHistoryData();
@@ -191,7 +177,7 @@ internal class AutoWatchRenderer : Component {
     }
 
     public void UpdateOn_ConfigChange_Or_StopUltraforwarding_Or_Clone() {
-        Visible = mode == RenderMode.Always || CoreLogic.IsWatched(this.Entity);
+        Visible = mode == RenderMode.Always || CoreLogic.IsWatching(this.Entity);
         PostActive = hasUpdate && Visible;
         PreActive = hasPreUpdate && Visible;
         ClearHistoryData();
@@ -203,7 +189,7 @@ internal class AutoWatchRenderer : Component {
         if (mode == RenderMode.WhenWatched) {
             // if it's not watched, the renderer is still there, but just hidden and inactive
             CoreLogic.WhenWatchedRenderers.Add(this);
-            Visible = CoreLogic.IsWatched(entity);
+            Visible = CoreLogic.IsWatching(entity);
             PostActive = hasUpdate && Visible;
             PreActive = hasPreUpdate && Visible;
         }

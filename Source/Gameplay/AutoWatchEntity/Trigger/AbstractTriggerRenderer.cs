@@ -193,7 +193,7 @@ internal abstract class AbstractTriggerRenderer : AutoWatchTextRenderer {
             bool flag2 = false;
             if (playerInstance is { } player) {
                 flag1 = abstractTrigger.CollideCheck(player);
-                flag2 = mode == RenderMode.Always && nearPlayerDetector.Collide(player.collider) && !CoreLogic.IsWatched(abstractTrigger); // if watched, then do not set transparent text
+                flag2 = mode == RenderMode.Always && nearPlayerDetector.Collide(player.collider) && !CoreLogic.IsWatching(abstractTrigger); // if watched, then do not set transparent text
             }
             SetAlphaRegion(flag1);
             SetAlphaText(flag2);
