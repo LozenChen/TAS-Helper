@@ -4,6 +4,8 @@ using TAS;
 using TAS.Input.Commands;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
+
+#if NOT_MERGED
 internal static class BetterInvincible {
     // make you invincible while still make tas sync
     // it will not persist after SL, and that's what we want!
@@ -58,3 +60,4 @@ internal static class BetterInvincible {
         // if originally inv = false, but set to true, then inv = false, and betterInv = true
     }
 }
+#endif

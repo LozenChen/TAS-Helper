@@ -23,18 +23,6 @@ public static class SimplifiedTrigger {
     public static Color CameraTriggerColor => CustomColors.CameraTriggerColor;
 
 
-    [Load]
-    private static void Load() {
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }, ID = "TAS Helper SimplifiedTrigger" }) {
-            IL.Monocle.Entity.DebugRender += ModDebugRender;
-        }
-    }
-
-    [Unload]
-    private static void Unload() {
-        IL.Monocle.Entity.DebugRender -= ModDebugRender;
-    }
-
     [Initialize]
     private static void Initialize() {
         HandleVanillaTrigger();
@@ -46,61 +34,24 @@ public static class SimplifiedTrigger {
         HandleOtherMods();
         HandleNonTriggerTrigger();
 
-        // todo: try remove hook on tas
-        typeof(HitboxColor).GetMethodInfo("GetCustomColor", new Type[] { typeof(Color), typeof(Entity) }).IlHook(ModGetCustomColor);
-
-        // todo: try remove hook on tas
-        typeof(InfoWatchEntity).GetMethod("FindClickedEntities", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).IlHook(ModFindClickedEntities);
+        HitboxColor.HitboxColorGetters.Add(GetCameraTriggerColor);
     }
 
-    private static void ModDebugRender(ILContext il) {
-        ILCursor ilCursor = new(il);
-        Instruction start = ilCursor.Next;
-        ilCursor.Emit(OpCodes.Ldarg_0)
-            .EmitDelegate<Func<Entity, bool>>(IsUnimportantTrigger);
-        ilCursor.Emit(OpCodes.Brfalse, start).Emit(OpCodes.Ret);
-    }
-
-    private static void ModFindClickedEntities(ILContext il) {
-        ILCursor cursor = new ILCursor(il);
-        cursor.Goto(-1);
-        cursor.EmitDelegate(FilterOutUnimportantTrigger);
-    }
-
-    private static List<Entity> FilterOutUnimportantTrigger(List<Entity> list) {
-        return list.Where(e => !IsUnimportantTrigger(e)).ToList();
-    }
-
-    private static void ModGetCustomColor(ILContext il) {
-        ILCursor cursor = new(il);
-        if (cursor.TryGotoNext(ins => ins.MatchLdsfld(typeof(HitboxColor), nameof(HitboxColor.RespawnTriggerColor)), ins => ins.OpCode == OpCodes.Stloc_1, ins => ins.OpCode == OpCodes.Br_S)) {
-            ILLabel label = (ILLabel)cursor.Next.Next.Next.Operand;
-            cursor.Goto(0);
-            if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldarg_1, ins => ins.MatchIsinst<ChangeRespawnTrigger>(), ins => ins.OpCode == OpCodes.Brtrue_S)) {
-                Instruction next = cursor.Next;
-                cursor.MoveAfterLabels();
-                cursor.EmitDelegate(CameraTriggerColorEnabled);
-                cursor.Emit(OpCodes.Brfalse, next);
-                cursor.Emit(OpCodes.Ldarg_1);
-                cursor.EmitDelegate(IsCameraTrigger);
-                cursor.Emit(OpCodes.Brfalse, next);
-                cursor.EmitDelegate(GetCameraTriggerColor);
-                cursor.Emit(OpCodes.Stloc_1);
-                cursor.Emit(OpCodes.Br, label);
-            }
+    private static bool GetCameraTriggerColor(Entity entity, out Color color) {
+        if (TasHelperSettings.EnableCameraTriggerColor && IsCameraTrigger(entity)) {
+            color = CameraTriggerColor;
+            return true;
         }
-    }
-
-    private static bool CameraTriggerColorEnabled() {
-        return TasHelperSettings.EnableCameraTriggerColor;
-    }
-
-    private static Color GetCameraTriggerColor() {
-        return CameraTriggerColor;
+        color = Color.Red;
+        return false;
     }
 
     public static bool IsUnimportantTrigger(Entity entity) {
         return Enabled && UnimportantTriggers.Contains(entity) && !TAS.EverestInterop.InfoHUD.InfoWatchEntity.WatchingEntities.Contains(entity);
+    }
+
+    public static HashSet<Entity> GetUnimportantTriggers() {
+        return Enabled ? UnimportantTriggers : new HashSet<Entity>();
     }
 
     public static bool IsCameraTrigger(Entity entity) {

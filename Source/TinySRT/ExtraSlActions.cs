@@ -254,7 +254,6 @@ internal static class TasHelperSL {
 
             SRT_offsetGroup = ExactSpinnerGroup.offsetGroup.DeepCloneShared();
             SRT_MOA = MovementOvershootAssistant.MOA_Renderer.Instance.DeepCloneShared();
-            SRT_BetterInvincible = Manager.Running ? BetterInvincible.Invincible : false;
             SRT_WhenWatchedRenderers = Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers.DeepCloneShared();
         };
         SRT.SlAction load = (_, _) => {
@@ -269,10 +268,7 @@ internal static class TasHelperSL {
             CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
             ExactSpinnerGroup.offsetGroup = SRT_offsetGroup.DeepCloneShared();
             MovementOvershootAssistant.MOA_Renderer.Instance = SRT_MOA.DeepCloneShared();
-            BetterInvincible.Invincible = Manager.Running ? SRT_BetterInvincible : false;
-            // note that tas will not invoke enable/disable run if it's using load state
-            // so if our "Set Invincible true" is after the savepoint, invoked, and get deleted later
-            // then Invincible will still be true after load state
+            
 
             Gameplay.AutoWatchEntity.CoreLogic.WhenWatchedRenderers = SRT_WhenWatchedRenderers.DeepCloneShared();
 
@@ -292,7 +288,7 @@ internal static class TasHelperSL {
             SRT_ColorSwapTime = null;
             SRT_offsetGroup = null;
             SRT_MOA = null;
-            SRT_BetterInvincible = false;
+            
             SRT_WhenWatchedRenderers = null;
         };
 

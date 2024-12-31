@@ -12,6 +12,7 @@ using CMCore = Celeste.Mod.Core;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 
+#if NOT_MERGED
 public static class ConsoleEnhancement {
 
     private static bool openConsole = false;
@@ -246,3 +247,4 @@ public static class ConsoleEnhancement {
         }
     }
 }
+#endif

@@ -1,9 +1,9 @@
 using Celeste.Mod.TASHelper.Module;
-using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
 public static class RestoreSettingsExt {
+    /*
     // make TAS Helper settings work as if it's a CelesteTAS setting
     // so it will not be influenced by CelesteTAS's "Restore All Settings when TAS Stop"
 
@@ -25,5 +25,11 @@ public static class RestoreSettingsExt {
             Dictionary<EverestModule, object> dict = (Dictionary<EverestModule, object>)origModSettingsGetter.GetValue(null);
             dict?.Remove(TASHelperModule.Instance);
         }
+    }
+    */
+
+    [Initialize]
+    public static void Initialize() {
+        TAS.EverestInterop.RestoreSettings.AddToBlacklist(TASHelperModule.Instance);
     }
 }

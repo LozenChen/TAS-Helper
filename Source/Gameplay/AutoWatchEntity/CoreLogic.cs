@@ -29,11 +29,14 @@ internal static class CoreLogic {
             // Logger.Log(LogLevel.Debug, "TAS Helper", $"{factory.GetTargetType()}, inherited: {factory.Inherited()}");
         }
 
-        // todo: try remove hook on tas
-        typeof(InfoWatchEntity).GetMethodInfo("AddOrRemoveWatching").HookAfter<Entity>(OnSingleWatchEntityChange);
+        InfoWatchEntity.OnAddOrRemoveWatching += OnSingleWatchEntityChange;
+        InfoWatchEntity.OnClearWatchEntities += OnRemoveAllWatchEntity;
+    }
 
-        // todo: try remove hook on tas
-        typeof(InfoWatchEntity).GetMethodInfo("ClearWatchEntities").HookAfter(OnRemoveAllWatchEntity);
+    [Unload]
+    private static void Unload() {
+        InfoWatchEntity.OnAddOrRemoveWatching -= OnSingleWatchEntityChange;
+        InfoWatchEntity.OnClearWatchEntities -= OnRemoveAllWatchEntity;
     }
 
 
@@ -102,6 +105,7 @@ internal static class CoreLogic {
         }
     }
 
+    // todo: try refactor? currently it's a bit hacky
     private static void FakeGetInfo(Level level) {
         // basically same as InfoWatchEntity.GetInfo
         // but remove some restrictions, so it updates even when we close the in-game info hud

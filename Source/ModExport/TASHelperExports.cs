@@ -1,5 +1,8 @@
+using Monocle;
+using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.TinySRT;
 using MonoMod.ModInterop;
+using Celeste.Mod.TASHelper.Predictor;
 
 namespace Celeste.Mod.TASHelper.ModExports;
 
@@ -17,5 +20,15 @@ public static class TASHelperExports {
     private static TH_SaveLoadAction.SlAction CreateSlAction(this Action<Dictionary<Type, Dictionary<string, object>>, Level> action) {
         return (dict, level) => action(dict, level);
     }
+
+    public static bool IsCameraTrigger(Entity entity) {
+        return SimplifiedTrigger.IsCameraTrigger(entity);
+    }
+
+    public static HashSet<Entity> GetUnimportantTriggers() { // note some entities which don't inherit from Trigger also count as trigger here
+        return SimplifiedTrigger.GetUnimportantTriggers();
+    }
+
+    public static bool InPrediciton => PredictorCore.InPredict;
 
 }

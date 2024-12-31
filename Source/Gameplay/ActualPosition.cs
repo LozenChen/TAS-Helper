@@ -27,7 +27,7 @@ internal static class ActualPosition {
     internal static Vector2 PreviousPlayerPosition = Vector2.Zero;
     internal static Vector2 PlayerPositionBeforeCameraUpdate = Vector2.Zero;
     internal static int PlayerPositionChangedCount = 0;
-    internal static Vector2 CenterCameraPosition = Vector2.Zero;
+    internal static Vector2 CenterCameraPosition => CenterCamera.CenterCameraPosition;
 
     [Initialize]
     public static void Initialize() {
@@ -65,14 +65,6 @@ internal static class ActualPosition {
         if (ModUtils.IsaGrabBagInstalled) {
             // do nothing
         }
-
-        // todo: try remove hook on tas
-
-        typeof(CenterCamera).GetMethod("CenterTheCamera", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).HookAfter(() => {
-            if (Engine.Scene is Level level) {
-                CenterCameraPosition = level.Camera.Position;
-            }
-        });
 
         void RegularHook(string modName, string typeName) {
             if (ModUtils.GetType(modName, typeName) is { } type) {
