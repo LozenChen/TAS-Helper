@@ -16,8 +16,8 @@ you can find hooks on CelesteTAS by searching ```// todo: try remove hook on tas
 
 - [AutoWatchEntity.CoreLogic](Source/Gameplay/AutoWatchEntity/CoreLogic.cs): doable, add some events.
 
-# Other refactor
+# Other Refactors (not done yet)
 
 - InfoWatch if log to command.
 
-- InfoWatch if different log level to in-game info panel / studio panel (a level should be none / name only?)
+- InfoWatch allow different log level to in-game info panel / studio panel (a level should be none / name only?)
