@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Text;
+using TAS.EverestInterop.Hitboxes;
+using TAS.Gameplay.Hitboxes;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -177,7 +179,7 @@ internal abstract class AbstractTriggerRenderer : AutoWatchTextRenderer {
     }
 
     public override void UpdateImpl() {
-        Visible = orig_Visible && !SimplifiedTrigger.IsUnimportantTrigger(abstractTrigger);
+        Visible = orig_Visible && !HitboxSimplified.HideHitbox(abstractTrigger);
         if (Visible) {
             if (hasDynamicInfo) {
                 text.content = staticInfo;

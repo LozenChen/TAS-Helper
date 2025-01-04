@@ -130,11 +130,6 @@ internal static class TASHelperMenu {
             subMenu.Add(ACH_LightningItem = new TextMenu.OnOff("ACH For Lightning".ToDialogText(), TasHelperSettings.ApplyActualCollideHitboxForLightning).Change(value => TasHelperSettings.ApplyActualCollideHitboxForLightning = value));
             subMenu.AddDescription(menu, ACH_LightningItem, "ACH Warn Lightning".ToDialogText());
             subMenu.Add(new HLine(Color.Gray));
-            TextMenu.Item simplifiedTrigger;
-            subMenu.Add(simplifiedTrigger = new EnumerableSliderExt<SimplifiedGraphicsMode>("Simplified Triggers".ToDialogText(), CreateSimplifiedGraphicsModeOptions(), TasHelperSettings.EnableSimplifiedTriggersMode).Change(value => TasHelperSettings.EnableSimplifiedTriggersMode = value));
-            subMenu.Add(new TextMenu.OnOff("Hide Camera Trigger".ToDialogText(), TasHelperSettings.HideCameraTriggers).Change(value => { TasHelperSettings.HideCameraTriggers = value; SimplifiedTrigger.OnHideCameraChange(value); }));
-            subMenu.Add(new TextMenu.OnOff("Hide Gold Berry".ToDialogText(), TasHelperSettings.HideGoldBerryCollectTrigger).Change(value => { TasHelperSettings.HideGoldBerryCollectTrigger = value; SimplifiedTrigger.OnHideBerryChange(value); }));
-            subMenu.Add(new HLine(Color.Gray));
         });
     }
 

@@ -1,8 +1,6 @@
 ﻿
 using Celeste.Mod.TASHelper.Utils;
 using Monocle;
-using System;
-using TAS.EverestInterop;
 using TAS.InfoHUD; 
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
@@ -111,6 +109,7 @@ internal static class CoreLogic {
         // but remove some restrictions, so it updates even when we close the in-game info hud
 
         // todo: try refactor? currently it's a bit hacky
+        // we need this, when studio & info panel are both disabled
     }
 
     public static void OnConfigChange() {

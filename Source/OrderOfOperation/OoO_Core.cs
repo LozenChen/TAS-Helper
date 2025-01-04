@@ -2,6 +2,7 @@
 
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
+using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -292,15 +293,19 @@ internal static class OoO_Core {
         SpringBoard.Create(PlayerUpdate);
         SpringBoard.Create(PlayerOrigUpdate);
 
-        hookTASIsPaused = new ILHook(typeof(TAS.EverestInterop.Core).GetMethod("IsPaused", BindingFlags.NonPublic | BindingFlags.Static), il => {
+
+        // todo: remove hook
+        hookTASIsPaused = new ILHook(ModUtils.GetType("CelesteTAS", "TAS.Playback.Core").GetMethod("IsPaused", BindingFlags.NonPublic | BindingFlags.Static), il => {
             ILCursor cursor = new ILCursor(il);
             cursor.Emit(OpCodes.Ldc_I4_0);
             cursor.Emit(OpCodes.Ret);
         }, manualConfig);
 
-        hookManagerUpdate = new ILHook(typeof(Manager).GetMethod("Update", BindingFlags.Public | BindingFlags.Static), il => {
+        // todo: remove hook
+        // WARN: probably breaks
+        hookManagerUpdate = new ILHook(typeof(Manager).GetMethod("UpdateMeta", BindingFlags.Public | BindingFlags.Static), il => {
             ILCursor cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.MatchCallOrCallvirt(typeof(Hotkeys).GetMethod("Update")))) {
+            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.MatchCallOrCallvirt(typeof(Hotkeys).GetMethod("UpdateMeta")))) {
                 cursor.Index += 2;
                 cursor.EmitDelegate(PretendPressHotkey);
                 cursor.Goto(-1);
@@ -350,6 +355,7 @@ internal static class OoO_Core {
     }
 
     private static void PretendPressHotkey() {
+        // pretend we are frame advancing through this frame
         Utils.ReflectionExtensions.SetPropertyValue(Hotkeys.FrameAdvance, "Check", true);
         Utils.ReflectionExtensions.SetPropertyValue(Hotkeys.FrameAdvance, "LastCheck", false);
     }

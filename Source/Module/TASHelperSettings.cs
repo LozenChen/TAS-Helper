@@ -29,7 +29,6 @@ public class TASHelperSettings : EverestModuleSettings {
         loadRangeMode = LoadRangeModes.Neither;
         EnforceClearSprites = SimplifiedGraphicsMode.WhenSimplifyGraphics;
         EnableSimplifiedLightningMode = SimplifiedGraphicsMode.WhenSimplifyGraphics;
-        EnableSimplifiedTriggersMode = SimplifiedGraphicsMode.Always;
         LoadRangeColliderMode = LoadRangeColliderModes.Auto;
         TimelineFinestScale = TimelineFinestStyle.PolygonLine;
         TimelineFineScale = TimelineScales._5;
@@ -335,26 +334,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public bool ApplyActualCollideHitboxForLightning = true;
 
-    public SimplifiedGraphicsMode EnableSimplifiedTriggersMode;
-
-    public bool EnableSimplifiedTriggers => Enabled && SGModeToBool(EnableSimplifiedTriggersMode);
-
-    public bool HideCameraTriggers = false;
-
-    public bool HideGoldBerryCollectTrigger = false;
-
-    public bool enableCameraTriggerColor = true;
-
-
-    [YamlIgnore]
-    public bool EnableCameraTriggerColor {
-        get => Enabled && enableCameraTriggerColor;
-        set {
-            enableCameraTriggerColor = value;
-        }
-    }
-
-    public Color CameraTriggerColor = CustomColors.defaultCameraTriggerColor;
 
     #endregion
 
@@ -803,37 +782,6 @@ public class TASHelperSettings : EverestModuleSettings {
         }
     }
 
-    public bool enableOpenConsoleInTas { get; set; } = true;
-
-    [YamlIgnore]
-    public bool EnableOpenConsoleInTas {
-        get => Enabled && enableOpenConsoleInTas;
-        set {
-            enableOpenConsoleInTas = value;
-        }
-    }
-
-    public bool enableScrollableHistoryLog { get; set; } = true;
-
-    [YamlIgnore]
-    public bool EnableScrollableHistoryLog {
-        get => Enabled && enableScrollableHistoryLog;
-        set {
-            enableScrollableHistoryLog = value;
-        }
-    }
-
-    public bool betterInvincible = true;
-
-    [YamlIgnore]
-
-    public bool BetterInvincible {
-        get => Enabled && betterInvincible;
-        set {
-            betterInvincible = value;
-        }
-    }
-
     public bool showWindSpeed = false;
 
     [YamlIgnore]
@@ -1074,10 +1022,6 @@ public class TASHelperSettings : EverestModuleSettings {
                 Predictor.PredictorCore.PredictLater(false);
                 Refresh("Predictor Start");
             }
-        }
-        else if (EnableOpenConsoleInTas && TH_Hotkeys.OpenConsole.Pressed) {
-            // Gameplay.ConsoleEnhancement.SetOpenConsole();
-            // it's completely ok that this feature is not enabled and people press this key, so there's no warning
         }
         else if (!OoO_Core.Applied && (TH_Hotkeys.FrameStepBack.Released || TH_Hotkeys.FrameStepBack.Check && Gameplay.FrameStepBack.CheckOnHotkeyHold())) { // we use release so there's no save/load issue
             FrameStepBack.StepBackOneFrame();

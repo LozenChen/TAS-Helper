@@ -151,8 +151,6 @@ internal static class TasHelperSL {
     private static HashSet<Gameplay.MovingEntityTrack.StartEnd> SRT_CachedStartEnd;
     private static Dictionary<Gameplay.MovingEntityTrack.RotateData, int> SRT_CachedCircle;
 
-    private static HashSet<Entity> TH_UnimportantTriggers = new();
-    private static HashSet<Entity> SRT_UnimportantTriggers = new();
 
     private static Dictionary<int, Color> TH_beatColors = new();
     private static Dictionary<int, Color> TH_QMbeatColors = new();
@@ -182,7 +180,6 @@ internal static class TasHelperSL {
             TH_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.TH_DeepCloneShared();
             TH_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.TH_DeepCloneShared();
 
-            TH_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.TH_DeepCloneShared();
             TH_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors.TH_DeepCloneShared();
             TH_QMbeatColors = CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors.TH_DeepCloneShared();
             TH_ColorSwapTime = CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime.TH_DeepCloneShared();
@@ -199,7 +196,6 @@ internal static class TasHelperSL {
             Gameplay.MovingEntityTrack.CachedNodes = TH_CachedNodes.TH_DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedStartEnd = TH_CachedStartEnd.TH_DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedCircle = TH_CachedCircle.TH_DeepCloneShared();
-            SimplifiedTrigger.UnimportantTriggers = TH_UnimportantTriggers.TH_DeepCloneShared();
 
             CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors = TH_beatColors.TH_DeepCloneShared();
             CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors = TH_QMbeatColors.TH_DeepCloneShared();
@@ -213,7 +209,6 @@ internal static class TasHelperSL {
             TH_CachedNodes = null;
             TH_CachedStartEnd = null;
             TH_CachedCircle = null;
-            TH_UnimportantTriggers.Clear();
             TH_beatColors.Clear();
             TH_QMbeatColors.Clear();
             TH_ColorSwapTime.Clear();
@@ -230,7 +225,6 @@ internal static class TasHelperSL {
             SRT_CachedNodes = Gameplay.MovingEntityTrack.CachedNodes.DeepCloneShared();
             SRT_CachedStartEnd = Gameplay.MovingEntityTrack.CachedStartEnd.DeepCloneShared();
             SRT_CachedCircle = Gameplay.MovingEntityTrack.CachedCircle.DeepCloneShared();
-            SRT_UnimportantTriggers = SimplifiedTrigger.UnimportantTriggers.DeepCloneShared();
 
             SRT_beatColors = CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors.DeepCloneShared();
             SRT_QMbeatColors = CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors.DeepCloneShared();
@@ -246,7 +240,6 @@ internal static class TasHelperSL {
             Gameplay.MovingEntityTrack.CachedStartEnd = SRT_CachedStartEnd.DeepCloneShared();
             Gameplay.MovingEntityTrack.CachedCircle = SRT_CachedCircle.DeepCloneShared();
             TH_Hotkeys.HotkeyInitialize();
-            SimplifiedTrigger.UnimportantTriggers = SRT_UnimportantTriggers.DeepCloneShared();
             CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors = SRT_beatColors.DeepCloneShared();
             CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors = SRT_QMbeatColors.DeepCloneShared();
             CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = SRT_ColorSwapTime.DeepCloneShared();
@@ -266,7 +259,6 @@ internal static class TasHelperSL {
             SRT_CachedNodes = null;
             SRT_CachedStartEnd = null;
             SRT_CachedCircle = null;
-            SRT_UnimportantTriggers = null;
             SRT_beatColors = null;
             SRT_QMbeatColors = null;
             SRT_ColorSwapTime = null;

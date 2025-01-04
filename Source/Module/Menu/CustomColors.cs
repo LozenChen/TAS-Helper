@@ -34,7 +34,6 @@ public static class CustomColors {
         InViewRangeColor = defaultInViewRangeColor;
         NearPlayerRangeColor = defaultNearPlayerRangeColor;
         CameraTargetColor = defaultCameraTargetColor;
-        CameraTriggerColor = defaultCameraTriggerColor;
         MovementOvershootAssistantColor = defaultMOAColor;
     }
 
@@ -93,7 +92,6 @@ public static class CustomColors {
 
     public static Color Predictor_DotColor { get => TasHelperSettings.PredictorDotColor; set => TasHelperSettings.PredictorDotColor = value; }
 
-    public static Color CameraTriggerColor { get => TasHelperSettings.CameraTriggerColor; set => TasHelperSettings.CameraTriggerColor = value; }
 
     public static Color MovementOvershootAssistantColor { get => TasHelperSettings.MOAColor; set => TasHelperSettings.MOAColor = value; }
 
@@ -206,7 +204,6 @@ public static class CustomColors {
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => NearPlayerRangeColor, value => NearPlayerRangeColor = value, nameof(NearPlayerRangeColor), defaultNearPlayerRangeColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => LoadRangeColliderColor, value => LoadRangeColliderColor = value, nameof(LoadRangeColliderColor), defaultLoadRangeColliderColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => CameraTargetColor, value => CameraTargetColor = value, nameof(CameraTargetColor), defaultCameraTargetColor);
-        AddItemWithDescriptionAndCMD(menu, page, inGame, () => CameraTriggerColor, value => CameraTriggerColor = value, nameof(CameraTriggerColor), defaultCameraTriggerColor);
         AddItemWithDescriptionAndCMD(menu, page, inGame, () => MovementOvershootAssistantColor, value => MovementOvershootAssistantColor = value, nameof(MovementOvershootAssistantColor), defaultMOAColor);
 
         page.Add(new HLine(Color.Gray));
@@ -223,7 +220,6 @@ public static class CustomColors {
         TextMenu.Item UsingFreezeColorItem;
         page.Add(UsingFreezeColorItem = new TextMenu.OnOff("Using Freeze Color".ToDialogText(), TasHelperSettings.UsingFreezeColor).Change(value => TasHelperSettings.UsingFreezeColor = value));
         page.AddDescriptionOnEnter(menu, UsingFreezeColorItem, "Using Freeze Color Description".ToDialogText());
-        page.Add(new TextMenu.OnOff("Using Camera Trigger Color".ToDialogText(), TasHelperSettings.EnableCameraTriggerColor).Change(value => TasHelperSettings.EnableCameraTriggerColor = value));
         TextMenu.Item resetButton = new TextMenu.Button("Reset Custom Color".ToDialogText()).Pressed(
             () => {
                 Audio.Play("event:/ui/main/rename_entry_accept");
@@ -336,11 +332,6 @@ public static class CustomColors {
                 }
             case nameof(Predictor_EndpointColor): {
                     Predictor_EndpointColor = HexToColorWithLog(color, defaultPredictorEndpointColor);
-                    TASHelperModule.Instance.SaveSettings();
-                    return;
-                }
-            case nameof(CameraTriggerColor): {
-                    CameraTriggerColor = HexToColorWithLog(color, defaultCameraTriggerColor);
                     TASHelperModule.Instance.SaveSettings();
                     return;
                 }
