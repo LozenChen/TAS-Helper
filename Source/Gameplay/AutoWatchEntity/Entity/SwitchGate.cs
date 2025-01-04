@@ -2,9 +2,10 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using System.Collections;
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
-internal class SwitchGateRenderer : AutoWatchRenderer {
+internal class SwitchGateRenderer : AutoWatchTextRenderer {
 
     public SwitchGate gate;
 
@@ -40,7 +41,13 @@ internal class SwitchGateRenderer : AutoWatchRenderer {
 
         public static float Thickness = 2f;
     }
-    public SwitchGateRenderer(RenderMode mode) : base(mode, hasUpdate: true, hasPreUpdate: false) { }
+
+    public Vector2 lastPos;
+
+    public Vector2 pos;
+
+    public Coroutine coroutine;
+    public SwitchGateRenderer(RenderMode mode) : base(mode, true, false) { }
 
     public override void Added(Entity entity) {
         base.Added(entity);
@@ -59,13 +66,18 @@ internal class SwitchGateRenderer : AutoWatchRenderer {
         foreach (SwitchLinker link in SwitchLinkers) {
             HiresLevelRenderer.AddIfNotPresent(link);
         }
+        lastPos = pos = gate.Position;
+        if (gate.FindCoroutineComponent("Celeste.SwitchGate+<Sequence>d__16", out Tuple<Coroutine, IEnumerator> tuple)) {
+            coroutine = tuple.Item1;
+        }
+        else {
+            coroutine = null;
+        }
         Initialized = true;
     }
-
     private static bool InPosition(SwitchGate b) {
         return (b.Position + b.movementCounter) == b.node;
     }
-
     public override void UpdateImpl() {
         if (!Initialized) {
             Initialize();
@@ -80,11 +92,42 @@ internal class SwitchGateRenderer : AutoWatchRenderer {
             link.OnRemove();
         }
         toRemove.Clear();
-        if (SwitchLinkers.IsNullOrEmpty()) {
-            RemoveSelf();
-            return;
+
+        text.Position = gate.Center;
+        lastPos = pos;
+        pos = gate.Position + gate.movementCounter;
+        text.Clear();
+        if (pos != lastPos) {
+            text.Append((pos - lastPos).PositionToAbsoluteSpeed());
+        }
+        else if (SwitchLinkers.IsNullOrEmpty()) {
+            if (InPosition(gate)) {
+                RemoveSelf();
+                return;
+            }
+            else if (coroutine is not null) {
+                float w = coroutine.waitTimer;
+                if (w > 0f) {
+                    if (w > 1.7f) {
+                        text.Append("~");
+                    }
+                    else {
+                        text.Append(coroutine.waitTimer.ToFrame());
+                        wasWaiting = true;
+                    }
+                }
+                else if (wasWaiting) {
+                    text.Append("0");
+                    wasWaiting = false;
+                }
+                else {
+                    text.Append($"{gate.icon.Rate:0.00}/1.00");
+                }
+            }
         }
     }
+
+    private bool wasWaiting = false;
 
     public override void Removed(Entity entity) {
         base.Removed(entity);
