@@ -293,8 +293,8 @@ internal static class OoO_Core {
         SpringBoard.Create(PlayerUpdate);
         SpringBoard.Create(PlayerOrigUpdate);
 
-
         // todo: remove hook
+
         hookTASIsPaused = new ILHook(ModUtils.GetType("CelesteTAS", "TAS.Playback.Core").GetMethod("IsPaused", BindingFlags.NonPublic | BindingFlags.Static), il => {
             ILCursor cursor = new ILCursor(il);
             cursor.Emit(OpCodes.Ldc_I4_0);
@@ -302,19 +302,14 @@ internal static class OoO_Core {
         }, manualConfig);
 
         // todo: remove hook
-        // WARN: probably breaks
-        hookManagerUpdate = new ILHook(typeof(Manager).GetMethod("UpdateMeta", BindingFlags.Public | BindingFlags.Static), il => {
-            ILCursor cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.MatchCallOrCallvirt(typeof(Hotkeys).GetMethod("UpdateMeta")))) {
-                cursor.Index += 2;
-                cursor.EmitDelegate(PretendPressHotkey);
-                cursor.Goto(-1);
-                cursor.EmitDelegate(StopPretendPressHotkey);
-                // frame advance hotkey is also used to undo OoO_Core, so we restore its value
-            }
-        }, manualConfig);
 
+        hookManagerUpdate = new ILHook(typeof(Manager).GetMethod("Update", BindingFlags.Public | BindingFlags.Static), il => {
+            ILCursor cursor = new ILCursor(il);
+            cursor.EmitDelegate(Manager.Controller.AdvanceFrame);
+            cursor.Emit(OpCodes.Ret);
+        }, manualConfig);
     }
+
 
     private static ILHook hookTASIsPaused;
 
@@ -336,14 +331,13 @@ internal static class OoO_Core {
         //Gameplay.Spinner.ActualCollideHitboxDelegatee.StopActualCollideHitbox();
         SendTextImmediately("OoO Stepping begin");
     }
-
     public static void UndoAll() {
         SpringBoard.UndoAll();
         BreakPoints.UndoAll();
         ForEachBreakPoints_EntityList.Undo();
         ForEachBreakPoints_PlayerCollider.Undo();
-        hookTASIsPaused.Undo();
-        hookManagerUpdate.Undo();
+        hookTASIsPaused?.Undo();
+        hookManagerUpdate?.Undo();
         Applied = false;
         ForEachBreakPoints_EntityList.Unload();
         ResetLongtermState();
@@ -354,14 +348,13 @@ internal static class OoO_Core {
         SendTextImmediately("OoO Stepping end");
     }
 
-    private static void PretendPressHotkey() {
-        // pretend we are frame advancing through this frame
-        Utils.ReflectionExtensions.SetPropertyValue(Hotkeys.FrameAdvance, "Check", true);
-        Utils.ReflectionExtensions.SetPropertyValue(Hotkeys.FrameAdvance, "LastCheck", false);
-    }
 
-    private static void StopPretendPressHotkey() {
-        Utils.ReflectionExtensions.SetPropertyValue(Hotkeys.FrameAdvance, "Check", false);
+    [EnableRun]
+    [DisableRun]
+    private static void AvoidDeadlock() {
+        if (Applied) {
+            UndoAll();
+        }
     }
 
     private static void ResetLongtermState() {
@@ -415,7 +408,7 @@ internal static class OoO_Core {
                 }
             }
 
-            Hotkeys.Update(); // TH_Hotkeys relies on Hotkeys, so it needs update
+            Hotkeys_BASE.UpdateMeta(); // TH_Hotkeys relies on Hotkeys, so it needs update
 
             if (needGameInfoUpdate) {
                 TAS.GameInfo.Update();
@@ -430,7 +423,7 @@ internal static class OoO_Core {
 
     public static bool TryHardExit = true;
     internal static void OnHotkeysPressed() {
-        if (Applied && (Hotkeys.FrameAdvance.Pressed || Hotkeys.SlowForward.Pressed || Hotkeys.PauseResume.Pressed || Hotkeys.StartStop.Pressed || TH_Hotkeys.FrameStepBack.Pressed)) {
+        if (Applied && (Hotkeys.FrameAdvance.Pressed || Hotkeys.SlowForward.Pressed || Hotkeys.PauseResume.Pressed || TH_Hotkeys.FrameStepBack.Pressed)) {
             // in case the user uses OoO unconsciously, and do not know how to exit OoO, we allow user to exit using normal tas hotkeys, as if we were running a tas
             FastForwardToEnding();
         }

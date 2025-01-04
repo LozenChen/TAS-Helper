@@ -127,7 +127,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
         // coz it may become true after player's position change later, if we doesn't leave the loop with a DeathReturn or LateReturn
 
         if (firstEnter) {
-            ActualCollideHitbox.StoreCollider(player);
+            ActualCollideHitbox.StoreActualColliderState(player);
             firstEnter = false;
             stored_Hitbox = player.Collider;
             player.Collider = player.hurtbox;
@@ -185,7 +185,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
                 }
             }
 
-            ActualCollideHitbox.StoreCollider(pc.Entity);
+            ActualCollideHitbox.StoreActualColliderState(pc.Entity);
 
             if (ultraFastForwarding) {
                 if (pc.Check(player) && player.Dead) {
