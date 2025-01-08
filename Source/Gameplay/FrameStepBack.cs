@@ -1,7 +1,6 @@
 ﻿using Celeste.Mod.TASHelper.Module.Menu;
 using TAS;
 using TAS.Input;
-using TAS.ModInterop;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 public static class FrameStepBack {
@@ -12,21 +11,26 @@ public static class FrameStepBack {
         SetupNextFastForward(-1);
     }
     public static void SetupNextFastForward(int relativeMove) {
-        if (Manager.Running && !TASRecorderInterop.Recording) {
+        if (Manager.Running && !TAS.ModInterop.TASRecorderInterop.Recording) {
             int frame = Controller.CurrentFrameInTas + relativeMove;
             if (frame <= 0) {
                 return;
             }
             bool isLoad = false;
             bool delayedClear = false;
+            Manager.State next = Manager.State.Running;
             if (Savestates.IsSaved_Safe) {
                 isLoad = Savestates.SavedCurrentFrame <= frame;
-                delayedClear = true;
+                if (Savestates.SavedCurrentFrame == frame) {
+                    next = Manager.State.Paused;
+                }
+                delayedClear = !isLoad;
             }
             if (isLoad) {
                 Savestates.LoadState();
             }
             else {
+                Controller.Stop(); // Controller.Stop() is no longer contained in current version of RefreshInputs(true)
                 Controller.RefreshInputs(true);
             }
             if (delayedClear) {
@@ -34,7 +38,7 @@ public static class FrameStepBack {
             }
 
             Controller.NextLabelFastForward = new FastForward(frame, "", 0);
-            Manager.NextState = Manager.State.Running;
+            Manager.NextState = next;
             ForwardTarget = frame;
         }
     }
