@@ -717,7 +717,6 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
 
         base.Update();
 
-        // TODO: Rewrite or study and document the following code.
         // It stems from OuiFileNaming.
 
         if (!(Selected && Focused)) {
@@ -925,7 +924,6 @@ public class OuiModOptionStringHexColor : Oui, OuiModOptions.ISubmenu {
         if (UseKeyboardInput)
             index = -1;
 
-        // TODO: Rewrite or study and document the following code.
         // It stems from OuiFileNaming.
 
         Draw.Rect(-10f, -10f, 1940f, 1100f, Color.Black * 0.8f * ease);

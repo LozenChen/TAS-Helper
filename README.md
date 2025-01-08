@@ -86,4 +86,6 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 - Celeste TAS hotkeys randomly work improperly -> Not sure if it's caused by TAS Helper.
 
+- Reverse Frame Advance sometimes make camera wrong -> Don't know why.
+
 - ~~Use SRT save, then reload asset, then SRT load. This causes crash -> I guess it's a general issue and only happens for mod developers, so just ignore it.~~

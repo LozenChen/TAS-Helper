@@ -3,6 +3,8 @@ using TAS;
 using TAS.Input;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
+
+// Called [Inverse Frame Advance] in menu
 public static class FrameStepBack {
 
     public static InputController Controller => Manager.Controller;
@@ -11,6 +13,7 @@ public static class FrameStepBack {
         SetupNextFastForward(-1);
     }
     public static void SetupNextFastForward(int relativeMove) {
+        // todo: fix the random camera issue
         if (Manager.Running && !TAS.ModInterop.TASRecorderInterop.Recording) {
             int frame = Controller.CurrentFrameInTas + relativeMove;
             if (frame <= 0) {
@@ -27,7 +30,7 @@ public static class FrameStepBack {
                 delayedClear = !isLoad;
             }
             if (isLoad) {
-                Savestates.LoadState();
+                Savestates.LoadState(); // only the nearest savestate breakpoint will work
             }
             else {
                 Controller.Stop(); // Controller.Stop() is no longer contained in current version of RefreshInputs(true)
@@ -46,7 +49,7 @@ public static class FrameStepBack {
     internal static int ForwardTarget = 0;
 
     public static bool CheckOnHotkeyHold() {
-        return OnInterval((int)Math.Round(4 / TasSettings.SlowForwardSpeed)) && frameStepBackHoldTimer > 60;
+        return OnInterval((int)Math.Round(1 / TasSettings.SlowForwardSpeed)) && frameStepBackHoldTimer > 60;
     }
 
     private static int frameCounter = 0;
