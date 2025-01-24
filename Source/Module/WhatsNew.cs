@@ -85,6 +85,7 @@ public static class WhatsNew {
         AddLog("2.0.12", "Feature: Auto-Watch now decrypts Auroras Hashed DashCode Trigger.", "Support Stunning Helper's hazards. (thanks @trans_alexa)");
         AddLog("2.0.13", "Feature: Auto-Watch supports SwitchGate.");
         AddLog("2.0.14", "Feature: Add Spinner Drift Speed (in Hazard Countdown). (thanks @trans_alexa)", "Bugfix: Simplified Spinner doesn't handle old versions of XaphanHelper properly, and crash with latest XaphanHelper.");
+        AddLog("2.1.0", "Remove: SimplifiedTrigger merges into CelesteTAS.", "Remove: BetterInvincible merges into CelesteTAS.", "Remove: OpenConsoleInTas merges into CelesteTAS.", "Remove: Scrollable Console temporarily removed.", "Refactor: Coz CelesteTAS refactors quite a lot.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

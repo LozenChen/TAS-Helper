@@ -113,6 +113,7 @@ internal static class CoreLogic {
     }
 
     public static void OnConfigChange() {
+        InfoWatchEntity.ForceUpdateInfo = Config.MainEnabled;
         if (Engine.Scene is not Level level) {
             return;
         }
