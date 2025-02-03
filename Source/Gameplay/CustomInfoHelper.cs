@@ -34,6 +34,9 @@ public static class CustomInfoHelper {
     public static Microsoft.Xna.Framework.Input.Buttons GamePadPreviousState => GamePadData.PreviousState.Buttons.buttons;
 
     public static Microsoft.Xna.Framework.Input.Buttons GamePadCurrentState => GamePadData.CurrentState.Buttons.buttons;
+
+    /*
+     * crashes due to CelesteTAS renaming, so just hide them
     public static Vector2 MouseState => MouseButtons.Position;
     public static Vector2 MouseCursorPos => Vector2.Transform(new Vector2(MouseState.X, MouseState.Y), Matrix.Invert(Engine.ScreenMatrix));
 
@@ -49,13 +52,15 @@ public static class CustomInfoHelper {
             return mouseScreenPosition / 6f;
         }
     }
+    */
+
     // sadly, Studio currently only support 320 * 180 (for sync consideration), though we can actually do much more beyond this
 
     /* 
      * GameInfo.Update(..) is called in Scene.AfterUpdate() (or in FreezeFrames), so string CustomInfo is not dynamically updated like InfoMouse in a single frame.
      *  have to manually update CustomInfo (e.g. Right Click) if you add it to CustomInfo
      */
-
+    
 
     public static float PlayerIntPositionX {
         get => playerInstance?.X ?? 0;
