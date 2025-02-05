@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System.Text;
 using TAS.EverestInterop.Hitboxes;
-using TAS.Gameplay.Hitboxes;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 

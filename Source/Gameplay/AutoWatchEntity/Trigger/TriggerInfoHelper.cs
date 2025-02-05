@@ -16,8 +16,6 @@ internal static class TriggerInfoHelper {
 
     public static Dictionary<Type, TriggerDynamicPlayerHandler> DynamicInfoPlayerGetters = new Dictionary<Type, TriggerDynamicPlayerHandler>();
 
-    internal static HashSet<string> implementedMods = new HashSet<string>() { "Celeste", "SkinModHelper", "SkinModHelperPlus" };
-
     [Initialize]
     public static void Initialize() {
         StaticInfoGetters = new();

@@ -87,6 +87,7 @@ public static class WhatsNew {
         AddLog("2.0.14", "Feature: Add Spinner Drift Speed (in Hazard Countdown). (thanks @trans_alexa)", "Bugfix: Simplified Spinner doesn't handle old versions of XaphanHelper properly, and crash with latest XaphanHelper.");
         AddLog("2.1.0", "Remove: SimplifiedTrigger merges into CelesteTAS.", "Remove: BetterInvincible merges into CelesteTAS.", "Remove: OpenConsoleInTas merges into CelesteTAS.", "Remove: Scrollable Console temporarily removed.", "Refactor: Coz CelesteTAS refactors quite a lot.");
         AddLog("2.1.1", "Bugfix: fix a bug caused by CelesteTAS refactor.");
+        AddLog("2.1.2", "Bugfix: Predictor not working properly, caused by CelesteTAS refactor.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

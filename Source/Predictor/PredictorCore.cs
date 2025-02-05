@@ -3,6 +3,7 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using System.Reflection;
 using TAS;
 using TAS.Input;
@@ -157,8 +158,10 @@ public static class PredictorCore {
 
     [Load]
     public static void Load() {
-        // CelesteTAS.Core uses DetourContext {After = new List<string> {"*"}} ""in Load"", so our hooks are "inside" ( = after) TAS.Core hooks
-        IL.Monocle.Engine.Update += ILEngineUpdate;
+        // our hook should be inside the hook of TAS.Playback.Core
+        using (new DetourContext { Before = new List<string> { "CelesteTAS" }, ID = "TAS Helper PredictorCore" }) {
+            IL.Monocle.Engine.Update += ILEngineUpdate;
+        }
     }
 
     [Unload]
