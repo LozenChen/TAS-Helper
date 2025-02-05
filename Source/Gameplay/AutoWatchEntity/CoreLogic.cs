@@ -1,7 +1,7 @@
 ﻿
 using Celeste.Mod.TASHelper.Utils;
 using Monocle;
-using TAS.InfoHUD; 
+using TAS.InfoHUD;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -103,7 +103,7 @@ internal static class CoreLogic {
         }
     }
 
-    
+
     private static void FakeGetInfo(Level level) {
         // basically same as InfoWatchEntity.GetInfo
         // but remove some restrictions, so it updates even when we close the in-game info hud

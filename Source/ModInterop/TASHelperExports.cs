@@ -1,7 +1,5 @@
-using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Predictor;
 using Celeste.Mod.TASHelper.TinySRT;
-using Monocle;
 using MonoMod.ModInterop;
 
 namespace Celeste.Mod.TASHelper.ModInterop;

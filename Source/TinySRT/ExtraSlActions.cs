@@ -12,7 +12,6 @@ using System.Reflection;
 using TAS;
 using TAS.EverestInterop;
 using TAS.EverestInterop.Hitboxes;
-using TAS.InfoHUD;
 using TAS.Input.Commands;
 using SRT = Celeste.Mod.SpeedrunTool.SaveLoad.SaveLoadAction;
 using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;

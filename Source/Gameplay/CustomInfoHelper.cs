@@ -1,7 +1,5 @@
 using Celeste.Mod.TASHelper.Utils;
-using Microsoft.Xna.Framework;
 using Monocle;
-using TAS.EverestInterop;
 using CelesteInput = Celeste.Input;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
@@ -60,7 +58,7 @@ public static class CustomInfoHelper {
      * GameInfo.Update(..) is called in Scene.AfterUpdate() (or in FreezeFrames), so string CustomInfo is not dynamically updated like InfoMouse in a single frame.
      *  have to manually update CustomInfo (e.g. Right Click) if you add it to CustomInfo
      */
-    
+
 
     public static float PlayerIntPositionX {
         get => playerInstance?.X ?? 0;
