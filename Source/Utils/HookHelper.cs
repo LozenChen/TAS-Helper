@@ -168,6 +168,15 @@ internal static class EventOnHook {
                 if (method.GetCustomAttribute<LoadLevelAttribute>() is not LoadLevelAttribute attr) {
                     continue;
                 }
+                /*
+                string type = method.DeclaringType.FullName;
+                if (type.StartsWith("Celeste.Mod.TASHelper.Entities.PauseUpdater")) {
+                    Logger.Log(LogLevel.Warn, "TASHelper EventOnHook LoadLevel Remove", type);
+                    continue;
+                }
+                Logger.Log(LogLevel.Debug, "TASHelper EventOnHook LoadLevel", type);
+                */
+
                 if (attr.Before) {
                     switch (method.GetParameters().Length) {
                         case 0: {
@@ -240,8 +249,8 @@ internal static class EventOnHook {
         [EventOnHook]
         private static void CreateOnHook() {
             // yeah i know Everest.Events.Level.OnLoadLevel already exists
-            // but my compiler throws me a CS0229 error
-            // maybe the issue of publicizer, idk
+            // but that's only at the end of Level.OnLoadLevel
+            // so i still need a LoadLevel_Before
 
             using (new DetourContext { After = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper LoadLevel" }) {
                 On.Celeste.Level.LoadLevel += OnLoadLevel;

@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework;
 namespace Celeste.Mod.TASHelper.Module.Menu;
 public static class AutoWatchMenu {
 
+    internal static bool SettingsMaybeChanged = false;
+
     internal static List<TextMenu.Item> Create_Page_1_OnOff(TextMenu menu) {
         List<TextMenu.Item> page = new List<TextMenu.Item>();
         TextMenu.Item mainSwitch;

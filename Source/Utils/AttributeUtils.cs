@@ -7,7 +7,7 @@ internal static class AttributeUtils {
     internal static readonly IDictionary<Type, IEnumerable<MethodInfo>> MethodInfos = new Dictionary<Type, IEnumerable<MethodInfo>>();
 
 #if AttributeDebug
-    public static string exceptionClass = "";
+    
     public static Dictionary<MethodInfo, Type> debugDict = new();
     public static void CollectMethods<T>() where T : Attribute {
         typeof(AttributeUtils).Assembly.GetTypesSafe().ToList().ForEach(type => type
@@ -15,16 +15,47 @@ internal static class AttributeUtils {
             .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<T>() != null)
             .ToList().ForEach(method => debugDict[method] = type));
 
-        if (exceptionClass.IsNullOrEmpty()) {
-            MethodInfos[typeof(T)] = typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
+        List<MethodInfo> list = typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<T>() != null));
-            return;
+            .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<T>() != null && IsGoodClass(info.DeclaringType))).ToList();
+
+        bool useSelect = leftPercent != 0f || rightPercent != 1f;
+
+        if (useSelect) {
+            list = list.SelectPart(leftPercent, rightPercent);
         }
 
-        MethodInfos[typeof(T)] = typeof(AttributeUtils).Assembly.GetTypesSafe().Where(type => !type.FullName.StartsWith(exceptionClass)).SelectMany(type => type
-            .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<T>() != null));
+        Logger.Log(LogLevel.Verbose, "TASHelper", $"AttributeUtils.CollectMethods<{typeof(T)}>() adds:\n{string.Join("\n", list.Select(x => x.DeclaringType))}");
+
+        MethodInfos[typeof(T)] = list;
+    }
+
+    public static string[] exceptionClass = []; // add class which possibly have bugs to here
+    private static bool IsGoodClass(Type type) {
+        string name = type.FullName;
+        foreach (string predicate in exceptionClass) {
+            if (name.StartsWith(predicate)) {
+                Logger.Log(LogLevel.Debug, "TASHelper AttributeUtils Reject", name);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 注意: 由于 EventOnHook 类的搜索是单独写的, 因此会有略微不兼容
+
+    private static float leftPercent = 0.0f;
+    private static float rightPercent = 1.0f;
+    // 当有 bug 但无报错时 (尤其是 mod 兼容性问题时), 二分法来锁定问题
+    private static List<MethodInfo> SelectPart(this List<MethodInfo> list, float leftPercent, float rightPercent) {
+        int count = list.Count;
+        int left = (int)Math.Floor(count * leftPercent);
+        int targetCount = (int)Math.Floor(count * (rightPercent - leftPercent));
+        if (targetCount > count - left) {
+            targetCount = count - left;
+        }
+        Logger.Log("TASHelper", $"Select {left} - {left + targetCount - 1}, from Total {count}");
+        return list.GetRange(left, targetCount);
     }
 
     public static void Invoke<T>() where T : Attribute {

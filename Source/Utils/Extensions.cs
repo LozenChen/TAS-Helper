@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Monocle;
+using MonoMod.RuntimeDetour;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -465,8 +466,13 @@ internal static class LevelExtensions {
 
     [Initialize]
     private static void Initialize() {
-        typeof(Scene).GetMethod("BeforeUpdate").HookBefore(AddEntities); // still add it so that if ultra fast forwarding (so render is skipped), there's no duplicate entity
-        typeof(Scene).GetMethod("BeforeRender").HookBefore(AddEntities);
+        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }, ID = "TAS Helper AddEntities Immediately" }) {
+            // it involves UpdateLists, so it's really dangerous!
+            typeof(Scene).GetMethod("BeforeUpdate").HookBefore(AddEntities); // still add it so that if ultra fast forwarding (so render is skipped), there's no duplicate entity
+            if (!ModUtils.MotionSmoothingInstalled) {
+                typeof(Scene).GetMethod("BeforeRender").HookBefore(AddEntities);
+            }
+        }
     }
 
     private static void AddEntities() {

@@ -84,6 +84,7 @@ public static class TH_Hotkeys {
 
 
 // taken from CelesteTAS
+// previously we are using the class from CelesteTAS; but now to reduce dependency on CelesteTAS, we copy it here
 public static class Hotkeys_BASE {
 
     private static KeyboardState kbState;

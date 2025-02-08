@@ -62,6 +62,8 @@ internal static class ModUtils {
     public static bool ChroniaHelperInstalled = false;
 
     public static bool FlaglinesAndSuchInstalled = false;
+
+    public static bool MotionSmoothingInstalled = false;
     public static bool UpsideDown => ExtendedVariantsUtils.UpsideDown;
     public static void InitializeAtFirst() {
         FrostHelperInstalled = IsInstalled("FrostHelper");
@@ -76,6 +78,7 @@ internal static class ModUtils {
         GravityHelperInstalled = IsInstalled("GravityHelper");
         ChroniaHelperInstalled = IsInstalled("ChroniaHelper");
         FlaglinesAndSuchInstalled = IsInstalled("FlaglinesAndSuch");
+        MotionSmoothingInstalled = IsInstalled("MotionSmoothing");
         // we actually also assume they are in enough late version
         // so all entities mentioned in corresponding hooks do exist
     }

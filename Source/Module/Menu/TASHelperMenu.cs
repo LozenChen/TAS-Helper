@@ -37,8 +37,9 @@ internal static class TASHelperMenu {
         EaseInOptionSubMenuExt AutoWatchItem = new EaseInOptionSubMenuExt("Auto Watch".ToDialogText());
         AutoWatchItem.OnLeave += () => {
             AutoWatchItem.MenuIndex = 0;
-            if (Engine.Scene is Level level) {
+            if (AutoWatchMenu.SettingsMaybeChanged && Engine.Scene is Level level) {
                 level.OnEndOfFrame += () => CoreLogic.OnConfigChange();
+                AutoWatchMenu.SettingsMaybeChanged = false;
             }
         };
         AutoWatchItem.Add("Auto Watch Finished".ToDialogText(), new List<TextMenu.Item>());
@@ -46,6 +47,11 @@ internal static class TASHelperMenu {
         AutoWatchItem.Add("Auto Watch Page 2".ToDialogText(), AutoWatchMenu.Create_Page2(menu));
         AutoWatchItem.Add("Auto Watch Page 3".ToDialogText(), AutoWatchMenu.Create_Page3(menu));
         AutoWatchItem.Add("Auto Watch Page 4".ToDialogText(), AutoWatchMenu.Create_Page4(menu));
+        AutoWatchItem.AfterUpdate = optionsSubMenu => {
+            if (optionsSubMenu.Focused && optionsSubMenu.MenuIndex > 0) {
+                AutoWatchMenu.SettingsMaybeChanged = true;
+            }
+        };
         return AutoWatchItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 
@@ -436,6 +442,7 @@ public class EaseInSubHeaderExtVarTitle : TextMenuExt.EaseInSubHeaderExt {
 public class EaseInOptionSubMenuExt : OptionSubMenuExt, IEaseInItem {
     private float alpha;
     private float unEasedAlpha;
+    public Action<EaseInOptionSubMenuExt> AfterUpdate = null;
 
     public void Initialize() {
         alpha = unEasedAlpha = 0f;
@@ -458,6 +465,8 @@ public class EaseInOptionSubMenuExt : OptionSubMenuExt, IEaseInItem {
         }
 
         Visible = alpha != 0;
+
+        AfterUpdate?.Invoke(this);
     }
     public override void Render(Vector2 position, bool highlighted) {
         float c = Container.Alpha;

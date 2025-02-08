@@ -9,7 +9,7 @@ public class SpawnPoint : Entity {
     public static MTexture Maddy;
 
     [Initialize]
-    public static void Initialize() {
+    private static void Initialize() {
         Maddy = GFX.Game["TASHelper/Spawn/sitDown00"];
     }
 
