@@ -470,6 +470,8 @@ internal static class LevelExtensions {
             // it involves UpdateLists, so it's really dangerous!
             typeof(Scene).GetMethod("BeforeUpdate").HookBefore(AddEntities); // still add it so that if ultra fast forwarding (so render is skipped), there's no duplicate entity
             if (!ModUtils.MotionSmoothingInstalled) {
+                // https://discord.com/channels/403698615446536203/429775320720211968/1337656187801571329
+                // i guess MotionSmoothing will do some actions here, if we UpdateLists then something may go wrong?
                 typeof(Scene).GetMethod("BeforeRender").HookBefore(AddEntities);
             }
         }

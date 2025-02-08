@@ -88,6 +88,7 @@ public static class WhatsNew {
         AddLog("2.1.0", "Remove: SimplifiedTrigger merges into CelesteTAS.", "Remove: BetterInvincible merges into CelesteTAS.", "Remove: OpenConsoleInTas merges into CelesteTAS.", "Remove: Scrollable Console temporarily removed.", "Refactor: Coz CelesteTAS refactors quite a lot.");
         AddLog("2.1.1", "Bugfix: fix a bug caused by CelesteTAS refactor.");
         AddLog("2.1.2", "Bugfix: Predictor not working properly, caused by CelesteTAS refactor.");
+        AddLog("2.1.3", "Bugfix: Incompatibility with MotionSmoothing in event ch09_goto_the_future. (thanks @cameryn)");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
