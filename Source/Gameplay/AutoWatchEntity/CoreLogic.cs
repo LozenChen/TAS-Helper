@@ -114,6 +114,10 @@ internal static class CoreLogic {
 
     public static void OnConfigChange() {
         InfoWatchEntity.ForceUpdateInfo = Config.MainEnabled;
+        // when this gets removed, check that:
+        // 1) works when both disabled
+        // 2) if we can click the hidden triggers
+
         if (Engine.Scene is not Level level) {
             return;
         }

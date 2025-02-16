@@ -5,6 +5,7 @@ using Monocle;
 using MonoMod.Cil;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using TAS;
 // VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
@@ -45,12 +46,19 @@ public static class SpinnerCalculateHelper {
         }
     }
 
+    public static bool WillFastForward => FastForwarding && Manager.NextState == Manager.State.Running;
+
+    public static int GroupCounter = 0;
+
     // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
     [MethodImpl(MethodImplOptions.NoOptimization)]
     internal static void PreSpinnerCalculate(Scene self) {
-        if (!TasHelperSettings.Enabled || FastForwarding || self is not Level) {
+        if (!TasHelperSettings.Enabled || WillFastForward || self is not Level) {
             return;
         }
+
+        // only sync this when we plan to render
+        GroupCounter = TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter;
         float time = TimeActive = self.TimeActive;
         for (int i = 0; i <= 9; i++) {
             PredictLoadTimeActive[i] = PredictUnloadTimeActive[i] = time;
@@ -437,13 +445,13 @@ public static class SpinnerCalculateHelper {
 
     public static int CalculateSpinnerGroup(float offset) {
         if (OnInterval(PredictLoadTimeActive[0], 0.05f, offset)) {
-            return TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter;
+            return GroupCounter;
         }
         if (OnInterval(PredictLoadTimeActive[1], 0.05f, offset)) {
-            return (1 + TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter) % 3;
+            return (1 + GroupCounter) % 3;
         }
         if (OnInterval(PredictLoadTimeActive[2], 0.05f, offset)) {
-            return (2 + TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter) % 3;
+            return (2 + GroupCounter) % 3;
         }
         return 3;
     }

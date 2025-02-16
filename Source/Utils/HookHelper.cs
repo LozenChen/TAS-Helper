@@ -106,7 +106,10 @@ internal static class EventOnHook {
 
         [EventOnHook]
         private static void CreateOnHook() {
-            On.Monocle.Scene.BeforeUpdate += OnBeforeUpdate;
+            // pre spinner calc needs this to be after tas
+            using (new DetourContext { After = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper Scene.BeforeUpdate" }) {
+                On.Monocle.Scene.BeforeUpdate += OnBeforeUpdate;
+            }
 
             using (new DetourContext { Before = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper Scene.AfterUpdate" }) {
                 On.Monocle.Scene.AfterUpdate += OnAfterUpdate;
