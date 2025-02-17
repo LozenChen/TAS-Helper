@@ -2,6 +2,7 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
+using TAS.EverestInterop;
 using static Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity.TriggerInfoHelper;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
@@ -100,6 +101,7 @@ internal static class ModTriggerStaticInfo {
         HandleSardine7();
         HandleContortHelper();
         HandleAurorasHelper();
+        HandleCollabUtils2();
     }
 
     public static void Add(Type type, TriggerStaticHandler handler) {
@@ -301,6 +303,21 @@ internal static class ModTriggerStaticInfo {
                 int length = trigger.GetFieldValue<int>("codeLength");
                 if (DashCode.AurorasDashCode.TryGetInputs(hashedCode, length, out string inputs)) {
                     return "DashCode: " + inputs;
+                }
+                return "";
+            });
+        }
+    }
+
+    public static void HandleCollabUtils2() {
+        // not finished
+
+        if (ModUtils.GetType("CollabUtils2", "Celeste.Mod.CollabUtils2.Triggers.ChapterPanelTrigger") is { } chapterPanel) {
+            Add(chapterPanel, (trigger, _) => {
+                if (trigger.GetEntityData() is EntityData data) {
+                    string map = data.Attr("map");
+                    bool exitFromGym = data.Name == "CollabUtils2/ExitFromGymTrigger";
+                    return exitFromGym ? "GymExit" : map;
                 }
                 return "";
             });

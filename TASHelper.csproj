@@ -77,15 +77,7 @@
 		<Publicize Include="Celeste" IncludeCompilerGeneratedMembers="false" />
 		<Publicize Include="SpeedrunTool" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.Command.Commands" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.LastPositions" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.LastCollidables" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Gameplay.Hitboxes.ActualCollideHitbox.playerUpdated" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.SaveEntityPosition" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.Hitboxes.ActualEntityCollideHitbox.SavePlayerPosition" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.InfoHUD.UniqueEntityId" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.InfoHUD.InfoWatchEntity.GetMatchEntities" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.InfoHUD.InfoWatchEntity.RequireWatchUniqueEntityIds" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Savestates.SavedCurrentFrame" />
 		<Publicize Include="FNA:Microsoft.Xna.Framework.Input.GamePadButtons.buttons" />
 		<Publicize Include="MonoMod.Utils" />
