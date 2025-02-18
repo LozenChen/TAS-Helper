@@ -182,7 +182,6 @@ public static class PredictorCore {
             if (StrictFrameStep && TasHelperSettings.PredictOnFrameStep && Engine.Scene is Level) {
                 Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, false);
             }
-            ClearPreventSendStateToStudio();
         });
 
         typeof(Level).GetMethod("BeforeRender").HookBefore(DelayedActions);
@@ -309,17 +308,19 @@ public static class PredictorCore {
     }
     private static void DelayedPredict() {
         if (hasDelayedPredict && !InPredict) {
+            preventSendStateToStudio = true;
             RefreshInputs();
             GameInfo.Update();
             Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, delayedMustRedo);
             hasDelayedPredict = false;
+            preventSendStateToStudio = false;
         }
         // we shouldn't do this in half of the render process
 
         void RefreshInputs() {
+
             InputController c = Manager.Controller;
             c.NeedsReload = true;
-            preventSendStateToStudio = true;
 
             int lastChecksum = c.Checksum;
             bool firstRun = c.UsedFiles.IsEmpty();
@@ -348,6 +349,7 @@ public static class PredictorCore {
             }
 
             c.CurrentFrameInTas = Math.Min(c.Inputs.Count, c.CurrentFrameInTas);
+
         }
     }
 
@@ -358,12 +360,6 @@ public static class PredictorCore {
         }
     }
 
-
-    [EnableRun]
-    [DisableRun]
-    private static void ClearPreventSendStateToStudio() {
-        preventSendStateToStudio = false;
-    }
 
     public static bool SkipPredictCheck() {
         foreach (Func<bool> check in SkipPredictChecks) {
