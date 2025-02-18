@@ -90,6 +90,7 @@ public static class WhatsNew {
         AddLog("2.1.2", "Bugfix: Predictor not working properly, caused by CelesteTAS refactor.");
         AddLog("2.1.3", "Bugfix: Incompatibility with MotionSmoothing in event ch09_goto_the_future. (thanks @cameryn)");
         AddLog("2.1.4", "Bugfix: Fastforward makes spinner colors change. (thanks @trans_alexa)");
+        AddLog("2.1.5", "Bugfix: fix a bug caused by CelesteTAS refactor.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

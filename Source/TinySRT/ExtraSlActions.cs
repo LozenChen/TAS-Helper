@@ -12,7 +12,9 @@ using System.Reflection;
 using TAS;
 using TAS.EverestInterop;
 using TAS.EverestInterop.Hitboxes;
+using TAS.InfoHUD;
 using TAS.Input.Commands;
+using TAS.Gameplay;
 using SRT = Celeste.Mod.SpeedrunTool.SaveLoad.SaveLoadAction;
 using TH = Celeste.Mod.TASHelper.TinySRT.TH_SaveLoadAction;
 
@@ -76,7 +78,8 @@ public static class ExtraSlActions {
 
 internal static class TasModSL {
     private static TH saveLoadAction;
-    private static Dictionary<Entity, EntityData> savedEntityData;
+
+    private static Dictionary<Entity, EntityData>? savedEntityData;
     private static int groupCounter;
     private static bool simulatePauses;
     private static bool pauseOnCurrentFrame;
@@ -84,15 +87,18 @@ internal static class TasModSL {
     private static int waitingFrames;
     private static StunPauseCommand.StunPauseMode? localMode;
     private static StunPauseCommand.StunPauseMode? globalModeRuntime;
-    private static HashSet<Keys> pressKeys;
-    private static long? tasStartFileTime;
+    private static HashSet<Keys>? pressKeys;
+    private static (long, int)? tasStartInfo;
     private static MouseState mouseState;
-    private static Dictionary<Follower, bool> followers;
+    private static Dictionary<Follower, bool>? followers;
+    private static bool disallowUnsafeInput;
+    private static Random? auraRandom;
+    private static bool betterInvincible = false;
 
     public static TH Create() {
         TH.SlAction save = (_, _) => {
             savedEntityData = EntityDataHelper.CachedEntityData.TH_DeepCloneShared();
-
+            InfoWatchEntity.WatchedEntities_Save = InfoWatchEntity.WatchedEntities.TH_DeepCloneShared();
             groupCounter = CycleHitboxColor.GroupCounter;
             simulatePauses = StunPauseCommand.SimulatePauses;
             pauseOnCurrentFrame = StunPauseCommand.PauseOnCurrentFrame;
@@ -101,13 +107,16 @@ internal static class TasModSL {
             localMode = StunPauseCommand.LocalMode;
             globalModeRuntime = StunPauseCommand.GlobalModeRuntime;
             pressKeys = PressCommand.PressKeys.TH_DeepCloneShared();
-            tasStartFileTime = MetadataCommands.TasStartFileTime;
+            tasStartInfo = MetadataCommands.TasStartInfo.TH_DeepCloneShared();
             mouseState = MouseCommand.CurrentState;
             followers = HitboxSimplified.Followers.TH_DeepCloneShared();
+            disallowUnsafeInput = SafeCommand.DisallowUnsafeInput;
+            auraRandom = DesyncFixer.AuraHelperSharedRandom.TH_DeepCloneShared();
+            betterInvincible = Manager.Running && BetterInvincible.Invincible;
         };
         TH.SlAction load = (_, _) => {
-            EntityDataHelper.CachedEntityData = savedEntityData.TH_DeepCloneShared();
-
+            EntityDataHelper.CachedEntityData = savedEntityData!.TH_DeepCloneShared();
+            InfoWatchEntity.WatchedEntities = InfoWatchEntity.WatchedEntities_Save.TH_DeepCloneShared();
             CycleHitboxColor.GroupCounter = groupCounter;
             StunPauseCommand.SimulatePauses = simulatePauses;
             StunPauseCommand.PauseOnCurrentFrame = pauseOnCurrentFrame;
@@ -116,19 +125,23 @@ internal static class TasModSL {
             StunPauseCommand.LocalMode = localMode;
             StunPauseCommand.GlobalModeRuntime = globalModeRuntime;
             PressCommand.PressKeys.Clear();
-            foreach (Keys keys in pressKeys) {
+            foreach (var keys in pressKeys!) {
                 PressCommand.PressKeys.Add(keys);
             }
 
-            MetadataCommands.TasStartFileTime = tasStartFileTime;
+            MetadataCommands.TasStartInfo = tasStartInfo.TH_DeepCloneShared();
             MouseCommand.CurrentState = mouseState;
-            HitboxSimplified.Followers = followers.TH_DeepCloneShared();
-
+            HitboxSimplified.Followers = followers!.TH_DeepCloneShared();
+            SafeCommand.DisallowUnsafeInput = disallowUnsafeInput;
+            DesyncFixer.AuraHelperSharedRandom = auraRandom!.TH_DeepCloneShared();
+            BetterInvincible.Invincible = Manager.Running && betterInvincible;
         };
         Action clear = () => {
             savedEntityData = null;
             pressKeys = null;
             followers = null;
+            auraRandom = null;
+            betterInvincible = false;
         };
 
         saveLoadAction = new TH(save, load, clear, null, null);
