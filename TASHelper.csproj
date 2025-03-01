@@ -29,9 +29,10 @@
   </ItemDefinitionGroup>
 
   <ItemGroup>
-    <Reference Include="Celeste">
-      <HintPath>..\..\Celeste.dll</HintPath>
-    </Reference>
+	<Reference Include="$(CelestePrefix)\Celeste.dll"/>
+	<Reference Include="$(CelestePrefix)\FNA.dll"/>
+    <Reference Include="$(CelestePrefix)\MMHOOK_Celeste.dll"/>
+	  
     <Reference Include="CelesteTAS-EverestInterop">
       <HintPath>..\CelesteTAS-EverestInterop\bin\CelesteTAS-EverestInterop.dll</HintPath>
       <Private>False</Private>
@@ -43,17 +44,11 @@
       <HintPath>Libs\DeepCloner.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="FNA">
-      <HintPath>Libs\FNA.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>Libs\Mono.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
       <HintPath>Libs\MonoMod.RuntimeDetour.dll</HintPath>
-    </Reference>
-    <Reference Include="MMHOOK_Celeste">
-      <HintPath>Libs\MMHOOK_Celeste.dll</HintPath>
     </Reference>
     <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
       <PrivateAssets>all</PrivateAssets>
