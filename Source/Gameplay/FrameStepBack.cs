@@ -14,7 +14,7 @@ public static class FrameStepBack {
     }
     public static void SetupNextFastForward(int relativeMove) {
         // todo: fix the random camera issue
-        if (Manager.Running && !TAS.ModInterop.TASRecorderInterop.Recording) {
+        if (Manager.Running && !ModInterop.UnstableCelesteTasUsings.TasRecorderIsRecording) {
             int frame = Controller.CurrentFrameInTas + relativeMove;
             if (frame <= 0) {
                 return;

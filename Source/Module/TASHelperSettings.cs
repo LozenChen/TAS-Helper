@@ -4,6 +4,7 @@ using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.OrderOfOperation;
+using Celeste.Mod.TASHelper.Predictor;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -53,6 +54,7 @@ public class TASHelperSettings : EverestModuleSettings {
         keyOoO_Fastforward ??= new((Buttons)0, Keys.LeftControl, Keys.Y);
         keyAutoWatch ??= new((Buttons)0, Keys.LeftControl, Keys.Q);
         AutoWatchInitialize();
+        PredictorTextRenderer.UpdateSettings();
     }
 
     public bool Enabled = true;
@@ -433,6 +435,10 @@ public class TASHelperSettings : EverestModuleSettings {
     public int PredictorPointSize = 8;
 
     public int PredictorLineWidth = 3;
+
+    public int PredictorHiresFontSize = 8;
+
+    public int PredictorHiresFontStroke = 5;
 
     public enum TimelineFinestStyle { NotApplied, HitboxPerFrame, PolygonLine, DottedPolygonLine };
 

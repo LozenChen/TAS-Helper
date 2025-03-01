@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.TASHelper.Predictor;
+using Microsoft.Xna.Framework;
 using static Celeste.Mod.TASHelper.Module.TASHelperSettings;
 using static Celeste.TextMenuExt;
 
@@ -103,6 +104,10 @@ public static class PredictorMenu {
         page.AddDescriptionOnEnter(menu, fadeoutItem, "Only Apply To Hitbox".ToDialogText());
         page.Add(new IntSliderExt("Predictor Line Width".ToDialogText(), 0, 20, TasHelperSettings.PredictorLineWidth).Change(value => TasHelperSettings.PredictorLineWidth = value));
         page.Add(new IntSliderExt("Predictor Point Size".ToDialogText(), 0, 20, TasHelperSettings.PredictorPointSize).Change(value => TasHelperSettings.PredictorPointSize = value));
+
+        page.Add(new IntSliderExt("Predictor Font Size".ToDialogText(), 1, 20, TasHelperSettings.PredictorHiresFontSize).Change(value => { TasHelperSettings.PredictorHiresFontSize = value; PredictorTextRenderer.UpdateSettings(); }));
+        page.Add(new IntSliderExt("Predictor Font Stroke".ToDialogText(), 0, 20, TasHelperSettings.PredictorHiresFontStroke).Change(value => { TasHelperSettings.PredictorHiresFontStroke = value; PredictorTextRenderer.UpdateSettings(); }));
+
         page.Add(CreateHLine());
         return page;
     }

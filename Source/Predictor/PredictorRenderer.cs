@@ -29,14 +29,12 @@ public class PredictorRenderer : Entity {
 
     public static bool UseDottedPolygonalLine => TasHelperSettings.TimelineFinestScale == TASHelperSettings.TimelineFinestStyle.DottedPolygonLine;
 
-    private const string textRendererLabel = "PredictorKeyframe";
-
     public PredictorRenderer() {
         Depth = 1;
     }
     public static void ClearCachedMessage() {
         if (contentCached) {
-            TempTextRenderer.Clear(textRendererLabel);
+            PredictorTextRenderer.Clear();
             PolygonalLineRenderer.Clear();
             processedKeyframeRenderData.Clear();
             processedNormalframeRenderData.Clear();
@@ -113,7 +111,7 @@ public class PredictorRenderer : Entity {
             RenderData keyframeData = data.Item1;
             Draw.HollowRect(keyframeData.x, keyframeData.y, keyframeData.width, keyframeData.height, data.Item2);
             if (!contentCached && TasHelperSettings.UseKeyFrameTime && keyframeData.addTime) {
-                HiresLevelRenderer.Add(new TempTextRenderer(keyframeData.index.ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f, textRendererLabel));
+                HiresLevelRenderer.Add(new PredictorTextRenderer(keyframeData.index.ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f));
             }
         }
         // render keyframes above normal frames
@@ -210,28 +208,32 @@ public class PredictorRenderer : Entity {
 }
 
 
-public class TempTextRenderer : THRenderer {
+public class PredictorTextRenderer : THRenderer {
     // use for those texts that appear and die quickly
 
     public string text;
     public Vector2 position;
-    public string label;
+    public static Vector2 Scale;
+    public static float Stroke;
 
-    public TempTextRenderer(string text, Vector2 position, string label) {
+    public PredictorTextRenderer(string text, Vector2 position) {
         this.text = text;
         this.position = position;
-        this.label = label;
+    }
+
+    public static void UpdateSettings() {
+        Scale = new Vector2(TasHelperSettings.PredictorHiresFontSize / 10f);
+        Stroke = TasHelperSettings.PredictorHiresFontStroke * 0.4f;
+
     }
 
     public override void Render() {
-        TASHelper.Entities.Message.RenderMessage(text, position, new Vector2(0.5f, 0.2f), new Vector2(TasHelperSettings.HiresFontSize / 10f), TasHelperSettings.HiresFontStroke * 0.4f);
+        TASHelper.Entities.Message.RenderMessage(text, position, new Vector2(0.5f, 0.2f), Scale, Stroke);
     }
 
-    public static void Clear(string label) {
-        foreach (TempTextRenderer tmp in HiresLevelRenderer.GetRenderers<TempTextRenderer>()) {
-            if (tmp.label == label) {
-                HiresLevelRenderer.Remove(tmp);
-            }
+    public static void Clear() {
+        foreach (PredictorTextRenderer tmp in HiresLevelRenderer.GetRenderers<PredictorTextRenderer>()) {
+            HiresLevelRenderer.Remove(tmp);
         }
     }
 }

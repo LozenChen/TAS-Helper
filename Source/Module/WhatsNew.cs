@@ -92,6 +92,7 @@ public static class WhatsNew {
         AddLog("2.1.4", "Bugfix: Fastforward makes spinner colors change. (thanks @trans_alexa)");
         AddLog("2.1.5", "Bugfix: fix a bug caused by CelesteTAS refactor.");
         AddLog("2.1.6", "Bugfix: When predictor Update-on-Tas-File-Changed enabled, and edit a line above the current frame, it'll move selection to the current frame. (thanks @richconnergmn)");
+        AddLog("2.1.7", "Feature: Predictor now can set its own font size. (thanks @richconnergmn)");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

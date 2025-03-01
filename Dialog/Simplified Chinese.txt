@@ -199,6 +199,8 @@ TAS_HELPER_USE_KEY_FRAME_TIME=                             显示关键帧对应
 TAS_HELPER_KEY_FRAME_FLAGS=                                Flags
 TAS_HELPER_PREDICTOR_LINE_WIDTH=                           折线宽度
 TAS_HELPER_PREDICTOR_POINT_SIZE=                           点的大小
+TAS_HELPER_PREDICTOR_FONT_SIZE=                            字体大小
+TAS_HELPER_PREDICTOR_FONT_STROKE=                          字体描边
 
 
 # ============================================= Other =====================================================
