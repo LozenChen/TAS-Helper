@@ -305,11 +305,29 @@ internal static class OoO_Core {
 
         hookManagerUpdate = new ILHook(typeof(Manager).GetMethod("Update", BindingFlags.Public | BindingFlags.Static), il => {
             ILCursor cursor = new ILCursor(il);
-            cursor.EmitDelegate(Manager.Controller.AdvanceFrame);
+            cursor.EmitDelegate(AdvanceFrame);
             cursor.Emit(OpCodes.Ret);
         }, manualConfig);
+
+        CheckTasHookValidity();
     }
 
+    private static void AdvanceFrame() {
+        Manager.Controller.AdvanceFrame(out _);
+    }
+
+    private static void CheckTasHookValidity() {
+        try {
+            hookTASIsPaused.Apply();
+            hookManagerUpdate.Apply();
+        }
+        catch {
+            Logger.Log(LogLevel.Error, "TAS Helper", $"{nameof(OoO_Core)} fail to initialize, possibly due to CelesteTAS update.");
+            throw new Exception($"[TAS Helper] {nameof(OoO_Core)} fail to initialize, possibly due to CelesteTAS update.");
+        }
+        hookTASIsPaused.Undo();
+        hookManagerUpdate.Undo();
+    }
 
     private static ILHook hookTASIsPaused;
 
