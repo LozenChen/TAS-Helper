@@ -1,5 +1,5 @@
+using Celeste.Mod.TASHelper.ModInterop;
 using Celeste.Mod.TASHelper.Module.Menu;
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;

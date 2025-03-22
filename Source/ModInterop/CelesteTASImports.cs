@@ -2,9 +2,14 @@
 
 namespace Celeste.Mod.TASHelper.ModInterop;
 
+internal static class CelesteTasImporter {
+    public static void InitializeAtFirst() {
+        typeof(CelesteTasImports).ModInterop();
+    }
+}
 
 [ModImportName("CelesteTAS")]
-public static class CelesteTasImports {
+internal static class CelesteTasImports {
     public delegate void AddSettingsRestoreHandlerDelegate(EverestModule module, (Func<object> Backup, Action<object> Restore)? handler);
     public delegate void RemoveSettingsRestoreHandlerDelegate(EverestModule module);
 

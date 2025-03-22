@@ -1,6 +1,7 @@
 global using Celeste.Mod.TASHelper.Utils.Attributes;
 global using Celeste.Mod.TASHelper.Utils.CommandUtils;
 global using static Celeste.Mod.TASHelper.GlobalVariables;
+using Celeste.Mod.TASHelper.ModInterop;
 using Celeste.Mod.TASHelper.Module;
 using Monocle;
 using TAS;
@@ -44,6 +45,14 @@ internal static class GlobalMethod {
     public static T Apply<T>(this T obj, Action<T> action) {
         action(obj);
         return obj;
+    }
+
+
+    public static object DeepClone(this object from) {
+        if (SpeedrunToolInterop.SpeedrunToolInstalled) {
+            return SpeedrunToolImport.DeepClone(from);
+        }
+        return null;
     }
 
 }

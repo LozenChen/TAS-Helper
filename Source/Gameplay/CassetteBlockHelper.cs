@@ -836,7 +836,7 @@ public static class CassetteBlockHelper {
             for (int timeElapsed = 1; timeElapsed <= loop; timeElapsed++) {
                 AdvanceMusic(time, timeElapsed);
             }
-            swapTime = TinySRT.TH_DeepClonerUtils.TH_DeepCloneShared<Dictionary<int, List<int>>>(swapTimes);
+            swapTime = (Dictionary<int, List<int>>)swapTimes.DeepClone();
             return true;
         }
 
@@ -1014,7 +1014,7 @@ public static class CassetteBlockHelper {
             for (int timeElapsed = 1; timeElapsed <= loop; timeElapsed++) {
                 AdvanceMusic(time, timeElapsed);
             }
-            swapTime = TinySRT.TH_DeepClonerUtils.TH_DeepCloneShared<Dictionary<int, List<int>>>(swapTimes);
+            swapTime = (Dictionary<int, List<int>>)swapTimes.DeepClone();
             return true;
         }
 

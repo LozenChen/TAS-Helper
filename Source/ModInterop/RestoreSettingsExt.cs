@@ -1,6 +1,6 @@
 using Celeste.Mod.TASHelper.Module;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.ModInterop;
 
 public static class RestoreSettingsExt {
     // make TAS Helper settings work as if it's a CelesteTAS setting
@@ -8,6 +8,6 @@ public static class RestoreSettingsExt {
 
     [Initialize]
     public static void Initialize() {
-        ModInterop.CelesteTasImports.AddSettingsRestoreHandler(TASHelperModule.Instance, null);
+        CelesteTasImports.AddSettingsRestoreHandler(TASHelperModule.Instance, null);
     }
 }

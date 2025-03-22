@@ -1,5 +1,5 @@
+using Celeste.Mod.TASHelper.ModInterop;
 using Celeste.Mod.TASHelper.Utils;
-using MonoMod.ModInterop;
 
 namespace Celeste.Mod.TASHelper.Module;
 
@@ -8,7 +8,6 @@ internal static class Loader {
     // order: all mods (load settings -> load) -> all mods initialize ~= all mods load content
 
     public static void Load() {
-        typeof(ModInterop.TASHelperExports).ModInterop();
         Reloading = GFX.Loaded; // Tas Helper load -> GFX load -> Tas Helper unload -> Tas Helper reload. So GFX.Loaded can be used to detect this
         AttributeUtils.Invoke<LoadAttribute>();
     }
@@ -19,7 +18,8 @@ internal static class Loader {
     }
 
     public static void Initialize() {
-        typeof(ModInterop.CelesteTasImports).ModInterop();
+        CelesteTasImporter.InitializeAtFirst();
+        TasSpeedrunToolInterop.InitializeAtFirst();
         HookHelper.InitializeAtFirst();
         ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();

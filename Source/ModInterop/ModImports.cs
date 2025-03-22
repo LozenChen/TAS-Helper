@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using MonoMod.ModInterop;
 
-namespace Celeste.Mod.TASHelper.Utils;
+namespace Celeste.Mod.TASHelper.ModInterop;
 
 public static class ModImports {
     public static bool IsPlayerInverted => GravityHelperImport.IsPlayerInverted?.Invoke() ?? false;

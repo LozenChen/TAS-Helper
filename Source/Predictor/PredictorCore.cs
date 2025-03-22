@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.TASHelper.OrderOfOperation;
+﻿using Celeste.Mod.TASHelper.ModInterop;
+using Celeste.Mod.TASHelper.OrderOfOperation;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -56,7 +57,7 @@ public static class PredictorCore {
             return;
         }
 
-        if (!TinySRT.TH_StateManager.SaveState()) {
+        if (!TasSpeedrunToolInterop.SaveState()) {
             return;
         }
 
@@ -92,7 +93,7 @@ public static class PredictorCore {
         ModifiedAutoMute.OnPredictorUpdateEnd();
 
         ModifiedAutoMute.Undo();
-        TinySRT.TH_StateManager.LoadState();
+        TasSpeedrunToolInterop.LoadState();
 
         HasCachedFutures = true;
         InPredict = false;
@@ -203,7 +204,7 @@ public static class PredictorCore {
         if (!Manager.Running) {
             HasCachedFutures = false;
             futures.Clear();
-            TinySRT.TH_StateManager.ClearState();
+            TasSpeedrunToolInterop.ClearState();
             return;
         }
 
@@ -211,11 +212,11 @@ public static class PredictorCore {
         if (!FutureMoveLeft()) {
             HasCachedFutures = false;
             futures.Clear();
-            TinySRT.TH_StateManager.ClearState();
+            TasSpeedrunToolInterop.ClearState();
             return;
         }
         if (!HasCachedFutures) {
-            TinySRT.TH_StateManager.ClearState();
+            TasSpeedrunToolInterop.ClearState();
         }
     }
 
@@ -247,7 +248,7 @@ public static class PredictorCore {
         else {
             CacheFuturePeriod = 60;
         }
-        TinySRT.TH_StateManager.ClearState();
+        TasSpeedrunToolInterop.ClearState();
         HasCachedFutures = false;
         futures.Clear();
         PredictorRenderer.ClearCachedMessage();
@@ -303,7 +304,7 @@ public static class PredictorCore {
         if (delayedClearState && neverClearStateThisFrame && !InPredict) {
             neverClearStateThisFrame = false;
             delayedClearState = false;
-            TinySRT.TH_StateManager.ClearState();
+            TasSpeedrunToolInterop.ClearState();
         }
     }
     private static void DelayedPredict() {
