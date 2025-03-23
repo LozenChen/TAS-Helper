@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using TAS.EverestInterop;
-using static Celeste.Mod.SpeedrunTool.Extensions.ReflectionExtensions;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -118,6 +117,10 @@ internal static class ReflectionExtensions {
         public readonly string Name = Name;
         public readonly long Types = Types;
     }
+    private record struct ConstructorKey(Type Type, long Types) {
+        public readonly Type Type = Type;
+        public readonly long Types = Types;
+    }
     // ReSharper restore UnusedMember.Local
 
     private static readonly ConcurrentDictionary<MemberKey, FieldInfo> CachedFieldInfos = new();
@@ -127,6 +130,7 @@ internal static class ReflectionExtensions {
     private static readonly ConcurrentDictionary<MemberKey, MethodInfo> CachedSetMethodInfos = new();
     private static readonly ConcurrentDictionary<AllMemberKey, IEnumerable<FieldInfo>> CachedAllFieldInfos = new();
     private static readonly ConcurrentDictionary<AllMemberKey, IEnumerable<PropertyInfo>> CachedAllPropertyInfos = new();
+    private static readonly ConcurrentDictionary<ConstructorKey, ConstructorInfo> CachedConstructorInfos = new();
 
     public static FieldInfo GetFieldInfo(this Type type, string name) {
         var key = new MemberKey(type, name);

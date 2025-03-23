@@ -29,9 +29,9 @@
   </ItemDefinitionGroup>
 
   <ItemGroup>
-	<Reference Include="$(CelestePrefix)\Celeste.dll"/>
-	<Reference Include="$(CelestePrefix)\FNA.dll"/>
-    <Reference Include="$(CelestePrefix)\MMHOOK_Celeste.dll"/>
+	<Reference Include="$(CelestePrefix)\Celeste.dll" />
+	<Reference Include="$(CelestePrefix)\FNA.dll" />
+    <Reference Include="$(CelestePrefix)\MMHOOK_Celeste.dll" />
 	  
     <Reference Include="CelesteTAS-EverestInterop">
       <HintPath>..\CelesteTAS-EverestInterop\bin\CelesteTAS-EverestInterop.dll</HintPath>
@@ -39,10 +39,6 @@
     </Reference>
     <Reference Include="StudioCommunication">
       <HintPath>..\CelesteTAS-EverestInterop\bin\StudioCommunication.dll</HintPath>
-    </Reference>
-    <Reference Include="DeepCloner">
-      <HintPath>Libs\DeepCloner.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>Libs\Mono.Cecil.dll</HintPath>
@@ -55,9 +51,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MonoMod.Utils" Version="22.7.31.1" />
-    <Reference Include="SpeedrunTool">
-      <HintPath>Libs\SpeedrunTool.dll</HintPath>
-    </Reference>
     <Reference Include="YamlDotNet">
       <HintPath>Libs\YamlDotNet.dll</HintPath>
       <Private>False</Private>
