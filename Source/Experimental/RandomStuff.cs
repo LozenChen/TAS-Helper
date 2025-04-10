@@ -14,6 +14,8 @@ using Celeste.Mod.TASHelper.Entities;
 using TAS.Input.Commands;
 using TAS;
 using YamlDotNet.Core;
+using Celeste.Mod.MotionSmoothing.Smoothing;
+using Celeste.Mod.MotionSmoothing.Smoothing.Strategies;
 
 namespace Celeste.Mod.TASHelper.Experimental;
 internal class RandomStuff {
@@ -98,6 +100,42 @@ internal class RandomStuff {
             self.Add(new LightingRendererKiller(self));
         }
     }
+    
+    private static Vector2 HandleMotionSmoothing() {
+        if (Engine.Scene is not Level level) {
+            return Vector2.Zero;
+        }
+        var ob = MotionSmoothing.Utilities.ToggleableFeature<MotionSmoothingHandler>.Instance;
+        if (ob is null) {
+            Logger.Log(LogLevel.Debug, "TASHelper", "1. Null Reference Exception");
+            return Vector2.Zero;
+        }
+        MotionSmoothing.Smoothing.States.IPositionSmoothingState positionSmoothingState = ob.GetState(level.Camera) as MotionSmoothing.Smoothing.States.IPositionSmoothingState;
+        if (positionSmoothingState is null) {
+            MotionSmoothing.Smoothing.MotionSmoothingHandler.Instance.InvokeMethod("SmoothCamera", new object[] { level.Camera});
+            if (ob.GetState(level.Camera) is null) {
+                if (level.Camera is null) {
+                    Logger.Log(LogLevel.Debug, "TASHelper", "2.0. Null Reference Exception");
+                }
+                else if (ob.ValueSmoother is null) {
+                    Logger.Log(LogLevel.Debug, "TASHelper", "2.1. Null Reference Exception");
+                }
+                else if (ob.ValueSmoother.GetState(level.Camera) is null){
+                    if (ob.PushSpriteSmoother is null) {
+                        Logger.Log(LogLevel.Debug, "TASHelper", "2.2. Null Reference Exception");
+                    }
+                    else {
+                        Logger.Log(LogLevel.Debug, "TASHelper", "2.3. Null Reference Exception");
+                    }
+                }
+            }
+            else {
+                Logger.Log(LogLevel.Debug, "TASHelper", "3. Null Reference Exception");
+            }
+            return Vector2.Zero;
+        }
+        return positionSmoothingState.SmoothedRealPosition.Floor() - positionSmoothingState.SmoothedRealPosition;
+    }
 #endif
 
     [Initialize]
@@ -118,9 +156,17 @@ internal class RandomStuff {
         });
         */
 
+        /*
+        ModUtils.GetType("MotionSmoothing", "Celeste.Mod.MotionSmoothing.Smoothing.Targets.UnlockedCameraSmoother")?.GetMethodInfo("GetCameraOffset")?.IlHook((cursor, _) => {
+            cursor.EmitDelegate(HandleMotionSmoothing);
+            cursor.Emit(OpCodes.Ret);
+        });
+        */
+
         Logger.Log(LogLevel.Warn, "TAS Helper", "TAS Helper Random Stuff loaded! Please contact the author to disable these codes.");
         Celeste.Commands.Log("WARNING: TAS Helper Random Stuff loaded! Please contact the author to disable these codes.");
     }
+
 
     private static bool IsSimplifiedGraphics() => TasSettings.SimplifiedGraphics;
 }

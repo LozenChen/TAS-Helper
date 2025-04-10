@@ -75,6 +75,16 @@ internal static class SpeedrunToolInterop {
 [ModImportName("SpeedrunTool.SaveLoad")]
 internal static class SpeedrunToolImport {
 
+    /// <summary>
+    /// Register SaveLoadAction. (Please save your values into the dictionary, otherwise multi saveslots will not be supported.)
+    /// </summary>
+    /// <param name="saveState"></param>
+    /// <param name="loadState"></param>
+    /// <param name="clearState"></param>
+    /// <param name="beforeSaveState"></param>
+    /// <param name="beforeLoadState"></param>
+    /// <param name="preCloneEntities"></param>
+    /// <returns>SaveLoadAction instance, used for unregister</returns>
     public static Func<Action<Dictionary<Type, Dictionary<string, object>>, Level>, Action<Dictionary<Type, Dictionary<string, object>>, Level>, Action, Action<Level>, Action<Level>, Action, object> RegisterSaveLoadAction;
 
     public static Func<Type, string[], object> RegisterStaticTypes;

@@ -35,8 +35,7 @@ public static class InputManager {
 
     [Initialize]
     public static void Initialize() {
-        InputFrame.TryParse("9999", 0, null, out InputFrame emptyInput);
-        EmptyInput = emptyInput;
+        EmptyInput = ModInterop.UnstableCelesteTasUsings.CreateEmptyInput();
         SupportedRuntimeCommands.Clear();
         foreach (string str in _supportedRuntimeCommands) {
             if (Command.Commands.Where(x => x.Name == str) is { } commands && commands.IsNotNullOrEmpty() && commands.First().ExecuteTiming.Has(ExecuteTiming.Runtime)) {
