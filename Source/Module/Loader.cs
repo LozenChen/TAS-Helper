@@ -19,6 +19,10 @@ internal static class Loader {
     }
 
     public static void Initialize() {
+        if (ModUtils.GetModule("SpeedrunTool") is { } srt && srt.Metadata.Version >= new Version(3, 25, 0)) {
+            throw new Exception($"TASHelper v{TASHelperModule.Instance.Metadata.Version} doesn't support SpeedrunTool v{srt.Metadata.Version}! Please update TASHelper.");
+        }
+
         typeof(ModInterop.CelesteTasImports).ModInterop();
         HookHelper.InitializeAtFirst();
         ModUtils.InitializeAtFirst();
