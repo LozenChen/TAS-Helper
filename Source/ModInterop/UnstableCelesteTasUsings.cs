@@ -11,7 +11,7 @@ internal class UnstableCelesteTasUsings {
     }
 
     public static TAS.Input.InputFrame CreateEmptyInput() {
-        // Celeste v3.43.7
+        // Celeste v3.43.9
         // public static bool TryParse(string line,
         //      int studioLine, InputFrame? prevInputFrame, [NotNullWhen(true)] out InputFrame? inputFrame,
         //      int repeatIndex = 0, int repeatCount = 0, int frameOffset = 0, Command? parentCommand = null)
