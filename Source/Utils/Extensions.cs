@@ -506,22 +506,29 @@ internal static class LevelExtensions {
             return;
         }
 
-        if (!Tracker.TrackedEntityTypes.ContainsKey(entity)) {
-            Tracker.TrackedEntityTypes.Add(entity, new List<Type>() { entity });
+        // avoids CA1854: two lookups when only one is needed
+        if (Tracker.TrackedEntityTypes.TryGetValue(entity, out List<Type> types)) {
+            if (!types.Contains(entity)) {
+                Tracker.TrackedEntityTypes[entity].Add(entity);
+            }
         }
-        else if (!Tracker.TrackedEntityTypes[entity].Contains(entity)) {
-            Tracker.TrackedEntityTypes[entity].Add(entity);
+        else {
+            Tracker.TrackedEntityTypes.Add(entity, new List<Type>() { entity });
         }
 
         if (inherited) {
             foreach (Type subclass in Tracker.GetSubclasses(entity)) {
-                if (!subclass.IsAbstract) {
-                    if (!Tracker.TrackedEntityTypes.ContainsKey(subclass)) {
-                        Tracker.TrackedEntityTypes.Add(subclass, new List<Type>() { entity });
+                if (subclass.IsAbstract) {
+                    continue;
+                }
+
+                if (Tracker.TrackedEntityTypes.TryGetValue(subclass, out List<Type> parentOfSubclass)) {
+                    if (!parentOfSubclass.Contains(entity)) {
+                        parentOfSubclass.Add(entity);
                     }
-                    else if (!Tracker.TrackedEntityTypes[subclass].Contains(entity)) {
-                        Tracker.TrackedEntityTypes[subclass].Add(entity);
-                    }
+                }
+                else {
+                    Tracker.TrackedEntityTypes.Add(subclass, new List<Type>() { entity });
                 }
             }
         }
