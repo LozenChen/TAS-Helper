@@ -58,20 +58,6 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 - BrokemiaHelper's CassetteSpinner, is considered as "no cycle", since its collidablity is completely determined by cassette music. However, its visibility do have a 15f cycle (useless, it can't interact with collidablity).
 
-# Plans:
-
-  Here lists some ideas, which I may not work on recently. Feel free if you like that idea and want to implement that in your mod (tell me when you've implemented it so i needn't work on them).
-
-- SpeedrunTool multi-saveslots PR (Update2: plan to put effort on this some time later)(Update: done, PR is created but never gets merged)
-
-- CollabPartialLoader: when loading a single map of a collab, only need to load necessary dependencies instead of all dependencies of the collab.
-
-- Predictor combined with Brute Forcer: previous brute forcers simulate game logic so can be wrong if there are some complex mod logics, so in our way it should be better? (but also slower for sure)
-
-- Slowdown indicator (note there's 1 frame delay between DeltaTime and TimeRate)
-
-- Key cycle indicator.
-
 # Known issues:
 
 - AutoWatchEntity sometimes doesn't work -> it's possible if there's some mod which add some hooks and interfere AutoWatchEntity, please tell me if that happens.
