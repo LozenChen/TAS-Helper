@@ -46,13 +46,4 @@ internal static class GlobalMethod {
         action(obj);
         return obj;
     }
-
-
-    public static object DeepClone(this object from) {
-        if (SpeedrunToolInterop.SpeedrunToolInstalled) {
-            return SpeedrunToolImport.DeepClone(from);
-        }
-        return null;
-    }
-
 }

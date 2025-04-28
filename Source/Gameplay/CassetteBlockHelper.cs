@@ -291,17 +291,17 @@ public static class CassetteBlockHelper {
                 bool hasData;
                 if (cbmType == CBMType.Vanilla) {
                     VanillaCasstteBlockManagerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out tempoMult, out VanillaIndexPeriod);
-                    hasData = VanillaCasstteBlockManagerSimulator.UpdateLoop(2 * loop, out ColorSwapTime);
+                    hasData = VanillaCasstteBlockManagerSimulator.UpdateLoop(2 * loop, ref ColorSwapTime);
                 }
                 else if (cbmType == CBMType.SJ) {
                     SJWonkyCassetteBlockControllerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out maxBeatTimer);
-                    hasData = SJWonkyCassetteBlockControllerSimulator.UpdateLoop(2 * loop, out ColorSwapTime);
+                    hasData = SJWonkyCassetteBlockControllerSimulator.UpdateLoop(2 * loop, ref ColorSwapTime);
                 }
                 else {
                     QMWonkyCassetteBlockControllerSimulator.Initialize(cbm, out currColorIndex, out maxBeat, out beatIndexMax, out maxBeatTimer);
-                    hasData = QMWonkyCassetteBlockControllerSimulator.UpdateLoop(2 * loop, out ColorSwapTime);
+                    hasData = QMWonkyCassetteBlockControllerSimulator.UpdateLoop(2 * loop, ref ColorSwapTime);
                 }
-                if (hasData) {
+                if (hasData && ColorSwapTime.IsNotNullOrEmpty()) {
                     TimeElapse = 0;
                     NearestTime = loop;
                     foreach (List<int> list in ColorSwapTime.Values) {
@@ -711,7 +711,7 @@ public static class CassetteBlockHelper {
             return advanceTime > -0.0001f;
         }
 
-        public static bool UpdateLoop(int loop, out Dictionary<int, List<int>> swapTime) {
+        public static bool UpdateLoop(int loop, ref Dictionary<int, List<int>> swapTime) {
             swapTime = new();
             for (int j = 0; j < maxBeat; j++) {
                 swapTime[j] = new List<int>();
@@ -817,31 +817,27 @@ public static class CassetteBlockHelper {
             }
         }
 
-        public static bool UpdateLoop(int loop, out Dictionary<int, List<int>> swapTime) {
+        public static bool UpdateLoop(int loop, ref Dictionary<int, List<int>> swapTime) {
             swapTime = new();
-            swapTimes = new();
             if (disabled) {
                 return false;
             }
             for (int j = 0; j < barLength; j++) {
-                swapTimes[j] = new List<int>();
+                swapTime[j] = new List<int>();
             }
             foreach (MinorSimulator minor in minorSimulators) {
                 for (int j = minor.ControllerIndex * minorOffset; j < minor.ControllerIndex * minorOffset + minor.barLength; j++) {
-                    swapTimes[j] = new List<int>();
+                    swapTime[j] = new List<int>();
                 }
             }
 
             float time = Engine.DeltaTime;
             for (int timeElapsed = 1; timeElapsed <= loop; timeElapsed++) {
-                AdvanceMusic(time, timeElapsed);
+                AdvanceMusic(ref swapTime, time, timeElapsed);
             }
-            swapTime = (Dictionary<int, List<int>>)swapTimes.DeepClone();
             return true;
         }
-
-        private static Dictionary<int, List<int>> swapTimes = new();
-        public static void AdvanceMusic(float time, int index) {
+        public static void AdvanceMusic(ref Dictionary<int, List<int>> swapTime, float time, int index) {
             // SJ casstteblocks are a bit different, controllers give different beats, and cassetteblocks determine if they should activate depending on their OnAtBeats data (instead of just color/index)
             // moreover, cassetteblocks have controller index to determine which controller they should follow, controller index = 0 is the main one i guess
             // different controller can have different parameters, but minor is dominated by main anyway
@@ -858,7 +854,7 @@ public static class CassetteBlockHelper {
                 int beatInBar = CassetteWonkyBeatIndex / (16 / beatLength) % barLength;
                 int nextBeatInBar = num / (16 / beatLength) % barLength;
 
-                swapTimes[beatInBar].Add(index);
+                swapTime[beatInBar].Add(index);
                 /*
                 foreach (WonkyCassetteBlock wonkyBlock in enumerable) {
                     if (wonkyBlock.ControllerIndex == 0) {
@@ -885,7 +881,7 @@ public static class CassetteBlockHelper {
                 if (synchronizeMinorControllers) {
                     minor.Synchronize(time, CassetteBeatTimer);
                 }
-                minor.AdvanceMusic(time, index);
+                minor.AdvanceMusic(ref swapTime, time, index);
             }
         }
 
@@ -931,14 +927,14 @@ public static class CassetteBlockHelper {
                 CassetteBeatTimer = beatDelta + (parentCassetteBeatTimer - time);
             }
 
-            public void AdvanceMusic(float time, int index) {
+            public void AdvanceMusic(ref Dictionary<int, List<int>> swapTime, float time, int index) {
                 CassetteBeatTimer += time;
                 if (!(CassetteBeatTimer >= beatIncrement)) {
                     return;
                 }
                 CassetteBeatTimer -= beatIncrement;
                 int beatInBar = CassetteWonkyBeatIndex / (16 / beatLength) % barLength;
-                swapTimes[beatInBar + ControllerIndex * minorOffset].Add(index);
+                swapTime[beatInBar + ControllerIndex * minorOffset].Add(index);
                 CassetteWonkyBeatIndex = (CassetteWonkyBeatIndex + 1) % maxBeats;
             }
         }
@@ -995,31 +991,28 @@ public static class CassetteBlockHelper {
             }
         }
 
-        public static bool UpdateLoop(int loop, out Dictionary<int, List<int>> swapTime) {
+        public static bool UpdateLoop(int loop, ref Dictionary<int, List<int>> swapTime) {
             swapTime = new();
-            swapTimes = new();
             if (disabled) {
                 return false;
             }
             for (int j = 0; j < barLength; j++) {
-                swapTimes[j] = new List<int>();
+                swapTime[j] = new List<int>();
             }
             foreach (MinorSimulator minor in minorSimulators) {
                 for (int j = minor.ControllerIndex * minorOffset; j < minor.ControllerIndex * minorOffset + minor.barLength; j++) {
-                    swapTimes[j] = new List<int>();
+                    swapTime[j] = new List<int>();
                 }
             }
 
             float time = Engine.DeltaTime;
             for (int timeElapsed = 1; timeElapsed <= loop; timeElapsed++) {
-                AdvanceMusic(time, timeElapsed);
+                AdvanceMusic(ref swapTime, time, timeElapsed);
             }
-            swapTime = (Dictionary<int, List<int>>)swapTimes.DeepClone();
             return true;
         }
 
-        private static Dictionary<int, List<int>> swapTimes = new();
-        public static void AdvanceMusic(float time, int index) {
+        public static void AdvanceMusic(ref Dictionary<int, List<int>> swapTime, float time, int index) {
             // SJ casstteblocks are a bit different, controllers give different beats, and cassetteblocks determine if they should activate depending on their OnAtBeats data (instead of just color/index)
             // moreover, cassetteblocks have controller index to determine which controller they should follow, controller index = 0 is the main one i guess
             // different controller can have different parameters, but minor is dominated by main anyway
@@ -1036,7 +1029,7 @@ public static class CassetteBlockHelper {
                 int beatInBar = CassetteWonkyBeatIndex / (16 / beatLength) % barLength;
                 int nextBeatInBar = num / (16 / beatLength) % barLength;
 
-                swapTimes[beatInBar].Add(index);
+                swapTime[beatInBar].Add(index);
                 /*
                 foreach (WonkyCassetteBlock wonkyBlock in enumerable) {
                     if (wonkyBlock.ControllerIndex == 0) {
@@ -1063,7 +1056,7 @@ public static class CassetteBlockHelper {
                 if (synchronizeMinorControllers) {
                     minor.Synchronize(time, CassetteBeatTimer);
                 }
-                minor.AdvanceMusic(time, index);
+                minor.AdvanceMusic(ref swapTime, time, index);
             }
         }
 
@@ -1109,14 +1102,14 @@ public static class CassetteBlockHelper {
                 CassetteBeatTimer = beatDelta + (parentCassetteBeatTimer - time);
             }
 
-            public void AdvanceMusic(float time, int index) {
+            public void AdvanceMusic(ref Dictionary<int, List<int>> swapTime, float time, int index) {
                 CassetteBeatTimer += time;
                 if (!(CassetteBeatTimer >= beatIncrement)) {
                     return;
                 }
                 CassetteBeatTimer -= beatIncrement;
                 int beatInBar = CassetteWonkyBeatIndex / (16 / beatLength) % barLength;
-                swapTimes[beatInBar + ControllerIndex * minorOffset].Add(index);
+                swapTime[beatInBar + ControllerIndex * minorOffset].Add(index);
                 CassetteWonkyBeatIndex = (CassetteWonkyBeatIndex + 1) % maxBeats;
             }
         }
