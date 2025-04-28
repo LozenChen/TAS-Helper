@@ -443,14 +443,6 @@ internal static class DictionaryExtensions {
     public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue defaultValue = default) {
         return dict.TryGetValue(key, out TValue value) ? value : defaultValue;
     }
-
-    public static TKey LastKeyOrDefault<TKey, TValue>(this SortedDictionary<TKey, TValue> dict) {
-        return dict.Count > 0 ? dict.Last().Key : default;
-    }
-
-    public static TValue LastValueOrDefault<TKey, TValue>(this SortedDictionary<TKey, TValue> dict) {
-        return dict.Count > 0 ? dict.Last().Value : default;
-    }
 }
 
 internal static class LevelExtensions {

@@ -21,14 +21,12 @@ internal class FlingBirdRenderer : AutoWatchTextRenderer {
     public override void Added(Entity entity) {
         base.Added(entity);
         bird = entity as FlingBird;
-        bool found = false;
         coroutine = null;
         foreach (Component c in bird.Components) {
             if (c is not Coroutine cor) {
                 continue;
             }
             if (cor.enumerators.FirstOrDefault(x => x.GetType().Name.StartsWith("<DoFlingRoutine>d__")) is not null) {
-                found = true;
                 coroutine = cor;
                 break;
             }

@@ -316,20 +316,6 @@ public static class SpinnerCalculateHelper {
     internal static int IsDustTagValue;
 
     internal static int IsHazardTagValue;
-
-    [Obsolete("Use IsHazard/Spinner/Lightning/Dust instead")]
-    public static int? HazardType(Entity self) {
-        if (self.IsSpinner()) {
-            return spinner;
-        }
-        if (self.IsLightning()) {
-            return lightning;
-        }
-        if (self.IsDust()) {
-            return dust;
-        }
-        return null;
-    }
     public static int? HazardTypeImpl(Entity self) {
         Type type = self.GetType();
         if (HazardTypesTreatNormal.TryGetValue(type, out int value)) {
@@ -448,7 +434,7 @@ public static class SpinnerCalculateHelper {
 
     public static string[] GetChroniaHitboxString(Entity spinner) {
         if (spinner.Collider is ColliderList list) {
-            switch (list.colliders.Count()) {
+            switch (list.colliders.Length) {
                 case 1: {
                         Collider c = list.colliders.First();
                         if (IsCircle(c, out float radius)) {
