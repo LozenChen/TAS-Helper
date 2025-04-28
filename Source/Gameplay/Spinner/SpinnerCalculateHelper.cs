@@ -6,7 +6,6 @@ using MonoMod.Cil;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using TAS;
-// VivHelper namespace has a VivHelper class.... so if we want to visit VivHelper.Entities, we should use VivEntities
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
@@ -212,17 +211,8 @@ public static class SpinnerCalculateHelper {
         }
 
         if (ModUtils.GetType("Glyph", "Celeste.Mod.AcidHelper.Entities.AcidLightning") is { } acidLightningType) {
-            DictionaryAdderNormal(acidLightningType, "toggleOffset", lightning);
-            // this class inherits from Lightning but has its own "toggleOffset"
-            LightningCollidable.Add(acidLightningType, e => {
-                if (!e.Collidable) {
-                    return false;
-                }
-                if (acidLightningType.GetFieldInfo("disappearing").GetValue(e) is bool b) {
-                    return !b;
-                }
-                return true;
-            });
+            DictionaryAdderVanilla(acidLightningType, e => (e as Lightning)!.toggleOffset, lightning);
+            // this class has its own "toggleOffset" and "disappearing", but they do nothing. And it inherits the Lightning class
         }
 
         if (ModUtils.GetType("StunningHelper", "Celeste.Mod.StunningHelper.CustomOffsetSpinner") is { } stunSpinnerType) {
