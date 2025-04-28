@@ -94,6 +94,7 @@ public static class WhatsNew {
         AddLog("2.1.6", "Bugfix: When predictor Update-on-Tas-File-Changed enabled, and edit a line above the current frame, it'll move selection to the current frame. (thanks @richconnergmn)");
         AddLog("2.1.7", "Feature: Predictor now can set its own font size. (thanks @richconnergmn)");
         AddLog("2.1.8", "Bugfix: OoO stepper not working. (thanks @ella.melon)");
+        AddLog("2.1.9", "Bugfix: Glyph Acid Lightning is not properly handled. (thanks @mathhacker)");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
