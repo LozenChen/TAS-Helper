@@ -35,7 +35,7 @@ public static class InputManager {
 
     [Initialize]
     public static void Initialize() {
-        InputFrame.TryParse("9999", 0, null, out InputFrame emptyInput);
+        InputFrame.TryParse("9999", "", 0, 0, null, out InputFrame emptyInput);
         EmptyInput = emptyInput;
         SupportedRuntimeCommands.Clear();
         foreach (string str in _supportedRuntimeCommands) {
