@@ -11,13 +11,13 @@ internal class UnstableCelesteTasUsings {
     }
 
     public static TAS.Input.InputFrame CreateEmptyInput() {
-        // Celeste v3.43.9
-        // public static bool TryParse(string line,
-        //      int studioLine, InputFrame? prevInputFrame, [NotNullWhen(true)] out InputFrame? inputFrame,
-        //      int repeatIndex = 0, int repeatCount = 0, int frameOffset = 0, Command? parentCommand = null)
-        // adds an additional "Command? parentCommand" parameter than previous versions
+        // Celeste v3.44.0
+        // public static bool  TryParse(string lineText, string filePath,
+        // int fileLine, int studioLine, InputFrame? prevInputFrame,
+        // [NotNullWhen(true)] out InputFrame? inputFrame, int repeatIndex = 0,
+        // int repeatCount = 0, int frameOffset = 0, Command? parentCommand = null)
         // which makes Function Signature changes
-        TAS.Input.InputFrame.TryParse("9999", 0, null, out TAS.Input.InputFrame emptyInput);
+        TAS.Input.InputFrame.TryParse("9999", "", 0, 0, null, out TAS.Input.InputFrame emptyInput);
         return emptyInput;
     }
 }
