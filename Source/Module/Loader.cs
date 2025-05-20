@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.ModInterop;
 using Celeste.Mod.TASHelper.Utils;
 
 namespace Celeste.Mod.TASHelper.Module;
@@ -18,10 +17,6 @@ internal static class Loader {
     }
 
     public static void Initialize() {
-        CelesteTasImporter.InitializeAtFirst();
-        TasSpeedrunToolInterop.InitializeAtFirst();
-        HookHelper.InitializeAtFirst();
-        ModUtils.InitializeAtFirst();
         AttributeUtils.Invoke<InitializeAttribute>();
         AttributeUtils.Invoke<EventOnHookAttribute>();
         TasHelperSettings.FirstInstall = false;

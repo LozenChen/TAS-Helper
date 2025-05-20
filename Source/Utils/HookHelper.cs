@@ -11,6 +11,7 @@ internal static class HookHelper {
 
     public static ILHookConfig manualConfig = default;
 
+    [Initialize(depth: int.MaxValue - 3)]
     internal static void InitializeAtFirst() {
         manualConfig.ManualApply = true;
     }

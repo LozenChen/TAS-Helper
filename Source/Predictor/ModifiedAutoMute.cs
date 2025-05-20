@@ -15,6 +15,10 @@ public static class ModifiedAutoMute {
 
     [Initialize]
     private static void Initialize() {
+        if (!ModInterop.TasSpeedrunToolInterop.Installed) {
+            return;
+        }
+
         detour = new ILHook(typeof(AutoMute).GetGetMethod("ShouldBeMuted"), il => {
             ILCursor cursor = new ILCursor(il);
             if (cursor.TryGotoNext(ins => ins.MatchLdcR4(2f))) {
@@ -32,18 +36,18 @@ public static class ModifiedAutoMute {
 
     [Unload]
     private static void Unload() {
-        detour.Dispose();
-        detour2.Dispose();
+        detour?.Dispose();
+        detour2?.Dispose();
     }
 
     public static void Apply() {
-        detour.Apply();
-        detour2.Apply();
+        detour?.Apply();
+        detour2?.Apply();
     }
 
     public static void Undo() {
-        detour.Undo();
-        detour2.Undo();
+        detour?.Undo();
+        detour2?.Undo();
     }
 
     internal static void OnPredictorUpdateEnd() {

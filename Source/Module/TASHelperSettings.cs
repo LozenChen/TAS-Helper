@@ -2,10 +2,10 @@ using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
+using Celeste.Mod.TASHelper.ModInterop;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.OrderOfOperation;
 using Celeste.Mod.TASHelper.Predictor;
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Monocle;
@@ -408,7 +408,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     [YamlIgnore]
     public bool PredictFutureEnabled {
-        get => Enabled && ModUtils.SpeedrunToolInstalled && predictFutureEnabled;
+        get => Enabled && ModInterop.TasSpeedrunToolInterop.Installed && predictFutureEnabled;
         set {
             predictFutureEnabled = value;
         }
@@ -1002,31 +1002,42 @@ public class TASHelperSettings : EverestModuleSettings {
             }
         }
         else if (TH_Hotkeys.PredictEnableHotkey.Pressed) {
-            if (Enabled) {
-                changed = true;
-                predictFutureEnabled = !predictFutureEnabled;
-                Refresh("Predictor " + (predictFutureEnabled ? "Enabled" : "Disabled"));
+            if (TasSpeedrunToolInterop.Installed) {
+                if (Enabled) {
+                    changed = true;
+                    predictFutureEnabled = !predictFutureEnabled;
+                    Refresh("Predictor " + (predictFutureEnabled ? "Enabled" : "Disabled"));
+                }
+                else {
+                    HotkeyWatcher.RefreshHotkeyDisabled();
+                }
             }
             else {
-                HotkeyWatcher.RefreshHotkeyDisabled();
+                Refresh("Need SpeedrunTool v3.25.0 or higher!");
             }
+
         }
         else if (TH_Hotkeys.PredictFutureHotkey.Pressed) {
-            if (!Enabled) {
-                HotkeyWatcher.RefreshHotkeyDisabled();
-            }
-            else if (!TasHelperSettings.PredictFutureEnabled) {
-                Refresh("Predictor NOT enabled");
-            }
-            else if (!TasHelperSettings.PredictOnHotkeyPressed) {
-                Refresh("Make-a-Prediction hotkey NOT enabled");
-            }
-            else if (!FrameStep) {
-                Refresh("Not frame-stepping, refuse to predict");
+            if (TasSpeedrunToolInterop.Installed) {
+                if (!Enabled) {
+                    HotkeyWatcher.RefreshHotkeyDisabled();
+                }
+                else if (!TasHelperSettings.PredictFutureEnabled) {
+                    Refresh("Predictor NOT enabled");
+                }
+                else if (!TasHelperSettings.PredictOnHotkeyPressed) {
+                    Refresh("Make-a-Prediction hotkey NOT enabled");
+                }
+                else if (!FrameStep) {
+                    Refresh("Not frame-stepping, refuse to predict");
+                }
+                else {
+                    Predictor.PredictorCore.PredictLater(false);
+                    Refresh("Predictor Start");
+                }
             }
             else {
-                Predictor.PredictorCore.PredictLater(false);
-                Refresh("Predictor Start");
+                Refresh("Need SpeedrunTool v3.25.0 or higher!");
             }
         }
         else if (!OoO_Core.Applied && (TH_Hotkeys.FrameStepBack.Released || TH_Hotkeys.FrameStepBack.Check && Gameplay.FrameStepBack.CheckOnHotkeyHold())) { // we use release so there's no save/load issue

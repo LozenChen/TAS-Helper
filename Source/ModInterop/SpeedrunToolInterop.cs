@@ -10,7 +10,7 @@ internal static class SpeedrunToolInterop {
 
     private static object action;
 
-    [Initialize]
+    [Initialize(depth: int.MaxValue - 5)]
     public static void Initialize() {
         typeof(SpeedrunToolImport).ModInterop();
         SpeedrunToolInstalled = SpeedrunToolImport.DeepClone is not null;
@@ -29,7 +29,7 @@ internal static class SpeedrunToolInterop {
 
         action = SpeedrunToolImport.RegisterSaveLoadAction(
             (savedValues, _) => {
-                savedValues[typeof(SpeedrunToolInterop)] = (Dictionary<string, object>)SpeedrunToolImport.DeepClone(new Dictionary<string, object> {
+                savedValues[typeof(SpeedrunToolInterop)] = DeepCloneShared(new Dictionary<string, object> {
                     { "FreezeTimerBeforeUpdate", Predictor.PredictorCore.FreezeTimerBeforeUpdate },
                     { "CachedNodes", Gameplay.MovingEntityTrack.CachedNodes },
                     { "CachedStartEnd", Gameplay.MovingEntityTrack.CachedStartEnd },
@@ -43,8 +43,7 @@ internal static class SpeedrunToolInterop {
                 });
             },
             (savedValues, _) => {
-                Dictionary<string, object> clonedValues =
-                    ((Dictionary<Type, Dictionary<string, object>>)SpeedrunToolImport.DeepClone(savedValues))[typeof(SpeedrunToolInterop)];
+                Dictionary<string, object> clonedValues = DeepCloneShared(savedValues)[typeof(SpeedrunToolInterop)];
                 Predictor.PredictorCore.FreezeTimerBeforeUpdate = (float)clonedValues["FreezeTimerBeforeUpdate"];
                 Gameplay.MovingEntityTrack.CachedNodes = (List<Vector2[]>)clonedValues["CachedNodes"];
                 Gameplay.MovingEntityTrack.CachedStartEnd = (HashSet<Gameplay.MovingEntityTrack.StartEnd>)clonedValues["CachedStartEnd"];
@@ -69,6 +68,10 @@ internal static class SpeedrunToolInterop {
         if (SpeedrunToolInstalled) {
             SpeedrunToolImport.Unregister(action);
         }
+    }
+
+    internal static T DeepCloneShared<T>(T obj) {
+        return (T)SpeedrunToolImport.DeepClone(obj);
     }
 }
 

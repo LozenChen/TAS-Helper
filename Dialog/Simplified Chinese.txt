@@ -201,6 +201,7 @@ TAS_HELPER_PREDICTOR_LINE_WIDTH=                           折线宽度
 TAS_HELPER_PREDICTOR_POINT_SIZE=                           点的大小
 TAS_HELPER_PREDICTOR_FONT_SIZE=                            字体大小
 TAS_HELPER_PREDICTOR_FONT_STROKE=                          字体描边
+TAS_HELPER_PREDICTOR_SRT_NOT_INSTALLED=                    需要 SpeedrunTool v3.25.0 或更高!
 
 
 # ============================================= Other =====================================================

@@ -214,6 +214,7 @@ TAS_HELPER_PREDICTOR_LINE_WIDTH=                           Polygonal Line Width
 TAS_HELPER_PREDICTOR_POINT_SIZE=                           Dot Size
 TAS_HELPER_PREDICTOR_FONT_SIZE=                            Font Size
 TAS_HELPER_PREDICTOR_FONT_STROKE=                          Font Stroke
+TAS_HELPER_PREDICTOR_SRT_NOT_INSTALLED=                    Need SpeedrunTool v3.25.0 or higher!
 
 # ============================================= Other =====================================================
 TAS_HELPER_MORE_OPTIONS=                                   More Options

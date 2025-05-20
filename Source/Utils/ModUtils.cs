@@ -55,8 +55,6 @@ internal static class ModUtils {
 
     public static bool IsaGrabBagInstalled = false;
 
-    public static bool SpeedrunToolInstalled = false;
-
     public static bool GravityHelperInstalled = false;
 
     public static bool ChroniaHelperInstalled = false;
@@ -65,6 +63,8 @@ internal static class ModUtils {
 
     public static bool MotionSmoothingInstalled = false;
     public static bool UpsideDown => ExtendedVariantsUtils.UpsideDown;
+
+    [Initialize(depth: int.MaxValue - 4)]
     public static void InitializeAtFirst() {
         FrostHelperInstalled = IsInstalled("FrostHelper");
         VivHelperInstalled = IsInstalled("VivHelper");
@@ -74,7 +74,6 @@ internal static class ModUtils {
         ChronoHelperInstalled = IsInstalled("ChronoHelper");
         BrokemiaHelperInstalled = IsInstalled("BrokemiaHelper");
         IsaGrabBagInstalled = IsInstalled("IsaGrabBag");
-        SpeedrunToolInstalled = IsInstalled("SpeedrunTool");
         GravityHelperInstalled = IsInstalled("GravityHelper");
         ChroniaHelperInstalled = IsInstalled("ChroniaHelper");
         FlaglinesAndSuchInstalled = IsInstalled("FlaglinesAndSuch");

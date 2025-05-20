@@ -160,6 +160,10 @@ public static class PredictorCore {
     [Load]
     public static void Load() {
         // our hook should be inside the hook of TAS.Playback.Core
+        if (!TasSpeedrunToolInterop.GetInstalledWhenLoading) {
+            return;
+        }
+
         using (new DetourContext { Before = new List<string> { "CelesteTAS" }, ID = "TAS Helper PredictorCore" }) {
             IL.Monocle.Engine.Update += ILEngineUpdate;
         }
@@ -167,6 +171,10 @@ public static class PredictorCore {
 
     [Unload]
     public static void Unload() {
+        if (!TasSpeedrunToolInterop.GetInstalledWhenLoading) {
+            return;
+        }
+
         IL.Monocle.Engine.Update -= ILEngineUpdate;
     }
 
@@ -179,6 +187,10 @@ public static class PredictorCore {
 
     [Initialize]
     public static void Initialize() {
+        if (!TasSpeedrunToolInterop.Installed) {
+            return;
+        }
+
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => {
             if (StrictFrameStep && TasHelperSettings.PredictOnFrameStep && Engine.Scene is Level) {
                 Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, false);

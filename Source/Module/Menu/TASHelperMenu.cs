@@ -24,12 +24,18 @@ internal static class TASHelperMenu {
     private static EaseInOptionSubMenuExt CreatePredictorSubMenu(TextMenu menu, bool inGame) {
         EaseInOptionSubMenuExt PredictorItem = new EaseInOptionSubMenuExt("Predictor".ToDialogText());
         PredictorItem.OnLeave += () => PredictorItem.MenuIndex = 0;
-        PredictorItem.Add("Predictor Finished".ToDialogText(), new List<TextMenu.Item>());
-        PredictorItem.Add("Predictor OnOff".ToDialogText(), PredictorMenu.Create_PageOnOff(menu, inGame));
-        PredictorItem.Add("Predictor Keyframe 1".ToDialogText(), PredictorMenu.Create_PageKeyframe_1(menu, inGame));
-        PredictorItem.Add("Predictor Keyframe 2".ToDialogText(), PredictorMenu.Create_PageKeyframe_2(menu, inGame));
-        PredictorItem.Add("Predictor Style".ToDialogText(), PredictorMenu.Create_PageStyle(menu, inGame));
-        PredictorItem.Add("Predictor Other".ToDialogText(), PredictorMenu.Create_PageOther(menu, inGame));
+        if (ModInterop.TasSpeedrunToolInterop.Installed) {
+            PredictorItem.Add("Predictor Finished".ToDialogText(), new List<TextMenu.Item>());
+            PredictorItem.Add("Predictor OnOff".ToDialogText(), PredictorMenu.Create_PageOnOff(menu, inGame));
+            PredictorItem.Add("Predictor Keyframe 1".ToDialogText(), PredictorMenu.Create_PageKeyframe_1(menu, inGame));
+            PredictorItem.Add("Predictor Keyframe 2".ToDialogText(), PredictorMenu.Create_PageKeyframe_2(menu, inGame));
+            PredictorItem.Add("Predictor Style".ToDialogText(), PredictorMenu.Create_PageStyle(menu, inGame));
+            PredictorItem.Add("Predictor Other".ToDialogText(), PredictorMenu.Create_PageOther(menu, inGame));
+        }
+        else {
+            PredictorItem.Add("Predictor SRT Not Installed".ToDialogText(), new List<TextMenu.Item>());
+            PredictorItem.Disabled = true;
+        }
         return PredictorItem.Apply(item => item.IncludeWidthInMeasurement = false);
     }
 

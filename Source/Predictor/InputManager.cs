@@ -35,6 +35,10 @@ public static class InputManager {
 
     [Initialize]
     public static void Initialize() {
+        if (!ModInterop.TasSpeedrunToolInterop.Installed) {
+            return;
+        }
+
         EmptyInput = ModInterop.UnstableCelesteTasUsings.CreateEmptyInput();
         SupportedRuntimeCommands.Clear();
         foreach (string str in _supportedRuntimeCommands) {

@@ -3,6 +3,8 @@
 namespace Celeste.Mod.TASHelper.ModInterop;
 
 internal static class CelesteTasImporter {
+
+    [Initialize(depth: int.MaxValue - 1)]
     public static void InitializeAtFirst() {
         typeof(CelesteTasImports).ModInterop();
     }
