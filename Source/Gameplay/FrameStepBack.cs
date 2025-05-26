@@ -1,4 +1,5 @@
-﻿using Celeste.Mod.TASHelper.Module.Menu;
+﻿using Celeste.Mod.TASHelper.ModInterop;
+using Celeste.Mod.TASHelper.Module.Menu;
 using TAS;
 using TAS.Input;
 
@@ -14,37 +15,25 @@ public static class FrameStepBack {
     }
     public static void SetupNextFastForward(int relativeMove) {
         // todo: fix the random camera issue
-        if (Manager.Running && !ModInterop.UnstableCelesteTasUsings.TasRecorderIsRecording) {
+
+        if (Manager.Running && !CelesteTasImports.IsTasRecording()) {
             int frame = Controller.CurrentFrameInTas + relativeMove;
             if (frame <= 0) {
                 return;
             }
-            bool isLoad = false;
-            bool delayedClear = false;
-            Manager.State next = Manager.State.Running;
-            if (Savestates.IsSaved_Safe) {
-                isLoad = Savestates.SavedCurrentFrame <= frame;
-                if (Savestates.SavedCurrentFrame == frame) {
-                    next = Manager.State.Paused;
-                }
-                delayedClear = !isLoad;
-            }
-            if (isLoad) {
-                Savestates.LoadState(); // only the nearest savestate breakpoint will work
+            if (CelesteTasImports.GetLatestSavestateForFrame(frame) is { } state) {
+                CelesteTasImports.LoadSavestate(state); // only the nearest savestate breakpoint will work
             }
             else {
                 Controller.Stop(); // Controller.Stop() is no longer contained in current version of RefreshInputs(true)
                 Controller.RefreshInputs(true);
             }
-            if (delayedClear) {
-                Savestates.ClearState(); // the savestate is after us, clear it after RefreshInputs, so we will not run to the savestate breakpoint instead
-            }
-
-            Controller.NextLabelFastForward = new FastForward(frame, "", 0);
-            Manager.NextState = next;
+            Controller.NextLabelFastForward = new FastForward(frame, 0, true, false);
+            // doesn't work well
             ForwardTarget = frame;
         }
     }
+
 
     internal static int ForwardTarget = 0;
 
