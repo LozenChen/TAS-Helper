@@ -441,7 +441,7 @@ internal static class OoO_Core {
 
     public static bool TryHardExit = true;
     internal static void OnHotkeysPressed() {
-        if (Applied && (Hotkeys.FrameAdvance.Pressed || Hotkeys.SlowForward.Pressed || Hotkeys.PauseResume.Pressed || TH_Hotkeys.FrameStepBack.Pressed)) {
+        if (Applied && (Hotkeys.FrameAdvance.Pressed || Hotkeys.SlowForward.Pressed || Hotkeys.PauseResume.Pressed)) {
             // in case the user uses OoO unconsciously, and do not know how to exit OoO, we allow user to exit using normal tas hotkeys, as if we were running a tas
             FastForwardToEnding();
         }

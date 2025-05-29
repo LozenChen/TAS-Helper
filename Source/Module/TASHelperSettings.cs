@@ -44,7 +44,6 @@ public class TASHelperSettings : EverestModuleSettings {
 
         // it seems some bug can happen with deserialization
         keyMainSwitch ??= new((Buttons)0, Keys.LeftControl, Keys.E);
-        keyFrameStepBack = new((Buttons)0, Keys.LeftControl, Keys.I);
         keyCountDown ??= new((Buttons)0, Keys.LeftControl, Keys.R);
         keyLoadRange ??= new((Buttons)0, Keys.LeftControl, Keys.T);
         keyPixelGridWidth ??= new((Buttons)0, Keys.LeftControl, Keys.F);
@@ -850,10 +849,6 @@ public class TASHelperSettings : EverestModuleSettings {
     [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.E })]
     public ButtonBinding keyMainSwitch { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.E);
 
-    [SettingName("TAS_HELPER_FRAME_STEP_BACK")]
-    [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.I })]
-    public ButtonBinding keyFrameStepBack { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.I);
-
     [SettingName("TAS_HELPER_SWITCH_COUNT_DOWN_HOTKEY")]
     [DefaultButtonBinding(new Buttons[] { }, new Keys[] { Keys.LeftControl, Keys.R })]
     public ButtonBinding keyCountDown { get; set; } = new((Buttons)0, Keys.LeftControl, Keys.R);
@@ -1039,9 +1034,6 @@ public class TASHelperSettings : EverestModuleSettings {
             else {
                 Refresh("Need SpeedrunTool v3.25.0 or higher!");
             }
-        }
-        else if (!OoO_Core.Applied && (TH_Hotkeys.FrameStepBack.Released || TH_Hotkeys.FrameStepBack.Check && Gameplay.FrameStepBack.CheckOnHotkeyHold())) { // we use release so there's no save/load issue
-            FrameStepBack.StepBackOneFrame();
         }
 
         return changed;

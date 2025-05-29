@@ -24,8 +24,6 @@ public static class TH_Hotkeys {
 
     public static Hotkey OoO_Fastforward_Hotkey { get; set; }
 
-    public static Hotkey FrameStepBack { get; set; }
-
     public static Hotkey AutoWatchHotkey { get; set; }
 
     public static List<Hotkey> HotkeyList = new();
@@ -54,10 +52,9 @@ public static class TH_Hotkeys {
         PredictFutureHotkey = BindingToHotkey(TasHelperSettings.keyPredictFuture);
         OoO_Step_Hotkey = BindingToHotkey(TasHelperSettings.keyOoO_Step);
         OoO_Fastforward_Hotkey = BindingToHotkey(TasHelperSettings.keyOoO_Fastforward);
-        FrameStepBack = BindingToHotkey(TasHelperSettings.keyFrameStepBack);
         AutoWatchHotkey = BindingToHotkey(TasHelperSettings.keyAutoWatch);
 
-        HotkeyList = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OoO_Step_Hotkey, OoO_Fastforward_Hotkey, FrameStepBack, AutoWatchHotkey };
+        HotkeyList = new List<Hotkey> { MainSwitchHotkey, CountDownHotkey, LoadRangeHotkey, PixelGridWidthHotkey, PredictEnableHotkey, PredictFutureHotkey, OoO_Step_Hotkey, OoO_Fastforward_Hotkey, AutoWatchHotkey };
     }
 
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
@@ -72,7 +69,6 @@ public static class TH_Hotkeys {
         foreach (Hotkey hotkey in HotkeyList) {
             hotkey.Update(updateKey, updateButton);
         }
-        Gameplay.FrameStepBack.OnHotkeyUpdate(FrameStepBack.Check);
     }
 
 

@@ -15,6 +15,4 @@
 ### Order-of-Operation FastForward
 - Double Press to UltraFastForward
 
-### Reverse Frame Advance
-
 ### Auto Watch Entity
