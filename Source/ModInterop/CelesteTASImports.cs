@@ -34,6 +34,14 @@ internal static class CelesteTasImports {
     /// De-registers a previously registered handler for the module
     public static RemoveSettingsRestoreHandlerDelegate RemoveSettingsRestoreHandler = null!;
 
+    #region GroupCounter
+
+    public static Func<int> GetGroupCounter = null!;
+
+    public static Action<int> SetGroupCounter = null!;
+
+    #endregion
+
     #region Savestates
 
     public delegate object? GetLatestSavestateForFrameDelegate(int frame);

@@ -1,3 +1,4 @@
+using Celeste.Mod.TASHelper.ModInterop;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
@@ -49,15 +50,25 @@ public static class SpinnerCalculateHelper {
 
     public static int GroupCounter = 0;
 
+
+    internal static void PreSpinnerCalculate(Scene self) {
+        if (!TasHelperSettings.Enabled || WillFastForward) {
+            return;
+        }
+
+        PreSpinnerCalculateImpl(self);
+    }
+
+
     // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
     [MethodImpl(MethodImplOptions.NoOptimization)]
-    internal static void PreSpinnerCalculate(Scene self) {
-        if (!TasHelperSettings.Enabled || WillFastForward || self is not Level) {
+    internal static void PreSpinnerCalculateImpl(Scene self) {
+        if (self is not Level) {
             return;
         }
 
         // only sync this when we plan to render
-        GroupCounter = TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter;
+        GroupCounter = CelesteTasImports.GetGroupCounter();
         float time = TimeActive = self.TimeActive;
         for (int i = 0; i <= 9; i++) {
             PredictLoadTimeActive[i] = PredictUnloadTimeActive[i] = time;

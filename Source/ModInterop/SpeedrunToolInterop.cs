@@ -58,7 +58,7 @@ internal static class SpeedrunToolInterop {
                 Module.Menu.TH_Hotkeys.HotkeyInitialize();
 
                 Gameplay.AutoWatchEntity.AutoWatchRenderer.EverythingOnClone();
-                Gameplay.Spinner.SpinnerCalculateHelper.GroupCounter = TAS.EverestInterop.Hitboxes.CycleHitboxColor.GroupCounter;
+                Gameplay.Spinner.SpinnerCalculateHelper.PreSpinnerCalculateImpl(Engine.Scene);
             },
             null, null, null, null
         );
