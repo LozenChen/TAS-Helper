@@ -1,6 +1,6 @@
-﻿using MonoMod.ModInterop;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.ModInterop;
 
 namespace Celeste.Mod.TASHelper.ModInterop;
 
