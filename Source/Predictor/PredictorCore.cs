@@ -213,7 +213,7 @@ public static class PredictorCore {
         FreezeTimerBeforeUpdate = Engine.FreezeTimer;
         neverClearStateThisFrame = true;
 
-        if (!Manager.Running) {
+        if (!Manager_Running) {
             HasCachedFutures = false;
             futures.Clear();
             TasSpeedrunToolInterop.ClearState();

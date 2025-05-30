@@ -29,14 +29,16 @@ internal static class GlobalVariables {
         private set { }
     }
 
+    public static bool Manager_Running => ModInterop.CelesteTasImports.IsTasActive(); // equals Manager.Running
+
     public static bool FastForwarding => Manager.FastForwarding;
-    public static bool FrameStep => Manager.Running && Manager.CurrState is Manager.State.Paused or Manager.State.FrameAdvance or Manager.State.SlowForward;
-    public static bool StrictFrameStep => Manager.Running && Manager.CurrState is Manager.State.FrameAdvance;
+    public static bool FrameStep => Manager_Running && Manager.CurrState is Manager.State.Paused or Manager.State.FrameAdvance or Manager.State.SlowForward;
+    public static bool StrictFrameStep => Manager_Running && Manager.CurrState is Manager.State.FrameAdvance;
 
     // i haven't check how these states are set, but this just works well
     public static Player? playerInstance => Engine.Scene.Tracker.GetEntity<Player>();
 
-    public static readonly object[] parameterless = { };
+    public static readonly object[] parameterless = Array.Empty<object>();
 }
 
 

@@ -449,7 +449,7 @@ internal static class OoO_Core {
             if (!allowHotkey) {
                 SendTextImmediately("Order-of-Operation stepping NOT Enabled");
             }
-            else if (!Applied && TAS.Manager.Running && !FrameStep) {
+            else if (!Applied && Manager_Running && !FrameStep) {
                 SendTextImmediately("TAS is running, refuse to OoO step");
             }
             else {
@@ -460,7 +460,7 @@ internal static class OoO_Core {
             if (!allowHotkey) {
                 SendTextImmediately("Order-of-Operation stepping NOT Enabled");
             }
-            else if (TAS.Manager.Running && !FrameStep) {
+            else if (Manager_Running && !FrameStep) {
                 SendTextImmediately("TAS is running, refuse to OoO step");
             }
             else {

@@ -1,6 +1,7 @@
 ﻿// these may depend on publicizer / are not PublicAPI / will change later / have changed sometime ago
 // only part of them
 
+
 namespace Celeste.Mod.TASHelper.ModInterop;
 internal class UnstableCelesteTasUsings {
     public static bool playerUpdated {
@@ -18,4 +19,9 @@ internal class UnstableCelesteTasUsings {
         TAS.Input.InputFrame.TryParse("9999", "", 0, 0, null, out TAS.Input.InputFrame emptyInput);
         return emptyInput;
     }
+
+    public static bool DebugRendered => GlobalVariables.DebugRendered;
+    public static bool FastForwarding => GlobalVariables.FastForwarding;
+    public static bool FrameStep => GlobalVariables.FrameStep;
+    public static bool StrictFrameStep => GlobalVariables.StrictFrameStep;
 }

@@ -10,7 +10,7 @@ namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 internal static class Countdown {
 
     public static bool LastNotCountdownBoost = !NotCountdownBoost;
-    public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || (Engine.Scene.Paused && !Manager.Running);
+    public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || (Engine.Scene.Paused && !Manager_Running);
 
     public static void Draw(Entity self, SpinnerRenderHelper.SpinnerColorIndex index, bool collidable) {
         if (CountdownRenderer.Cached) {
