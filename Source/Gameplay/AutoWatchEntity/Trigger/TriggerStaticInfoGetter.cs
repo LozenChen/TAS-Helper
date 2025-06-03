@@ -253,7 +253,7 @@ internal static class ModTriggerStaticInfo {
     public static void HandleMemorialHelper() {
         if (ModUtils.GetType("memorialHelper", "Celeste.Mod.MemorialHelper.DashSequenceFlagTrigger") is { } dashSequenceFlagTrigger) {
             Add(dashSequenceFlagTrigger, (trigger, _) => {
-                return string.Join(",", trigger.GetFieldValue<List<int>>("dashList").Select(x => DashCode.ToCode(x, DashCode.MemorialHelperOffset)));
+                return "DashCode: " + string.Join(",", trigger.GetFieldValue<List<int>>("dashList").Select(x => DashCode.ToCode(x, DashCode.MemorialHelperOffset)));
             });
         }
     }

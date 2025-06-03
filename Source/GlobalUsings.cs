@@ -25,11 +25,9 @@ internal static class GlobalVariables {
                 return HitboxToggle.DrawHitboxes;
             }
         }
-
-        private set { }
     }
 
-    public static bool Manager_Running => ModInterop.CelesteTasImports.IsTasActive(); // equals Manager.Running
+    public static bool Manager_Running => ModInterop.CelesteTasImports.IsTasActive?.Invoke() ?? false; // equals Manager.Running, needs null check when hotreload
 
     public static bool FastForwarding => Manager.FastForwarding;
     public static bool FrameStep => Manager_Running && Manager.CurrState is Manager.State.Paused or Manager.State.FrameAdvance or Manager.State.SlowForward;
