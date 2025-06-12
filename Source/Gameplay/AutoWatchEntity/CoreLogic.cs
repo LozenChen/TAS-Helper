@@ -137,6 +137,45 @@ internal static class CoreLogic {
         }
         WhenWatchedRenderers.Clear();
     }
+
+
+    [Load]
+    private static void Load() {
+        EventOnHook._Scene.AfterUpdate += PatchAfterUpdate;
+    }
+
+    private static bool wasFastForwarding = false;
+    private static void PatchAfterUpdate(Scene self) {
+        if (self is Level) {
+            if (FastForwarding) {
+                wasFastForwarding = true;
+            }
+            else {
+                if (wasFastForwarding) {
+                    WakeUpAllAutoWatchRenderer();
+                }
+                wasFastForwarding = false;
+            }
+        }
+    }
+
+    private static void WakeUpAllAutoWatchRenderer() {
+        if (Engine.Scene is { } self) {
+            foreach (AutoWatchRenderer renderer in self.Tracker.GetComponents<AutoWatchRenderer>()) {
+                renderer.UpdateOn_ConfigChange_Or_StopUltraforwarding_Or_Clone();
+            }
+        }
+    }
+
+    internal static void EverythingOnClone() {
+        HiresLevelRenderer.RemoveRenderers<SwitchGateRenderer.SwitchLinker>();
+        if (Config.MainEnabled) {
+            WakeUpAllAutoWatchRenderer();
+        }
+        else if (Engine.Scene is Level level) {
+            ClearRenderers(level);
+        }
+    }
 }
 
 [Tracked(true)]
@@ -271,39 +310,6 @@ internal class AutoWatchRenderer : Component {
             PostActive = PreActive = false;
         }
         return this;
-    }
-
-    [Load]
-    private static void Load() {
-        EventOnHook._Scene.AfterUpdate += PatchAfterUpdate;
-    }
-
-    private static bool wasFastForwarding = false;
-    private static void PatchAfterUpdate(Scene self) {
-        if (self is Level) {
-            if (FastForwarding) {
-                wasFastForwarding = true;
-            }
-            else {
-                if (wasFastForwarding) {
-                    WakeUpAllAutoWatchRenderer();
-                }
-                wasFastForwarding = false;
-            }
-        }
-    }
-
-    private static void WakeUpAllAutoWatchRenderer() {
-        if (Engine.Scene is { } self) {
-            foreach (AutoWatchRenderer renderer in self.Tracker.GetComponents<AutoWatchRenderer>()) {
-                renderer.UpdateOn_ConfigChange_Or_StopUltraforwarding_Or_Clone();
-            }
-        }
-    }
-
-    internal static void EverythingOnClone() {
-        HiresLevelRenderer.RemoveRenderers<SwitchGateRenderer.SwitchLinker>();
-        WakeUpAllAutoWatchRenderer();
     }
 }
 

@@ -19,8 +19,8 @@ public static class ExactSpinnerGroup {
     public static int GroupPeriod = -1; // initial state need to be different from 3, 15 in order to activate later
 
     public static double ExactHazardGroup(Entity entity) {
-        if (entity.IsHazard()) {
-            return (double)SpinnerCalculateHelper.GetOffset(entity)! * 60 % GroupPeriod;
+        if (Info.HazardTypeHelper.IsHazard(entity)) {
+            return (double)Info.OffsetHelper.GetOffset(entity)! * 60 % GroupPeriod;
         }
         return -99;
     }
@@ -181,10 +181,10 @@ public static class ExactSpinnerGroup {
                 Vector2 spinnerOffset = TasHelperSettings.UsingLoadRange ? loadrangeOffset : noloadrangeOffset;
                 foreach (KeyValuePair<Entity, Tuple<bool, string>> pair in offsetGroup) {
                     if (pair.Value.Item1) {
-                        Message.RenderMessage(pair.Value.Item2, pair.Key.Center * 6f, scale);
+                        Message.RenderMessage(pair.Value.Item2, Info.PositionHelper.GetInviewCheckCenter(pair.Key) * 6f, scale);
                     }
                     else {
-                        Message.RenderMessage(pair.Value.Item2, pair.Key.Position * 6f + spinnerOffset, scale);
+                        Message.RenderMessage(pair.Value.Item2, Info.PositionHelper.GetInviewCheckPosition(pair.Key) * 6f + spinnerOffset, scale);
                     }
                 }
             }
@@ -199,7 +199,7 @@ public static class ExactSpinnerGroup {
                 foreach (Entity entity in level.Entities) {
                     double value = ExactHazardGroup(entity);
                     if (value > -1) {
-                        offsetGroup.Add(entity, new Tuple<bool, string>(entity.IsLightning(), value.ToString("0.00")));
+                        offsetGroup.Add(entity, new Tuple<bool, string>(Info.HazardTypeHelper.IsLightning(entity), value.ToString("0.00")));
                     }
                 }
                 Active = false;

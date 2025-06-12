@@ -56,12 +56,11 @@ internal static class SimplifiedLightning {
     }
 
     private static bool DrawInner(Lightning item) {
-        if (TasHelperSettings.EnableSimplifiedLightning && item.IsHazard()) {
+        if (TasHelperSettings.EnableSimplifiedLightning && Info.HazardTypeHelper.IsHazard(item)) {
             // why we still check hazard type here: in case in future we decide that some perticular subclass of lightning is not a hazard
             // note in the following codes we need to assume it's indeed a hazard (which is the bugfix of v1.8.15)
 
-            bool collidable = SpinnerCalculateHelper.GetCollidable(item);
-            bool inView = SpinnerCalculateHelper.InView(item, ActualPosition.CameraPosition);
+            bool collidable = Info.CollidableHelper.GetCollidable(item);
 #pragma warning disable CS8625
             ActualCollideHitboxDelegatee.DrawLastFrameHitbox(!TasHelperSettings.ApplyActualCollideHitboxForLightning, item, null, Color.White, collidable, DrawInnerWrapper);
 #pragma warning restore CS8625
@@ -80,10 +79,10 @@ internal static class SimplifiedLightning {
     private static void DrawInnerWrapper(Entity item, Camera _, Color __, bool collidable, bool isNow) {
         bool inView;
         if (isNow) {
-            inView = SpinnerCalculateHelper.InView(item, ActualPosition.CameraPosition);
+            inView = Info.InViewHelper.InView(item, Info.PositionHelper.CameraPosition);
         }
         else {
-            inView = SpinnerCalculateHelper.InView(item, ActualPosition.PreviousCameraPos);
+            inView = Info.InViewHelper.InView(item, Info.PositionHelper.PreviousCameraPos);
         }
         DrawInnerCore(item, collidable, inView);
     }
@@ -106,7 +105,7 @@ internal static class SimplifiedLightning {
                 color = Color.Black * 0.2f;
             }
             else {
-                if (TasHelperSettings.UsingNotInViewColor && !inView && !SpinnerCalculateHelper.NoPeriodicCheckInViewBehavior(item)) {
+                if (TasHelperSettings.UsingNotInViewColor && !inView && !Info.SpecialInfoHelper.NoPeriodicCheckInViewBehavior(item)) {
                     index = SpinnerRenderHelper.SpinnerColorIndex.NotInView;
                 }
                 color = SpinnerRenderHelper.GetSpinnerColor(index) * alpha;

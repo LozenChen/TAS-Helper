@@ -10,7 +10,7 @@ internal static class CameraTarget {
     [AddDebugRender]
     private static void PatchEntityListDebugRender() {
         if (TasHelperSettings.UsingCameraTarget) {
-            DrawCameraTarget(ActualPosition.PreviousCameraPos, ActualPosition.CameraPosition, ActualPosition.CameraTowards);
+            DrawCameraTarget(Spinner.Info.PositionHelper.PreviousCameraPos, Spinner.Info.PositionHelper.CameraPosition, Spinner.Info.PositionHelper.CameraTowards);
         }
     }
 

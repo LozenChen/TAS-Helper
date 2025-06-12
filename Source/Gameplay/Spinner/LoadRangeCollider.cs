@@ -11,17 +11,17 @@ internal static class LoadRangeCollider {
         }
 
         if (TasHelperSettings.UsingLoadRangeCollider) {
-            if (self.IsLightning()) {
+            if (Info.HazardTypeHelper.IsLightning(self)) {
                 // only check in view for lightning
-                if ((TasHelperSettings.UsingInViewRange || TasHelperSettings.LoadRangeColliderMode == Module.TASHelperSettings.LoadRangeColliderModes.Always) && !SpinnerCalculateHelper.LightningInView(self, ActualPosition.CameraPosition)) {
-                    LoadRangeColliderRenderer.lightningDatas.Add(new LoadRangeColliderRenderer.LightningData(self.Position, self.Width + 1, self.Height + 1));
+                if ((TasHelperSettings.UsingInViewRange || TasHelperSettings.LoadRangeColliderMode == Module.TASHelperSettings.LoadRangeColliderModes.Always) && !Info.InViewHelper.LightningInView(self, Info.PositionHelper.CameraPosition)) {
+                    LoadRangeColliderRenderer.lightningDatas.Add(new LoadRangeColliderRenderer.LightningData(Info.PositionHelper.GetInviewCheckPosition(self), self.Width + 1, self.Height + 1));
                 }
             }
             else {
                 // spinner use in view for visible, and near player for collidable
                 // dust use in view for graphics establish, and near player for collidable
                 // so we render the center when using load range
-                LoadRangeColliderRenderer.starShapePositions.Add(self.Position);
+                LoadRangeColliderRenderer.starShapePositions.Add(Info.PositionHelper.GetInviewCheckPosition(self));
             }
         }
     }

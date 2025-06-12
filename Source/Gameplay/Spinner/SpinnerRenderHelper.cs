@@ -8,9 +8,9 @@ namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
 internal static class SpinnerRenderHelper {
 
-    [Initialize]
+    [Initialize(depth: int.MinValue)]
     public static void Initialize() {
-        if (ModUtils.VivHelperInstalled) {
+        if (Info.SpecialInfoHelper.VivSpinnerType is not null) {
             typeof(SpinnerRenderHelper).GetMethod(nameof(DrawSpinnerCollider)).IlHook((cursor, _) => {
                 Instruction skipViv = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
@@ -23,7 +23,7 @@ internal static class SpinnerRenderHelper {
             });
         }
 
-        if (ModUtils.ChroniaHelperInstalled) {
+        if (Info.SpecialInfoHelper.ChroniaSpinnerType is not null) {
             typeof(SpinnerRenderHelper).GetMethod(nameof(DrawSpinnerCollider)).IlHook((cursor, _) => {
                 Instruction skipChronia = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
@@ -72,7 +72,7 @@ internal static class SpinnerRenderHelper {
         */
 
 #pragma warning disable CS8629
-        return checkInView ? CycleHitboxColorIndex(hazard, SpinnerCalculateHelper.GetOffset(hazard).Value, ActualPosition.CameraPosition) : CycleHitboxColorIndexNoInView(hazard, SpinnerCalculateHelper.GetOffset(hazard).Value);
+        return checkInView ? CycleHitboxColorIndex(hazard, Info.OffsetHelper.GetOffset(hazard).Value, Info.PositionHelper.CameraPosition) : CycleHitboxColorIndexNoInView(hazard, Info.OffsetHelper.GetOffset(hazard).Value);
 #pragma warning restore CS8629
     }
 
@@ -102,7 +102,7 @@ internal static class SpinnerRenderHelper {
     }
 
     private static SpinnerColorIndex CycleHitboxColorIndex(Entity self, float offset, Vector2 CameraPosition) {
-        if (TasHelperSettings.UsingNotInViewColor && !SpinnerCalculateHelper.InView(self, CameraPosition) && !SpinnerCalculateHelper.NoPeriodicCheckInViewBehavior(self)) {
+        if (TasHelperSettings.UsingNotInViewColor && !Info.InViewHelper.InView(self, CameraPosition) && !Info.SpecialInfoHelper.NoPeriodicCheckInViewBehavior(self)) {
             // NotInView Color is in some sense, not a cycle hitbox color, we make it independent
             // Dust needs InView to establish graphics, but that's almost instant (actually every frame can establish up to 25 dust graphics)
             // so InView seems meaningless for Dusts, especially if we only care about those 3f/15f periodic behaviors
@@ -115,17 +115,17 @@ internal static class SpinnerRenderHelper {
         if (!TasHelperSettings.ShowCycleHitboxColors) {
             return SpinnerColorIndex.Default;
         }
-        if (SpinnerCalculateHelper.NoCycle(self)) {
+        if (Info.SpecialInfoHelper.NoCycle(self)) {
             return SpinnerColorIndex.NoCycle;
         }
-        if (TasHelperSettings.UsingFreezeColor && SpinnerCalculateHelper.TimeActive >= 524288f) {
+        if (TasHelperSettings.UsingFreezeColor && Info.TimeActiveHelper.TimeActive >= 524288f) {
             // we assume the normal state is TimeRate = 1, so we do not detect time freeze by TimeActive + DeltaTime == TimeActive, instead just check >= 524288f (actually works for TimeRate <= 1.8)
             // so freeze colors will not appear too early in some extreme case like slow down of collecting heart
             // we make the color reflects its state at TimeRate = 1, so it will not flash during slowdown like collecting heart
             // unfortunately it will flash if TimeRate > 1, hope this will never happen
-            return SpinnerCalculateHelper.OnInterval(SpinnerCalculateHelper.TimeActive, 0.05f, offset, Engine.RawDeltaTime) ? SpinnerColorIndex.FreezeActivateEveryFrame : SpinnerColorIndex.NeverActivate;
+            return Info.TimeActiveHelper.OnInterval(Info.TimeActiveHelper.TimeActive, 0.05f, offset, Engine.RawDeltaTime) ? SpinnerColorIndex.FreezeActivateEveryFrame : SpinnerColorIndex.NeverActivate;
         }
-        int group = SpinnerCalculateHelper.CalculateSpinnerGroup(offset);
+        int group = Info.TimeActiveHelper.CalculateSpinnerGroup(offset);
 #pragma warning disable CS8509
         return group switch {
             0 => SpinnerColorIndex.Group1,
@@ -146,10 +146,10 @@ internal static class SpinnerRenderHelper {
     }
 
     public static bool DrawVivCollider(Entity self, Camera camera, Color color, bool collidable) {
-        if (SpinnerCalculateHelper.IsVivSpinner(self)) {
+        if (Info.SpecialInfoHelper.IsVivSpinner(self)) {
             if (OnGrid(self)) {
 #pragma warning disable CS8600, CS8604
-                string[] hitboxString = SpinnerCalculateHelper.VivHitboxStringGetter.GetValue(self) as string[];
+                string[] hitboxString = Info.SpecialInfoHelper.GetVivHitboxString(self);
                 float scale = self.GetFieldValue<float>("scale");
                 if (SpinnerColliderHelper.TryGetValue(hitboxString, scale, out SpinnerColliderHelper.SpinnerColliderValue value)) {
                     value.DrawOutlineAndInside(self.Position, color, collidable);
@@ -164,10 +164,10 @@ internal static class SpinnerRenderHelper {
     }
 
     public static bool DrawChroniaCollider(Entity self, Camera camera, Color color, bool collidable) {
-        if (SpinnerCalculateHelper.IsChroniaSpinner(self)) {
+        if (Info.SpecialInfoHelper.IsChroniaSpinner(self)) {
             if (OnGrid(self)) {
 #pragma warning disable CS8600, CS8604
-                string[] hitboxString = SpinnerCalculateHelper.GetChroniaHitboxString(self);
+                string[] hitboxString = Info.SpecialInfoHelper.GetChroniaHitboxString(self);
                 if (SpinnerColliderHelper.TryGetValue(hitboxString, 1f, out SpinnerColliderHelper.SpinnerColliderValue value)) {
                     value.DrawOutlineAndInside(self.Position, color, collidable);
                     return true;

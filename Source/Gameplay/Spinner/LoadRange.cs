@@ -13,7 +13,7 @@ internal static class LoadRange {
         if (TasHelperSettings.UsingNearPlayerRange) {
             // to see whether it works, teleport to Farewell [a-01] and updash
             // (teleport modifies your actualDepth, otherwise you need to set depth, or just die in this room)
-            DrawNearPlayerRange(ActualPosition.PlayerPosition, ActualPosition.PreviousPlayerPosition, ActualPosition.PlayerPositionChangedCount);
+            DrawNearPlayerRange(Info.PositionHelper.PlayerPosition, Info.PositionHelper.PreviousPlayerPosition, Info.PositionHelper.PlayerPositionChangedCount);
         }
         if (TasHelperSettings.UsingInViewRange) {
             // Camera Position can be updated by Player or LookOut
@@ -30,11 +30,11 @@ internal static class LoadRange {
         float alpha = TasHelperSettings.RangeAlpha;
         Color color = InViewRangeColor * alpha;
 
-        DrawInViewRangeImpl(ActualPosition.CameraPositionSetLastElement, width, color, borderColor);
+        DrawInViewRangeImpl(Info.PositionHelper.CameraPositionSetLastElement, width, color, borderColor);
 
-        if (ActualPosition.CameraPositionSet.IsNotEmpty()) {
+        if (Info.PositionHelper.CameraPositionSet.IsNotEmpty()) {
             Color inverted = InViewRangeColor.Invert() * alpha;
-            foreach (Vector2 pos in ActualPosition.CameraPositionSet) {
+            foreach (Vector2 pos in Info.PositionHelper.CameraPositionSet) {
                 DrawInViewRangeImpl(pos, width, inverted, borderColorInverted);
             }
         }

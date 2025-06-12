@@ -59,7 +59,7 @@ internal static class HKNailDebugRender {
             Vector2 orig_Position = player.Position;
             Collider collider = player.Collider;
             int dir = (int)nailDir.GetValue(null);
-            player.Position = ActualPosition.PlayerPositionBeforeSelfUpdate;
+            player.Position = Spinner.Info.PositionHelper.PlayerPositionBeforeSelfUpdate;
             player.Collider = dir switch {
                 0 => nailhitboxUp,
                 1 => nailhitboxDown,

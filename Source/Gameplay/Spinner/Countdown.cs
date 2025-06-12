@@ -3,7 +3,6 @@ using Celeste.Mod.TASHelper.Module.Menu;
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using TAS;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
@@ -18,16 +17,16 @@ internal static class Countdown {
         }
         if (TasHelperSettings.UsingCountDown && NotCountdownBoost) {
 #pragma warning disable CS8629
-            float offset = SpinnerCalculateHelper.GetOffset(self).Value;
+            float offset = Info.OffsetHelper.GetOffset(self).Value;
 #pragma warning restore CS8629
             Vector2 CountdownPos;
-            if (self.IsLightning()) {
-                CountdownPos = self.Center + new Vector2(-1f, -2f);
+            if (Info.HazardTypeHelper.IsLightning(self)) {
+                CountdownPos = Info.PositionHelper.GetInviewCheckCenter(self) + new Vector2(-1f, -2f);
             }
             else {
-                CountdownPos = self.Position + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
+                CountdownPos = Info.PositionHelper.GetInviewCheckPosition(self) + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
-            SpinnerRenderHelper.DrawCountdown(CountdownPos, SpinnerCalculateHelper.PredictCountdown(offset, self.IsDust(), TasHelperSettings.SpinnerCountdownLoad), index, collidable);
+            SpinnerRenderHelper.DrawCountdown(CountdownPos, Info.TimeActiveHelper.PredictCountdown(offset, Info.HazardTypeHelper.IsDust(self), TasHelperSettings.SpinnerCountdownLoad), index, collidable);
         }
     }
 }
