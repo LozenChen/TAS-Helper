@@ -107,6 +107,7 @@ internal class CountdownRenderer : THRenderer {
             return;
         }
 
+        bool overlapResolved = Cached;
         Cached = true;
 
         if (TASHelperMenu.mainItem?.Container is { } container && container.Visible) {
@@ -114,41 +115,45 @@ internal class CountdownRenderer : THRenderer {
             return;
         }
 
-        foreach (Vector2 Position in overlapResolver.Keys) {
-            List<int> distinct = overlapResolver[Position].Distinct().ToList();
-            distinct.Sort();
-            for (int i = 0; i < distinct.Count; i++) {
-                HiresID2Positions.SafeAdd(distinct[i], (Position + unitOffset * i + new Vector2(1.5f, -0.5f)) * 6f);
+        if (!overlapResolved) {
+            foreach (Vector2 Position in overlapResolver.Keys) {
+                List<int> distinct = overlapResolver[Position].Distinct().ToList();
+                distinct.Sort();
+                for (int i = 0; i < distinct.Count; i++) {
+                    HiresID2Positions.SafeAdd(distinct[i], (Position + unitOffset * i + new Vector2(1.5f, -0.5f)) * 6f);
+                }
             }
         }
 
         Vector2 scale = new Vector2(TasHelperSettings.HiresFontSize / 10f);
         float stroke = TasHelperSettings.HiresFontStroke * 0.4f;
+
         foreach (int ID_inDict in HiresID2Positions.Keys.ToList().Apply(list => list.Sort(reverseComparer))) { // make 0 render at top
-            string str;
+            List<Vector2> positions = HiresID2Positions[ID_inDict];
+            if (positions.IsNullOrEmpty()) {
+                continue;
+            }
             int id = ID_inDict;
             bool uncollidable = id > 120;
             if (uncollidable) {
                 id -= SpinnerRenderHelper.ID_uncollidable_offset;
             }
-            if (id >= 0 && id < 100) {
-                str = id.ToString();
-            }
-            else if (id == SpinnerRenderHelper.ID_infinity) {
-                str = "oo";
-            }
-            else if (id == SpinnerRenderHelper.ID_nocycle) {
-                str = "0";
-            }
-            else {
-                throw new Exception($"[Error] TASHelper: Unexpected ID ({ID_inDict}) in CountdownRenderer!");
-            }
+            string str = id switch {
+                >= 0 and < 100 => id.ToString(),
+                SpinnerRenderHelper.ID_infinity => Infinity_String,
+                SpinnerRenderHelper.ID_nocycle => "0",
+                _ => throw new Exception($"[Error] TASHelper: Unexpected ID ({ID_inDict}) in CountdownRenderer!")
+            };
             Color colorInside = TasHelperSettings.DarkenWhenUncollidable && uncollidable ? Color.Gray : Color.White;
-            foreach (Vector2 Position in HiresID2Positions[ID_inDict]) {
+            foreach (Vector2 Position in positions) {
                 Message.RenderMessage(str, Position, new Vector2(0.5f, 0.2f), scale, stroke, colorInside, Color.Black);
             }
         }
     }
+
+    private const string Infinity_String = "\u221e";
+    // https://github.com/EverestAPI/Resources/wiki/Adding-Custom-Dialogue#adding-characters-to-the-english-font-with-the-font-generator-website
+    // the "oo" infinity symbol is added to Renogare64 font ("English dialog") by us
 
     [AddDebugRender]
     private static void NonHiresRender() {
@@ -206,9 +211,11 @@ internal class CountdownRenderer : THRenderer {
 
 internal static class DictionaryExtension {
     internal static void SafeAdd(this Dictionary<int, List<Vector2>> dict, int id, Vector2 vec) {
-        if (!dict.ContainsKey(id)) {
-            dict.Add(id, new List<Vector2>());
+        if (dict.TryGetValue(id, out List<Vector2> list) && list.IsNotNullOrEmpty()) {
+            list.Add(vec);
         }
-        dict[id].Add(vec);
+        else {
+            dict[id] = new List<Vector2> { vec };
+        }
     }
 }

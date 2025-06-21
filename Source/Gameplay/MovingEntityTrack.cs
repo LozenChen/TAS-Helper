@@ -68,7 +68,7 @@ public static class MovingEntityTrack {
         }
     }
 
-    private class MovingEntityTrackRenderer: THRenderer {
+    private class MovingEntityTrackRenderer : THRenderer {
 
         private static readonly Vector2 offset = new Vector2(3f, 3f);
 

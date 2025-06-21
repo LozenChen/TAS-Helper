@@ -91,7 +91,7 @@ public static class HiresLevelRenderer {
         }
     }
 
-    public static void AddIfNotPresent<T>(T renderer) where T: THRenderer  {
+    public static void AddIfNotPresent<T>(T renderer) where T : THRenderer {
         if ((!tracker.TryGetValue(typeof(T), out List<THRenderer> list) || !list.Contains(renderer)) && (!toAdd.Contains(renderer))) {
             toAdd.Add(renderer);
         }
