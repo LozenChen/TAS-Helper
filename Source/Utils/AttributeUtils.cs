@@ -132,3 +132,15 @@ internal class LoadLevelAttribute : Attribute {
 [AttributeUsage(AttributeTargets.Method)]
 // 0 - 2 parameters
 internal class AddDebugRenderAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Method)]
+// 0 - 1 parameters
+internal class SceneBeforeUpdateAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Method)]
+// 0 - 1 parameters
+internal class SceneOnUpdateAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Method)]
+// 0 - 1 parameters
+internal class SceneAfterUpdateAttribute : Attribute { }

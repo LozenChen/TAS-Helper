@@ -232,9 +232,7 @@ public class PredictorTextRenderer : THRenderer {
     }
 
     public static void Clear() {
-        foreach (PredictorTextRenderer tmp in HiresLevelRenderer.GetRenderers<PredictorTextRenderer>()) {
-            HiresLevelRenderer.Remove(tmp);
-        }
+        HiresLevelRenderer.RemoveRenderers<PredictorTextRenderer>();
     }
 }
 
@@ -274,9 +272,7 @@ public class PolygonalLineRenderer : THRenderer {
     }
 
     public static void Clear() {
-        foreach (PolygonalLineRenderer renderer in HiresLevelRenderer.GetRenderers<PolygonalLineRenderer>()) {
-            HiresLevelRenderer.Remove(renderer);
-        }
+        HiresLevelRenderer.RemoveRenderers<PolygonalLineRenderer>();
     }
 
 }

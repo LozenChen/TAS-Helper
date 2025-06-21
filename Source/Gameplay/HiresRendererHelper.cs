@@ -17,7 +17,6 @@ public static class HiresLevelRenderer {
         On.Celeste.Level.Begin += OnLevelBegin;
         On.Celeste.Level.End += OnLevelEnd;
         IL.Celeste.Level.Render += ILLevelRender;
-        EventOnHook._Scene.AfterUpdate += OnLevelAfterUpdate;
     }
 
     [Unload]
@@ -30,15 +29,21 @@ public static class HiresLevelRenderer {
     private static void OnLevelBegin(On.Celeste.Level.orig_Begin orig, Level self) {
         SafeDispose();
         HiresLevelTarget = VirtualContent.CreateRenderTarget(renderTargetName, 1920, 1080);
+        ClearAll();
         orig(self);
     }
 
     private static void OnLevelEnd(On.Celeste.Level.orig_End orig, Level self) {
         SafeDispose();
+        ClearAll();
+        orig(self);
+    }
+
+    private static void ClearAll() {
         list.Clear();
         toAdd.Clear();
         toRemove.Clear();
-        orig(self);
+        tracker.Clear();
     }
 
     private static void SafeDispose() {
@@ -51,6 +56,7 @@ public static class HiresLevelRenderer {
         }
     }
 
+    [SceneAfterUpdate]
     private static void OnLevelAfterUpdate(Scene self) {
         if (self is not Level) {
             return;
@@ -81,6 +87,12 @@ public static class HiresLevelRenderer {
 
     public static void AddIfNotPresent(THRenderer renderer) {
         if (!Contains(renderer) && !toAdd.Contains(renderer)) {
+            toAdd.Add(renderer);
+        }
+    }
+
+    public static void AddIfNotPresent<T>(T renderer) where T: THRenderer  {
+        if ((!tracker.TryGetValue(typeof(T), out List<THRenderer> list) || !list.Contains(renderer)) && (!toAdd.Contains(renderer))) {
             toAdd.Add(renderer);
         }
     }

@@ -18,6 +18,8 @@ public static class PlayerStateUtils {
     public static Vector2 SpeedBeforeUltra;
     public static bool RefillDash;
     public static bool AnyBounce => Bounce || SuperBounce || SideBounce || PointBounce || Rebound;
+
+    [SceneBeforeUpdate]
     public static void Clear() {
         Bounce = SuperBounce = SideBounce = Rebound = ReflectBounce = PointBounce = Ultra = RefillDash = false;
     }
@@ -43,7 +45,6 @@ public static class PlayerStateUtils {
 
     [Load]
     public static void Load() {
-        EventOnHook._Scene.BeforeUpdate += (_) => Clear();
         On.Celeste.Player.SideBounce += OnSideBounce;
         On.Celeste.Player.RefillDash += OnRefillDash;
     }

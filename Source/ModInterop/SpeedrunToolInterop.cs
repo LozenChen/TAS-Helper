@@ -47,7 +47,7 @@ internal static class SpeedrunToolInterop {
                 Predictor.PredictorCore.FreezeTimerBeforeUpdate = (float)clonedValues["FreezeTimerBeforeUpdate"];
                 Gameplay.MovingEntityTrack.CachedNodes = (List<Vector2[]>)clonedValues["CachedNodes"];
                 Gameplay.MovingEntityTrack.CachedStartEnd = (HashSet<Gameplay.MovingEntityTrack.StartEnd>)clonedValues["CachedStartEnd"];
-                Gameplay.MovingEntityTrack.CachedCircle = (Dictionary<Gameplay.MovingEntityTrack.RotateData, int>)clonedValues["CachedCircle"];
+                Gameplay.MovingEntityTrack.CachedCircle = (HashSet<Gameplay.MovingEntityTrack.RotateData>)clonedValues["CachedCircle"];
                 Gameplay.CassetteBlockHelper.CassetteBlockVisualizer.SJbeatColors = (Dictionary<int, Color>)clonedValues["SJbeatColors"];
                 Gameplay.CassetteBlockHelper.CassetteBlockVisualizer.QMbeatColors = (Dictionary<int, Color>)clonedValues["QMbeatColors"];
                 Gameplay.CassetteBlockHelper.CassetteBlockVisualizer.ColorSwapTime = (Dictionary<int, List<int>>)clonedValues["ColorSwapTime"];

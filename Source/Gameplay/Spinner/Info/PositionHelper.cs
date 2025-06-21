@@ -73,8 +73,6 @@ internal static class PositionHelper {
 
     [Load]
     private static void Load() {
-        EventOnHook._Scene.BeforeUpdate += PatchBeforeUpdate;
-        EventOnHook._Scene.AfterUpdate += PatchAfterUpdate;
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
         typeof(Player).GetMethod("orig_Update").IlHook(PlayerPositionBeforeCameraUpdateIL);
@@ -94,6 +92,8 @@ internal static class PositionHelper {
         PlayerPositionBeforeSelfUpdate = self.Position;
         orig(self);
     }
+
+    [SceneBeforeUpdate]
     private static void PatchBeforeUpdate(Scene self) {
         if (TasHelperSettings.Enabled && self is Level level) {
             PlayerPositionChangedCount = 0;
@@ -107,6 +107,7 @@ internal static class PositionHelper {
 
     private static bool InViewBoost = false;
 
+    [SceneAfterUpdate]
     private static void PatchAfterUpdate(Scene self) {
         if (TasHelperSettings.Enabled && self is Level level) {
             CameraPosition = level.Camera.Position;

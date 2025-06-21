@@ -1,9 +1,9 @@
 - Name: TASHelper
   Version: 2.2.2
-  DLL: bin/Release/net7.0/TASHelper.dll
+  DLL: bin/Release/net8.0/TASHelper.dll
   Dependencies:
     - Name: EverestCore
-      Version: 1.5034.0
+      Version: 1.5577
     - Name: CelesteTAS
       Version: 3.45.0
   OptionalDependencies:

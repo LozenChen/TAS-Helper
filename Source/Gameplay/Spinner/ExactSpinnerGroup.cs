@@ -85,10 +85,7 @@ public static class ExactSpinnerGroup {
         ExactLevelGroupRenderer.AddIfNecessary();
     }
 
-    [Load]
-    private static void Load() {
-        EventOnHook._Scene.AfterUpdate += PatchAfterUpdate;
-    }
+    [SceneAfterUpdate]
 
     private static void PatchAfterUpdate(Scene scene) {
         LastExactLevelGroup = ExactLevelGroup;

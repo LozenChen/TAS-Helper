@@ -139,12 +139,9 @@ internal static class CoreLogic {
     }
 
 
-    [Load]
-    private static void Load() {
-        EventOnHook._Scene.AfterUpdate += PatchAfterUpdate;
-    }
-
     private static bool wasFastForwarding = false;
+
+    [SceneAfterUpdate]
     private static void PatchAfterUpdate(Scene self) {
         if (self is Level) {
             if (FastForwarding) {

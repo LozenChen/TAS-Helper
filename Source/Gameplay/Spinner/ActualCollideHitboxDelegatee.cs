@@ -3,7 +3,7 @@ using Monocle;
 using StudioCommunication;
 using TAS.Gameplay.Hitboxes;
 
-namespace Celeste.Mod.TASHelper.Gameplay;
+namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 
 internal static class ActualCollideHitboxDelegatee {
 

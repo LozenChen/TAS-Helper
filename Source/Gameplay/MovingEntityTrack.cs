@@ -1,19 +1,15 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 
 public static class MovingEntityTrack {
 
-
     [Initialize]
 
     public static void Initialize() {
-        typeof(FireBall).GetMethod("Added").HookAfter<FireBall>((fireball) => {
-            // Vector2[] nodes = (Vector2[])FireBallNodesGetter.GetValue(fireball);
-            // thanks to Krafs.Publicizer, we can directly access vanilla stuff now
+        typeof(FireBall).GetMethod("Added")!.HookAfter<FireBall>((fireball) => {
             Vector2[] nodes = fireball.nodes;
             if (!CachedNodes.Contains(nodes)) {
                 CachedNodes.Add(nodes);
@@ -24,41 +20,18 @@ public static class MovingEntityTrack {
             CachedStartEnd.Add(new StartEnd(track.Start, track.End));
         });
 
-        typeof(RotateSpinner).GetConstructorInfo(typeof(EntityData), typeof(Vector2)).HookAfter<RotateSpinner>((spinner) => {
-            RotateData data = new RotateData(spinner.center, spinner.length);
-            if (!CachedCircle.ContainsKey(data)) {
-                CachedCircle[data] = 1;
-            }
-            else {
-                CachedCircle[data]++;
-            }
-            foreach (Component component in spinner.Components) {
-                if (component is StaticMover sm) {
-                    Action<Vector2> orig_OnMove = sm.OnMove;
-                    sm.OnMove = v => {
-                        RotateData oldData = new RotateData(spinner.center, spinner.length);
-                        orig_OnMove(v);
-                        RotateData newData = new RotateData(spinner.center, spinner.length);
-                        if (CachedCircle.TryGetValue(oldData, out int count)) {
-                            if (count > 1) {
-                                CachedCircle[oldData]--;
-                            }
-                            else {
-                                CachedCircle.Remove(oldData);
-                            }
-                        }
-                        if (!CachedCircle.ContainsKey(newData)) {
-                            CachedCircle[newData] = 1;
-                        }
-                        else {
-                            CachedCircle[newData]++;
-                        }
-                    };
-                    break;
-                }
-            }
+        typeof(RotateSpinner).GetMethod("Update")!.HookAfter<RotateSpinner>(spinner => {
+            CachedCircle.Add(new RotateData(spinner.center, spinner.length));
         });
     }
+
+    [SceneOnUpdate]
+    private static void ClearCircles(Scene scene) {
+        if (scene is Level level && !level.Paused) {
+            CachedCircle.Clear();
+        }
+    }
+
     internal struct StartEnd {
         public Vector2 Start;
         public Vector2 End;
@@ -77,13 +50,11 @@ public static class MovingEntityTrack {
         }
     }
 
-    public static FieldInfo FireBallNodesGetter = typeof(FireBall).GetField("nodes", BindingFlags.Instance | BindingFlags.NonPublic);
-
     internal static List<Vector2[]> CachedNodes = new List<Vector2[]>();
 
     internal static HashSet<StartEnd> CachedStartEnd = new();
 
-    internal static Dictionary<RotateData, int> CachedCircle = new();
+    internal static HashSet<RotateData> CachedCircle = new();
 
     public static Color TrackColor = Color.Yellow * 0.5f;
 
@@ -92,33 +63,37 @@ public static class MovingEntityTrack {
         CachedNodes.Clear();
         CachedStartEnd.Clear();
         CachedCircle.Clear();
+        if (HiresLevelRenderer.GetRenderers<MovingEntityTrackRenderer>().IsNullOrEmpty()) {
+            HiresLevelRenderer.Add(new MovingEntityTrackRenderer());
+        }
     }
 
-    [AddDebugRender]
-    private static void PatchEntityListDebugRender(EntityList self) {
-        if (self.Scene is not Level) {
-            return;
-        }
+    private class MovingEntityTrackRenderer: THRenderer {
 
-        if (TasHelperSettings.UsingFireBallTrack) {
-            foreach (Vector2[] nodes in CachedNodes) {
-                for (int i = 0; i < nodes.Length - 1; i++) {
-                    Draw.Line(nodes[i], nodes[i + 1], TrackColor, 1f);
-                    // use Draw.Line(start, end, color, thickness) will add an extra offset, making diagnoal lines really thickness = 1, comparing with Draw.Line(start, end, color, thickness)
-                    // however, there is a bit offset away from Draw.Point(...)
+        private static readonly Vector2 offset = new Vector2(3f, 3f);
+
+        private const float thickness = 3f;
+
+        private const int circleResolution = 16;
+        public override void Render() {
+            if (TasHelperSettings.UsingFireBallTrack) {
+                foreach (Vector2[] nodes in CachedNodes) {
+                    for (int i = 0; i < nodes.Length - 1; i++) {
+                        Draw.Line(nodes[i] * 6f + offset, nodes[i + 1] * 6f + offset, TrackColor, thickness);
+                    }
                 }
             }
-        }
 
-        if (TasHelperSettings.UsingRotateSpinnerTrack) {
-            foreach (RotateData circle in CachedCircle.Keys) {
-                Draw.Circle(circle.center, circle.length, TrackColor, 4);
+            if (TasHelperSettings.UsingRotateSpinnerTrack) {
+                foreach (RotateData circle in CachedCircle) {
+                    Draw.Circle(circle.center * 6f + offset, circle.length * 6f, TrackColor, thickness, circleResolution);
+                }
             }
-        }
 
-        if (TasHelperSettings.UsingTrackSpinnerTrack) {
-            foreach (StartEnd startEnd in CachedStartEnd) {
-                Draw.Line(startEnd.Start, startEnd.End, TrackColor, 1f);
+            if (TasHelperSettings.UsingTrackSpinnerTrack) {
+                foreach (StartEnd startEnd in CachedStartEnd) {
+                    Draw.Line(startEnd.Start * 6f + offset, startEnd.End * 6f + offset, TrackColor, thickness);
+                }
             }
         }
     }

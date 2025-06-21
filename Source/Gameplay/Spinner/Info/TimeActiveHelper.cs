@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.TASHelper.ModInterop;
-using Celeste.Mod.TASHelper.Utils;
 using Monocle;
 using System.Runtime.CompilerServices;
 
@@ -14,10 +13,7 @@ internal static class TimeActiveHelper {
 
     internal static int GroupCounter = 0;
 
-    [Load]
-    public static void Load() {
-        EventOnHook._Scene.BeforeUpdate += CalculateBeforeUpdate;
-    }
+    [SceneBeforeUpdate]
     internal static void CalculateBeforeUpdate(Scene self) {
         if (!TasHelperSettings.Enabled || WillFastForward) {
             return;

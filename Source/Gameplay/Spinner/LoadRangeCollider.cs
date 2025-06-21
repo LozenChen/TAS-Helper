@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.TASHelper.Module.Menu;
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 
@@ -37,7 +36,6 @@ internal static class LoadRangeColliderRenderer {
 
     [Initialize]
     public static void Initialize() {
-        EventOnHook._Scene.BeforeUpdate += (_) => ClearCache();
         starShape = GFX.Game["TASHelper/SpinnerCenter/spinner_center"];
 
         // there's bug report that starShape doesn't get initialized properly, why?
@@ -60,6 +58,7 @@ internal static class LoadRangeColliderRenderer {
     [AddDebugRender]
     private static void PatchEntityListDebugRender() {
         // render it after entity list debug render, so they are rendered above those solids
+        // and this also ensures it's excuted after LoadRangeCollider.Draw
         foreach (LightningData data in lightningDatas) {
             Draw.HollowRect(data.Position, data.Width, data.Height, SpinnerCenterColor);
         }
@@ -69,6 +68,7 @@ internal static class LoadRangeColliderRenderer {
         Cached = true;
     }
 
+    [SceneBeforeUpdate]
     public static void ClearCache() {
         lightningDatas.Clear();
         starShapePositions.Clear();
