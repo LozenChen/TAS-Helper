@@ -314,7 +314,7 @@ internal static class ModTriggerStaticInfo {
 
         if (ModUtils.GetType("CollabUtils2", "Celeste.Mod.CollabUtils2.Triggers.ChapterPanelTrigger") is { } chapterPanel) {
             Add(chapterPanel, (trigger, _) => {
-                if (trigger.GetEntityData() is EntityData data) {
+                if (trigger.SourceData is EntityData data) {
                     string map = data.Attr("map");
                     bool exitFromGym = data.Name == "CollabUtils2/ExitFromGymTrigger";
                     return exitFromGym ? "GymExit" : map;

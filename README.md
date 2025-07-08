@@ -60,6 +60,8 @@ This mod is based on [CelesteTAS](https://github.com/EverestAPI/CelesteTAS-Evere
 
 # Known issues:
 
+- AutoWatchEntity sometimes generates little black rect on screen -> don't know why. Seems related with AutoWatchEntity.Trigger.
+
 - AutoWatchEntity sometimes doesn't work -> it's possible if there's some mod which add some hooks and interfere AutoWatchEntity, please tell me if that happens.
 
 - There will be some offset between HiresRenderer and Gameplay contents when we use ExtendedVariant.ZoomLevel. This also applies to CelesteTAS.CenterCamera when we zoom out. -> maybe will fix this later.

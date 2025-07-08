@@ -26,7 +26,7 @@ internal static class Config {
 
     public static Mode CutsceneEntity => TasHelperSettings.AutoWatch_Cutscene;
 
-    public static Mode DashCodeEntity => Mode.Never;
+    public static Mode DashCodeEntity => Mode.Always;
 
     public static Mode FallingBlock => TasHelperSettings.AutoWatch_FallingBlock;
 

@@ -67,7 +67,7 @@ internal static class SpecialInfoHelper {
     }
 
     public static string[] GetChroniaHitboxString(Entity spinner) {
-        if (spinner.GetEntityData() is { } data && data.Attr("hitboxType") is { } hitboxType && hitboxType.IsNotNullOrEmpty()) {
+        if (spinner.SourceData is { } data && data.Attr("hitboxType") is { } hitboxType && hitboxType.IsNotNullOrEmpty()) {
             return hitboxType switch {
                 "loosened" => ["C:6;0,0"],
                 "seamlessRound" => ["C:8;0,0"],

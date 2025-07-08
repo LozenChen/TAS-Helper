@@ -120,7 +120,7 @@ internal static class ForEachBreakPoints_EntityList {
     }
 
     public static string GetUID(Entity entity) {
-        if (entity.GetEntityData()?.ToEntityId().ToString() is { } id) {
+        if (entity.SourceId.ToString() is { } id) {
             return $"{entity.GetType().Name}[{id}]";
         }
         return $"{entity.GetType().Name}";
@@ -311,7 +311,7 @@ internal static class ForEachBreakPoints_EntityList {
     public static bool CheckContain(Entity entity, out bool contain, out string shortID, out string longID) {
         shortID = GetID(entity);
         longID = shortID;
-        if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
+        if (entity.SourceId.ToString() is { } entityID) {
             longID = $"{entity.GetType().Name}[{entityID}]";
         }
         contain = targets.Contains(longID) || targets.Contains(shortID);

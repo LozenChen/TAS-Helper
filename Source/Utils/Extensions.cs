@@ -712,7 +712,7 @@ internal static class NumberExtensions {
 
 internal static class EntityIdExtension {
     public static string GetEntityId(this Entity entity) {
-        if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
+        if (entity.SourceId.ToString() is { } entityID) {
             return $"{entity.GetType().Name}[{entityID}]";
         }
         else {

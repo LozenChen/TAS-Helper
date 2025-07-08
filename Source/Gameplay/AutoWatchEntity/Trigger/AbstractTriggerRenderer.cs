@@ -209,6 +209,8 @@ internal abstract class AbstractTriggerRenderer : AutoWatchTextRenderer {
         base.DebugRenderImpl();
         if (hitbox is not null) {
             Draw.Rect(hitbox.AbsoluteX, hitbox.AbsoluteY, hitbox.Width, hitbox.Height, innerRegion);
+            // this randomly generate some little black rects?
+            // i don't know. It seems this only hapeen when not using center camera, and that the trigger is very long
         }
         // Draw.HollowRect(nearPlayerDetector.AbsoluteX, nearPlayerDetector.AbsoluteY, nearPlayerDetector.Width, nearPlayerDetector.Height, Color.Pink);
     }

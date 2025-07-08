@@ -262,7 +262,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
     public static bool CheckContain(Entity entity, out string id, out string type) {
         type = entity.GetType().Name;
         id = type;
-        if (entity.GetEntityData()?.ToEntityId().ToString() is { } entityID) {
+        if (entity.SourceId.ToString() is { } entityID) {
             id = $"{entity.GetType().Name}[{entityID}]";
         }
         return targets.Contains(id) || targets.Contains(type) || autostop_targets.Contains(id);

@@ -3,7 +3,7 @@
   DLL: bin/Release/net8.0/TASHelper.dll
   Dependencies:
     - Name: EverestCore
-      Version: 1.5577
+      Version: 1.5617
     - Name: CelesteTAS
       Version: 3.45.0
   OptionalDependencies:
