@@ -1,3 +1,4 @@
+using Celeste.Mod.TASHelper.Utils;
 using Celeste.Mod.UI;
 using Monocle;
 using System.Runtime.CompilerServices;
@@ -25,6 +26,16 @@ public static class ConsoleCommands {
             curr += delta;
         }
         Celeste.Commands.Log(curr);
+    }
+
+    [Command("switch_activate_all", "Activate All Switches (TAS Helper)")]
+    public static void CmdSwitchActivateAll() {
+        if (Engine.Scene is Level level && level.Tracker.GetComponents<Switch>() is List<Component> list && list.IsNotNullOrEmpty()) {
+            foreach (Switch sw in list) {
+                sw.Activate();
+            }
+            SoundEmitter.Play("event:/game/general/touchswitch_last_oneshot");
+        }
     }
 
     [Command("MainMenu", "Goto Main Menu")]

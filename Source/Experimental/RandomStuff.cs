@@ -14,8 +14,6 @@ using Celeste.Mod.TASHelper.Entities;
 using TAS.Input.Commands;
 using TAS;
 using YamlDotNet.Core;
-using Celeste.Mod.MotionSmoothing.Smoothing;
-using Celeste.Mod.MotionSmoothing.Smoothing.Strategies;
 
 namespace Celeste.Mod.TASHelper.Experimental;
 internal class RandomStuff {

@@ -26,11 +26,6 @@ internal class CrumbleWallOnRumbleRenderer : AutoWatchTextRenderer {
         crumble = entity as CrumbleWallOnRumble;
     }
 
-    [Initialize]
-    private static void Initialize() {
-        LevelExtensions.AddToTracker(typeof(RumbleTrigger));
-    }
-
     private const string expectedIEnumeratorName = "<RumbleRoutine>d__13";
 
     public void DelayedInitialize() {

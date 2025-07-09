@@ -157,7 +157,6 @@ internal static class SimplifiedSpinner {
         }
 
         if (ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.CassetteSpinner") is { } cassetteSpinnerType) { // we use this as a mod version check
-            LevelExtensions.AddToTracker(cassetteSpinnerType);
             ClearSpritesAction.Add(self => {
                 /*
                 if (!self.Tracker.Entities.ContainsKey(cassetteSpinnerType)) {
@@ -183,7 +182,6 @@ internal static class SimplifiedSpinner {
         }
 
         if (ModUtils.GetType("IsaGrabBag", "Celeste.Mod.IsaGrabBag.DreamSpinnerRenderer") is { } dreamSpinnerRendererType) {
-            LevelExtensions.AddToTracker(dreamSpinnerRendererType);
             ClearSpritesAction.Add(self => {
                 foreach (Entity renderer in self.Tracker.SafeGetEntities(dreamSpinnerRendererType)) {
                     renderer.Visible = !SpritesCleared;

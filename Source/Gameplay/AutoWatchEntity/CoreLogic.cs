@@ -23,7 +23,7 @@ internal static class CoreLogic {
             )
         );
         foreach (IRendererFactory factory in Factorys) {
-            LevelExtensions.AddToTracker(factory.GetTargetType(), factory.Inherited());
+            Tracker.AddTypeToTracker(factory.GetTargetType(), null, factory.Inherited());
             // Logger.Log(LogLevel.Debug, "TAS Helper", $"{factory.GetTargetType()}, inherited: {factory.Inherited()}");
         }
 

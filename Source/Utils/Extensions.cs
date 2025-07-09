@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Monocle;
 using MonoMod.RuntimeDetour;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -490,64 +491,30 @@ internal static class LevelExtensions {
         }
     }
 
-    // this should always be called in Initialize, so when any tracker instance is created, these types are already stored
-    public static void AddToTracker(Type entity, bool inherited = false) {
-        // if inherited, then all subclass entities of class T can be fetched using Tracker.GetEntities<T>()
-        // otherwise, Tracker.GetEntities<T>() only return those entities whose type is exactly T
-        if (!typeof(Entity).IsAssignableFrom(entity)) {
-            return;
-        }
+    public static List<Entity> SafeGetEntities<T> (this Tracker tracker, bool inhertied = false) where T : Entity {
+        return SafeGetEntities(tracker, typeof(T), inhertied);
+    }
 
-        // avoids CA1854: two lookups when only one is needed
-        if (Tracker.TrackedEntityTypes.TryGetValue(entity, out List<Type> types)) {
-            if (!types.Contains(entity)) {
-                Tracker.TrackedEntityTypes[entity].Add(entity);
+    public static List<Entity> SafeGetEntities(this Tracker tracker, Type type, bool inherited = false) {
+        // modified from Tracker.GetEntitiesTrackIfNeeded(type)
+        if (inherited) {
+            if (tracker.Entities.TryGetValue(type, out var value)) {
+                return value;
             }
+            if (!typeof(Entity).IsAssignableFrom(type)) {
+                throw new Exception($"Type '{type}' does not derive from Entity.");
+            }
+            Tracker.AddTypeToTracker(type, null, true);
+            Tracker.Refresh();
+            if (tracker.Entities.TryGetValue(type, out value)) {
+                return value;
+            }
+            throw new UnreachableException($"Tracking type '{type}' failed for an unknown reason!");
         }
         else {
-            Tracker.TrackedEntityTypes.Add(entity, new List<Type>() { entity });
+            return tracker.GetEntitiesTrackIfNeeded(type);
+            // this will call AddTypeToTracker(Type type, Type trackedAs = null, bool inheritAll = false) if not tracked yet
         }
-
-        if (inherited) {
-            foreach (Type subclass in Tracker.GetSubclasses(entity)) {
-                if (subclass.IsAbstract) {
-                    continue;
-                }
-
-                if (Tracker.TrackedEntityTypes.TryGetValue(subclass, out List<Type> parentOfSubclass)) {
-                    if (!parentOfSubclass.Contains(entity)) {
-                        parentOfSubclass.Add(entity);
-                    }
-                }
-                else {
-                    Tracker.TrackedEntityTypes.Add(subclass, new List<Type>() { entity });
-                }
-            }
-        }
-
-        Tracker.StoredEntityTypes.Add(entity);
-    }
-
-    public static List<Entity> SafeGetEntities<T>(this Tracker tracker) {
-        if (tracker.Entities.TryGetValue(typeof(T), out List<Entity> list)) {
-            return list;
-        }
-        AddToTracker(typeof(T));
-        // our add to tracker may get lost if some other mods hot reload, leading to crashes if we use GetEntities
-        // it's after initialize so we need to do more thing
-        tracker.Entities.Add(typeof(T), new List<Entity>());
-        return new List<Entity>();
-    }
-
-    public static List<Entity> SafeGetEntities(this Tracker tracker, Type type) {
-        if (tracker.Entities.TryGetValue(type, out List<Entity> list)) {
-            return list;
-        }
-        AddToTracker(type);
-        // our add to tracker may get lost if some other mods hot reload, leading to crashes if we use GetEntities
-        // it's after initialize so we need to do more thing
-        tracker.Entities.Add(type, new List<Entity>());
-        return new List<Entity>();
     }
 
     public static Vector2 ScreenToWorld(this Level level, Vector2 position) {

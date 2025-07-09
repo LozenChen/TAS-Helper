@@ -76,6 +76,9 @@ public static class MovingEntityTrack {
 
         private const int circleResolution = 16;
         public override void Render() {
+            if (!DebugRendered) {
+                return;
+            }
             if (TasHelperSettings.UsingFireBallTrack) {
                 foreach (Vector2[] nodes in CachedNodes) {
                     for (int i = 0; i < nodes.Length - 1; i++) {

@@ -13,7 +13,7 @@ public static class CustomInfoHelper {
             if (Engine.Scene is not Level level) {
                 return cachedCS = "";
             }
-            foreach (Entity cs in level.Tracker.SafeGetEntities<CutsceneEntity>()) {
+            foreach (Entity cs in level.Tracker.SafeGetEntities<CutsceneEntity>(inhertied: true)) {
                 if (cs is CutsceneEntity cse && cse.Running) {
                     return cachedCS = cse.GetType().Name;
                 }
@@ -73,9 +73,4 @@ public static class CustomInfoHelper {
         }
     }
     // TAS mod somehow redirects Player.Position, so we provide this
-
-    [Initialize]
-    private static void Initialize() {
-        LevelExtensions.AddToTracker(typeof(CutsceneEntity), true);
-    }
 }
