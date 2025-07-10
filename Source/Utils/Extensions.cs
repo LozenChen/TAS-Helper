@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using TAS.EverestInterop;
 
 namespace Celeste.Mod.TASHelper.Utils;
 
@@ -491,7 +490,7 @@ internal static class LevelExtensions {
         }
     }
 
-    public static List<Entity> SafeGetEntities<T> (this Tracker tracker, bool inhertied = false) where T : Entity {
+    public static List<Entity> SafeGetEntities<T>(this Tracker tracker, bool inhertied = false) where T : Entity {
         return SafeGetEntities(tracker, typeof(T), inhertied);
     }
 

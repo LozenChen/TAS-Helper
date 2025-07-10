@@ -2,7 +2,6 @@
 using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using TAS.EverestInterop;
 using static Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity.TriggerInfoHelper;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;

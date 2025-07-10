@@ -4,7 +4,6 @@ using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.RuntimeDetour;
-using TAS.EverestInterop;
 using TAS.Gameplay.Hitboxes;
 using static Celeste.Mod.TASHelper.OrderOfOperation.OoO_Core;
 

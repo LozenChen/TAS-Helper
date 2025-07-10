@@ -99,6 +99,7 @@ public static class WhatsNew {
         AddLog("2.2.0", "Refactor: Predictor now uses SpeedrunTool multiple saveslots. Note this needs SpeedrunTool v3.25.0 or higher, and SpeedrunTool v3.25.0 will be released a weak later. So this feature is temporarily disabled.");
         AddLog("2.2.1", "Remove: feature \"Inverse Frame Advance\" is now merged into CelesteTAS.");
         AddLog("2.2.2", "Bugfix: Hazard Countdown and LoadRangeCollider don't respect Order of Operations.");
+        AddLog("2.2.3", "Feature: Now Countdown uses the infinity symbol when spinner freeze.", "Re-implement MovingEntityTrack.", "Use Everest's new features to replace some internal methods.", "Feature: Add console command \"switch_activate_all\"");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

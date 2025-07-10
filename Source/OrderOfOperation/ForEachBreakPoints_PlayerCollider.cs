@@ -6,7 +6,6 @@ using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Runtime.CompilerServices;
-using TAS.EverestInterop;
 using TAS.Gameplay.Hitboxes;
 using static Celeste.Mod.TASHelper.OrderOfOperation.OoO_Core;
 

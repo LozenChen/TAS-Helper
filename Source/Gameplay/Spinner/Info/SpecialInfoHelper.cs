@@ -1,7 +1,6 @@
 ﻿using Celeste.Mod.TASHelper.Utils;
 using Monocle;
 using System.Reflection;
-using TAS.EverestInterop;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Info;
 

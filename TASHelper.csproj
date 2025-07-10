@@ -66,17 +66,8 @@
 		<Publicize Include="SpeedrunTool" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.Command.Commands" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.Commands.MetadataCommands" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.InfoHUD.InfoWatchEntity.WatchedEntities_Save" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.InfoHUD.InfoWatchEntity.WatchedEntities" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.EverestInterop.DesyncFixer.AuraHelperSharedRandom" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.Gameplay.BetterInvincible" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.Savestates.SavedCurrentFrame" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Gameplay.Hitboxes.ActualCollideHitbox.playerUpdated" />
-		<Publicize Include="CelesteTAS-EverestInterop:TAS.ModInterop.TASRecorderInterop" />
 		<Publicize Include="FNA:Microsoft.Xna.Framework.Input.GamePadButtons.buttons" />
-		<Publicize Include="MonoMod.Utils" />
-		<Publicize Include="MonoMod.Utils:MonoMod.Utils.DynamicData._DataMap" />
-		<Publicize Include="MonoMod.Utils:MonoMod.Utils.DynamicData._Data_" />
 		<DoNotPublicize Include="Celeste:Monocle.Entity.PreUpdate" />
 		<DoNotPublicize Include="Celeste:Monocle.Entity.PostUpdate" />
 		<DoNotPublicize Include="Celeste:Monocle.Scene.OnEndOfFrame" />
