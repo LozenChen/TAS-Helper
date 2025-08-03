@@ -8,6 +8,7 @@ internal static class Loader {
 
     public static void Load() {
         Reloading = GFX.Loaded; // Tas Helper load -> GFX load -> Tas Helper unload -> Tas Helper reload. So GFX.Loaded can be used to detect this
+        // this is hacky... i guess i should use AssetReloadHelper instead
         AttributeUtils.Invoke<LoadAttribute>();
     }
 

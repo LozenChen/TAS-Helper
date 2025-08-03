@@ -1,9 +1,10 @@
 ﻿//#define AttributeDebug
+using System;
 using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Utils.Attributes;
 internal static class AttributeUtils {
-    private static readonly object[] Parameterless = { };
+    private static readonly object[] Parameterless = [];
     internal static readonly IDictionary<Type, IEnumerable<MethodInfo>> MethodInfos = new Dictionary<Type, IEnumerable<MethodInfo>>();
 
 #if AttributeDebug
@@ -19,6 +20,10 @@ internal static class AttributeUtils {
             .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
             .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<T>() != null && IsGoodClass(info.DeclaringType))).ToList();
 
+        if (typeof(T) == typeof(InitializeAttribute)) {
+            list = list.OrderByDescending(info => info.GetCustomAttribute<InitializeAttribute>().Depth).ToList();
+        }
+
         bool useSelect = leftPercent != 0f || rightPercent != 1f;
 
         if (useSelect) {
@@ -30,16 +35,38 @@ internal static class AttributeUtils {
         MethodInfos[typeof(T)] = list;
     }
 
-    public static string[] exceptionClass = []; // add class which possibly have bugs to here
+
+    public static string[] enabledClass = [];
+
+    public static string[] exceptionClass = ["Celeste.Mod.TASHelper.Utils.EventOnHook+_Level", "Celeste.Mod.TASHelper.Gameplay.Spinner.SimplifiedSpinner"]; // add class which possibly have bugs to here
+
     private static bool IsGoodClass(Type type) {
         string name = type.FullName;
-        foreach (string predicate in exceptionClass) {
-            if (name.StartsWith(predicate)) {
-                Logger.Log(LogLevel.Debug, "TASHelper AttributeUtils Reject", name);
-                return false;
+        bool success = true;
+        if (enabledClass.IsNotEmpty()) {
+            success = false;
+            foreach (string acceptPredicate in enabledClass) {
+                if (name.StartsWith(acceptPredicate)) {
+                    success = true;
+                    break;
+                }
             }
         }
-        return true;
+        if (success && exceptionClass.IsNotEmpty()) {
+            foreach (string rejectPredicate in exceptionClass) {
+                if (name.StartsWith(rejectPredicate)) {
+                    success = false;
+                    break;
+                }
+            }
+        }
+        if (success) {
+            return true;
+        }
+        else {
+            Logger.Log(LogLevel.Debug, "TASHelper AttributeUtils Reject", name);
+            return false;
+        }
     }
 
     // 注意: 由于 EventOnHook 类的搜索是单独写的, 因此会有略微不兼容
@@ -76,7 +103,8 @@ internal static class AttributeUtils {
         if (typeof(T) == typeof(InitializeAttribute)) {
             MethodInfos[typeof(T)] = typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
                 .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<InitializeAttribute>() != null)).OrderByDescending(info => info.GetCustomAttribute<InitializeAttribute>().Depth);
+                .Where(info => info.GetParameters().Length == 0 && info.GetCustomAttribute<InitializeAttribute>() != null))
+                .OrderByDescending(info => info.GetCustomAttribute<InitializeAttribute>().Depth);
             return;
         }
         MethodInfos[typeof(T)] = typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type

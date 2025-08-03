@@ -58,11 +58,8 @@ public static class PauseUpdater {
 
     [Tracked]
     private class Detector : Entity {
-
-        public static Detector instance;
         public Detector() {
             base.Tag = levelPauseTags | Tags.Persistent;
-            instance = this;
             Depth = -100;
         }
 
@@ -74,8 +71,8 @@ public static class PauseUpdater {
 
         [LoadLevel]
         public static void AddIfNecessary(Level level) {
-            if (instance is null || instance.Scene != level) {
-                level.AddImmediately(new Detector());
+            if (level.Tracker.GetEntity<Detector>() is null) {
+                level.Add(new Detector());
             }
         }
     }

@@ -171,7 +171,7 @@ public class EntityActivatorWarner : Message {
 [Tracked(false)]
 public class HotkeyWatcher : Message {
 
-    public static HotkeyWatcher Instance;
+    public static HotkeyWatcher Instance => Engine.Scene is Level level ? level.Tracker.GetEntity<HotkeyWatcher>() : null;
 
     public static float lifetime = 3f;
 
@@ -187,9 +187,8 @@ public class HotkeyWatcher : Message {
         if (Engine.Scene is not Level level) {
             return false;
         }
-        if (Instance is null || !level.Entities.Contains(Instance)) {
-            Instance = new();
-            level.AddImmediately(Instance);
+        if (level.Tracker.GetEntity<HotkeyWatcher>() is null) {
+            level.Add(new HotkeyWatcher());
         }
         return true;
     }
@@ -204,7 +203,7 @@ public class HotkeyWatcher : Message {
 
     public static void RefreshHotkeyDisabled() {
         if (AddIfNecessary()) {
-            Instance.RefreshHotkeyDisabledImpl();
+            Instance?.RefreshHotkeyDisabledImpl();
         }
     }
 
@@ -220,7 +219,7 @@ public class HotkeyWatcher : Message {
 
     public static void RefreshMainSwitch() {
         if (AddIfNecessary()) {
-            Instance.RefreshMainSwitchImpl();
+            Instance?.RefreshMainSwitchImpl();
         }
     }
 
@@ -234,7 +233,7 @@ public class HotkeyWatcher : Message {
 
     public static void Refresh(string text) {
         if (AddIfNecessary()) {
-            Instance.RefreshImpl(text);
+            Instance?.RefreshImpl(text);
         }
     }
 

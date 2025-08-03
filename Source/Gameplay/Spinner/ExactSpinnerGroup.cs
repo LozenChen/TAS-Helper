@@ -40,7 +40,7 @@ public static class ExactSpinnerGroup {
             }
         }
         GroupPeriod = modulo;
-        if (ExactLevelGroupRenderer.Instance is { } obj) {
+        if (Engine.Scene is Level level && level.Tracker.GetEntity<ExactLevelGroupRenderer>() is { } obj) {
             obj.Visible = Enabled;
             obj.text = $"SpinnerGroup ?/{GroupPeriod}";
         }
@@ -91,9 +91,8 @@ public static class ExactSpinnerGroup {
         LastExactLevelGroup = ExactLevelGroup;
     }
 
+    [Tracked]
     private class ExactLevelGroupRenderer : Message {
-
-        internal static ExactLevelGroupRenderer Instance;
 
         public ExactLevelGroupRenderer() : base($"SpinnerGroup ?/{GroupPeriod}", new Vector2(1900f, 20f)) {
             this.Depth = -20000;
@@ -106,12 +105,8 @@ public static class ExactSpinnerGroup {
             if (Engine.Scene is not Level level) {
                 return false;
             }
-            if (Instance is null || !level.Entities.Contains(Instance)) {
-                Instance = new();
-                level.AddImmediately(Instance);
-            }
-            else {
-                Instance.Visible = true;
+            if (level.Tracker.GetEntity<ExactLevelGroupRenderer>() is null) {
+                level.Add(new ExactLevelGroupRenderer());
             }
             return true;
         }

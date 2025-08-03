@@ -71,6 +71,7 @@ internal static class SimplifiedSpinner {
         ClearSpritesAction.Add(VanillaBeforeRender);
         OnCreateSprites(typeof(CrystalStaticSpinner));
         EOF(typeof(DustGraphic).GetConstructor(new Type[] { typeof(bool), typeof(bool), typeof(bool) }));
+        
 
         if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType && ModUtils.GetType("FrostHelper", "FrostHelper.SpinnerConnectorRenderer") is { } rendererType1 && ModUtils.GetType("FrostHelper", "FrostHelper.SpinnerBorderRenderer") is { } rendererType2 && ModUtils.GetType("FrostHelper", "FrostHelper.SpinnerDecoRenderer") is { } rendererType3) {
             ClearSpritesAction.Add(self => FrostBeforeRender(self, frostSpinnerType, new Type[] { rendererType1, rendererType2, rendererType3 }));

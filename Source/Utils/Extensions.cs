@@ -447,49 +447,6 @@ internal static class DictionaryExtensions {
 
 internal static class LevelExtensions {
 
-    private static List<Entity> toAdd = new();
-
-    private static List<Entity> toRemove = new();
-    public static void AddImmediately(this Scene scene, Entity entity) {
-        // ensure entity is added even if the regular engine update loop is interrupted, e.g. TAS stop
-        // such entities may be added during gameplay instead of when load level
-        toAdd.Add(entity);
-    }
-
-    public static void RemoveImmediately(this Scene scene, Entity entity) {
-        toRemove.Add(entity);
-    }
-
-    [Initialize]
-    private static void Initialize() {
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }, ID = "TAS Helper AddEntities Immediately" }) {
-            // it involves UpdateLists, so it's really dangerous!
-            typeof(Scene).GetMethod("BeforeUpdate").HookBefore(AddEntities); // still add it so that if ultra fast forwarding (so render is skipped), there's no duplicate entity
-            if (!ModUtils.MotionSmoothingInstalled) {
-                // https://discord.com/channels/403698615446536203/429775320720211968/1337656187801571329
-                // i guess MotionSmoothing will do some actions here, if we UpdateLists then something may go wrong?
-                typeof(Scene).GetMethod("BeforeRender").HookBefore(AddEntities);
-            }
-        }
-    }
-
-    private static void AddEntities() {
-        if (toRemove.IsNotEmpty()) {
-            foreach (Entity entity in toRemove) {
-                Engine.Scene.Remove(entity);
-            }
-            toRemove.Clear();
-            Engine.Scene.Entities.UpdateLists();
-        }
-        if (toAdd.IsNotEmpty()) {
-            foreach (Entity entity in toAdd) {
-                Engine.Scene.Add(entity);
-            }
-            toAdd.Clear();
-            Engine.Scene.Entities.UpdateLists();
-        }
-    }
-
     public static List<Entity> SafeGetEntities<T>(this Tracker tracker, bool inhertied = false) where T : Entity {
         return SafeGetEntities(tracker, typeof(T), inhertied);
     }

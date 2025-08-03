@@ -2,6 +2,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
+using System.Text;
 using _Celeste = Celeste;
 
 namespace Celeste.Mod.TASHelper.Utils;
@@ -320,7 +321,7 @@ internal static class EventOnHook {
                         case 1: {
                                 LoadLevel_Parameter1 += (LoadLevelHandler_Parameter1)method.CreateDelegate(typeof(LoadLevelHandler_Parameter1));
                                 break;
-                            }
+                        }
                         case 2: {
                                 LoadLevel_Parameter2 += (LoadLevelHandler_Parameter2)method.CreateDelegate(typeof(LoadLevelHandler_Parameter2));
                                 break;
@@ -330,12 +331,12 @@ internal static class EventOnHook {
                                 break;
                             }
                         default: {
-                                ThrowException();
-                                break;
+                                        ThrowException();
+                                        break;
+                                    }
                             }
                     }
                 }
-            }
             if (LoadLevel_Parameter0 is not null) {
                 LoadLevel += (_, _, _) => LoadLevel_Parameter0.Invoke();
             }
@@ -450,7 +451,8 @@ public static class CILCodeHelper {
         if (useCommand) {
             Celeste.Commands.Log("------------------------------");
         }
-        Logger.Log(LogLevel.Debug, "TAS Helper", "---- CILCodeLogger ----");
+        StringBuilder sb = new();
+        sb.AppendLine("---- CILCodeLogger ----");
         if (Apply) {
             if (AsShift) {
                 ilCursor.Index += Position;
@@ -470,13 +472,14 @@ public static class CILCodeHelper {
             else {
                 str = $"{ilCursor.Next.Offset:x4}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand}";
             }
-            Mod.Logger.Log(LogLevel.Debug, "TAS Helper", str);
+            sb.AppendLine("    " + str);
             if (useCommand) {
                 Celeste.Commands.Log(str);
             }
             logCount--;
             ilCursor.Index++;
         }
+        Mod.Logger.Log(LogLevel.Debug, "TAS Helper", sb.ToString());
     }
 
     public static void CILCodeLogger(this MulticastDelegate func) {

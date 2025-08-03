@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 public static class HiresLevelRenderer {
@@ -52,6 +53,20 @@ public static class HiresLevelRenderer {
             // the original code was "HiresLevelTarget?.Dispose()";
             // maybe the un-initialized HiresLevelTarget somehow points to StarJumpController.BlockFill?
             // though this does never happen to me
+            // ...
+            // oh this happens to me in TAS Helper 2.2.3
+            // https://discord.com/channels/403698615446536203/1400781370497695815
+            // the bug is not here
+            // if 
+            // (1) Celeste.Mod.TASHelper.Gameplay.Spinner.SimplifiedSpinner.Initialize has an il hook on Level.BeforeRender (even if it's an empty hook)
+            // (2) Celeste.Mod.TASHelper.Entities.PauseUpdater.Detector.AddIfNecessary calls level.AddImmediately(new Detector()) instead of Level.Add
+            // when both (1), (2) exists, bug occurs
+            // --- Wartori tells me that:
+            // hooking can cause other methods to get inlined in the hooked method
+            // A calls B which can be inlined, so you hook A first, A is compiled and B inlined in it, then you hook B and issues arise, 
+            // it works both ways
+            // 
+            // i fix it by no longer using AddImmediately
             HiresLevelTarget.Dispose();
         }
     }
@@ -149,6 +164,8 @@ public static class HiresLevelRenderer {
         ILCursor cursor = new ILCursor(il);
         // render HiresLevelRenderer before SetRenderTarget(null)
 
+        bool success = true;
+
         if (cursor.TryGotoNext(
                 ins => ins.OpCode == OpCodes.Ldnull,
                 ins => ins.OpCode == OpCodes.Callvirt,
@@ -156,6 +173,9 @@ public static class HiresLevelRenderer {
             )) {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate(Render);
+        }
+        else {
+            success = false;
         }
 
         // and map it to null render target after subhud renderer, to have right depth
@@ -168,6 +188,13 @@ public static class HiresLevelRenderer {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate(MapToScreen);
             cursor.Index = i;
+        }
+        else {
+            success = false;
+        }
+
+        if (!success) {
+            throw new Exception($"TASHelper {nameof(HiresLevelRenderer)} failed to hook.");
         }
     }
     private static void Render(Level level) {
