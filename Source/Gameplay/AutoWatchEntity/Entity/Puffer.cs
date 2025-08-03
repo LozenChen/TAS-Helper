@@ -72,7 +72,7 @@ internal class PufferRenderer : AutoWatchText2Renderer {
                                 break;
                             }
                         default: break;
-                    };
+                    }
                     break;
                 }
             case Puffer.States.Hit: {
@@ -87,7 +87,7 @@ internal class PufferRenderer : AutoWatchText2Renderer {
                                 break;
                             }
                         default: break;
-                    };
+                    }
                     break;
                 }
         }

@@ -321,7 +321,7 @@ internal static class EventOnHook {
                         case 1: {
                                 LoadLevel_Parameter1 += (LoadLevelHandler_Parameter1)method.CreateDelegate(typeof(LoadLevelHandler_Parameter1));
                                 break;
-                        }
+                            }
                         case 2: {
                                 LoadLevel_Parameter2 += (LoadLevelHandler_Parameter2)method.CreateDelegate(typeof(LoadLevelHandler_Parameter2));
                                 break;
@@ -331,12 +331,12 @@ internal static class EventOnHook {
                                 break;
                             }
                         default: {
-                                        ThrowException();
-                                        break;
-                                    }
+                                ThrowException();
+                                break;
                             }
                     }
                 }
+            }
             if (LoadLevel_Parameter0 is not null) {
                 LoadLevel += (_, _, _) => LoadLevel_Parameter0.Invoke();
             }

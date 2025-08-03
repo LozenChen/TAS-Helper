@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Monocle;
-using MonoMod.RuntimeDetour;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;

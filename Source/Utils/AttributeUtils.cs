@@ -1,5 +1,4 @@
 ﻿//#define AttributeDebug
-using System;
 using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Utils.Attributes;

@@ -45,12 +45,12 @@ internal class BumperRenderer : AutoWatchTextRenderer {
                     break;
                 }
             default: break;
-        };
+        }
 
         if (!bumper.fireMode) {
             text.Append(bumper.respawnTimer.ToFrameMinusOne()); // depth 0 so it depends on actualDepth...
         }
-
+        
         SetVisible();
     }
 
