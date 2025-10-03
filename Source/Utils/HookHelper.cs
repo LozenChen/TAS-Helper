@@ -451,6 +451,7 @@ public static class CILCodeHelper {
         if (useCommand) {
             Celeste.Commands.Log("------------------------------");
         }
+        int orig_index = ilCursor.Index;
         StringBuilder sb = new();
         sb.AppendLine("---- CILCodeLogger ----");
         if (Apply) {
@@ -479,6 +480,7 @@ public static class CILCodeHelper {
             logCount--;
             ilCursor.Index++;
         }
+        ilCursor.Index = orig_index;
         Mod.Logger.Log(LogLevel.Debug, "TAS Helper", sb.ToString());
     }
 

@@ -82,6 +82,9 @@ internal static class HazardTypeHelper {
     }
 
     private static void CheckAndAddTag(Entity entity) {
+        if (entity is null) {
+            return;
+        }
         int? value = HazardTypeImpl(entity);
         if (value.HasValue) {
             switch (value.Value) {

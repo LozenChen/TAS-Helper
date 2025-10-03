@@ -25,6 +25,7 @@ internal static class Config {
     public static Mode CrushBlock => TasHelperSettings.AutoWatch_Kevin;
 
     public static Mode CutsceneEntity => TasHelperSettings.AutoWatch_Cutscene;
+    // TODO: enhance it, possibly supports LuaCutscene better
 
     public static Mode DashCodeEntity => Mode.Always;
 

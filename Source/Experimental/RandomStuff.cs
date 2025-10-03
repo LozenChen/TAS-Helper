@@ -58,6 +58,7 @@ internal class RandomStuff {
             On.Celeste.Level.LoadLevel -= OnLoadLevel;
         }
 
+        /*
         [Initialize]
         private static void Initialize() {
             typeof(LightingRenderer).GetMethodInfo("StartDrawingPrimitives").HookBefore<LightingRenderer>(r => {
@@ -84,10 +85,11 @@ internal class RandomStuff {
                 }
             });
         }
+        */
 
         public class LightingRendererKiller : Entity {
             public LightingRendererKiller(Level level) : base(new Vector2(level.Bounds.X, level.Bounds.Y)) {
-                this.Collider = new Hitbox(level.Bounds.Width, level.Bounds.Height);
+                this.Collider = new Hitbox(level.Bounds.Width / 2f, level.Bounds.Height / 2f);
                 for (int i = 1; i <= 4; i++) {
                     this.Add(new EffectCutout());
                 }
@@ -99,42 +101,12 @@ internal class RandomStuff {
         }
     }
     
-    private static Vector2 HandleMotionSmoothing() {
-        if (Engine.Scene is not Level level) {
-            return Vector2.Zero;
-        }
-        var ob = MotionSmoothing.Utilities.ToggleableFeature<MotionSmoothingHandler>.Instance;
-        if (ob is null) {
-            Logger.Log(LogLevel.Debug, "TASHelper", "1. Null Reference Exception");
-            return Vector2.Zero;
-        }
-        MotionSmoothing.Smoothing.States.IPositionSmoothingState positionSmoothingState = ob.GetState(level.Camera) as MotionSmoothing.Smoothing.States.IPositionSmoothingState;
-        if (positionSmoothingState is null) {
-            MotionSmoothing.Smoothing.MotionSmoothingHandler.Instance.InvokeMethod("SmoothCamera", new object[] { level.Camera});
-            if (ob.GetState(level.Camera) is null) {
-                if (level.Camera is null) {
-                    Logger.Log(LogLevel.Debug, "TASHelper", "2.0. Null Reference Exception");
-                }
-                else if (ob.ValueSmoother is null) {
-                    Logger.Log(LogLevel.Debug, "TASHelper", "2.1. Null Reference Exception");
-                }
-                else if (ob.ValueSmoother.GetState(level.Camera) is null){
-                    if (ob.PushSpriteSmoother is null) {
-                        Logger.Log(LogLevel.Debug, "TASHelper", "2.2. Null Reference Exception");
-                    }
-                    else {
-                        Logger.Log(LogLevel.Debug, "TASHelper", "2.3. Null Reference Exception");
-                    }
-                }
-            }
-            else {
-                Logger.Log(LogLevel.Debug, "TASHelper", "3. Null Reference Exception");
-            }
-            return Vector2.Zero;
-        }
-        return positionSmoothingState.SmoothedRealPosition.Floor() - positionSmoothingState.SmoothedRealPosition;
-    }
 #endif
+
+    [Load]
+    private static void Load() {
+
+    }
 
     [Initialize]
     private static void Initialize() {
@@ -167,6 +139,12 @@ internal class RandomStuff {
 
 
     private static bool IsSimplifiedGraphics() => TasSettings.SimplifiedGraphics;
+
+
+    [Command("test", "tashelper test command")]
+    public static void TestCommand() {
+        Commands.CmdLoad(141, "StrawberryJam2021/5-Grandmaster/ZZ-HeartSide");
+    }
 }
 
 #endif
