@@ -101,6 +101,7 @@ public static class WhatsNew {
         AddLog("2.2.2", "Bugfix: Hazard Countdown and LoadRangeCollider don't respect Order of Operations.");
         AddLog("2.2.3", "Feature: Now Countdown uses the infinity symbol when spinner freeze.", "Re-implement MovingEntityTrack.", "Use Everest's new features to replace some internal methods.", "Feature: Add console command \"switch_activate_all\"");
         AddLog("2.2.4", "Bugfix: Fix StarJumpBlock.orig_Render crash. (thanks @Catabilities)");
+        AddLog("2.2.5", "Bugfix: Fix a NullReferenceException. (thanks @Michal 338)", "Feature: AutoWatch supports CrumblePlatform.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
