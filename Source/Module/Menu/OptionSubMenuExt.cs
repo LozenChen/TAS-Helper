@@ -549,6 +549,13 @@ public class OptionSubMenuExt : TextMenu.Item {
                 cursor.EmitDelegate(GetShouldGotoMainMenu);
             }
         });
+
+        Everest.Events.Level.OnCreatePauseMenuButtons += Level_OnCreatePauseMenuButtons;
+    }
+
+    [Unload]
+    private static void Unload() {
+        Everest.Events.Level.OnCreatePauseMenuButtons -= Level_OnCreatePauseMenuButtons;
     }
 
     private static bool OnMenuTryPageDown(bool input, TextMenu menu) {
@@ -589,6 +596,23 @@ public class OptionSubMenuExt : TextMenu.Item {
             return false;
         }
         return true;
+    }
+
+    private static void Level_OnCreatePauseMenuButtons(Level level, TextMenu menu, bool minimal) {
+        // same as GetShouldGotoMainMenu, but for the in-game mod options menu
+        void betterUnpause() {
+            if (menu?.Current is OptionSubMenuExt subMenu && subMenu.Visible && subMenu.MenuIndex != 0) {
+                return;
+            }
+            level.Unpause();
+        }
+
+        menu.OnCancel -= level.Unpause;
+        menu.OnCancel += betterUnpause;
+        /*
+        menu.OnPause -= level.Unpause;
+        menu.OnESC -= level.Unpause;
+        */
     }
 }
 

@@ -587,6 +587,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public Mode AutoWatch_Cloud = Mode.Always;
 
+    public Mode AutoWatch_CrumblePlatform = Mode.Always;
+
     public Mode AutoWatch_CrumbleWallOnRumble = Mode.Always;
 
     public Mode AutoWatch_FallingBlock = Mode.Always;

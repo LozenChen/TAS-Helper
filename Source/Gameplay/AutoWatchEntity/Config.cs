@@ -20,6 +20,7 @@ internal static class Config {
 
     public static Mode Cloud => TasHelperSettings.AutoWatch_Cloud;
 
+    public static Mode CrumblePlatform => TasHelperSettings.AutoWatch_CrumblePlatform;
     public static Mode CrumbleWallOnRumble => TasHelperSettings.AutoWatch_CrumbleWallOnRumble;
 
     public static Mode CrushBlock => TasHelperSettings.AutoWatch_Kevin;
@@ -82,13 +83,15 @@ internal static class Format {
 
 internal static class TODO {
 
+    // todo: 统一是否 -1f
+
     public static Mode Lookout = Mode.Always; // show conditions of interaction
 
     public static Mode Triggers = Mode.Always; // take care of compatibility with simplified triggers , camera trigger in particular
 
     public static Mode FlagTouchSwitch = Mode.Always;
 
-    public static Mode CrumblePlatform = Mode.Always; // disappear and respawn
+    public static Mode MaxHelpingHandCrumblePlatform = Mode.Always; // disappear and respawn
 
     public static Mode Seeker = Mode.Always; // more info
 
