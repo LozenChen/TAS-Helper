@@ -46,6 +46,11 @@ internal static class InfoParser {
         return (ToCeilingFrames(seconds) - 1).ToString();
     }
 
+    internal static string ToFramePlusOne(this float seconds) {
+        int i = ToCeilingFrames(seconds) + 1;
+        return i <= 0 ? "" : i.ToString();
+    }
+
     internal static string ToFrame(this int frames) {
         return frames.ToString();
     }
