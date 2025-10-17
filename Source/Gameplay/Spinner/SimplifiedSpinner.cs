@@ -305,12 +305,23 @@ internal static class SimplifiedSpinner {
         Color color = SpinnerRenderHelper.GetSpinnerColor(index);
         bool collidable = Info.CollidableHelper.GetCollidable(self);
 
-        int width = camera.Viewport.Width;
-        int height = camera.Viewport.Height;
-        Rectangle bounds = new((int)camera.Left - width / 2, (int)camera.Top - height / 2, width * 2, height * 2);
-        if (self.Right < bounds.Left || self.Left > bounds.Right || self.Top > bounds.Bottom ||
-            self.Bottom < bounds.Top) {
-            // skip part of render
+        if (self.Right < Left || self.Left > Right || self.Top > Bottom || self.Bottom < Top) {
+            /*
+             * In CelesteTAS's HitboxOptimized.ModDebugRender we already have:
+             * 
+                // Do not draw hitboxes of entities outside the camera
+                if (self.Collider is not Grid && self is not FinalBossBeam) {
+                    int width = camera.Viewport.Width;
+                    int height = camera.Viewport.Height;
+                    Rectangle bounds = new((int)camera.Left - width / 2, (int)camera.Top - height / 2, width * 2, height * 2);
+                    if (self.Right < bounds.Left || self.Left > bounds.Right || self.Top > bounds.Bottom ||
+                        self.Bottom < bounds.Top) {
+                        return;
+                    }
+                }
+             *
+             * We apply a stricter check, coz we know it's ok for hazard
+             */
         }
         else {
             if (TasHelperSettings.EnableSimplifiedSpinner && !Info.HazardTypeHelper.IsLightning(self)) {
@@ -326,4 +337,22 @@ internal static class SimplifiedSpinner {
         LoadRangeCollider.Draw(self);
         Countdown.Draw(self, index, collidable);
     }
+
+    [AddDebugRender(before: true)]
+    private static void OnDebugRender(EntityList _, Camera camera) {
+        Left = camera.Left - Padding;
+        Right = camera.Right + Padding;
+        Top = camera.Top - Padding;
+        Bottom = camera.Bottom + Padding;
+    }
+
+    private static float Left;
+
+    private static float Right;
+
+    private static float Top;
+
+    private static float Bottom;
+
+    private const float Padding = 10f;
 }

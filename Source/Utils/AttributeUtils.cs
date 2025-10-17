@@ -158,7 +158,13 @@ internal class LoadLevelAttribute : Attribute {
 
 [AttributeUsage(AttributeTargets.Method)]
 // 0 - 2 parameters
-internal class AddDebugRenderAttribute : Attribute { }
+internal class AddDebugRenderAttribute : Attribute {
+    public bool Before;
+
+    public AddDebugRenderAttribute(bool before = false) {
+        Before = before;
+    }
+}
 
 [AttributeUsage(AttributeTargets.Method)]
 // 0 - 1 parameters

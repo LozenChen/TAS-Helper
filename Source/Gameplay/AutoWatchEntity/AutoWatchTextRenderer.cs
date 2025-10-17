@@ -5,9 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
-internal partial class HiresText : THRenderer {
+internal class HiresText : THRenderer {
 
-    internal AutoWatchRenderer holder;
+    internal AutoWatchTextRenderer holder;
     public string content;
     private Vector2 position;
 
@@ -30,6 +30,9 @@ internal partial class HiresText : THRenderer {
         }
     }
 
+    // the center of text, taking justify into account
+    public Vector2 Center => new Vector2(position.X, position.Y + (0.5f - justify.Y) * Measure(content).Y) / 6f;
+
     public float scale = 1f;
 
     public Vector2 justify;
@@ -38,7 +41,7 @@ internal partial class HiresText : THRenderer {
 
     public Color colorOutside = Color.Black;
 
-    public HiresText(string text, Vector2 position, AutoWatchRenderer holder) {
+    public HiresText(string text, Vector2 position, AutoWatchTextRenderer holder) {
         content = text;
         this.position = position;
         this.holder = holder;
@@ -47,9 +50,19 @@ internal partial class HiresText : THRenderer {
 
     public override void Render() {
         if (DebugRendered && holder.Visible) {
+            Vector2 m = Measure(content);
+            float left = position.X - m.X * justify.X;
+            float top = position.Y - m.Y * justify.Y;
+            float right = left + m.X;
+            float bottom = top + m.Y;
+            if (!HiresLevelRenderer.InBound(left, right, top, bottom)) {
+                return;
+            }
             Message.RenderMessage(content, position, justify, Config.HiresFontSize * scale, Config.HiresFontStroke * scale, colorInside, colorOutside);
         }
     }
+
+    public Vector2 Measure(string text) => Message.Measure(text) * Config.HiresFontSize * scale;
 
     public void Clear() {
         content = "";

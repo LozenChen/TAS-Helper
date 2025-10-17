@@ -101,7 +101,7 @@ internal class CountdownRenderer : THRenderer {
         }
     }
 
-    private static Comparer<int> reverseComparer = Comparer<int>.Create((x, y) => -Comparer<int>.Default.Compare(x, y));
+    private static readonly Comparer<int> reverseComparer = Comparer<int>.Create((x, y) => -Comparer<int>.Default.Compare(x, y));
     public override void Render() {
         if (!TasHelperSettings.UsingHiresFont) {
             return;
@@ -129,7 +129,7 @@ internal class CountdownRenderer : THRenderer {
         float stroke = TasHelperSettings.HiresFontStroke * 0.4f;
 
         foreach (int ID_inDict in HiresID2Positions.Keys.ToList().Apply(list => list.Sort(reverseComparer))) { // make 0 render at top
-            List<Vector2> positions = HiresID2Positions[ID_inDict];
+            List<Vector2> positions = HiresID2Positions[ID_inDict].Where(HiresLevelRenderer.InBound).ToList();
             if (positions.IsNullOrEmpty()) {
                 continue;
             }

@@ -384,47 +384,84 @@ internal static class EventOnHook {
     internal static class _EntityList {
         public delegate void DebugRenderHandler(Monocle.EntityList self, Monocle.Camera camera);
 
-        public static event DebugRenderHandler DebugRender;
+        public static event DebugRenderHandler DebugRender_Before;
+        public static event DebugRenderHandler DebugRender_After;
 
         private delegate void DebugRenderHandler_Parameter0();
 
-        private static event DebugRenderHandler_Parameter0 DebugRender_Parameter0;
+        private static event DebugRenderHandler_Parameter0 DebugRender_Before_Parameter0;
+        private static event DebugRenderHandler_Parameter0 DebugRender_After_Parameter0;
 
         private delegate void DebugRenderHandler_Parameter1(Monocle.EntityList self);
 
-        private static event DebugRenderHandler_Parameter1 DebugRender_Parameter1;
+        private static event DebugRenderHandler_Parameter1 DebugRender_Before_Parameter1;
+        private static event DebugRenderHandler_Parameter1 DebugRender_After_Parameter1;
 
         [Initialize]
         private static void Initialize() {
-            DebugRender = null;
-            DebugRender_Parameter0 = null;
-            DebugRender_Parameter1 = null;
+            DebugRender_Before = null;
+            DebugRender_After = null;
+            DebugRender_Before_Parameter0 = null;
+            DebugRender_After_Parameter0 = null;
+            DebugRender_Before_Parameter1 = null;
+            DebugRender_After_Parameter1 = null;
             foreach (MethodInfo method in typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
-            .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)).Where(method => method.GetCustomAttribute<AddDebugRenderAttribute>() is { })) {
-                switch (method.GetParameters().Length) {
-                    case 0: {
-                            DebugRender_Parameter0 += (DebugRenderHandler_Parameter0)method.CreateDelegate(typeof(DebugRenderHandler_Parameter0));
-                            break;
-                        }
-                    case 1: {
-                            DebugRender_Parameter1 += (DebugRenderHandler_Parameter1)method.CreateDelegate(typeof(DebugRenderHandler_Parameter1));
-                            break;
-                        }
-                    case 2: {
-                            DebugRender += (DebugRenderHandler)method.CreateDelegate(typeof(DebugRenderHandler));
-                            break;
-                        }
-                    default: {
-                            ThrowException();
-                            break;
-                        }
+            .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))) {
+                if (method.GetCustomAttribute<AddDebugRenderAttribute>() is not { } attr) {
+                    continue;
+                }
+                if (attr.Before) {
+                    switch (method.GetParameters().Length) {
+                        case 0: {
+                                DebugRender_Before_Parameter0 += (DebugRenderHandler_Parameter0)method.CreateDelegate(typeof(DebugRenderHandler_Parameter0));
+                                break;
+                            }
+                        case 1: {
+                                DebugRender_Before_Parameter1 += (DebugRenderHandler_Parameter1)method.CreateDelegate(typeof(DebugRenderHandler_Parameter1));
+                                break;
+                            }
+                        case 2: {
+                                DebugRender_Before += (DebugRenderHandler)method.CreateDelegate(typeof(DebugRenderHandler));
+                                break;
+                            }
+                        default: {
+                                ThrowException();
+                                break;
+                            }
+                    }
+                }
+                else {
+                    switch (method.GetParameters().Length) {
+                        case 0: {
+                                DebugRender_After_Parameter0 += (DebugRenderHandler_Parameter0)method.CreateDelegate(typeof(DebugRenderHandler_Parameter0));
+                                break;
+                            }
+                        case 1: {
+                                DebugRender_After_Parameter1 += (DebugRenderHandler_Parameter1)method.CreateDelegate(typeof(DebugRenderHandler_Parameter1));
+                                break;
+                            }
+                        case 2: {
+                                DebugRender_After += (DebugRenderHandler)method.CreateDelegate(typeof(DebugRenderHandler));
+                                break;
+                            }
+                        default: {
+                                ThrowException();
+                                break;
+                            }
+                    }
                 }
             }
-            if (DebugRender_Parameter0 is not null) {
-                DebugRender += (_, _) => DebugRender_Parameter0.Invoke();
+            if (DebugRender_Before_Parameter0 is not null) {
+                DebugRender_Before += (_, _) => DebugRender_Before_Parameter0.Invoke();
             }
-            if (DebugRender_Parameter1 is not null) {
-                DebugRender += (self, _) => DebugRender_Parameter1.Invoke(self);
+            if (DebugRender_Before_Parameter1 is not null) {
+                DebugRender_Before += (self, _) => DebugRender_Before_Parameter1.Invoke(self);
+            }
+            if (DebugRender_After_Parameter0 is not null) {
+                DebugRender_After += (_, _) => DebugRender_After_Parameter0.Invoke();
+            }
+            if (DebugRender_After_Parameter1 is not null) {
+                DebugRender_After += (self, _) => DebugRender_After_Parameter1.Invoke(self);
             }
         }
 
@@ -439,8 +476,9 @@ internal static class EventOnHook {
         }
 
         private static void OnEntityListDebugRender(On.Monocle.EntityList.orig_DebugRender orig, Monocle.EntityList self, Monocle.Camera camera) {
+            DebugRender_Before?.Invoke(self, camera);
             orig(self, camera);
-            DebugRender?.Invoke(self, camera);
+            DebugRender_After?.Invoke(self, camera);
         }
     }
 }

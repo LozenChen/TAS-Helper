@@ -212,6 +212,8 @@ public static class HiresLevelRenderer {
         camera.Origin = level.Camera.Origin * 6f;
         camera.Angle = level.Camera.Angle;
         camera.Zoom = level.Camera.Zoom;
+
+        UpdateCameraData();
         /* Level.Camera = Level.GameplayRenderer.Camera in Celeste.LoadingThread()
          * and GameplayRenderer use Camera.Matrix in Draw.SpriteBatch.Begin(...)
          * i guess we never need to call HiresLevelRender.Before/./AfterUpdate, so needn't add it to Level.RendererList, so we do not hook Celeste.LoadingThread
@@ -249,6 +251,32 @@ public static class HiresLevelRenderer {
         Draw.SpriteBatch.Draw((RenderTarget2D)HiresLevelTarget, vector3 + vector4, HiresLevelTarget.Bounds, Color.White, 0f, vector3, scale, spriteEffects, 0f);
         Draw.SpriteBatch.End();
     }
+
+    private static void UpdateCameraData() {
+        LeftWithPadding = camera.Left - Padding;
+        RightWithPadding = camera.Right + Padding;
+        TopWithPadding = camera.Top - Padding;
+        BottomWithPadding = camera.Bottom + Padding;
+    }
+
+    internal static bool InBound(float left, float right, float top, float bottom) {
+        return left < RightWithPadding && right > LeftWithPadding && bottom > TopWithPadding && top < BottomWithPadding;
+    }
+
+    internal static bool InBound(Vector2 vec) {
+        // for small stuff
+        return vec.X < RightWithPadding && vec.X > LeftWithPadding && vec.Y > TopWithPadding && vec.Y < BottomWithPadding;
+    }
+
+    private static float LeftWithPadding;
+
+    private static float RightWithPadding;
+
+    private static float TopWithPadding;
+
+    private static float BottomWithPadding;
+
+    private const float Padding = 10f;
 }
 
 public class THRenderer {

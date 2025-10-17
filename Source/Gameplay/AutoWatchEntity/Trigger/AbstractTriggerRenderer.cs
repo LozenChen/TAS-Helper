@@ -64,7 +64,7 @@ internal abstract class AbstractTriggerRenderer : AutoWatchTextRenderer {
         SetAlphaText(false);
         SetAlphaRegion(false);
 
-        text.content = NameSplitter(Name(), entity.Width / text.scale * 6f);
+        text.content = NameSplitter(Name(), entity.Width * 6f);
         text.Append(GetStaticInfo()); // we'll not split info
         staticInfo = text.content;
         hasDynamicInfo = HasDynamicInfo();
@@ -72,7 +72,7 @@ internal abstract class AbstractTriggerRenderer : AutoWatchTextRenderer {
             text.Append(GetDynamicInfo());
         }
 
-        measure = Measure(text.content) * text.scale / 6f;
+        measure = text.Measure(text.content) / 6f;
         nearPlayerDetector = new Hitbox(measure.X + 6f, measure.Y + 6f, 0f, 0f);
         // even if the dynamicInfo change later, we will still not change the near player detector
 
@@ -101,20 +101,17 @@ internal abstract class AbstractTriggerRenderer : AutoWatchTextRenderer {
     }
 
     public void SetNearPlayerDetector() {
-        nearPlayerDetector.Center = text.Position;
+        nearPlayerDetector.Center = text.Center;
     }
 
-    public static Vector2 Measure(string str) => TASHelper.Entities.Message.Measure(str);
-    public static float MeasureX(string str) => TASHelper.Entities.Message.Measure(str).X;
-
-    public static string NameSplitter(string name, float width) {
+    public string NameSplitter(string name, float width) {
         if (name.Length < 6) {
             return name;
         }
         if (width < 120f) {
             width = 120f;
         }
-        float x = MeasureX(name);
+        float x = text.Measure(name).X;
         if (x < width) {
             return name;
         }
