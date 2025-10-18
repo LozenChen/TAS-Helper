@@ -2,7 +2,6 @@
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class BetterSpeedrunTimerDisplay {
@@ -10,7 +9,7 @@ internal static class BetterSpeedrunTimerDisplay {
     [Load]
 
     private static void Load() {
-        using (new DetourContext { Before = new List<string> { "*" }, ID = "TAS Helper BetterSpeedrunTimerDisplay" }) {
+        using (DetourContextHelper.Use(Before: new List<string> { "*" }, ID: "TAS Helper BetterSpeedrunTimerDisplay")) {
             IL.Celeste.SpeedrunTimerDisplay.Render += IL_SpeedrunTimerDisplay_Render;
             IL.Celeste.SpeedrunTimerDisplay.DrawTime += IL_SpeedrunTimerDisplay_DrawTime;
         }

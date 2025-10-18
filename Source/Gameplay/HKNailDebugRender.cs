@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Reflection;

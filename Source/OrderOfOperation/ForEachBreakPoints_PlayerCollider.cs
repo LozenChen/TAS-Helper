@@ -1,6 +1,5 @@
 //#define OoO_Debug
 
-using Celeste.Mod.TASHelper.Utils;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -30,44 +29,43 @@ internal static class ForEachBreakPoints_PlayerCollider {
 
     public const string autoStopString = "Auto";
 
-    private static IDetour detour;
+    private static ILHook detour;
 
     internal static void Create() {
-        using (new DetourContext { Before = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_PlayerCollider" }) {
-            detour = new ILHook(PlayerOrigUpdate, il => {
-                ILCursor cursor = new ILCursor(il);
-                cursor.TryGotoNext(
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.MatchCallOrCallvirt<Player>("get_Dead"),
-                ins => ins.OpCode == OpCodes.Brtrue,
-                ins => ins.OpCode == OpCodes.Ldarg_0,
-                ins => ins.OpCode == OpCodes.Ldfld,
-                ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
-                ins => ins.MatchLdcI4(21));
-                cursor.Index += 7;
-                cursor.Next.MatchBeq(out ILLabel normalExitTarget);
+        DetourConfig config = DetourContextHelper.Create(Before: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID: "TAS Helper OoO_Core ForEachBreakPoints_PlayerCollider");
+        detour = HookHelper.ManualAppliedILHook(PlayerOrigUpdate, il => {
+            ILCursor cursor = new ILCursor(il);
+            cursor.TryGotoNext(
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchCallOrCallvirt<Player>("get_Dead"),
+            ins => ins.OpCode == OpCodes.Brtrue,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.OpCode == OpCodes.Ldfld,
+            ins => ins.MatchCallOrCallvirt<StateMachine>("get_State"),
+            ins => ins.MatchLdcI4(21));
+            cursor.Index += 7;
+            cursor.Next.MatchBeq(out ILLabel normalExitTarget);
 
-                if (cursor.TryGotoNext(MoveType.AfterLabel,
-                    ins => ins.OpCode == OpCodes.Ldarg_0,
-                    ins => ins.MatchCallOrCallvirt<Entity>("get_Collider"),
-                    ins => ins.OpCode == OpCodes.Stloc_S,
-                    ins => ins.OpCode == OpCodes.Ldarg_0,
-                    ins => ins.OpCode == OpCodes.Ldarg_0,
-                    ins => ins.MatchLdfld<Player>("hurtbox"),
-                    ins => ins.MatchCallOrCallvirt<Entity>("set_Collider")
-                )) {
-                    cursor.Emit(OpCodes.Ldarg_0);
-                    cursor.EmitDelegate(PCCheck);
-                    cursor.Emit(OpCodes.Brtrue, normalExitTarget);
-                    cursor.Emit(OpCodes.Ret);
-                }
+            if (cursor.TryGotoNext(MoveType.AfterLabel,
+                ins => ins.OpCode == OpCodes.Ldarg_0,
+                ins => ins.MatchCallOrCallvirt<Entity>("get_Collider"),
+                ins => ins.OpCode == OpCodes.Stloc_S,
+                ins => ins.OpCode == OpCodes.Ldarg_0,
+                ins => ins.OpCode == OpCodes.Ldarg_0,
+                ins => ins.MatchLdfld<Player>("hurtbox"),
+                ins => ins.MatchCallOrCallvirt<Entity>("set_Collider")
+            )) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate(PCCheck);
+                cursor.Emit(OpCodes.Brtrue, normalExitTarget);
+                cursor.Emit(OpCodes.Ret);
+            }
 #if OoO_Debug
                         else {
                             failedHooks.Add($"\n ForEachBreakPoints_PlayerCollider");
                         }
 #endif
-            }, manualConfig);
-        }
+        }, config);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]

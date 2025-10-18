@@ -1,10 +1,8 @@
 ﻿using Celeste.Mod.TASHelper.ModInterop;
 using Celeste.Mod.TASHelper.OrderOfOperation;
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
 using System.Reflection;
 using TAS;
 using TAS.Input;
@@ -164,7 +162,7 @@ public static class PredictorCore {
             return;
         }
 
-        using (new DetourContext { Before = new List<string> { "CelesteTAS" }, ID = "TAS Helper PredictorCore" }) {
+        using (DetourContextHelper.Use(Before: new List<string> { "CelesteTAS" }, ID: "TAS Helper PredictorCore")) {
             IL.Monocle.Engine.Update += ILEngineUpdate;
         }
     }

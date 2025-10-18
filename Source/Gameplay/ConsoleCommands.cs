@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Utils;
 using Celeste.Mod.UI;
 using Monocle;
 using System.Runtime.CompilerServices;

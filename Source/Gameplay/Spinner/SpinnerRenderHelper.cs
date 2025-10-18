@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -11,7 +10,7 @@ internal static class SpinnerRenderHelper {
     [Initialize(depth: int.MinValue)]
     public static void Initialize() {
         if (Info.SpecialInfoHelper.VivSpinnerType is not null) {
-            typeof(SpinnerRenderHelper).GetMethod(nameof(DrawSpinnerCollider)).IlHook((cursor, _) => {
+            typeof(SpinnerRenderHelper).GetMethod(nameof(DrawSpinnerCollider)).ILHook((cursor, _) => {
                 Instruction skipViv = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldarg_1);
@@ -24,7 +23,7 @@ internal static class SpinnerRenderHelper {
         }
 
         if (Info.SpecialInfoHelper.ChroniaSpinnerType is not null) {
-            typeof(SpinnerRenderHelper).GetMethod(nameof(DrawSpinnerCollider)).IlHook((cursor, _) => {
+            typeof(SpinnerRenderHelper).GetMethod(nameof(DrawSpinnerCollider)).ILHook((cursor, _) => {
                 Instruction skipChronia = cursor.Next;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldarg_1);

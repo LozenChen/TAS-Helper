@@ -13,7 +13,7 @@ namespace Celeste.Mod.TASHelper.OrderOfOperation;
 internal class SpringBoard {
     // mainly used to jump from one breakpoint to the next (sometimes not actually jump, e.g. we can't jump from a breakpoint in Engine.Update to a breakpoint in Level.Update, we have to use at least two springBoards)
     // jump if current BreakPoint is Finished; otherwise track current BreakPoint to passedBreakPoints, run codes, and return before next BreakPoint
-    public static readonly Dictionary<MethodBase, IDetour> dictionary = new();
+    public static readonly Dictionary<MethodBase, ILHook> dictionary = new();
 
     private static void Refresh(MethodBase methodBase) {
         if (dictionary.ContainsKey(methodBase)) {
@@ -25,46 +25,43 @@ internal class SpringBoard {
     }
 
     public static void Create(MethodBase methodBase) {
-        IDetour detour;
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core BreakPoints", "TAS Helper OoO_Core Ending" }, ID = "TAS Helper OoO_Core SpringBoard" }) {
-            detour = new ILHook(methodBase, il => {
-                ILCursor cursor = new(il);
-                if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && BreakPoints.HashPassedBreakPoints.Contains((string)ins.Operand))) {
-                    // for EndingBreakpoints, there maybe several different matching results, but jump to one is enough
-                    Instruction target = cursor.Next;
-                    string label = (string)cursor.Next.Operand;
+        DetourConfig config = DetourContextHelper.Create(After: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core BreakPoints", "TAS Helper OoO_Core Ending" }, ID: "TAS Helper OoO_Core SpringBoard");
+        ILHook detour = HookHelper.ManualAppliedILHook(methodBase, il => {
+            ILCursor cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && BreakPoints.HashPassedBreakPoints.Contains((string)ins.Operand))) {
+                // for EndingBreakpoints, there maybe several different matching results, but jump to one is enough
+                Instruction target = cursor.Next;
+                string label = (string)cursor.Next.Operand;
 #pragma warning disable CS0219
-                    bool recordRemoved = false;
+                bool recordRemoved = false;
 #pragma warning restore CS0219
-                    BreakPoints point = BreakPoints.dictionary[label];
-                    if (point.SubMethodPassed is bool b && !b) {
-                        // do nothing
+                BreakPoints point = BreakPoints.dictionary[label];
+                if (point.SubMethodPassed is bool b && !b) {
+                    // do nothing
+                }
+                else {
+                    cursor.Index++;
+                    cursor.MoveAfterLabels();
+                    cursor.Emit(OpCodes.Pop); // in next run, we will jump to this label, pop (so it's not recorded), and run till next label
+                    cursor.Remove(); // remove RecordLabel
+                    if (point.RetShift > BreakPoints.RetShiftDoNotEmit) {
+                        cursor.Index += point.RetShift;
+                        cursor.Remove(); // remove Ret
                     }
-                    else {
-                        cursor.Index++;
-                        cursor.MoveAfterLabels();
-                        cursor.Emit(OpCodes.Pop); // in next run, we will jump to this label, pop (so it's not recorded), and run till next label
-                        cursor.Remove(); // remove RecordLabel
-                        if (point.RetShift > BreakPoints.RetShiftDoNotEmit) {
-                            cursor.Index += point.RetShift;
-                            cursor.Remove(); // remove Ret
-                        }
 
-                        recordRemoved = true;
-                    }
+                    recordRemoved = true;
+                }
 
 #if OoO_Debug
                         jumpLog.Add($"\n {label.Replace(BreakPoints.Prefix, "")} | Finished: {recordRemoved}");
 #endif
-                    cursor.Goto(0);
-                    if (methodBase == EngineUpdate) {
-                        cursor.Goto(3, MoveType.AfterLabel);
-                    }
-                    cursor.Emit(OpCodes.Br, target);
+                cursor.Goto(0);
+                if (methodBase == EngineUpdate) {
+                    cursor.Goto(3, MoveType.AfterLabel);
                 }
-
-            }, manualConfig);
-        }
+                cursor.Emit(OpCodes.Br, target);
+            }
+        }, config);
         dictionary[methodBase] = detour;
     }
 
@@ -82,14 +79,14 @@ internal class SpringBoard {
     }
 
     public static void UndoAll() {
-        foreach (IDetour detour in dictionary.Values) {
+        foreach (ILHook detour in dictionary.Values) {
             detour.Undo();
         }
     }
 
     [Unload]
     private static void Unload() {
-        foreach (IDetour detour in dictionary.Values) {
+        foreach (ILHook detour in dictionary.Values) {
             detour.Dispose();
         }
     }

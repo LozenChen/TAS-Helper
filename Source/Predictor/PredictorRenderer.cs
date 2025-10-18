@@ -1,7 +1,6 @@
 ﻿using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Module;
 using Celeste.Mod.TASHelper.Module.Menu;
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using static Celeste.Mod.TASHelper.Predictor.PredictorCore;

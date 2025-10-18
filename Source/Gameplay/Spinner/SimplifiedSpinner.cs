@@ -1,8 +1,6 @@
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
-using MonoMod.RuntimeDetour;
 using System.Collections;
 using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
@@ -39,7 +37,7 @@ internal static class SimplifiedSpinner {
     [Load]
     public static void Load() {
         // hook after CelesteTAS.CycleHitboxColor's hook
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }, ID = "TAS Helper SimplifiedSpinner" }) {
+        using (DetourContextHelper.Use(After: ["*", "CelesteTAS-EverestInterop"], ID: "TAS Helper SimplifiedSpinner")) {
             // CelesteTAS.HitboxOptimized also hooks this, and it'll early return if entity is not in the camera
             // so we need to be after HitboxOptimized hook, which already uses After = {"*"}, so we need even more configs
             On.Monocle.Entity.DebugRender += PatchDebugRender;
@@ -59,7 +57,7 @@ internal static class SimplifiedSpinner {
 
     [Initialize]
     public static void Initialize() {
-        typeof(Level).GetMethod("BeforeRender").IlHook((cursor, _) => {
+        typeof(Level).GetMethod("BeforeRender").ILHook((cursor, _) => {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate(LevelBeforeRender);
         });
@@ -192,7 +190,7 @@ internal static class SimplifiedSpinner {
         }
 
         void EOF(MethodBase method) {
-            method.IlHook((cursor, _) => {
+            method.ILHook((cursor, _) => {
                 cursor.Goto(cursor.Instrs.Count - 1);
                 cursor.EmitDelegate(CallNeedClearSprites);
             });

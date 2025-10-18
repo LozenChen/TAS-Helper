@@ -87,8 +87,8 @@ internal static class ModUtils {
         private static readonly Lazy<EverestModule> module = new(() => ModUtils.GetModule("ExtendedVariantMode"));
         private static readonly Lazy<object> triggerManager = new(() => module.Value?.GetFieldValue<object>("TriggerManager"));
 
-        private static readonly Lazy<FastReflectionDelegate> getCurrentVariantValue = new(() =>
-            triggerManager.Value?.GetType().GetMethodInfo("GetCurrentVariantValue")?.GetFastDelegate());
+        private static readonly Lazy<FastReflectionHelper.FastInvoker?> getCurrentVariantValue = new(() =>
+        triggerManager.Value?.GetType().GetMethodInfo("GetCurrentVariantValue")?.GetFastInvoker());
 
         private static readonly Lazy<Type> variantType =
             new(() => module.Value?.GetType().Assembly.GetType("ExtendedVariants.Module.ExtendedVariantsModule+Variant"));

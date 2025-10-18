@@ -28,16 +28,12 @@ internal static class MovementOvershootAssistant {
 
     [Initialize]
     private static void Initialize() {
-        ILHookConfig config = default;
-        config.After = new List<string>() { "*" };
-        config.ID = "TAS Helper Movement Overshoot Assistant";
-        config.ManualApply = true;
-
-        detour = new ILHook(typeof(Player).GetMethod("orig_Update"), HookOrigUpdate, config);
+        DetourConfig config = new DetourConfig("TAS Helper Movement Overshoot Assistant", after: ["*"]);
+        detour = HookHelper.ManualAppliedILHook(typeof(Player).GetMethod("orig_Update")!, HookOrigUpdate, config);
         UpdateDetourState();
     }
 
-    private static IDetour detour;
+    private static ILHook detour;
 
     private static bool detourApplied = false;
 

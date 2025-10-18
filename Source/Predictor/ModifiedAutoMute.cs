@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.TASHelper.Utils;
-using FMOD.Studio;
+﻿using FMOD.Studio;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -9,9 +8,9 @@ namespace Celeste.Mod.TASHelper.Predictor;
 
 public static class ModifiedAutoMute {
 
-    private static IDetour detour;
+    private static ILHook detour;
 
-    private static IDetour detour2;
+    private static ILHook detour2;
 
     [Initialize]
     private static void Initialize() {
@@ -19,19 +18,19 @@ public static class ModifiedAutoMute {
             return;
         }
 
-        detour = new ILHook(typeof(AutoMute).GetGetMethod("ShouldBeMuted"), il => {
+        detour = HookHelper.ManualAppliedILHook(typeof(AutoMute).GetGetMethod("ShouldBeMuted"), il => {
             ILCursor cursor = new ILCursor(il);
             if (cursor.TryGotoNext(ins => ins.MatchLdcR4(2f))) {
                 cursor.Remove();
                 cursor.Emit(OpCodes.Ldc_R4, 0f);
             }
-        }, HookHelper.manualConfig);
+        });
 
-        detour2 = new ILHook(typeof(AutoMute).GetGetMethod("FrameStep"), il => {
+        detour2 = HookHelper.ManualAppliedILHook(typeof(AutoMute).GetGetMethod("FrameStep"), il => {
             ILCursor cursor = new ILCursor(il);
             cursor.Emit(OpCodes.Ldc_I4_1);
             cursor.Emit(OpCodes.Ret);
-        }, HookHelper.manualConfig);
+        });
     }
 
     [Unload]

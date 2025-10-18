@@ -1,3 +1,4 @@
+global using Celeste.Mod.TASHelper.Utils;
 global using Celeste.Mod.TASHelper.Utils.Attributes;
 global using Celeste.Mod.TASHelper.Utils.CommandUtils;
 global using static Celeste.Mod.TASHelper.GlobalVariables;

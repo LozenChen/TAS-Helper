@@ -1,4 +1,3 @@
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -15,7 +14,7 @@ public static class Messenger {
     public static void Initialize() {
         if (ModUtils.PandorasBoxInstalled) {
             Type entityActivatorType = ModUtils.GetType("PandorasBox", "Celeste.Mod.PandorasBox.EntityActivator");
-            entityActivatorType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(EntityData), typeof(Vector2) }, null).IlHook((cursor, _) => {
+            entityActivatorType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(EntityData), typeof(Vector2) }, null).ILHook((cursor, _) => {
                 if (cursor.TryGotoNext(MoveType.Before, ins => ins.OpCode == OpCodes.Ret)) {
                     cursor.Emit(OpCodes.Ldarg_1);
                     cursor.EmitDelegate(WatchEntityActivator);

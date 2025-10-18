@@ -1,5 +1,3 @@
-using Celeste.Mod.TASHelper.Utils;
-
 namespace Celeste.Mod.TASHelper.Module;
 
 internal static class Loader {

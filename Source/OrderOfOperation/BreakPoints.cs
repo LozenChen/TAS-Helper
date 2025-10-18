@@ -33,7 +33,7 @@ internal class BreakPoints {
 
     public string UID;
 
-    public IDetour labelEmitter;
+    public ILHook labelEmitter;
 
     public MethodBase method;
 
@@ -41,7 +41,7 @@ internal class BreakPoints {
 
     internal const int RetShiftDoNotEmit = -100;
 
-    private BreakPoints(string ID, IDetour detour, MethodBase method) {
+    private BreakPoints(string ID, ILHook detour, MethodBase method) {
         UID = ID;
         labelEmitter = detour;
         this.method = method;
@@ -74,13 +74,11 @@ internal class BreakPoints {
 
     internal static BreakPoints CreateImpl(MethodBase method, string label, Func<string, Action<ILCursor, ILContext>> manipulator, int RetShift = 0) {
         string ID = CreateUID(label);
-        IDetour detour;
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core Ending" }, ID = "TAS Helper OoO_Core BreakPoints" }) {
-            detour = new ILHook(method, il => {
-                ILCursor cursor = new(il);
-                manipulator(ID)(cursor, il);
-            }, manualConfig);
-        }
+        DetourConfig config = DetourContextHelper.Create(After: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core Ending" }, ID: "TAS Helper OoO_Core BreakPoints");
+        ILHook detour = HookHelper.ManualAppliedILHook(method, il => {
+            ILCursor cursor = new(il);
+            manipulator(ID)(cursor, il);
+        }, config);
         BreakPoints breakpoint = new BreakPoints(ID, detour, method);
         breakpoint.RetShift = RetShift;
         if (!detoursOnThisMethod.ContainsKey(method)) {
@@ -120,24 +118,22 @@ internal class BreakPoints {
 
     public static BreakPoints MarkEnding(MethodBase method, string label, Action? afterRetAction = null, bool EmitRet = true, MoveType moveType = MoveType.AfterLabel) {
         string ID = CreateUID(label);
-        IDetour detour;
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core Ending" }) {
-            detour = new ILHook(method, il => {
-                ILCursor cursor = new(il);
-                while (cursor.TryGotoNext(moveType, i => i.OpCode == OpCodes.Ret)) {
-                    cursor.Emit(OpCodes.Ldstr, ID);
-                    cursor.EmitDelegate(RecordLabel);
-                    // don't know why but i fail to add a beforeRetAction here
-                    if (EmitRet) {
-                        cursor.Emit(OpCodes.Ret);
-                    }
-                    if (afterRetAction is not null) {
-                        cursor.EmitDelegate(afterRetAction);
-                    }
-                    cursor.Index++;
+        DetourConfig config = DetourContextHelper.Create(After: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID: "TAS Helper OoO_Core Ending");
+        ILHook detour = HookHelper.ManualAppliedILHook(method, il => {
+            ILCursor cursor = new(il);
+            while (cursor.TryGotoNext(moveType, i => i.OpCode == OpCodes.Ret)) {
+                cursor.Emit(OpCodes.Ldstr, ID);
+                cursor.EmitDelegate(RecordLabel);
+                // don't know why but i fail to add a beforeRetAction here
+                if (EmitRet) {
+                    cursor.Emit(OpCodes.Ret);
                 }
-            }, manualConfig);
-        }
+                if (afterRetAction is not null) {
+                    cursor.EmitDelegate(afterRetAction);
+                }
+                cursor.Index++;
+            }
+        }, config);
         BreakPoints breakpoint = new BreakPoints(ID, detour, method);
         if (!EmitRet) {
             breakpoint.RetShift = RetShiftDoNotEmit;

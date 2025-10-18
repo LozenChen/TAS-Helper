@@ -1,9 +1,7 @@
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
 using TAS.EverestInterop.Hitboxes;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
@@ -11,7 +9,7 @@ internal static class SimplifiedLightning {
 
     [Initialize]
     public static void Initialize() {
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }, ID = "TAS Helper SimplifiedLightning" }) {
+        using (DetourContextHelper.Use(After: new List<string> { "*", "CelesteTAS-EverestInterop" }, ID: "TAS Helper SimplifiedLightning")) {
             IL.Celeste.LightningRenderer.Render += LightningRenderer_Render;
         }
     }

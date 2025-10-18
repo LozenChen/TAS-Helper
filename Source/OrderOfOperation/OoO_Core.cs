@@ -2,7 +2,6 @@
 
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -132,8 +131,6 @@ internal static class OoO_Core {
     }
 
     private static bool stepping = false;
-
-    internal static ILHookConfig manualConfig => Utils.HookHelper.manualConfig;
 
     internal static readonly Action<ILCursor> NullAction = (cursor) => { };
 
@@ -295,19 +292,19 @@ internal static class OoO_Core {
 
         // todo: remove hook
 
-        hookTASIsPaused = new ILHook(ModUtils.GetType("CelesteTAS", "TAS.Playback.Core").GetMethod("IsPaused", BindingFlags.NonPublic | BindingFlags.Static), il => {
+        hookTASIsPaused = HookHelper.ManualAppliedILHook(ModUtils.GetType("CelesteTAS", "TAS.Playback.Core").GetMethod("IsPaused", BindingFlags.NonPublic | BindingFlags.Static), il => {
             ILCursor cursor = new ILCursor(il);
             cursor.Emit(OpCodes.Ldc_I4_0);
             cursor.Emit(OpCodes.Ret);
-        }, manualConfig);
+        });
 
         // todo: remove hook
 
-        hookManagerUpdate = new ILHook(typeof(Manager).GetMethod("Update", BindingFlags.Public | BindingFlags.Static), il => {
+        hookManagerUpdate = HookHelper.ManualAppliedILHook(typeof(Manager).GetMethod("Update", BindingFlags.Public | BindingFlags.Static), il => {
             ILCursor cursor = new ILCursor(il);
             cursor.EmitDelegate(AdvanceFrame);
             cursor.Emit(OpCodes.Ret);
-        }, manualConfig);
+        });
 
         CheckTasHookValidity();
     }
@@ -400,7 +397,7 @@ internal static class OoO_Core {
 
     [Load]
     public static void Load() {
-        using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop" }, Before = new List<string> { "TASHelper" }, ID = "TAS Helper OoO_Core OnLevelRender" }) {
+        using (DetourContextHelper.Use(After: new List<string> { "*", "CelesteTAS-EverestInterop" }, Before: new List<string> { "TASHelper" }, ID: "TAS Helper OoO_Core OnLevelRender")) {
             On.Celeste.Level.Render += OnLevelRender;
         }
     }

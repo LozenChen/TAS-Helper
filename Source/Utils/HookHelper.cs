@@ -6,20 +6,29 @@ using System.Text;
 using _Celeste = Celeste;
 
 namespace Celeste.Mod.TASHelper.Utils;
-internal static class HookHelper {
-    // taken from CelesteTAS
-    private static readonly List<IDetour> Hooks = new();
 
-    public static ILHookConfig manualConfig = default;
-
-    [Initialize(depth: int.MaxValue - 3)]
-    internal static void InitializeAtFirst() {
-        manualConfig.ManualApply = true;
+internal static class DetourContextHelper {
+    public static IDisposable Use(string ID = "TAS Helper", int? priority = null, IEnumerable<string>? Before = null, IEnumerable<string>? After = null) {
+        return new DetourConfigContext(new DetourConfig(ID, priority, Before, After)).Use();
     }
 
+    public static DetourConfig Create(string ID = "TAS Helper", int? priority = null, IEnumerable<string>? Before = null, IEnumerable<string>? After = null) {
+        return new DetourConfig(ID, priority, Before, After);
+    }
+
+}
+internal static class HookHelper {
+    // taken from CelesteTAS
+    private static readonly List<Hook> Hooks = new();
+
+    private static readonly List<ILHook> ILHooks = new();
+
     public static void Unload() {
-        foreach (IDetour detour in Hooks) {
-            detour.Dispose();
+        foreach (Hook on in Hooks) {
+            on.Dispose();
+        }
+        foreach (ILHook il in ILHooks) {
+            il.Dispose();
         }
 
         Hooks.Clear();
@@ -31,32 +40,32 @@ internal static class HookHelper {
         Hooks.Add(new Hook(from, to));
     }
 
-    public static void IlHook(this MethodBase from, ILContext.Manipulator manipulator) {
-        Hooks.Add(new ILHook(from, manipulator));
+    public static void ILHook(this MethodBase from, ILContext.Manipulator manipulator) {
+        ILHooks.Add(new ILHook(from, manipulator));
     }
 
-    public static void IlHook(this MethodBase from, Action<ILCursor, ILContext> manipulator) {
-        from.IlHook(il => {
+    public static void ILHook(this MethodBase from, Action<ILCursor, ILContext> manipulator) {
+        from.ILHook(il => {
             ILCursor ilCursor = new(il);
             manipulator(ilCursor, il);
         });
     }
 
     public static void HookBefore<T>(this MethodBase methodInfo, Action<T> action) {
-        methodInfo.IlHook((cursor, _) => {
+        methodInfo.ILHook((cursor, _) => {
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.EmitDelegate(action);
         });
     }
 
     public static void HookBefore(this MethodBase methodInfo, Action action) {
-        methodInfo.IlHook((cursor, _) => {
+        methodInfo.ILHook((cursor, _) => {
             cursor.EmitDelegate(action);
         });
     }
 
     public static void HookAfter<T>(this MethodBase methodInfo, Action<T> action) {
-        methodInfo.IlHook((cursor, _) => {
+        methodInfo.ILHook((cursor, _) => {
             while (cursor.TryGotoNext(MoveType.AfterLabel, i => i.OpCode == OpCodes.Ret)) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(action);
@@ -66,7 +75,7 @@ internal static class HookHelper {
     }
 
     public static void HookAfter(this MethodBase methodInfo, Action action) {
-        methodInfo.IlHook((cursor, _) => {
+        methodInfo.ILHook((cursor, _) => {
             while (cursor.TryGotoNext(MoveType.AfterLabel, i => i.OpCode == OpCodes.Ret)) {
                 cursor.EmitDelegate(action);
                 cursor.Index++;
@@ -84,13 +93,19 @@ internal static class HookHelper {
 
     public static void SkipMethod(Type conditionType, string conditionMethodName, params MethodInfo[] methodInfos) {
         foreach (MethodInfo methodInfo in methodInfos) {
-            methodInfo.IlHook(il => {
+            methodInfo.ILHook(il => {
                 ILCursor ilCursor = new(il);
                 Instruction start = ilCursor.Next;
                 ilCursor.Emit(OpCodes.Call, conditionType.GetMethodInfo(conditionMethodName));
                 ilCursor.Emit(OpCodes.Brfalse, start).Emit(OpCodes.Ret);
             });
         }
+    }
+    public static ILHook ManualAppliedILHook(this MethodBase from, ILContext.Manipulator manipulator) {
+        return new ILHook(from, manipulator, applyByDefault: false);
+    }
+    public static ILHook ManualAppliedILHook(this MethodBase from, ILContext.Manipulator manipulator, DetourConfig config) {
+        return new ILHook(from, manipulator, config, applyByDefault: false);
     }
 }
 
@@ -127,15 +142,15 @@ internal static class EventOnHook {
         [EventOnHook]
         private static void CreateOnHook() {
             // pre spinner calc needs this to be after tas
-            using (new DetourContext { After = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper Scene.BeforeUpdate" }) {
+            using (DetourContextHelper.Use(After: new List<string> { "CelesteTAS-EverestInterop" }, ID: "TAS Helper Scene.BeforeUpdate")) {
                 On.Monocle.Scene.BeforeUpdate += OnBeforeUpdate;
             }
 
-            using (new DetourContext { After = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper Scene.OnUpdate" }) {
+            using (DetourContextHelper.Use(After: new List<string> { "CelesteTAS-EverestInterop" }, ID: "TAS Helper Scene.OnUpdate")) {
                 On.Monocle.Scene.Update += OnSceneUpdate;
             }
 
-            using (new DetourContext { Before = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper Scene.AfterUpdate" }) {
+            using (DetourContextHelper.Use(Before: new List<string> { "CelesteTAS-EverestInterop" }, ID: "TAS Helper Scene.AfterUpdate")) {
                 On.Monocle.Scene.AfterUpdate += OnAfterUpdate;
             }
         }
@@ -363,7 +378,7 @@ internal static class EventOnHook {
             // but that's only at the end of Level.OnLoadLevel
             // so i still need a LoadLevel_Before
 
-            using (new DetourContext { After = new List<string> { "CelesteTAS-EverestInterop" }, ID = "TAS Helper LoadLevel" }) {
+            using (DetourContextHelper.Use(After: new List<string> { "CelesteTAS-EverestInterop" }, ID: "TAS Helper LoadLevel")) {
                 On.Celeste.Level.LoadLevel += OnLoadLevel;
             }
         }
@@ -542,7 +557,7 @@ public static class CILCodeHelper {
     }
 
     internal static void InitializeAtLast() {
-        using (DetourContext context = new DetourContext() { After = new List<string>() { "*" } }) {
+        using (DetourContextHelper.Use(After: ["*"])) {
             foreach (MethodBase method in methods) {
                 method.CILCodeLogger();
             }

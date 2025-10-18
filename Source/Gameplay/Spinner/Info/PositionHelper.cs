@@ -1,9 +1,7 @@
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Info;
 internal static class PositionHelper {
@@ -48,7 +46,7 @@ internal static class PositionHelper {
     [Initialize(int.MinValue)]
     private static void Initialize() {
         if (ModUtils.GetType("VivHelper", "VivHelper.Entities.CustomSpinner") is { } vivSpinnerType) {
-            vivSpinnerType.GetMethod("Update")!.IlHook((cursor, _) => {
+            vivSpinnerType.GetMethod("Update")!.ILHook((cursor, _) => {
                 if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
                     cursor.Emit(OpCodes.Ldarg_0);
                     cursor.EmitDelegate(GetCameraZoom);
@@ -57,7 +55,7 @@ internal static class PositionHelper {
             // also applies to VivHelper.Entities.AnimatedSpinner, MovingSpinner
         }
 
-        typeof(CrystalStaticSpinner).GetMethod("Update")!.IlHook((cursor, _) => {
+        typeof(CrystalStaticSpinner).GetMethod("Update")!.ILHook((cursor, _) => {
             if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
                 if (SpecialInfoHelper.CassetteSpinnerType is not null) {
                     Instruction gotoRet = cursor.Next;
@@ -75,8 +73,8 @@ internal static class PositionHelper {
     private static void Load() {
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
-        typeof(Player).GetMethod("orig_Update").IlHook(PlayerPositionBeforeCameraUpdateIL);
-        using (new DetourContext { After = new List<string> { "*" }, ID = "TAS Helper ActualPosition" }) { // ensure this is even before other mod hooks
+        typeof(Player).GetMethod("orig_Update").ILHook(PlayerPositionBeforeCameraUpdateIL);
+        using (DetourContextHelper.Use(After: new List<string> { "*" }, ID: "TAS Helper ActualPosition")) { // ensure this is even before other mod hooks
             On.Celeste.Player.Update += OnPlayerUpdate;
         }
     }
@@ -191,7 +189,7 @@ internal static class PositionHelper {
     }
 
     internal static void Patch(Type type) {
-        type.GetMethod("Update")?.IlHook((cursor, _) => {
+        type.GetMethod("Update")?.ILHook((cursor, _) => {
             if (cursor.TryGotoNext(MoveType.AfterLabel, ins => ins.OpCode == OpCodes.Ret)) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(PatchHazardUpdate);

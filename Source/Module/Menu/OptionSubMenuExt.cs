@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.Core;
-using Celeste.Mod.TASHelper.Utils;
 using Celeste.Mod.UI;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
@@ -525,7 +524,7 @@ public class OptionSubMenuExt : TextMenu.Item {
 
     [Initialize]
     private static void InitializeHook() {
-        typeof(TextMenu).GetMethod("Update").IlHook((cursor, _) => {
+        typeof(TextMenu).GetMethod("Update").ILHook((cursor, _) => {
             if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Call, ins => ins.MatchCallvirt(typeof(CoreModuleSettings), "get_MenuPageDown"), ins => ins.MatchCallvirt(typeof(VirtualButton), "get_Pressed"))) {
                 cursor.Index += 3;
                 cursor.Emit(OpCodes.Ldarg_0);
@@ -534,7 +533,7 @@ public class OptionSubMenuExt : TextMenu.Item {
         });
 
 
-        typeof(TextMenu).GetMethod("orig_Update").IlHook((cursor, _) => {
+        typeof(TextMenu).GetMethod("orig_Update").ILHook((cursor, _) => {
             if (cursor.TryGotoNext(ins => ins.MatchLdsfld(typeof(Input), nameof(Input.MenuDown)), ins => ins.MatchCallvirt(typeof(VirtualButton), "get_Pressed"))) {
                 cursor.Index += 2;
                 cursor.Emit(OpCodes.Ldarg_0);
@@ -542,7 +541,7 @@ public class OptionSubMenuExt : TextMenu.Item {
             }
         });
 
-        typeof(OuiModOptions).GetMethod("Update").IlHook((cursor, _) => {
+        typeof(OuiModOptions).GetMethod("Update").ILHook((cursor, _) => {
             if (cursor.TryGotoNext(ins => ins.MatchLdsfld(typeof(Input), nameof(Input.MenuCancel)), ins => ins.MatchCallvirt<VirtualButton>("get_Pressed"))) {
                 cursor.Index += 2;
                 cursor.Emit(OpCodes.Ldarg_0);

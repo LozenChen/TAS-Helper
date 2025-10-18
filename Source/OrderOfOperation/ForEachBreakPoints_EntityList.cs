@@ -1,9 +1,7 @@
 //#define OoO_Debug
 
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
-using MonoMod.RuntimeDetour;
 using TAS.Gameplay.Hitboxes;
 using static Celeste.Mod.TASHelper.OrderOfOperation.OoO_Core;
 
@@ -212,7 +210,7 @@ internal static class ForEachBreakPoints_EntityList {
         // ILHook works in MonoMod.RuntimeDetour namespace
 
         if (!hookBuild) {
-            using (new DetourContext { After = new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID = "TAS Helper OoO_Core ForEachBreakPoints_EntityList" }) {
+            using (DetourContextHelper.Use(After: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID: "TAS Helper OoO_Core ForEachBreakPoints_EntityList")) {
                 On.Monocle.EntityList.Update += OnEntityListUpdate;
             }
             hookBuild = true;

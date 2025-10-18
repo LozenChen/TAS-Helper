@@ -1,5 +1,4 @@
 using Celeste.Mod.TASHelper.Entities;
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;

@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.TASHelper.Utils;
-using MonoMod.ModInterop;
+﻿using MonoMod.ModInterop;
 
 namespace Celeste.Mod.TASHelper.ModInterop;
 

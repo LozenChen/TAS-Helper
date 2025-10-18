@@ -1,5 +1,4 @@
 ﻿using Celeste.Mod.Entities;
-using Celeste.Mod.TASHelper.Utils;
 using Microsoft.Xna.Framework;
 using Monocle;
 using static Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity.TriggerInfoHelper;
