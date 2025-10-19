@@ -32,6 +32,10 @@
 	<Reference Include="$(CelestePrefix)\Celeste.dll" />
 	<Reference Include="$(CelestePrefix)\FNA.dll" />
     <Reference Include="$(CelestePrefix)\MMHOOK_Celeste.dll" />
+	<Reference Include="$(CelestePrefix)\Mono.Cecil.dll" />
+	<Reference Include="$(CelestePrefix)\MonoMod.RuntimeDetour.dll" />
+	<Reference Include="$(CelestePrefix)\MonoMod.Utils.dll" />
+	<Reference Include="$(CelestePrefix)\YamlDotNet.dll" />
 	  
     <Reference Include="CelesteTAS-EverestInterop">
       <HintPath>..\CelesteTAS-EverestInterop\bin\CelesteTAS-EverestInterop.dll</HintPath>
@@ -40,19 +44,10 @@
     <Reference Include="StudioCommunication">
       <HintPath>..\CelesteTAS-EverestInterop\bin\StudioCommunication.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>Libs\Mono.Cecil.dll</HintPath>
-    </Reference>
     <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MonoMod.RuntimeDetour" Version="25.2.3" />
-    <PackageReference Include="MonoMod.Utils" Version="25.0.9" />
-    <Reference Include="YamlDotNet">
-      <HintPath>Libs\YamlDotNet.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
 
   </ItemGroup>
 
