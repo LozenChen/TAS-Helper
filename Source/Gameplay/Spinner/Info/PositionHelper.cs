@@ -73,9 +73,8 @@ internal static class PositionHelper {
     private static void Load() {
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
-        typeof(Player).GetMethod("orig_Update").ILHook(PlayerPositionBeforeCameraUpdateIL);
-        using (DetourContextHelper.Use(After: new List<string> { "*" }, ID: "TAS Helper ActualPosition")) { // ensure this is even before other mod hooks
-            On.Celeste.Player.Update += OnPlayerUpdate;
+        using (DetourContextHelper.Use(After: ["*"], ID: "TAS Helper ActualPosition")) {
+            typeof(Player).GetMethod("orig_Update")!.ILHook(PlayerPositionBeforeCameraUpdateIL);
         }
     }
 
@@ -83,17 +82,11 @@ internal static class PositionHelper {
     private static void Unload() {
         On.Celeste.Lightning.Update -= PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update -= PatchDustUpdate;
-        On.Celeste.Player.Update -= OnPlayerUpdate;
     }
 
-    private static void OnPlayerUpdate(On.Celeste.Player.orig_Update orig, Player self) {
-        PlayerPositionBeforeSelfUpdate = self.Position;
-        orig(self);
-    }
-
-    [SceneBeforeUpdate]
-    private static void PatchBeforeUpdate(Scene self) {
-        if (TasHelperSettings.Enabled && self is Level level) {
+    [LevelUpdate(before: true)]
+    private static void PatchBeforeUpdate(Level level) {
+        if (TasHelperSettings.Enabled) {
             PlayerPositionChangedCount = 0;
             PreviousCameraPos = level.Camera.Position;
             CameraZoom = 1f;
@@ -105,41 +98,50 @@ internal static class PositionHelper {
 
     private static bool InViewBoost = false;
 
-    [SceneAfterUpdate]
-    private static void PatchAfterUpdate(Scene self) {
-        if (TasHelperSettings.Enabled && self is Level level) {
-            CameraPosition = level.Camera.Position;
-            CameraPositionSet = CameraPositionDict.Values.Distinct().ToList();
-            if (CameraPositionSet.IsEmpty()) {
-                CameraPositionSetLastElement = CameraPosition; // add a precise one instead
-            }
-            else {
-                CameraPositionSet.Remove(CameraPositionSetLastElement);
-            }
+    [LevelUpdate(before: false)]
+    private static void PatchAfterUpdate(Level level) {
+        if (!TasHelperSettings.Enabled) {
+            return;
+        }
 
-            if (playerInstance is Player player) {
-                if (PlayerPositionChangedCount == 0) {
-                    PlayerPositionChangedCount++;
-                    PlayerPosition = player.Position;
-                }
-                CameraTowards = PlayerPositionBeforeCameraUpdate + level.CameraOffset;
+        CameraPosition = level.Camera.Position;
+        CameraPositionSet = CameraPositionDict.Values.Distinct().ToList();
+        if (CameraPositionSet.IsEmpty()) {
+            CameraPositionSetLastElement = CameraPosition; // add a precise one instead
+        }
+        else {
+            CameraPositionSet.Remove(CameraPositionSetLastElement);
+        }
+
+        if (playerInstance is Player player) {
+            if (PlayerPositionChangedCount == 0) {
+                PlayerPositionChangedCount++;
+                PlayerPosition = player.Position;
             }
+            CameraTowards = PlayerPositionBeforeCameraUpdate + level.CameraOffset;
         }
     }
 
 
     private static void PlayerPositionBeforeCameraUpdateIL(ILContext il) {
         ILCursor cursor = new ILCursor(il);
+        cursor.Emit(OpCodes.Ldarg_0);
+        cursor.EmitDelegate(RecordPlayerPosition);
+
         if (cursor.TryGotoNext(MoveType.After,
                 ins => ins.OpCode == OpCodes.Stfld && ins.Operand.ToString() == "System.Boolean Celeste.Player::StrawberriesBlocked"
             // stfld bool Celeste.Player::StrawberriesBlocked
             )) {
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate(GetCameraPosition);
+            cursor.EmitDelegate(RecordCameraPosition);
         }
     }
 
-    private static void GetCameraPosition(Player player) {
+    private static void RecordPlayerPosition(Player player) {
+        PlayerPositionBeforeSelfUpdate = player.Position;
+    }
+
+    private static void RecordCameraPosition(Player player) {
         PlayerPositionBeforeCameraUpdate = player.Position;
     }
 

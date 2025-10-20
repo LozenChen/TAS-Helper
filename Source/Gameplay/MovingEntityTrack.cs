@@ -24,9 +24,9 @@ public static class MovingEntityTrack {
         });
     }
 
-    [SceneOnUpdate]
-    private static void ClearCircles(Scene scene) {
-        if (scene is Level level && !level.Paused) {
+    [LevelUpdate(before: true)]
+    private static void ClearCircles(Level level) {
+        if (!level.Paused) {
             CachedCircle.Clear();
         }
     }
@@ -57,7 +57,7 @@ public static class MovingEntityTrack {
 
     public static Color TrackColor = Color.Yellow * 0.5f;
 
-    [LoadLevel(true)]
+    [LoadLevel(before: true)]
     private static void OnLoadLevel() {
         CachedNodes.Clear();
         CachedStartEnd.Clear();

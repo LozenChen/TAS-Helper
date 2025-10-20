@@ -13,8 +13,8 @@ internal static class TimeActiveHelper {
 
     internal static int GroupCounter = 0;
 
-    [SceneBeforeUpdate]
-    internal static void CalculateBeforeUpdate(Scene self) {
+    [LevelUpdate(before: true)]
+    internal static void CalculateBeforeUpdate(Level self) {
         if (!TasHelperSettings.Enabled || WillFastForward) {
             return;
         }
@@ -25,12 +25,7 @@ internal static class TimeActiveHelper {
 
     // JIT optimization may cause PredictLoadTimeActive[2] != 524288f when TimeActive = 524288f
     [MethodImpl(MethodImplOptions.NoOptimization)]
-    internal static void PredictTimeActive(Scene self) {
-        if (self is not Level) {
-            return;
-        }
-
-        // only sync this when we plan to render
+    internal static void PredictTimeActive(Level self) {
         GroupCounter = CelesteTasImports.GetGroupCounter();
         float time = TimeActive = self.TimeActive;
         for (int i = 0; i <= 9; i++) {

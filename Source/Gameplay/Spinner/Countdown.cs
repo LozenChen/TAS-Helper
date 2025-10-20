@@ -194,7 +194,7 @@ internal class CountdownRenderer : THRenderer {
         }
     }
 
-    [SceneBeforeUpdate]
+    [LevelUpdate(before: true)]
     public static void ClearCache() {
         foreach (int ID in HiresID2Positions.Keys) {
             HiresID2Positions[ID].Clear();

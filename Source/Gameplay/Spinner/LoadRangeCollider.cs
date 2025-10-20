@@ -68,7 +68,7 @@ internal static class LoadRangeColliderRenderer {
         Cached = true;
     }
 
-    [SceneBeforeUpdate]
+    [LevelUpdate(before: true)]
     public static void ClearCache() {
         lightningDatas.Clear();
         starShapePositions.Clear();

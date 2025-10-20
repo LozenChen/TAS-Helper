@@ -168,12 +168,10 @@ internal class AddDebugRenderAttribute : Attribute {
 
 [AttributeUsage(AttributeTargets.Method)]
 // 0 - 1 parameters
-internal class SceneBeforeUpdateAttribute : Attribute { }
+internal class LevelUpdateAttribute : Attribute {
+    public bool Before;
 
-[AttributeUsage(AttributeTargets.Method)]
-// 0 - 1 parameters
-internal class SceneOnUpdateAttribute : Attribute { }
-
-[AttributeUsage(AttributeTargets.Method)]
-// 0 - 1 parameters
-internal class SceneAfterUpdateAttribute : Attribute { }
+    public LevelUpdateAttribute(bool before = false) {
+        Before = before;
+    }
+}

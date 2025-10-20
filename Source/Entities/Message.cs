@@ -113,7 +113,7 @@ public class EntityActivatorWarner : Message {
 
     public float lifetimer = lifetime;
 
-    [LoadLevel(true)]
+    [LoadLevel(before: true)]
     private static void OnLoadLevel() {
         MessageCount = 0;
     }

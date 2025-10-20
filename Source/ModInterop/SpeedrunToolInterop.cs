@@ -58,7 +58,9 @@ internal static class SpeedrunToolInterop {
                 Module.Menu.TH_Hotkeys.HotkeyInitialize();
 
                 Gameplay.AutoWatchEntity.CoreLogic.EverythingOnClone();
-                Gameplay.Spinner.Info.TimeActiveHelper.PredictTimeActive(Engine.Scene);
+                if (Engine.Scene is Level level) {
+                    Gameplay.Spinner.Info.TimeActiveHelper.PredictTimeActive(level);
+                }
                 Gameplay.Spinner.Info.PositionHelper.OnClone();
             },
             null, null, null, null

@@ -18,7 +18,7 @@ public static class PlayerStateUtils {
     public static bool RefillDash;
     public static bool AnyBounce => Bounce || SuperBounce || SideBounce || PointBounce || Rebound;
 
-    [SceneBeforeUpdate]
+    [LevelUpdate(before: true)]
     public static void Clear() {
         Bounce = SuperBounce = SideBounce = Rebound = ReflectBounce = PointBounce = Ultra = RefillDash = false;
     }

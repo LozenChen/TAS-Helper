@@ -139,18 +139,16 @@ internal static class CoreLogic {
 
     private static bool wasFastForwarding = false;
 
-    [SceneAfterUpdate]
-    private static void PatchAfterUpdate(Scene self) {
-        if (self is Level) {
-            if (FastForwarding) {
-                wasFastForwarding = true;
+    [LevelUpdate(before: false)]
+    private static void PatchAfterUpdate() {
+        if (FastForwarding) {
+            wasFastForwarding = true;
+        }
+        else {
+            if (wasFastForwarding) {
+                WakeUpAllAutoWatchRenderer();
             }
-            else {
-                if (wasFastForwarding) {
-                    WakeUpAllAutoWatchRenderer();
-                }
-                wasFastForwarding = false;
-            }
+            wasFastForwarding = false;
         }
     }
 

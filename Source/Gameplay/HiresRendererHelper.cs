@@ -69,11 +69,8 @@ public static class HiresLevelRenderer {
         }
     }
 
-    [SceneAfterUpdate]
-    private static void OnLevelAfterUpdate(Scene self) {
-        if (self is not Level) {
-            return;
-        }
+    [LevelUpdate(before: false)]
+    private static void OnLevelAfterUpdate() {
         UpdateLists();
         foreach (THRenderer renderer in list) {
             renderer.Update();

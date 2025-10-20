@@ -107,12 +107,10 @@ internal static class EventOnHook {
         Logger.Log("TAS Helper", "EventOnHook finds a method with improper attributes!");
         throw new Exception("Invalid ParameterInfo");
     }
-    internal static class _Scene {
-        public delegate void UpdateHandler(Monocle.Scene scene);
+    internal static class _LevelUpdate {
+        public delegate void UpdateHandler(Level level);
 
         public static event UpdateHandler BeforeUpdate;
-
-        public static event UpdateHandler OnUpdate;
 
         public static event UpdateHandler AfterUpdate;
 
@@ -120,112 +118,78 @@ internal static class EventOnHook {
 
         private static event UpdateHandler_Parameter0 BeforeUpdate_Parameter0;
 
-        private static event UpdateHandler_Parameter0 OnUpdate_Parameter0;
-
         private static event UpdateHandler_Parameter0 AfterUpdate_Parameter0;
 
-        private delegate void UpdateHandler_Parameter1(Monocle.Scene scene);
+        private delegate void UpdateHandler_Parameter1(Level level);
 
         private static event UpdateHandler_Parameter1 BeforeUpdate_Parameter1;
-
-        private static event UpdateHandler_Parameter1 OnUpdate_Parameter1;
 
         private static event UpdateHandler_Parameter1 AfterUpdate_Parameter1;
 
         [EventOnHook]
         private static void CreateOnHook() {
-            // pre spinner calc needs this to be after tas
-            using (DetourContextHelper.Use(After: new List<string> { "CelesteTAS-EverestInterop" }, ID: "TAS Helper Scene.BeforeUpdate")) {
-                On.Monocle.Scene.BeforeUpdate += OnBeforeUpdate;
-            }
+            Everest.Events.Level.OnBeforeUpdate += OnBeforeUpdate;
+            Everest.Events.Level.OnAfterUpdate += OnAfterUpdate;
 
-            using (DetourContextHelper.Use(After: new List<string> { "CelesteTAS-EverestInterop" }, ID: "TAS Helper Scene.OnUpdate")) {
-                On.Monocle.Scene.Update += OnSceneUpdate;
-            }
-
-            using (DetourContextHelper.Use(Before: new List<string> { "CelesteTAS-EverestInterop" }, ID: "TAS Helper Scene.AfterUpdate")) {
-                On.Monocle.Scene.AfterUpdate += OnAfterUpdate;
-            }
+            // execution order
+            // Scene.BeforeUpdate -> Everest.Events.Level.BeforeUpdate -> Level.Update -> Everest.Events.Level.AfterUpdate -> Scene.AfterUpdate 
         }
 
         [Unload]
         private static void Unload() {
-            On.Monocle.Scene.BeforeUpdate -= OnBeforeUpdate;
-            On.Monocle.Scene.Update -= OnSceneUpdate;
-            On.Monocle.Scene.AfterUpdate -= OnAfterUpdate;
-            BeforeUpdate = OnUpdate = AfterUpdate = null;
+            Everest.Events.Level.OnBeforeUpdate -= OnBeforeUpdate;
+            Everest.Events.Level.OnAfterUpdate -= OnAfterUpdate;
+            BeforeUpdate = AfterUpdate = null;
         }
 
         [Initialize]
         private static void Initialize() {
             foreach (MethodInfo method in typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
-                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
-                .Where(method => method.GetCustomAttribute<SceneBeforeUpdateAttribute>() is { })) {
-                switch (method.GetParameters().Length) {
-                    case 0: {
-                            BeforeUpdate_Parameter0 += (UpdateHandler_Parameter0)method.CreateDelegate(typeof(UpdateHandler_Parameter0));
-                            break;
-                        }
-                    case 1: {
-                            BeforeUpdate_Parameter1 += (UpdateHandler_Parameter1)method.CreateDelegate(typeof(UpdateHandler_Parameter1));
-                            break;
-                        }
-                    default: {
-                            ThrowException();
-                            break;
-                        }
+                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))) {
+                if (method.GetCustomAttribute<LevelUpdateAttribute>() is not LevelUpdateAttribute attr) {
+                    continue;
+                }
+
+                if (attr.Before) {
+                    switch (method.GetParameters().Length) {
+                        case 0: {
+                                BeforeUpdate_Parameter0 += (UpdateHandler_Parameter0)method.CreateDelegate(typeof(UpdateHandler_Parameter0));
+                                break;
+                            }
+                        case 1: {
+                                BeforeUpdate_Parameter1 += (UpdateHandler_Parameter1)method.CreateDelegate(typeof(UpdateHandler_Parameter1));
+                                break;
+                            }
+                        default: {
+                                ThrowException();
+                                break;
+                            }
+                    }
+                }
+                else {
+                    switch (method.GetParameters().Length) {
+                        case 0: {
+                                AfterUpdate_Parameter0 += (UpdateHandler_Parameter0)method.CreateDelegate(typeof(UpdateHandler_Parameter0));
+                                break;
+                            }
+                        case 1: {
+                                AfterUpdate_Parameter1 += (UpdateHandler_Parameter1)method.CreateDelegate(typeof(UpdateHandler_Parameter1));
+                                break;
+                            }
+                        default: {
+                                ThrowException();
+                                break;
+                            }
+                    }
                 }
             }
 
-            foreach (MethodInfo method in typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
-                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
-                .Where(method => method.GetCustomAttribute<SceneOnUpdateAttribute>() is { })) {
-                switch (method.GetParameters().Length) {
-                    case 0: {
-                            OnUpdate_Parameter0 += (UpdateHandler_Parameter0)method.CreateDelegate(typeof(UpdateHandler_Parameter0));
-                            break;
-                        }
-                    case 1: {
-                            OnUpdate_Parameter1 += (UpdateHandler_Parameter1)method.CreateDelegate(typeof(UpdateHandler_Parameter1));
-                            break;
-                        }
-                    default: {
-                            ThrowException();
-                            break;
-                        }
-                }
-            }
-
-            foreach (MethodInfo method in typeof(AttributeUtils).Assembly.GetTypesSafe().SelectMany(type => type
-                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
-                .Where(method => method.GetCustomAttribute<SceneAfterUpdateAttribute>() is { })) {
-                switch (method.GetParameters().Length) {
-                    case 0: {
-                            AfterUpdate_Parameter0 += (UpdateHandler_Parameter0)method.CreateDelegate(typeof(UpdateHandler_Parameter0));
-                            break;
-                        }
-                    case 1: {
-                            AfterUpdate_Parameter1 += (UpdateHandler_Parameter1)method.CreateDelegate(typeof(UpdateHandler_Parameter1));
-                            break;
-                        }
-                    default: {
-                            ThrowException();
-                            break;
-                        }
-                }
-            }
 
             if (BeforeUpdate_Parameter0 is not null) {
                 BeforeUpdate += _ => BeforeUpdate_Parameter0.Invoke();
             }
             if (BeforeUpdate_Parameter1 is not null) {
                 BeforeUpdate += scene => BeforeUpdate_Parameter1.Invoke(scene);
-            }
-            if (OnUpdate_Parameter0 is not null) {
-                OnUpdate += _ => OnUpdate_Parameter0.Invoke();
-            }
-            if (OnUpdate_Parameter1 is not null) {
-                OnUpdate += scene => OnUpdate_Parameter1.Invoke(scene);
             }
             if (AfterUpdate_Parameter0 is not null) {
                 AfterUpdate += _ => AfterUpdate_Parameter0.Invoke();
@@ -235,23 +199,17 @@ internal static class EventOnHook {
             }
         }
 
-        private static void OnBeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Monocle.Scene self) {
-            orig(self);
+        private static void OnBeforeUpdate(Level self) {
             BeforeUpdate?.Invoke(self);
         }
-        private static void OnSceneUpdate(On.Monocle.Scene.orig_Update orig, Monocle.Scene self) {
-            OnUpdate?.Invoke(self);
-            orig(self);
-        }
 
-        private static void OnAfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Monocle.Scene self) {
-            orig(self);
+        private static void OnAfterUpdate(Level self) {
             AfterUpdate?.Invoke(self);
         }
     }
 
-    internal static class _Level {
-        // name it as "_Level" instead of "Level", so custom info will not find it using "Level", so "Level.Wind" will work properly in infohud
+    internal static class _LoadLevel {
+        // avoid naming this class "Level", so custom info will not find it using "Level", so "Level.Wind" will work properly in infohud
         public delegate void LoadLevelHandler(_Celeste.Level level, Player.IntroTypes playerIntro, bool isFromLoader = false);
 
         public static event LoadLevelHandler LoadLevel;
