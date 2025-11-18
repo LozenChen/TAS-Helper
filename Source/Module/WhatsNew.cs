@@ -1,4 +1,4 @@
-//#define ShowAllLog
+﻿//#define ShowAllLog
 using Microsoft.Xna.Framework;
 using System.Text;
 
@@ -102,6 +102,7 @@ public static class WhatsNew {
         AddLog("2.2.4", "Bugfix: Fix StarJumpBlock.orig_Render crash. (thanks @Catabilities)");
         AddLog("2.2.5", "Bugfix: Fix a NullReferenceException. (thanks @Michal 338)", "Feature: AutoWatch supports CrumblePlatform.");
         AddLog("2.2.6", "Feature: AutoWatch support MaxHelpingHand's CustomizableCrumblePlatform.");
+        AddLog("2.2.7", "Bugfix: Support latest Chronia Helper update.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
