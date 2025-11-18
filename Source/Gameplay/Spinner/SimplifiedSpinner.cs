@@ -1,6 +1,7 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
+using MonoMod.Cil;
 using System.Collections;
 using System.Reflection;
 using TAS.EverestInterop.Hitboxes;
@@ -118,29 +119,41 @@ internal static class SimplifiedSpinner {
         }
 
         if (ModUtils.GetType("ChroniaHelper", "ChroniaHelper.Entities.SeamlessSpinner") is { } chroniaSpinnerType) {
-            ChroniaSpinnerExtraComponentGetter = new() {
-                chroniaSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
-                chroniaSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
-            };
-            ClearSpritesAction.Add(self => {
-                foreach (Entity spinner in self.Tracker.Entities[chroniaSpinnerType]) {
-                    spinner.UpdateComponentVisiblity();
-                    foreach (FieldInfo getter in ChroniaSpinnerExtraComponentGetter) {
-                        object obj = getter.GetValue(spinner);
-                        if (obj is Entity e) {
-                            e.Visible = !SpritesCleared;
+            FieldInfo f1 = chroniaSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance); // exists in old versions
+            FieldInfo f2 = chroniaSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (f1 is not null && f2 is not null) {
+                ChroniaSpinnerExtraComponentGetter = [f1, f2];
+                ClearSpritesAction.Add(self => {
+                    foreach (Entity spinner in self.Tracker.Entities[chroniaSpinnerType]) {
+                        spinner.UpdateComponentVisiblity();
+                        foreach (FieldInfo getter in ChroniaSpinnerExtraComponentGetter) {
+                            object obj = getter.GetValue(spinner);
+                            if (obj is Entity e) {
+                                e.Visible = !SpritesCleared;
+                            }
                         }
                     }
-                }
-            });
-            OnCreateSprites(chroniaSpinnerType);
+                });
+                OnCreateSprites(chroniaSpinnerType);
+            }
+            else {
+                chroniaSpinnerType.GetMethod("Render")?.ILHook(il => {
+                    ILCursor cursor = new ILCursor(il);
+                    Instruction target = cursor.Next;
+                    cursor.EmitDelegate(GetSpritesCleared);
+                    cursor.Emit(OpCodes.Brfalse, target);
+                    cursor.Emit(OpCodes.Ret);
+                });
+            }
+
+            static bool GetSpritesCleared() => SpritesCleared;
         }
 
         if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
-            ChronoSpinnerExtraComponentGetter = new() {
+            ChronoSpinnerExtraComponentGetter = [
                 chronoSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance),
                 chronoSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance)
-            };
+            ];
             ClearSpritesAction.Add(self => {
                 foreach (Entity spinner in self.Tracker.Entities[chronoSpinnerType]) {
                     spinner.UpdateComponentVisiblity();
@@ -189,15 +202,20 @@ internal static class SimplifiedSpinner {
             EOF(dreamSpinnerRendererType.GetConstructor(Type.EmptyTypes));
         }
 
-        void EOF(MethodBase method) {
+        static void EOF(MethodBase method) {
             method.ILHook((cursor, _) => {
                 cursor.Goto(cursor.Instrs.Count - 1);
                 cursor.EmitDelegate(CallNeedClearSprites);
             });
         }
 
-        void OnCreateSprites(Type type) {
-            EOF(type.GetMethod("CreateSprites", BindingFlags.NonPublic | BindingFlags.Instance));
+        static void OnCreateSprites(Type type) {
+            if (type.GetMethod("CreateSprites", BindingFlags.NonPublic | BindingFlags.Instance) is { } method) {
+                EOF(method);
+            }
+            else {
+                throw new Exception($"TASHelper/{nameof(SimplifiedSpinner)} can't handle since {type} seems to have been updated.");
+            }
         }
     }
 

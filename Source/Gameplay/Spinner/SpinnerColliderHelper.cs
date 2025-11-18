@@ -35,11 +35,6 @@ public static class SpinnerColliderHelper {
 
     public static SpinnerColliderValue Vanilla;
 
-    public static void LogKeys() {
-        foreach (string key in SpinnerColliderTextures.Keys) {
-            Celeste.Commands.Log(key);
-        }
-    }
 
     [Initialize]
     public static void Initialize() {
@@ -51,7 +46,7 @@ public static class SpinnerColliderHelper {
         Add("C:8;0,0", 1f, new SpinnerColliderValue("C800"));
         Add("R:16,16;-8,-8", 1f, new SpinnerColliderValue("S16"));
 
-        void Add(string hitboxS, float scale, SpinnerColliderValue value) {
+        static void Add(string hitboxS, float scale, SpinnerColliderValue value) {
             string[] hitboxString = hitboxS.Split('|');
             ComparingDict.Add(ParseHitboxType(hitboxString, scale), value);
             SpinnerColliderTextures.Add(SpinnerColliderKey(hitboxString, scale), value);

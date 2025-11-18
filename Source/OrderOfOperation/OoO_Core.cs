@@ -1,4 +1,4 @@
-//#define OoO_Debug
+﻿//#define OoO_Debug
 
 using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Module.Menu;
@@ -32,6 +32,8 @@ internal static class OoO_Core {
     private static bool debugLogged = false;
 #endif
     public static void Step() {
+        throw new Exception("OoO Stepper is currently broken!");
+
         // entry point of OoO
         if (!Applied) {
             ApplyAll();
