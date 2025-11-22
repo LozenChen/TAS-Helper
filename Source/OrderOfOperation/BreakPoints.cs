@@ -1,4 +1,4 @@
-//#define OoO_Debug
+﻿//#define OoO_Debug
 
 using Mono.Cecil.Cil;
 using MonoMod.Cil;

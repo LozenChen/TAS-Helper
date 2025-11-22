@@ -1,4 +1,4 @@
-global using Celeste.Mod.TASHelper.Utils;
+﻿global using Celeste.Mod.TASHelper.Utils;
 global using Celeste.Mod.TASHelper.Utils.Attributes;
 global using Celeste.Mod.TASHelper.Utils.CommandUtils;
 global using static Celeste.Mod.TASHelper.GlobalVariables;
@@ -44,7 +44,7 @@ internal static class GlobalVariables {
     internal const int dust = 1;
     internal const int lightning = 2;
 
-    public static readonly object[] parameterless = Array.Empty<object>();
+    public static readonly object[] parameterless = [];
 }
 
 

@@ -1,8 +1,7 @@
-using Mono.Cecil.Cil;
+ï»¿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
-using System.Text;
 using _Celeste = Celeste;
 
 namespace Celeste.Mod.TASHelper.Utils;
@@ -31,7 +30,7 @@ internal static class HookHelper {
     }
 
     // check https://jatheplayer.github.io/celeste/ilhookview/ before creating a hook, to avoid conflict
-    // ÍêÈ«ÏÞ¶¨Ãû: https://learn.microsoft.com/zh-cn/dotnet/framework/reflection-and-codedom/specifying-fully-qualified-type-names
+    // å®Œå…¨é™å®šå: https://learn.microsoft.com/zh-cn/dotnet/framework/reflection-and-codedom/specifying-fully-qualified-type-names
 
     public static void ILHook(this MethodBase from, ILContext.Manipulator manipulator) {
         ILHooks.Add(new ILHook(from, manipulator));
@@ -449,43 +448,71 @@ internal static class EventOnHook {
     }
 }
 
+#if DEBUG
 public static class CILCodeHelper {
-    public static void CILCodeLogger(this ILCursor ilCursor, int logCount = 999999, bool useCommand = true) {
+    public static void CILCodeLogger(this ILCursor cursor, int logCount = 999999, bool useCommand = true) {
         // remember, Commands.Log can only work in Initialize()
         if (useCommand) {
             Celeste.Commands.Log("------------------------------");
         }
-        int orig_index = ilCursor.Index;
+        int orig_index = cursor.Index;
         StringBuilder sb = new();
         sb.AppendLine("---- CILCodeLogger ----");
         if (Apply) {
             if (AsShift) {
-                ilCursor.Index += Position;
+                cursor.Index += Position;
             }
             else {
-                ilCursor.Index = Position;
+                cursor.Index = Position;
             }
         }
-        while (logCount > 0 && ilCursor.Next is not null) {
-            string str;
-            if (ilCursor.Next.Operand is ILLabel label) {
-                str = $"{ilCursor.Next.Offset:x4}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand} | {label.Target.Offset:x4}, {label.Target.OpCode}, {label.Target.Operand}";
-            }
-            else if (ilCursor.Next.Operand is Instruction ins) {
-                str = $"{ilCursor.Next.Offset:x4}, {ilCursor.Next.OpCode} | {ins.Offset:x4}, {ins.OpCode}, {ins.Operand}";
-            }
-            else {
-                str = $"{ilCursor.Next.Offset:x4}, {ilCursor.Next.OpCode}, {ilCursor.Next.Operand}";
-            }
+        while (logCount > 0 && cursor.Next is not null) {
+            string str = Parser.Parse(cursor.Next);
             sb.AppendLine("    " + str);
             if (useCommand) {
                 Celeste.Commands.Log(str);
             }
             logCount--;
-            ilCursor.Index++;
+            cursor.Index++;
         }
-        ilCursor.Index = orig_index;
-        Mod.Logger.Log(LogLevel.Debug, "TAS Helper", sb.ToString());
+        cursor.Index = orig_index;
+        Logger.Log(LogLevel.Debug, "TAS Helper", sb.ToString());
+    }
+
+    private static class Parser {
+        internal static string Parse(Instruction ins) {
+            if (ins is null) {
+                return "NULL";
+            }
+
+            if (ins.Operand is ILLabel or Instruction) {
+                string operand = (ins.Operand is ILLabel ? "ILLabel" : "Instruction").PadLeft(12);
+                Instruction target = ins.Operand is Instruction targetIns ? targetIns : ((ILLabel)ins.Operand).Target!;
+                return $"{OffsetToString(ins.Offset)},  {OpCodeToString(ins.OpCode)}, {operand} ->    {Parse(target)}";
+            }
+            if (ins.OpCode == OpCodes.Ldstr) {
+                return $"{OffsetToString(ins.Offset)},  {OpCodeToString(ins.OpCode)}, \"{ins.Operand}\"";
+            }
+            if (ins.Operand is not null) {
+                return $"{OffsetToString(ins.Offset)},  {OpCodeToString(ins.OpCode)}, {ins.Operand.ToString().Replace(" ", "    ")}";
+            }
+            return $"{OffsetToString(ins.Offset)},  {OpCodeToString(ins.OpCode)}";
+        }
+
+        private static string OpCodeToString(OpCode code) {
+            return PadToMultiple(code.ToString(), 12);
+        }
+
+        private static string OffsetToString(int offset) {
+            return $"{offset:x4}";
+        }
+
+        private static string PadToMultiple(object obj, int b) {
+            string str = obj?.ToString() ?? " ";
+            int length = str.Length;
+            int targetLength = ((length - 1) / b + 1) * b;
+            return str.PadRight(targetLength);
+        }
     }
 
     public static void CILCodeLogger(this MulticastDelegate func) {
@@ -532,4 +559,4 @@ public static class CILCodeHelper {
 
     public static bool AsShift = true;
 }
-
+#endif

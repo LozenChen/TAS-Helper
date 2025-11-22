@@ -1,4 +1,4 @@
-namespace Celeste.Mod.TASHelper.Module;
+﻿namespace Celeste.Mod.TASHelper.Module;
 
 internal static class Loader {
 
@@ -20,7 +20,9 @@ internal static class Loader {
         AttributeUtils.Invoke<EventOnHookAttribute>();
         TasHelperSettings.FirstInstall = false;
         TASHelperModule.Instance.SaveSettings();
+#if DEBUG
         CILCodeHelper.InitializeAtLast();
+#endif
         if (Reloading) {
             OnReload();
             Reloading = false;

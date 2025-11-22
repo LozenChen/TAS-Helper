@@ -32,8 +32,6 @@ internal static class OoO_Core {
     private static bool debugLogged = false;
 #endif
     public static void Step() {
-        throw new Exception("OoO Stepper is currently broken!");
-
         // entry point of OoO
         if (!Applied) {
             ApplyAll();
@@ -139,16 +137,16 @@ internal static class OoO_Core {
     [Initialize]
     public static void Initialize() {
 
-        BreakPoints.MarkEnding(EngineUpdate, "EngineUpdate end", () => prepareToUndoAll = true); // i should have configured detourcontext... don't know why, but MarkEnding must be called at first (at least before those breakpoints on same method)
+        BreakPoints.MarkEnding(EngineUpdate, "EngineUpdate end", static () => prepareToUndoAll = true); // i should have configured detourcontext... don't know why, but MarkEnding must be called at first (at least before those breakpoints on same method)
 
-        BreakPoints.MarkEnding(LevelUpdate, "LevelUpdate end", () => LevelUpdate_Entry.SubMethodPassed = true).AddAutoSkip();
+        BreakPoints.MarkEnding(LevelUpdate, "LevelUpdate end", static () => LevelUpdate_Entry.SubMethodPassed = true).AddAutoSkip();
 
-        BreakPoints.MarkEnding(SceneUpdate, "SceneUpdate end", () => SceneUpdate_Entry.SubMethodPassed = true).AddAutoSkip();
+        BreakPoints.MarkEnding(SceneUpdate, "SceneUpdate end", static () => SceneUpdate_Entry.SubMethodPassed = true).AddAutoSkip();
 
 
         BreakPoints.MarkEnding(PlayerUpdate, "PlayerUpdate end", ForEachBreakPoints_EntityList.MarkSubMethodPassed).AddAutoSkip();
 
-        BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", () => { PlayerOrigUpdate_Entry.SubMethodPassed = true; playerUpdated = true; });
+        BreakPoints.MarkEnding(PlayerOrigUpdate, "PlayerOrigUpdate end", static () => { PlayerOrigUpdate_Entry.SubMethodPassed = true; playerUpdated = true; });
 
         BreakPoints.CreateImpl(EngineUpdate, "EngineUpdate begin", label => (cursor, _) => {
             cursor.Emit(OpCodes.Ldstr, label);
@@ -187,7 +185,10 @@ internal static class OoO_Core {
             ins => ins.MatchCallOrCallvirt<EntityList>("Update")
         );
 
-        PlayerOrigUpdate_Entry = BreakPoints.CreateFull(PlayerUpdate, "PlayerUpdate_PlayerOrigUpdate end", 2, NullAction, NullAction).AddAutoSkip();
+        PlayerOrigUpdate_Entry = BreakPoints.CreateFull(PlayerUpdate, "PlayerUpdate_PlayerOrigUpdate end", 2, NullAction, NullAction,
+            ins => ins.OpCode == OpCodes.Ldarg_0,
+            ins => ins.MatchCallOrCallvirt<Player>("orig_Update")
+        ).AddAutoSkip(); // Everest.Events.Player.BeforeUpdate(this) makes this method changed a bit
 
         BreakPoints.Create(PlayerOrigUpdate, "PlayerOrigUpdate begin");
 
@@ -292,6 +293,11 @@ internal static class OoO_Core {
         SpringBoard.Create(PlayerUpdate);
         SpringBoard.Create(PlayerOrigUpdate);
 
+        hookAddingMessageEntityFast = HookHelper.ManualAppliedILHook(EngineUpdate, il => {
+            ILCursor cursor = new ILCursor(il);
+            cursor.EmitDelegate(AddMessageEntity);
+        });
+
         // todo: remove hook
 
         hookTASIsPaused = HookHelper.ManualAppliedILHook(ModUtils.GetType("CelesteTAS", "TAS.Playback.Core").GetMethod("IsPaused", BindingFlags.NonPublic | BindingFlags.Static), il => {
@@ -309,6 +315,15 @@ internal static class OoO_Core {
         });
 
         CheckTasHookValidity();
+    }
+
+    private static void AddMessageEntity() {
+        if (Engine.Scene is Level level && level.Tracker.GetEntity<HotkeyWatcher>() is null) {
+            level.Entities.toAdd.RemoveAll(e => e is HotkeyWatcher);
+            level.Add(new HotkeyWatcher());
+            level.Entities.UpdateLists();
+            SendTextImmediately("OoO Stepping begin");
+        }
     }
 
     private static void AdvanceFrame() {
@@ -332,6 +347,8 @@ internal static class OoO_Core {
 
     private static ILHook hookManagerUpdate;
 
+    private static ILHook hookAddingMessageEntityFast;
+
     private static bool prepareToUndoAll = false;
 
     public static void ApplyAll() {
@@ -339,6 +356,7 @@ internal static class OoO_Core {
         SpringBoard.RefreshAll();
         ForEachBreakPoints_EntityList.Apply();
         ForEachBreakPoints_PlayerCollider.Apply();
+        hookAddingMessageEntityFast.Apply();
         hookTASIsPaused.Apply();
         hookManagerUpdate.Apply();
         Applied = true;
@@ -353,6 +371,7 @@ internal static class OoO_Core {
         BreakPoints.UndoAll();
         ForEachBreakPoints_EntityList.Undo();
         ForEachBreakPoints_PlayerCollider.Undo();
+        hookAddingMessageEntityFast?.Undo();
         hookTASIsPaused?.Undo();
         hookManagerUpdate?.Undo();
         Applied = false;
@@ -407,6 +426,7 @@ internal static class OoO_Core {
     [Unload]
     public static void Unload() {
         On.Celeste.Level.Render -= OnLevelRender;
+        hookAddingMessageEntityFast?.Dispose();
         hookTASIsPaused?.Dispose();
         hookManagerUpdate?.Dispose();
     }

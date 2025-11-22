@@ -108,8 +108,8 @@ internal class RandomStuff {
 
     }
 
-    [Initialize]
-    private static void Initialize() {
+    [Initialize(int.MaxValue)]
+    internal static void Initialize() {
         /*
         ModUtils.GetType("BrokemiaHelper", "BrokemiaHelper.PixelRendered.PixelComponent")?.GetMethodInfo("DebugRender")?.IlHook((cursor, _) => {
             Instruction start = cursor.Next;
@@ -135,6 +135,54 @@ internal class RandomStuff {
 
         Logger.Log(LogLevel.Warn, "TAS Helper", "TAS Helper Random Stuff loaded! Please contact the author to disable these codes.");
         Celeste.Commands.Log("WARNING: TAS Helper Random Stuff loaded! Please contact the author to disable these codes.");
+
+        //typeof(Tracker).GetMethodInfo("AddTypeToTracker", [typeof(Type), typeof(Type), typeof(Type[])]).ILHook(il => {
+        //    ILCursor cursor = new ILCursor(il);
+        //    cursor.Emit(OpCodes.Ldarg_0);
+        //    cursor.Emit(OpCodes.Ldarg_1);
+        //    cursor.Emit(OpCodes.Ldarg_2);
+        //    cursor.EmitDelegate(ReplaceAdd);
+        //    cursor.Emit(OpCodes.Ret);
+        //});
+
+        //static void ReplaceAdd(Type type, Type trackedAs = null, params Type[] subtypes) {
+        //    Type type2 = ((trackedAs != null && trackedAs.IsAssignableFrom(type)) ? trackedAs : type);
+        //    bool flag = (typeof(Entity).IsAssignableFrom(type) ? new bool?(true) : (typeof(Component).IsAssignableFrom(type) ? new bool?(false) : null)) ?? throw new Exception("Type '" + type.Name + "' cannot be Tracked" + ((type2 != type) ? "As" : "") + " because it does not derive from Entity or Component");
+        //    bool flag2 = false;
+        //    HashSet<Type> knownTypes = (flag ? Tracker.StoredEntityTypes : Tracker.StoredComponentTypes);
+        //    Dictionary<Type, List<Type>> tracked = (flag ? Tracker.TrackedEntityTypes : Tracker.TrackedComponentTypes);
+        //    if (ReplaceAddSpecific(type, type2, tracked, knownTypes)) {
+        //        flag2 = true;
+        //    }
+        //    foreach (Type type3 in subtypes) {
+        //        if (type2.IsAssignableFrom(type3) && ReplaceAddSpecific(type3, type2, tracked, null)) {
+        //            flag2 = true;
+        //        }
+        //    }
+        //    if (flag2) {
+        //        Tracker.TrackedTypeVersion++;
+        //    }
+        //}
+
+        //static bool ReplaceAddSpecific(Type type, Type trackedAsType, Dictionary<Type, List<Type>> tracked, HashSet<Type> knownTypes) {
+        //    if (knownTypes is not null) {
+        //        knownTypes.Add(type);
+        //        knownTypes.Add(trackedAsType);
+        //    }
+        //    if (type.IsAbstract) {
+        //        return false;
+        //    }
+        //    if (!tracked.TryGetValue(type, out var value)) {
+        //        value = new List<Type>();
+        //        tracked.Add(type, value);
+        //    }
+        //    int count = value.Count;
+        //    value.Add(trackedAsType);
+        //    value.AddRange(tracked.TryGetValue(trackedAsType, out var value2) ? value2 : new List<Type>());
+        //    List<Type> list2 = (tracked[type] = Enumerable.ToList(Enumerable.Distinct(value)));
+        //    List<Type> list3 = list2;
+        //    return count != list3.Count;
+        //}
     }
 
 

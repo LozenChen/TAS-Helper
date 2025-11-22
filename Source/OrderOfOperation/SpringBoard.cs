@@ -1,5 +1,6 @@
+﻿#if DEBUG
 //#define OoO_Debug
-
+#endif
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -53,7 +54,9 @@ internal class SpringBoard {
                 }
 
 #if OoO_Debug
-                        jumpLog.Add($"\n {label.Replace(BreakPoints.Prefix, "")} | Finished: {recordRemoved}");
+                string log = $"{label.Replace(BreakPoints.Prefix, "")} | Finished: {recordRemoved}";
+                jumpLog.Add("\n "+ log);
+                Logger.Debug("TAS Helper", $"SpringBoard {log}");
 #endif
                 cursor.Goto(0);
                 if (methodBase == EngineUpdate) {
