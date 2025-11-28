@@ -104,6 +104,7 @@ public static class WhatsNew {
         AddLog("2.2.6", "Feature: AutoWatch support MaxHelpingHand's CustomizableCrumblePlatform.");
         AddLog("2.2.7", "Bugfix: Support latest Chronia Helper update.");
         AddLog("2.2.8", "Bugfix: Make OoO Stepper work again.");
+        AddLog("2.2.9", "Bugfix: Fix a crash related to ExtendedVariantMode v0.47.0.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

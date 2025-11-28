@@ -32,11 +32,12 @@ public static class PlayerStateUtils {
         typeof(Player).GetMethod("PointBounce").HookBefore(() => PointBounce = true);
         typeof(Player).GetMethod("OnCollideV", BindingFlags.NonPublic | BindingFlags.Instance).ILHook(ILUltra);
         typeof(Player).GetMethod("DashCoroutine", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget().ILHook(ILUltra);
-        if (ModUtils.GetType("ExtendedVariantMode", "ExtendedVariants.Variants.EveryJumpIsUltra") is { } ultraVariantType) {
-            ultraVariantType.GetMethod("forceUltra", BindingFlags.NonPublic | BindingFlags.Instance).ILHook((cursor, _) => {
+        if (ModUtils.GetType("ExtendedVariantMode", "ExtendedVariants.Variants.EveryJumpIsUltra") is { } ultraVariantType
+            && ultraVariantType.GetMethod("forceUltra", BindingFlags.NonPublic | BindingFlags.Static) is { } method) { // >= v0.47.0
+            method.ILHook((cursor, _) => {
                 if (cursor.TryGotoNext(MoveType.After, ins => ins.OpCode == OpCodes.Brfalse_S)) {
-                    cursor.Emit(OpCodes.Ldarg_1);
-                    cursor.EmitDelegate<Action<Player>>(player => { SpeedBeforeUltra = player.Speed; Ultra = true; });
+                    cursor.Emit(OpCodes.Ldarg_0);
+                    cursor.EmitDelegate(RecordUltraData);
                 }
             });
         }
@@ -83,7 +84,10 @@ public static class PlayerStateUtils {
             ins => ins.MatchLdcR4(1.2f)
             )) {
             cursor.Emit(cursor.Next.Next.OpCode);
-            cursor.EmitDelegate<Action<Player>>(player => { SpeedBeforeUltra = player.Speed; Ultra = true; });
+            cursor.EmitDelegate(RecordUltraData);
         }
+    }
+    private static void RecordUltraData(Player player) {
+        SpeedBeforeUltra = player.Speed; Ultra = true;
     }
 }
