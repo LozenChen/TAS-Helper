@@ -1,4 +1,4 @@
-//#define OoO_Debug
+﻿//#define OoO_Debug
 
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -28,7 +28,7 @@ internal static class Highlighter {
         }
     }
 
-    public static Entity trackedEntity => ForEachBreakPoints_EntityList.trackedEntity;
+    public static Entity trackedEntity => MoonBlockOrderOfOperation.trackedEntity ?? ForEachBreakPoints_EntityList.trackedEntity;
 
     public static PlayerCollider trackedPC => ForEachBreakPoints_PlayerCollider.trackedPC;
 

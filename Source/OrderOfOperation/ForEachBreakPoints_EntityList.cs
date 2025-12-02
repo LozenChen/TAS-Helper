@@ -1,4 +1,4 @@
-//#define OoO_Debug
+﻿//#define OoO_Debug
 
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -150,6 +150,9 @@ internal static class ForEachBreakPoints_EntityList {
         if (UID.StartsWith("Player") && (UID == "Player" || (playerInstance is not null && UID == GetUID(playerInstance)))) {
             AddTarget("Player", true);
         }
+        else if (UID.StartsWith("FloatySpaceBlock")) {
+            AddTarget(UID, true);
+        }
         else {
             AddTarget(UID, false);
         }
@@ -158,6 +161,10 @@ internal static class ForEachBreakPoints_EntityList {
 
     [Command_StringParameter("ooo_remove_target", "Remove a for-each breakpoint in EntityList.Update() (TAS Helper OoO Stepping)")]
     public static void RemoveTarget(string UID) {
+        if (UID.StartsWith("Player")) {
+            // todo: remove Player makes tas desync
+            return;
+        }
         if (UID == autoStopString) {
             autoStop = false;
             return;
@@ -252,7 +259,13 @@ internal static class ForEachBreakPoints_EntityList {
             flag1 = false;
         }
         if (entity.Active) {
-            entity.Update();
+            if (entity is FloatySpaceBlock block) {
+                MoonBlockOrderOfOperation.NextOperation(block);
+            }
+            else {
+                entity.Update();
+            }
+            
             if (flag2) {
                 return true;
             }

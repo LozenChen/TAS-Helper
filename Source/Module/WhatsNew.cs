@@ -105,6 +105,7 @@ public static class WhatsNew {
         AddLog("2.2.7", "Bugfix: Support latest Chronia Helper update.");
         AddLog("2.2.8", "Bugfix: Make OoO Stepper work again.");
         AddLog("2.2.9", "Bugfix: Fix a crash related to ExtendedVariantMode v0.47.0.");
+        AddLog("2.2.10", "Feature: OoO Stepper supports FloatySpaceBlock.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
