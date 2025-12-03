@@ -88,6 +88,9 @@ public static class AutoWatchMenu {
         page.Add(new EnumerableSliderExt<ShakeRenderMode>("Auto Watch Shake".ToDialogText(),
             CreateShakeOnly2Options(), TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset).Change(value => TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset = value));
 
+        page.Add(new EnumerableSliderExt<OnOffMode>("Auto Watch MoonBlock Details".ToDialogText(),
+            CreateOnOffOptions(), TasHelperSettings.AutoWatch_MoonBlock_ShowDetails).Change(value => TasHelperSettings.AutoWatch_MoonBlock_ShowDetails = value));
+
         page.Add(new EnumerableSliderExt<RenderMode>("Auto Watch MoveBlock".ToDialogText(),
             CreateOptions(), TasHelperSettings.AutoWatch_MoveBlock).Change(value => TasHelperSettings.AutoWatch_MoveBlock = value));
 
@@ -120,40 +123,46 @@ public static class AutoWatchMenu {
     }
 
 
-    private static IEnumerable<KeyValuePair<RenderMode, string>> CreateOptions() {
-        return new List<KeyValuePair<RenderMode, string>> {
+    private static List<KeyValuePair<RenderMode, string>> CreateOptions() {
+        return [
             new(RenderMode.Never, "Auto Watch Mode Never".ToDialogText()),
             new(RenderMode.WhenWatched, "Auto Watch Mode When Watched".ToDialogText()),
             new(RenderMode.Always, "Auto Watch Mode Always".ToDialogText()),
-        };
+        ];
     }
 
-    private static IEnumerable<KeyValuePair<RenderMode, string>> CreateOnlyTwoOptions() { // some entity can't be clicked, so "when watched" doesn't make sense
-        return new List<KeyValuePair<RenderMode, string>> {
+    private static List<KeyValuePair<RenderMode, string>> CreateOnlyTwoOptions() { // some entity can't be clicked, so "when watched" doesn't make sense
+        return [
             new(RenderMode.Never, "Auto Watch Mode Never".ToDialogText()),
             new(RenderMode.Always, "Auto Watch Mode Always".ToDialogText()),
-        };
+        ];
     }
 
-    private static IEnumerable<KeyValuePair<ShakeRenderMode, string>> CreateShakeOptions() {
-        return new List<KeyValuePair<ShakeRenderMode, string>> {
+    private static List<KeyValuePair<ShakeRenderMode, string>> CreateShakeOptions() {
+        return [
             new(ShakeRenderMode.None, "Auto Watch Shake None".ToDialogText()),
             new(ShakeRenderMode.Velocity, "Auto Watch Shake Velocity".ToDialogText()),
             new(ShakeRenderMode.Offset, "Auto Watch Shake Offset".ToDialogText()),
-        };
+        ];
     }
 
-    private static IEnumerable<KeyValuePair<ShakeRenderMode, string>> CreateShakeOnly2Options() {
-        return new List<KeyValuePair<ShakeRenderMode, string>> {
+    private static List<KeyValuePair<ShakeRenderMode, string>> CreateShakeOnly2Options() {
+        return [
             new(ShakeRenderMode.Velocity, "Auto Watch Shake Velocity".ToDialogText()),
             new(ShakeRenderMode.Offset, "Auto Watch Shake Offset".ToDialogText()),
-        };
+        ];
     }
 
-    private static IEnumerable<KeyValuePair<bool, string>> CreateSpeedUnitOptions() {
-        return new List<KeyValuePair<bool, string>> {
+    private static List<KeyValuePair<bool, string>> CreateSpeedUnitOptions() {
+        return [
             new(true, "Pixel/Second"),
             new(false, "Pixel/Frame"),
-        };
+        ];
+    }
+    private static List<KeyValuePair<OnOffMode, string>> CreateOnOffOptions() {
+        return [
+            new(OnOffMode.Off, "Off".ToDialogText()),
+            new(OnOffMode.On, "On".ToDialogText()),
+        ];
     }
 }

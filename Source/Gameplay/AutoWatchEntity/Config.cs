@@ -40,6 +40,8 @@ internal static class Config {
 
     public static bool FloatySpaceBlock_UseOffsetInsteadOfVelocity => TasHelperSettings.AutoWatch_MoonBlock_VelocityOrOffset == ShakeRenderMode.Offset;
 
+    public static bool FloatySpaceBlock_ShowDetails => TasHelperSettings.AutoWatch_MoonBlock_ShowDetails == OnOffMode.On;
+
     public static Mode Glider => TasHelperSettings.AutoWatch_Jelly;
 
     public static Mode MoveBlock => TasHelperSettings.AutoWatch_MoveBlock;
@@ -76,6 +78,8 @@ internal static class Config {
 
 }
 public enum ShakeRenderMode { None, Offset, Velocity } // 我在近义词里面纠结了很久, 最终将其定为 中文名定为 摇摆, 英文名定为 Shake
+
+public enum OnOffMode { On, Off }
 internal static class Format {
 
     public static bool Speed_UsePixelPerSecond = true; // instead of PixelPerFrame

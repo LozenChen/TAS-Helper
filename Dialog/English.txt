@@ -1,6 +1,8 @@
 ﻿# ============================================= TAS Helper =====================================================
 TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        Enabled
+TAS_HELPER_ON=                                             On
+TAS_HELPER_OFF=                                            Off
 
 # ============================================= Spinner Main Switch =====================================================
 TAS_HELPER_SPINNER_MAIN_SWITCH=                            Main Switch
@@ -303,6 +305,7 @@ TAS_HELPER_AUTO_WATCH_FLINGBIRD=                           Fling Bird
 TAS_HELPER_AUTO_WATCH_JELLY=                               Jelly
 TAS_HELPER_AUTO_WATCH_KEVIN=                               Kevin
 TAS_HELPER_AUTO_WATCH_MOONBLOCK=                           Moon Block
+TAS_HELPER_AUTO_WATCH_MOONBLOCK_DETAILS=                   \S    > Show Details
 TAS_HELPER_AUTO_WATCH_MOVEBLOCK=                           Move Block
 TAS_HELPER_AUTO_WATCH_PUFFER=                              Puffer
 TAS_HELPER_AUTO_WATCH_REFILL=                              Refill

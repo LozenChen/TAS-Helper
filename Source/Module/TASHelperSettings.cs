@@ -1,4 +1,4 @@
-using Celeste.Mod.TASHelper.Entities;
+ï»¿using Celeste.Mod.TASHelper.Entities;
 using Celeste.Mod.TASHelper.Gameplay;
 using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 using Celeste.Mod.TASHelper.Gameplay.Spinner;
@@ -603,6 +603,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
     public ShakeRenderMode AutoWatch_MoonBlock_VelocityOrOffset = ShakeRenderMode.Offset;
 
+    public OnOffMode AutoWatch_MoonBlock_ShowDetails = OnOffMode.On;
+
     public Mode AutoWatch_MoveBlock = Mode.Always;
 
     public Mode AutoWatch_Puffer = Mode.Always;
@@ -1052,7 +1054,7 @@ public class TASHelperSettings : EverestModuleSettings {
 public class SettingDescriptionHardcodedAttribute : Attribute {
     public string description() {
         if (Dialog.Language == Dialog.Languages["schinese"]) {
-            return TasHelperSettings.MainSwitchThreeStates ? "ÔÚ [¹Ø - Ä¬ÈÏ - È«²¿] ÈıÕß¼äÇĞ»»\nÅäÖÃÆäËûÉèÖÃÊ±ÇëÔÚ È«²¿ ×´Ì¬ÏÂ½øĞĞ." : "ÔÚ [¹Ø - È«²¿] Á½Õß¼äÇĞ»»";
+            return TasHelperSettings.MainSwitchThreeStates ? "åœ¨ [å…³ - é»˜è®¤ - å…¨éƒ¨] ä¸‰è€…é—´åˆ‡æ¢\né…ç½®å…¶ä»–è®¾ç½®æ—¶è¯·åœ¨ å…¨éƒ¨ çŠ¶æ€ä¸‹è¿›è¡Œ." : "åœ¨ [å…³ - å…¨éƒ¨] ä¸¤è€…é—´åˆ‡æ¢";
         }
         return TasHelperSettings.MainSwitchThreeStates ? "Switch among [Off - Default - All]\nPlease configure other settings in State All." : "Switch between [Off - All]";
     }

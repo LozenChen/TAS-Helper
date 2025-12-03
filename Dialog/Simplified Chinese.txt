@@ -3,6 +3,8 @@
 # ============================================= TAS Helper =====================================================
 TAS_HELPER_NAME=                                           TAS Helper
 TAS_HELPER_ENABLED=                                        开关
+TAS_HELPER_ON=                                             开
+TAS_HELPER_OFF=                                            关
 
 # ============================================= Spinner Main Switch =====================================================
 TAS_HELPER_SPINNER_MAIN_SWITCH=                            主开关
@@ -289,6 +291,7 @@ TAS_HELPER_AUTO_WATCH_FLINGBIRD=                           Fling Bird
 TAS_HELPER_AUTO_WATCH_JELLY=                               Jelly
 TAS_HELPER_AUTO_WATCH_KEVIN=                               Kevin
 TAS_HELPER_AUTO_WATCH_MOONBLOCK=                           Moon Block
+TAS_HELPER_AUTO_WATCH_MOONBLOCK_DETAILS=                   \S    > 显示详细信息
 TAS_HELPER_AUTO_WATCH_MOVEBLOCK=                           Move Block
 TAS_HELPER_AUTO_WATCH_PUFFER=                              Puffer
 TAS_HELPER_AUTO_WATCH_REFILL=                              Refill

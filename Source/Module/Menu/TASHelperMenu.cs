@@ -1,4 +1,4 @@
-using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
+﻿using Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System.Reflection;
@@ -47,11 +47,13 @@ internal static class TASHelperMenu {
                 AutoWatchMenu.SettingsMaybeChanged = false;
             }
         };
-        AutoWatchItem.Add("Auto Watch Finished".ToDialogText(), new List<TextMenu.Item>());
-        AutoWatchItem.Add("Auto Watch Page OnOff".ToDialogText(), AutoWatchMenu.Create_Page_1_OnOff(menu));
-        AutoWatchItem.Add("Auto Watch Page 2".ToDialogText(), AutoWatchMenu.Create_Page2(menu));
-        AutoWatchItem.Add("Auto Watch Page 3".ToDialogText(), AutoWatchMenu.Create_Page3(menu));
-        AutoWatchItem.Add("Auto Watch Page 4".ToDialogText(), AutoWatchMenu.Create_Page4(menu));
+        using (new ItemConfig(optionMinWidth: 280f)) {
+            AutoWatchItem.Add("Auto Watch Finished".ToDialogText(), new List<TextMenu.Item>());
+            AutoWatchItem.Add("Auto Watch Page OnOff".ToDialogText(), AutoWatchMenu.Create_Page_1_OnOff(menu));
+            AutoWatchItem.Add("Auto Watch Page 2".ToDialogText(), AutoWatchMenu.Create_Page2(menu));
+            AutoWatchItem.Add("Auto Watch Page 3".ToDialogText(), AutoWatchMenu.Create_Page3(menu));
+            AutoWatchItem.Add("Auto Watch Page 4".ToDialogText(), AutoWatchMenu.Create_Page4(menu));
+        }
         AutoWatchItem.AfterUpdate = optionsSubMenu => {
             if (optionsSubMenu.Focused && optionsSubMenu.MenuIndex > 0) {
                 AutoWatchMenu.SettingsMaybeChanged = true;
@@ -655,11 +657,13 @@ public class HLine : TextMenu.Item {
 
 public class EnumerableSliderExt<T> : TextMenu.Option<T> {
 
+    public float minWidth;
     public EnumerableSliderExt(string label, IEnumerable<T> options, T startValue)
         : base(label) {
         foreach (T option in options) {
             Add(option.ToString(), option, option.Equals(startValue));
         }
+        minWidth = ItemConfig.OptionMinWidth.GetValueOrDefault(0f);
     }
 
     public EnumerableSliderExt(string label, IEnumerable<KeyValuePair<T, string>> options, T startValue)
@@ -667,6 +671,7 @@ public class EnumerableSliderExt<T> : TextMenu.Option<T> {
         foreach (KeyValuePair<T, string> option in options) {
             Add(option.Value, option.Key, option.Key.Equals(startValue));
         }
+        minWidth = ItemConfig.OptionMinWidth.GetValueOrDefault(0f);
     }
 
     public override void Render(Vector2 position, bool highlighted) {
@@ -679,6 +684,9 @@ public class EnumerableSliderExt<T> : TextMenu.Option<T> {
             string option = Values[Index].Item1;
             if (num > 300f) {
                 num = ActiveFont.Measure(option).X * 0.8f + 132f;
+            }
+            if (num < minWidth) {
+                num = minWidth;
             }
             ActiveFont.DrawOutline(option, position + new Vector2(Container.Width - num * 0.5f + (float)lastDir * ValueWiggler.Value * 8f, 0f), new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
             Vector2 vector = Vector2.UnitX * (highlighted ? ((float)Math.Sin(sine * 4f) * 4f) : 0f);
@@ -699,5 +707,16 @@ public class IntSliderExt : TextMenuExt.IntSlider {
 
     public override float RightWidth() {
         return Math.Max(base.RightWidth(), 180f); // ensure 1 digits and 2 digits intSliders have same width, 170 is enough for chinese, and 180 is enough for english
+    }
+}
+
+public class ItemConfig : IDisposable {
+
+    public static float? OptionMinWidth;
+    public ItemConfig(float optionMinWidth) {
+        OptionMinWidth = optionMinWidth;
+    }
+    public void Dispose() {
+        OptionMinWidth = null;
     }
 }
