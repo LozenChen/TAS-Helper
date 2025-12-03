@@ -106,6 +106,7 @@ public static class WhatsNew {
         AddLog("2.2.8", "Bugfix: Make OoO Stepper work again.");
         AddLog("2.2.9", "Bugfix: Fix a crash related to ExtendedVariantMode v0.47.0.");
         AddLog("2.2.10", "Feature: OoO Stepper supports FloatySpaceBlock.");
+        AddLog("2.2.11", "Feature: Enhance AutoWatch MoonBlock.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
