@@ -119,8 +119,8 @@ internal static class SimplifiedSpinner {
         }
 
         if (ModUtils.GetType("ChroniaHelper", "ChroniaHelper.Entities.SeamlessSpinner") is { } chroniaSpinnerType) {
-            FieldInfo f1 = chroniaSpinnerType.GetField("border", BindingFlags.NonPublic | BindingFlags.Instance); // exists in old versions
-            FieldInfo f2 = chroniaSpinnerType.GetField("filler", BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo f1 = chroniaSpinnerType.GetFieldInfo("border");
+            FieldInfo f2 = chroniaSpinnerType.GetFieldInfo("filler");
             if (f1 is not null && f2 is not null) {
                 ChroniaSpinnerExtraComponentGetter = [f1, f2];
                 ClearSpritesAction.Add(self => {
@@ -136,17 +136,21 @@ internal static class SimplifiedSpinner {
                 });
                 OnCreateSprites(chroniaSpinnerType);
             }
-            else {
-                chroniaSpinnerType.GetMethod("Render")?.ILHook(il => {
+            else if (chroniaSpinnerType.GetMethod("Render") is { } method && method.DeclaringType == chroniaSpinnerType) {
+                // check declaring type so we won't accidentally hook Entity.Render
+                method.ILHook(il => {
                     ILCursor cursor = new ILCursor(il);
                     Instruction target = cursor.Next;
                     cursor.EmitDelegate(GetSpritesCleared);
                     cursor.Emit(OpCodes.Brfalse, target);
                     cursor.Emit(OpCodes.Ret);
                 });
-            }
 
-            static bool GetSpritesCleared() => SpritesCleared;
+                static bool GetSpritesCleared() => SpritesCleared;
+            }
+            else {
+                throw new Exception($"TASHelper/{nameof(SimplifiedSpinner)} can't support ChroniaHelper/SeamlessSpinner.");
+            }
         }
 
         if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.ShatterSpinner") is { } chronoSpinnerType) {
