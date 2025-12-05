@@ -55,8 +55,9 @@ internal class FloatySpaceBlockRenderer : AutoWatchText2Renderer {
                 else {
                     textBelow.Position = block.BottomCenter;
                 }
-                Vector2 dash = Calc.YoYo(Ease.QuadIn(block.dashEase)) * block.dashDirection * 8f;
-                textBelow.content = $"sineWave_Y: {(4f * MathF.Sin(block.sineWave)).SignedFloatToString()}\nsink_Y: {12f * Ease.SineInOut(block.yLerp):0.00}\ndash_X: {(dash.X).SignedFloatToString()}\ndash_Y: {(dash.Y).SignedFloatToString()}";
+                FloatySpaceBlock master = block.master ?? block;
+                Vector2 dash = Calc.YoYo(Ease.QuadIn(master.dashEase)) * master.dashDirection * 8f;
+                textBelow.content = $"sineWave_Y: {(4f * MathF.Sin(master.sineWave)).SignedFloatToString()}\nsink_Y: {12f * Ease.SineInOut(master.yLerp):0.00}\ndash_X: {(dash.X).SignedFloatToString()}\ndash_Y: {(dash.Y).SignedFloatToString()}";
             }
             else {
                 textBelow.content = "";

@@ -265,7 +265,7 @@ internal static class ForEachBreakPoints_EntityList {
             else {
                 entity.Update();
             }
-            
+
             if (flag2) {
                 return true;
             }

@@ -1,4 +1,4 @@
-using Celeste.Mod.UI;
+﻿using Celeste.Mod.UI;
 using Monocle;
 using System.Runtime.CompilerServices;
 
@@ -29,10 +29,23 @@ public static class ConsoleCommands {
 
     [Command("switch_activate_all", "Activate All Switches (TAS Helper)")]
     public static void CmdSwitchActivateAll() {
-        if (Engine.Scene is Level level && level.Tracker.GetComponents<Switch>() is List<Component> list && list.IsNotNullOrEmpty()) {
+        if (Engine.Scene is not Level level) {
+            return;
+        }
+        bool has = false;
+        if (level.Tracker.GetComponents<Switch>() is List<Component> list) {
             foreach (Switch sw in list) {
                 sw.Activate();
+                has = true;
             }
+        }
+        if (ModUtils.GetType("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Entities.FlagTouchSwitch") is { } maxFlagTouchSwitch && maxFlagTouchSwitch.GetMethodInfo("TurnOn") is { } turnOn) {
+            foreach (Entity e in level.Tracker.GetEntitiesTrackIfNeeded(maxFlagTouchSwitch)) {
+                turnOn.Invoke(e, parameterless);
+                has = true;
+            }
+        }
+        if (has) {
             SoundEmitter.Play("event:/game/general/touchswitch_last_oneshot");
         }
     }
