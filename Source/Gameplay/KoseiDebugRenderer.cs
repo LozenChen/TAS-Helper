@@ -1,5 +1,5 @@
-﻿using Monocle;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
+using Monocle;
 using MonoMod.Cil;
 using System.Reflection;
 

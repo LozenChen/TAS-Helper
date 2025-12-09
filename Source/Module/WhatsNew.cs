@@ -108,6 +108,7 @@ public static class WhatsNew {
         AddLog("2.2.10", "Feature: OoO Stepper supports FloatySpaceBlock.");
         AddLog("2.2.11", "Feature: Enhance AutoWatch MoonBlock.");
         AddLog("2.2.12", "Bugfix: Simplified Spinner doesn't work well with latest ChroniaHelper. (thanks @Socks)");
+        AddLog("2.2.13", "Feature: Hide KoseiHelper DebugRenderer when necessary.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 

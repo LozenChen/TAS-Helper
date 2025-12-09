@@ -1,5 +1,5 @@
 ﻿- Name: TASHelper
-  Version: 2.2.12
+  Version: 2.2.13
   DLL: bin/net8.0/TASHelper.dll
   Dependencies:
     - Name: EverestCore
