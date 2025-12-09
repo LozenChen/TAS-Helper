@@ -217,6 +217,16 @@ internal static class HazardInfoMaintain {
             noCycle: null,
             recordModPosition: false
         );
+        HazardInfo.Create(
+            ModUtils.GetType("DBBHelper", "Celeste.Mod.DBBHelper.Entities.ConditionalLightning"),
+            lightning,
+            e => (e as Lightning)!.toggleOffset,
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
 
         // ModUtils.GetType("Scuffed Helper", "ScuffedHelperCode.RandomSpinner")
         // no, ScuffedHelperCode.RandomSpinner is internel so i can't track it easily
