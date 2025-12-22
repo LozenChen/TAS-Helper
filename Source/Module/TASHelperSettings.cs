@@ -179,7 +179,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 CountdownHotkeyCycleOrMod = true;
             }
             ExactSpinnerGroup.SetModulo(modulo);
-            CountdownRenderer.ClearCache();
+            Countdown.ClearCache();
             if (CountdownMode == CountdownModes._3fCycle) {
                 SpinnerCountdownLoad = true;
             }
@@ -235,7 +235,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 _ => true
             };
             LoadRangeCollider.ClearCache();
-            CountdownRenderer.ClearCache(); // using load range affects count down position, so we need clear cache
+            Countdown.ClearCache(); // using load range affects count down position, so we need clear cache
         }
     }
 
@@ -374,7 +374,7 @@ public class TASHelperSettings : EverestModuleSettings {
             _ => true
         };
         LoadRangeCollider.ClearCache();
-        CountdownRenderer.ClearCache();
+        Countdown.ClearCache();
         MovementOvershootAssistant.UpdateDetourState();
         CassetteBlockHelper.OnEnabledChanged();
         Gameplay.AutoWatchEntity.CoreLogic.OnConfigChange();
