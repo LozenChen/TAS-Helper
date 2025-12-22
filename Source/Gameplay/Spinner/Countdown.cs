@@ -1,4 +1,6 @@
 ﻿using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Gameplay.Spinner.Info;
+using Celeste.Mod.TASHelper.Gameplay.Spinner.Render;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -8,22 +10,20 @@ namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 internal static class Countdown {
 
     public static bool LastNotCountdownBoost = !NotCountdownBoost;
-    public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || (Engine.Scene.Paused && !Manager_Running);
+    public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || Engine.Scene.Paused && !Manager_Running;
 
     public static void Draw(Entity self, SpinnerRenderHelper.SpinnerColorIndex index, bool collidable) {
         if (CountdownRenderer.Cached) {
             return;
         }
         if (TasHelperSettings.UsingCountDown && NotCountdownBoost) {
-#pragma warning disable CS8629
-            float offset = Info.OffsetHelper.GetOffset(self).Value;
-#pragma warning restore CS8629
+            float offset = Info.OffsetHelper.GetOffset(self)!.Value;
             Vector2 CountdownPos;
             if (Info.HazardTypeHelper.IsLightning(self)) {
-                CountdownPos = Info.PositionHelper.GetInviewCheckCenter(self) + new Vector2(-1f, -2f);
+                CountdownPos = PositionHelper.GetInviewCheckCenter(self) + new Vector2(-1f, -2f);
             }
             else {
-                CountdownPos = Info.PositionHelper.GetInviewCheckPosition(self) + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
+                CountdownPos = PositionHelper.GetInviewCheckPosition(self) + (TasHelperSettings.UsingLoadRange ? new Vector2(-1f, 3f) : new Vector2(-1f, -2f));
             }
             SpinnerRenderHelper.DrawCountdown(CountdownPos, Info.TimeActiveHelper.PredictCountdown(offset, Info.HazardTypeHelper.IsDust(self), TasHelperSettings.SpinnerCountdownLoad), index, collidable);
         }

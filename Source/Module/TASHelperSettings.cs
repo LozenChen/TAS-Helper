@@ -234,7 +234,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 LoadRangeColliderModes.Always => true,
                 _ => true
             };
-            LoadRangeColliderRenderer.ClearCache();
+            LoadRangeCollider.ClearCache();
             CountdownRenderer.ClearCache(); // using load range affects count down position, so we need clear cache
         }
     }
@@ -272,7 +272,7 @@ public class TASHelperSettings : EverestModuleSettings {
                 LoadRangeColliderModes.Always => true,
                 _ => true
             };
-            LoadRangeColliderRenderer.ClearCache();
+            LoadRangeCollider.ClearCache();
         }
     }
 
@@ -373,7 +373,7 @@ public class TASHelperSettings : EverestModuleSettings {
             LoadRangeColliderModes.Always => true,
             _ => true
         };
-        LoadRangeColliderRenderer.ClearCache();
+        LoadRangeCollider.ClearCache();
         CountdownRenderer.ClearCache();
         MovementOvershootAssistant.UpdateDetourState();
         CassetteBlockHelper.OnEnabledChanged();

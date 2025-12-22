@@ -1,9 +1,9 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using TAS.EverestInterop.Hitboxes;
 
-namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
+namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Render;
 
 internal static class SpinnerRenderHelper {
 

@@ -1,15 +1,15 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using TAS.EverestInterop.Hitboxes;
 
-namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
-internal static class SimplifiedLightning {
+namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Render;
+internal static class LightningRenderHelper {
 
     [Initialize]
     public static void Initialize() {
-        using (DetourContextHelper.Use(After: new List<string> { "*", "CelesteTAS-EverestInterop" }, ID: "TAS Helper SimplifiedLightning")) {
+        using (DetourContextHelper.Use(After: new List<string> { "*", "CelesteTAS-EverestInterop" }, ID: $"TAS Helper {nameof(LightningRenderHelper)}")) {
             IL.Celeste.LightningRenderer.Render += LightningRenderer_Render;
         }
     }
@@ -37,7 +37,7 @@ internal static class SimplifiedLightning {
         }
 
         if (!success) {
-            throw new Exception($"[TASHelper] {nameof(SimplifiedLightning)} fail to initialize.");
+            throw new Exception($"[TASHelper] {nameof(LightningRenderHelper)} fail to initialize.");
         }
 
 
@@ -114,15 +114,15 @@ internal static class SimplifiedLightning {
         }
 
         Rectangle rectangle = new((int)item.X + 1, (int)item.Y + 1, (int)item.Width, (int)item.Height);
-        Monocle.Draw.Rect(rectangle, color);
+        Draw.Rect(rectangle, color);
     }
 
-    public static void DrawOutline(Entity self, Camera camera, Color color, bool collidable, bool _) {
+    public static void DrawOutline(Entity self, Camera _, Color color, bool collidable, bool __) {
         if (!collidable) {
             DashedLine.DrawRect(self.Position + Vector2.One, self.Width, self.Height, color * 0.8f);
         }
         else {
-            HitboxRender(self.Collider, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
+            self.Collider.HitboxRender(color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
         }
     }
 

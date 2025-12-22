@@ -4,7 +4,7 @@ namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Info;
 
 internal static class CollidableHelper {
 
-    private static Dictionary<Type, Func<Entity, bool>> LightningCollidable = new();
+    private static readonly Dictionary<Type, Func<Entity, bool>> LightningCollidable = [];
 
     internal static void Add(Type modLightning, Func<Entity, bool> lightningCollidableGetter) {
         LightningCollidable[modLightning] = lightningCollidableGetter;

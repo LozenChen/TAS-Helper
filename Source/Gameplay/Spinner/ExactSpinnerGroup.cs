@@ -94,10 +94,10 @@ public static class ExactSpinnerGroup {
     private class ExactLevelGroupRenderer : Message {
 
         public ExactLevelGroupRenderer() : base($"SpinnerGroup ?/{GroupPeriod}", new Vector2(1900f, 20f)) {
-            this.Depth = -20000;
-            this.Visible = true;
-            this.Active = true;
-            base.Tag |= Tags.Global;
+            Depth = -20000;
+            Visible = true;
+            Active = true;
+            Tag |= Tags.Global;
         }
 
         public static bool AddIfNecessary() {
@@ -150,7 +150,7 @@ public static class ExactSpinnerGroup {
             if (!Countdown.NotCountdownBoost) {
                 return;
             }
-            Message.RenderMessageJetBrainsMono(text, Position, Vector2.UnitX, Vector2.One, 1f, Color.White, Color.Black);
+            RenderMessageJetBrainsMono(text, Position, Vector2.UnitX, Vector2.One, 1f, Color.White, Color.Black);
         }
     }
 

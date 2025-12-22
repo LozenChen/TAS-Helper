@@ -22,9 +22,9 @@ internal static class HazardTypeHelper {
 
     private static int IsHazardTagValue;
 
-    private static Dictionary<Type, int> HazardTypes_Normal = new();
+    private static readonly Dictionary<Type, int> HazardTypes_Normal = [];
 
-    private static Dictionary<Type, GetDelegate<Entity, int?>> HazardTypes_Special = new();
+    private static readonly Dictionary<Type, GetDelegate<Entity, int?>> HazardTypes_Special = [];
 
     internal static void AddHazardType(Type type, int hazardType) {
         HazardTypes_Normal[type] = hazardType;
@@ -61,7 +61,9 @@ internal static class HazardTypeHelper {
         IsDustTagValue = (int)IsDustTag;
         IsHazardTagValue = IsSpinnerTagValue | IsLightningTagValue | IsDustTagValue;
 
-        if (ModUtils.GetType("FrostHelper", "FrostHelper.Entities.WallBouncePresentation.WallbouncePlayback") is { } wallbouncePlayBack && wallbouncePlayBack.GetFieldInfo("tag") is { } fieldInfo && wallbouncePlayBack.GetConstructorInfo(new Type[] { typeof(string), typeof(Vector2) }) is { } ctorInfo) {
+        if (ModUtils.GetType("FrostHelper", "FrostHelper.Entities.WallBouncePresentation.WallbouncePlayback") is { } wallbouncePlayBack
+            && wallbouncePlayBack.GetFieldInfo("tag") is { } fieldInfo
+            && wallbouncePlayBack.GetConstructorInfo([typeof(string), typeof(Vector2)]) is { } ctorInfo) {
             ctorInfo.HookAfter<object>(x => fieldInfo.SetValue(x, (int)fieldInfo.GetValue(x) & ~IsHazardTagValue));
         }
     }
@@ -130,6 +132,12 @@ internal static class HazardTypeHelper {
     public static bool IsLightning(this Entity self) => self.TagCheck(IsLightningTagValue);
     public static bool IsDust(this Entity self) => self.TagCheck(IsDustTagValue);
     public static bool IsHazard(this Entity self) => self.TagCheck(IsHazardTagValue);
+
+    public static List<Entity> GetSpinners(this Level level) => level[IsSpinnerTag];
+
+    public static List<Entity> GetLightnings(this Level level) => level[IsLightningTag];
+
+    public static List<Entity> GetDusts(this Level level) => level[IsDustTag];
 
     #endregion
 }

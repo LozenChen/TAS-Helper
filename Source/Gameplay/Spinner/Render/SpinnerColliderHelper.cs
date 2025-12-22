@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
 
-namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
+namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Render;
 
 public static class SpinnerColliderHelper {
 
@@ -13,15 +13,15 @@ public static class SpinnerColliderHelper {
         public SpinnerColliderValue(MTexture Outline, MTexture Inside, MTexture Dashed1, MTexture Dashed2) {
             this.Outline = Outline;
             this.Inside = Inside;
-            this.Outline_Dashed1 = Dashed1;
-            this.Outline_Dashed2 = Dashed2;
+            Outline_Dashed1 = Dashed1;
+            Outline_Dashed2 = Dashed2;
         }
 
         public SpinnerColliderValue(string name) {
-            this.Outline = GFX.Game[$"TASHelper/SpinnerCollider/{name}_outline"];
-            this.Inside = GFX.Game[$"TASHelper/SpinnerCollider/{name}_inside"];
-            this.Outline_Dashed1 = GFX.Game[$"TASHelper/SpinnerCollider/{name}_outlineDashed1"];
-            this.Outline_Dashed2 = GFX.Game[$"TASHelper/SpinnerCollider/{name}_outlineDashed2"];
+            Outline = GFX.Game[$"TASHelper/SpinnerCollider/{name}_outline"];
+            Inside = GFX.Game[$"TASHelper/SpinnerCollider/{name}_inside"];
+            Outline_Dashed1 = GFX.Game[$"TASHelper/SpinnerCollider/{name}_outlineDashed1"];
+            Outline_Dashed2 = GFX.Game[$"TASHelper/SpinnerCollider/{name}_outlineDashed2"];
         }
     }
 
@@ -87,7 +87,7 @@ public static class SpinnerColliderHelper {
 #pragma warning restore CS8625
     public static ColliderList ParseHitboxType(string[] S, float scale) {
 #pragma warning disable CS8603
-        if (S.Length == 0 || (S.Length == 1 && string.IsNullOrWhiteSpace(S[0]))) {
+        if (S.Length == 0 || S.Length == 1 && string.IsNullOrWhiteSpace(S[0])) {
             return null;
         }
 #pragma warning restore CS8603

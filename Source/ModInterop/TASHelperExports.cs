@@ -1,4 +1,4 @@
-using Monocle;
+﻿using Monocle;
 using MonoMod.ModInterop;
 
 namespace Celeste.Mod.TASHelper.ModInterop;
