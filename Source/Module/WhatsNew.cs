@@ -10,7 +10,7 @@ public static class WhatsNew {
 
     public static bool ShouldShow => NewUpdateLogExist && TasHelperSettings.SubscribeWhatsNew && UpdateLogs.IsNotEmpty(); // in case i forget to write update logs lol
 
-    public static List<Tuple<string, List<string>>> UpdateLogs = new();
+    public static readonly List<Tuple<string, List<string>>> UpdateLogs = [];
 
     public static Version CurrentVersion => TASHelperModule.Instance.Metadata.Version;
 
@@ -109,33 +109,16 @@ public static class WhatsNew {
         AddLog("2.2.11", "Feature: Enhance AutoWatch MoonBlock.");
         AddLog("2.2.12", "Bugfix: Simplified Spinner doesn't work well with latest ChroniaHelper. (thanks @Socks)");
         AddLog("2.2.13", "Feature: Hide KoseiHelper DebugRenderer when necessary.");
+        AddLog("2.2.14", "Remove: No longer hide KoseiHelper DebugRenderer, as this feature is now in CelesteTAS.", "Bugfix: Simplified Spinner could be short-circuited by CelesteTAS' hitbox hooks (CycleHitboxColor) on MonoMod v25.", "Bugfix: Correct hook ordering ids for MonoMod v25 (CelesteTAS' id is \"CelesteTAS\", not \"CelesteTAS-EverestInterop\").", "Internal: DetourContextHelper now expresses hook ordering intent explicitly and validates ids.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
     private static Version LastVersion;
 
-
-    private static void AddLog(string version, List<string> updateLogs) {
+    private static void AddLog(string version, params string[] logs) {
         if (LastVersion < new Version(version)) {
-            UpdateLogs.Add(new Tuple<string, List<string>>(version, updateLogs));
+            UpdateLogs.Add(new Tuple<string, List<string>>(version, [.. logs]));
         }
-    }
-    private static void AddLog(string version, string log1) {
-        AddLog(version, new List<string>() { log1 });
-    }
-
-    private static void AddLog(string version, string log1, string log2) {
-        AddLog(version, new List<string>() { log1, log2 });
-    }
-
-    private static void AddLog(string version, string log1, string log2, string log3) {
-        AddLog(version, new List<string>() { log1, log2, log3 });
-    }
-    private static void AddLog(string version, string log1, string log2, string log3, string log4) {
-        AddLog(version, new List<string>() { log1, log2, log3, log4 });
-    }
-    private static void AddLog(string version, string log1, string log2, string log3, string log4, string log5) {
-        AddLog(version, new List<string>() { log1, log2, log3, log4, log5 });
     }
     public static Menu.EaseInSubMenu CreateWhatsNewSubMenu(TextMenu menu) {
         return new Menu.EaseInSubMenu(Menu.TASHelperMenu.ToDialogText("Whats New"), false).Apply(subMenu => {

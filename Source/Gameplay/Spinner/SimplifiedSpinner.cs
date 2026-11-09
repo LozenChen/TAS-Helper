@@ -8,10 +8,15 @@ internal static class SimplifiedSpinner {
 
     [Load]
     public static void Load() {
-        // hook after CelesteTAS.CycleHitboxColor's hook
-        using (DetourContextHelper.Use(After: ["*", "CelesteTAS-EverestInterop"], ID: "TAS Helper SimplifiedSpinner")) {
-            // CelesteTAS.HitboxOptimized also hooks this, and it'll early return if entity is not in the camera
-            // so we need to be after HitboxOptimized hook, which already uses After = {"*"}, so we need even more configs
+        // Must stay on the OUTER side of CelesteTAS' Entity.DebugRender hooks.
+        // CelesteTAS' CycleHitboxColor/HitboxOptimized hooks draw and/or cull hitboxes themselves:
+        // CycleHitboxColor.EntityOnDebugRender renders the collider and returns WITHOUT calling orig
+        // for CrystalStaticSpinner/DustStaticSpinner/Lightning, so an inner hook of ours never runs.
+        // MonoMod v25 matches Before/After only against the other detour's DetourConfig.Id (exact string),
+        // so the id is CelesteTAS' mod name "CelesteTAS", NOT its assembly name "CelesteTAS-EverestInterop"
+        // (that fallback only exists in Everest's legacy MonoMod layer). The legacy "*" wildcard does not
+        // exist in MonoMod v25, so only concrete ids are used here.
+        using (DetourContextHelper.ManagedHook("TAS Helper SimplifiedSpinner").AppliedBefore(DetourContextHelper.CelesteTAS).Use()) {
             On.Monocle.Entity.DebugRender += PatchDebugRender;
         }
     }
@@ -33,8 +38,12 @@ internal static class SimplifiedSpinner {
 
         if (self.Right < Left || self.Left > Right || self.Top > Bottom || self.Bottom < Top) {
             /*
-             * In CelesteTAS's HitboxOptimized.ModDebugRender we already have:
-             * 
+             * Nothing to draw for this hazard, and deliberately no orig() call: for hazards we
+             * replace CelesteTAS/vanilla hitbox rendering entirely.
+             *
+             * CelesteTAS.HitboxOptimized.ModDebugRender culls with this instead
+             * (Grid colliders and FinalBossBeam are exempt):
+             *
                 // Do not draw hitboxes of entities outside the camera
                 if (self.Collider is not Grid && self is not FinalBossBeam) {
                     int width = camera.Viewport.Width;
@@ -46,7 +55,8 @@ internal static class SimplifiedSpinner {
                     }
                 }
              *
-             * We apply a stricter check, coz we know it's ok for hazard
+             * Since we are the outer hook, that cull never runs for hazards; we apply a stricter
+             * camera +/- Padding check here instead, using the bounds set by OnDebugRender below.
              */
         }
         else {

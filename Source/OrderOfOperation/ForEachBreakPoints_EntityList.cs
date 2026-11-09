@@ -217,7 +217,7 @@ internal static class ForEachBreakPoints_EntityList {
         // ILHook works in MonoMod.RuntimeDetour namespace
 
         if (!hookBuild) {
-            using (DetourContextHelper.Use(After: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID: "TAS Helper OoO_Core ForEachBreakPoints_EntityList")) {
+            using (DetourContextHelper.ManagedHook("TAS Helper OoO_Core ForEachBreakPoints_EntityList").AppliedAfter(DetourContextHelper.CelesteTAS).Use()) {
                 On.Monocle.EntityList.Update += OnEntityListUpdate;
             }
             hookBuild = true;

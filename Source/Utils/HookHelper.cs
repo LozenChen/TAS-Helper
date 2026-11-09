@@ -7,14 +7,88 @@ using _Celeste = Celeste;
 namespace Celeste.Mod.TASHelper.Utils;
 
 internal static class DetourContextHelper {
-    public static IDisposable Use(string ID = "TAS Helper", int? priority = null, IEnumerable<string>? Before = null, IEnumerable<string>? After = null) {
-        return new DetourConfigContext(new DetourConfig(ID, priority, Before, After)).Use();
+    // Hook ordering has three traps in MonoMod v25 that are silent at runtime:
+    //  1. Before/After match the other detour's DetourConfig.Id EXACTLY. There is no wildcard "*"
+    //     and no assembly-name fallback any more (both existed in MonoMod 21.4.29 / Everest's
+    //     legacy layer only), so a wrong id means "no constraint" and order falls back to
+    //     priority / creation order.
+    //  2. The other mod's id is its MOD name, e.g. CelesteTAS' hook uses DetourConfig("CelesteTAS"),
+    //     NOT its assembly name "CelesteTAS-EverestInterop".
+    //  3. Before/After describe the APPLICATION order: my managed hook / IL manipulator is ordered
+    //     before / after the listed hooks. For managed hooks that is also the runtime execution
+    //     order; for IL hooks the runtime order of the injected code additionally depends on the
+    //     insertion position (a same-cursor prefix insert reverses it).
+    // Express the intent with the factories below instead of passing raw Before/After lists: they
+    // validate the ids, so the silent-failure cases above become loud ArgumentExceptions.
+    //
+    //   managed:  using (DetourContextHelper.ManagedHook("TAS Helper X")
+    //                          .AppliedBefore(DetourContextHelper.CelesteTAS).Use()) {
+    //                 On.Celeste.Foo.Bar += ...;
+    //             }
+    //   IL hook:  DetourConfig config = DetourContextHelper.ILHook("TAS Helper X")
+    //                          .AppliedAfter(DetourContextHelper.CelesteTAS).ToConfig();
+    public const string CelesteTAS = "CelesteTAS";
+
+    // Ids of TASHelper's own hooks referenced by other ordering configurations.
+    // Must stay in sync with the ids used where those hooks are created.
+    internal static class HookIds {
+        internal const string Hotkeys = "TAS Helper Hotkeys";
+        internal const string OoO_CoreBreakPoints = "TAS Helper OoO_Core BreakPoints";
+        internal const string OoO_CoreEnding = "TAS Helper OoO_Core Ending";
     }
 
-    public static DetourConfig Create(string ID = "TAS Helper", int? priority = null, IEnumerable<string>? Before = null, IEnumerable<string>? After = null) {
-        return new DetourConfig(ID, priority, Before, After);
-    }
+    internal static HookOrdering ManagedHook(string id) => new(id);
+    internal static HookOrdering ILHook(string id) => new(id);
 
+    internal sealed class HookOrdering {
+        private readonly string id;
+        private int? priority = null;
+        private readonly List<string> appliedBefore = new();
+        private readonly List<string> appliedAfter = new();
+
+        internal HookOrdering(string id) {
+            this.id = string.IsNullOrWhiteSpace(id)
+                ? throw new ArgumentException("A hook id is required", nameof(id))
+                : id;
+        }
+
+        internal HookOrdering AppliedBefore(params string[] otherHookIds) {
+            appliedBefore.AddRange(Validate(otherHookIds, nameof(otherHookIds)));
+            return this;
+        }
+
+        internal HookOrdering AppliedAfter(params string[] otherHookIds) {
+            appliedAfter.AddRange(Validate(otherHookIds, nameof(otherHookIds)));
+            return this;
+        }
+
+        internal HookOrdering WithPriority(int value) {
+            priority = value;
+            return this;
+        }
+
+        internal IDisposable Use() => new DetourConfigContext(ToConfig()).Use();
+
+        internal DetourConfig ToConfig() => new(id, priority, appliedBefore, appliedAfter);
+
+        private static string[] Validate(string[] otherHookIds, string parameterName) {
+            if (otherHookIds is null || otherHookIds.Length == 0) {
+                throw new ArgumentException("At least one other hook id is required", parameterName);
+            }
+            foreach (string otherHookId in otherHookIds) {
+                if (string.IsNullOrWhiteSpace(otherHookId)) {
+                    throw new ArgumentException("Hook ids must not be null or empty", parameterName);
+                }
+                if (otherHookId.Contains('*')) {
+                    throw new ArgumentException($"Wildcard '{otherHookId}' is not supported by MonoMod v25; list the concrete DetourConfig ids instead", parameterName);
+                }
+                if (otherHookId == "CelesteTAS-EverestInterop") {
+                    throw new ArgumentException("CelesteTAS' assembly name is not a hook id; use DetourContextHelper.CelesteTAS (\"CelesteTAS\")", parameterName);
+                }
+            }
+            return otherHookIds;
+        }
+    }
 }
 internal static class HookHelper {
     // taken from CelesteTAS
@@ -328,7 +402,7 @@ internal static class EventOnHook {
             // but that's only at the end of Level.OnLoadLevel
             // so i still need a LoadLevel_Before
 
-            using (DetourContextHelper.Use(After: new List<string> { "CelesteTAS-EverestInterop" }, ID: "TAS Helper LoadLevel")) {
+            using (DetourContextHelper.ManagedHook("TAS Helper LoadLevel").AppliedAfter(DetourContextHelper.CelesteTAS).Use()) {
                 On.Celeste.Level.LoadLevel += OnLoadLevel;
             }
         }
@@ -456,7 +530,7 @@ public static class CILCodeHelper {
             Celeste.Commands.Log("------------------------------");
         }
         int orig_index = cursor.Index;
-        StringBuilder sb = new();
+        System.Text.StringBuilder sb = new();
         sb.AppendLine("---- CILCodeLogger ----");
         if (Apply) {
             if (AsShift) {
@@ -535,10 +609,8 @@ public static class CILCodeHelper {
     }
 
     internal static void InitializeAtLast() {
-        using (DetourContextHelper.Use(After: ["*"])) {
-            foreach (MethodBase method in methods) {
-                method.CILCodeLogger();
-            }
+        foreach (MethodBase method in methods) {
+            method.CILCodeLogger();
         }
         methods.Clear();
     }

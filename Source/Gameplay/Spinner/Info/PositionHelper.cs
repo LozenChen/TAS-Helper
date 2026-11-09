@@ -73,7 +73,7 @@ internal static class PositionHelper {
     private static void Load() {
         On.Celeste.Lightning.Update += PatchLightningUpdate;
         On.Celeste.DustStaticSpinner.Update += PatchDustUpdate;
-        using (DetourContextHelper.Use(After: ["*"], ID: "TAS Helper ActualPosition")) {
+        using (DetourContextHelper.ILHook("TAS Helper ActualPosition").Use()) {
             typeof(Player).GetMethod("orig_Update")!.ILHook(PlayerPositionBeforeCameraUpdateIL);
         }
     }

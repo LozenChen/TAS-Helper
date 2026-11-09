@@ -3,3 +3,4 @@ bin
 obj
 /Libs/Celeste.exe
 /Libs/Celeste.dll
+*.csproj.user

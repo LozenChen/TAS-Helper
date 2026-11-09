@@ -44,9 +44,9 @@ internal class CountdownRenderer : THRenderer {
         }
     }
 
-    private static Dictionary<Vector2, int> overlapDetector = new();
+    private static readonly Dictionary<Vector2, int> overlapDetector = [];
 
-    private static Dictionary<Vector2, List<int>> overlapResolver = new();
+    private static readonly Dictionary<Vector2, List<int>> overlapResolver = [];
 
     private static Vector2 unitOffset = Vector2.One * 2f;
     public static void Add(int ID, Vector2 Position) {

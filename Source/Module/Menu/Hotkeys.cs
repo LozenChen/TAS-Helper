@@ -29,7 +29,7 @@ public static class TH_Hotkeys {
 
     [Load]
     public static void Load() {
-        using (DetourContextHelper.Use(After: new List<string> { "CelesteTAS-EverestInterop" }, ID: "TAS Helper Hotkeys")) {
+        using (DetourContextHelper.ManagedHook(DetourContextHelper.HookIds.Hotkeys).AppliedAfter(DetourContextHelper.CelesteTAS).Use()) {
             // FrameStepBack hotkey invokes a load state, and we should be after CenterCamera.RestoreCamera
             On.Celeste.Level.Render += HotkeysPressed;
         }

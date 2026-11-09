@@ -418,7 +418,7 @@ internal static class OoO_Core {
 
     [Load]
     public static void Load() {
-        using (DetourContextHelper.Use(After: new List<string> { "*", "CelesteTAS-EverestInterop" }, Before: new List<string> { "TASHelper" }, ID: "TAS Helper OoO_Core OnLevelRender")) {
+        using (DetourContextHelper.ManagedHook("TAS Helper OoO_Core OnLevelRender").AppliedAfter(DetourContextHelper.CelesteTAS).AppliedBefore(DetourContextHelper.HookIds.Hotkeys).Use()) {
             On.Celeste.Level.Render += OnLevelRender;
         }
     }

@@ -74,7 +74,7 @@ internal class BreakPoints {
 
     internal static BreakPoints CreateImpl(MethodBase method, string label, Func<string, Action<ILCursor, ILContext>> manipulator, int RetShift = 0) {
         string ID = CreateUID(label);
-        DetourConfig config = DetourContextHelper.Create(After: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core Ending" }, ID: "TAS Helper OoO_Core BreakPoints");
+        DetourConfig config = DetourContextHelper.ILHook(DetourContextHelper.HookIds.OoO_CoreBreakPoints).AppliedAfter(DetourContextHelper.CelesteTAS, DetourContextHelper.HookIds.OoO_CoreEnding).ToConfig();
         ILHook detour = HookHelper.ManualAppliedILHook(method, il => {
             ILCursor cursor = new(il);
             manipulator(ID)(cursor, il);
@@ -118,7 +118,7 @@ internal class BreakPoints {
 
     public static BreakPoints MarkEnding(MethodBase method, string label, Action? afterRetAction = null, bool EmitRet = true, MoveType moveType = MoveType.AfterLabel) {
         string ID = CreateUID(label);
-        DetourConfig config = DetourContextHelper.Create(After: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID: "TAS Helper OoO_Core Ending");
+        DetourConfig config = DetourContextHelper.ILHook(DetourContextHelper.HookIds.OoO_CoreEnding).AppliedAfter(DetourContextHelper.CelesteTAS).ToConfig();
         ILHook detour = HookHelper.ManualAppliedILHook(method, il => {
             ILCursor cursor = new(il);
             while (cursor.TryGotoNext(moveType, i => i.OpCode == OpCodes.Ret)) {

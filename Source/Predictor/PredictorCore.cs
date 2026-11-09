@@ -162,7 +162,9 @@ public static class PredictorCore {
             return;
         }
 
-        using (DetourContextHelper.Use(Before: new List<string> { "CelesteTAS" }, ID: "TAS Helper PredictorCore")) {
+        // our injected code must end up INSIDE TAS.Playback.Core's hook (TAS outer):
+        // "Before" = our manipulator applies first, so TAS's manipulator (applied later) wraps us.
+        using (DetourContextHelper.ILHook("TAS Helper PredictorCore").AppliedBefore(DetourContextHelper.CelesteTAS).Use()) {
             IL.Monocle.Engine.Update += ILEngineUpdate;
         }
     }

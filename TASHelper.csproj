@@ -15,6 +15,12 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Platforms>AnyCPU</Platforms>
 	<OutputPath>bin</OutputPath>
+
+	<!-- Optional: when set, the built mod is also copied into a Celeste Mods directory
+	     (e.g. -p:DeployDir="C:\Celeste\Mods\TAS-Helper"). Empty by default, so a plain
+	     build only produces bin\net8.0. Everest hot-reloads the mod, so deploying while
+	     the game is open is fine. -->
+	<DeployDir Condition="'$(DeployDir)' == ''"></DeployDir>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -84,6 +90,22 @@
     <None Remove="Libs\**" />
   </ItemGroup>
 
-
+  <!-- Optional convenience target (same mechanism as SpeedrunTool's DeployToGame):
+       dotnet build -c Release -p:DeployDir="C:\Celeste\Mods\TAS-Helper"
+       Copies the mod layout this repo's everest.yaml expects:
+       everest.yaml + bin\net8.0\TASHelper.dll + Dialog\ + Graphics\.
+       The .pdb/.deps.json stay in bin\net8.0 (same as SpeedrunTool): replacing the
+       .pdb at runtime makes Everest's FileSystemModContent throw on every hot reload. -->
+  <Target Name="DeployToGame" AfterTargets="Build" Condition="'$(DeployDir)' != ''">
+    <ItemGroup>
+      <_DeployDialog Include="$(MSBuildProjectDirectory)\Dialog\**\*" />
+      <_DeployGraphics Include="$(MSBuildProjectDirectory)\Graphics\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\everest.yaml" DestinationFolder="$(DeployDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DeployDir)\bin\net8.0" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_DeployDialog)" DestinationFiles="@(_DeployDialog->'$(DeployDir)\Dialog\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_DeployGraphics)" DestinationFiles="@(_DeployGraphics->'$(DeployDir)\Graphics\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="Deployed $(AssemblyName) ($(Configuration)) -> $(DeployDir)" />
+  </Target>
 
 </Project>

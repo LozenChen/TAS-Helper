@@ -32,7 +32,7 @@ internal static class ForEachBreakPoints_PlayerCollider {
     private static ILHook detour;
 
     internal static void Create() {
-        DetourConfig config = DetourContextHelper.Create(Before: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper" }, ID: "TAS Helper OoO_Core ForEachBreakPoints_PlayerCollider");
+        DetourConfig config = DetourContextHelper.ILHook("TAS Helper OoO_Core ForEachBreakPoints_PlayerCollider").AppliedBefore(DetourContextHelper.CelesteTAS).ToConfig();
         detour = HookHelper.ManualAppliedILHook(PlayerOrigUpdate, il => {
             ILCursor cursor = new ILCursor(il);
             cursor.TryGotoNext(

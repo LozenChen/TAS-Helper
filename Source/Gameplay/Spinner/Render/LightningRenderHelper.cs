@@ -9,7 +9,9 @@ internal static class LightningRenderHelper {
 
     [Initialize]
     public static void Initialize() {
-        using (DetourContextHelper.Use(After: new List<string> { "*", "CelesteTAS-EverestInterop" }, ID: $"TAS Helper {nameof(LightningRenderHelper)}")) {
+        // Before/After = manipulator application order (Before = my manipulator applies first).
+        // Wildcards are not supported by MonoMod v25, so only concrete ids are used.
+        using (DetourContextHelper.ILHook($"TAS Helper {nameof(LightningRenderHelper)}").AppliedAfter(DetourContextHelper.CelesteTAS).Use()) {
             IL.Celeste.LightningRenderer.Render += LightningRenderer_Render;
         }
     }

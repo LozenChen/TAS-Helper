@@ -26,7 +26,7 @@ internal class SpringBoard {
     }
 
     public static void Create(MethodBase methodBase) {
-        DetourConfig config = DetourContextHelper.Create(After: new List<string> { "*", "CelesteTAS-EverestInterop", "TASHelper", "TAS Helper OoO_Core BreakPoints", "TAS Helper OoO_Core Ending" }, ID: "TAS Helper OoO_Core SpringBoard");
+        DetourConfig config = DetourContextHelper.ILHook("TAS Helper OoO_Core SpringBoard").AppliedAfter(DetourContextHelper.CelesteTAS, DetourContextHelper.HookIds.OoO_CoreBreakPoints, DetourContextHelper.HookIds.OoO_CoreEnding).ToConfig();
         ILHook detour = HookHelper.ManualAppliedILHook(methodBase, il => {
             ILCursor cursor = new ILCursor(il);
             if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Ldstr && BreakPoints.HashPassedBreakPoints.Contains((string)ins.Operand))) {

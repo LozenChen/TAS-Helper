@@ -28,7 +28,8 @@ internal static class MovementOvershootAssistant {
 
     [Initialize]
     private static void Initialize() {
-        DetourConfig config = new DetourConfig("TAS Helper Movement Overshoot Assistant", after: ["*"]);
+        // legacy "after: [*]" cannot be expressed in MonoMod v25 (no wildcard support); id kept only.
+        DetourConfig config = DetourContextHelper.ILHook("TAS Helper Movement Overshoot Assistant").ToConfig();
         detour = HookHelper.ManualAppliedILHook(typeof(Player).GetMethod("orig_Update")!, HookOrigUpdate, config);
         UpdateDetourState();
     }

@@ -310,7 +310,7 @@ internal static class TASHelperMenu {
             EaseInOptionSubMenuExt autoWatchItem = CreateAutoWatchSubMenu(menu, inGame);
             EaseInOptionSubMenuExt moreoptionItem = CreateMoreOptionsSubMenu(menu);
             EaseInSubMenu hotkeysItem = CreateHotkeysSubMenu(everestModule, menu);
-            disabledItems = new List<TextMenu.Item>() { colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, autoWatchItem, moreoptionItem, hotkeysItem };
+            disabledItems = [colorItem, countdownItem, loadrangeItem, simpspinnerItem, predictItem, autoWatchItem, moreoptionItem, hotkeysItem];
             int N = menu.IndexOf(mainItem);
             if (WhatsNew.ShouldShow) {
                 EaseInSubMenu whatsnewItem = WhatsNew.CreateWhatsNewSubMenu(menu);
