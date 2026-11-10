@@ -1,4 +1,4 @@
-﻿using Monocle;
+using Monocle;
 using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Info;
@@ -223,6 +223,110 @@ internal static class HazardInfoMaintain {
             recordModPosition: false
         );
 
+
+        // Additional static spinner variants reported by the catalog. These are either direct
+        // CrystalStaticSpinner subclasses or vanilla-style clones; they are opt-in per exact type.
+        HazardInfo.Create(
+            ModUtils.GetType("FrostHelper", "FrostHelper.Entities.CustomDustBunny"),
+            dust,
+            e => (e as DustStaticSpinner)!.offset,
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
+        HazardInfo.Create(
+            ModUtils.GetType("DashToggleHelper", "Celeste.Mod.DashToggleHelper.DashToggleStaticSpinner"),
+            spinner,
+            e => (e as CrystalStaticSpinner)!.offset,
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
+        HazardInfo.Create(
+            ModUtils.GetType("ScugHelper", "Celeste.Mod.ScugHelper.Entities.GPUSpinner"),
+            spinner,
+            e => (e as CrystalStaticSpinner)!.offset,
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
+        HazardInfo.Create(
+            ModUtils.GetType("auspicioushelper", "Celeste.Mod.auspicioushelper.Wrappers.Spinner"),
+            spinner,
+            e => (e as CrystalStaticSpinner)!.offset,
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
+        HazardInfo.Create(
+            ModUtils.GetType("NeihraHelper", "Celeste.Mod.NeihraHelper.Entities.CustomSpinner"),
+            spinner,
+            "offset",
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
+        HazardInfo.Create(
+            ModUtils.GetType("ReverseHelper", "Celeste.Mod.ReverseHelper.Entities.SquareSpinner"),
+            spinner,
+            "offset",
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
+        HazardInfo.Create(
+            ModUtils.GetType("TeamGames", "Celeste.Mod.TeamGames.Entities.TeamSpinner"),
+            spinner,
+            "offset",
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
+        // These two do not expose a vanilla "offset"; they are static, so use offset 0 until a test map
+        // shows that their cycle has a different source.
+        HazardInfo.Create(
+            ModUtils.GetType("WindHelper", "Celeste.Mod.WindHelper.Entities.FloatingSpinner"),
+            spinner,
+            _ => 0f,
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
+        HazardInfo.Create(
+            ModUtils.GetType("BreakableSpinners", "Celeste.Mod.BreakableSpinners.BreakableCrystalSpinner"),
+            spinner,
+            _ => 0f,
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
+
+        HazardInfo.Create(
+            ModUtils.GetType("ScugHelper", "Celeste.Mod.ScugHelper.Entities.StarjumpSpinner"),
+            spinner,
+            _ => 0f,
+            hasPeriodicInViewCheck: true,
+            modLightningCollidable: null,
+            noCycle: null,
+            recordModPosition: false
+        );
 
         // ModUtils.GetType("Scuffed Helper", "ScuffedHelperCode.RandomSpinner")
         // no, ScuffedHelperCode.RandomSpinner is internel so i can't track it easily

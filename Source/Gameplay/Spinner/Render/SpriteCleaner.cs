@@ -1,4 +1,4 @@
-﻿using Mono.Cecil.Cil;
+using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
 using System.Collections;
@@ -190,6 +190,19 @@ internal static class SpriteCleaner {
             EOF(dreamSpinnerRendererType.GetConstructor(Type.EmptyTypes));
         }
 
+        // Additional catalog spinner variants: clear their vanilla-style border/filler and any custom
+        // sprite collections. This is best-effort until each type is exercised in a test map.
+        AddGenericSpinnerCleaner(ModUtils.GetType("FrostHelper", "FrostHelper.Entities.CustomDustBunny"));
+        AddGenericSpinnerCleaner(ModUtils.GetType("DashToggleHelper", "Celeste.Mod.DashToggleHelper.DashToggleStaticSpinner"));
+        AddGenericSpinnerCleaner(ModUtils.GetType("ScugHelper", "Celeste.Mod.ScugHelper.Entities.GPUSpinner"));
+        AddGenericSpinnerCleaner(ModUtils.GetType("auspicioushelper", "Celeste.Mod.auspicioushelper.Wrappers.Spinner"));
+        AddGenericSpinnerCleaner(ModUtils.GetType("NeihraHelper", "Celeste.Mod.NeihraHelper.Entities.CustomSpinner"));
+        AddGenericSpinnerCleaner(ModUtils.GetType("ReverseHelper", "Celeste.Mod.ReverseHelper.Entities.SquareSpinner"));
+        AddGenericSpinnerCleaner(ModUtils.GetType("TeamGames", "Celeste.Mod.TeamGames.Entities.TeamSpinner"));
+        AddGenericSpinnerCleaner(ModUtils.GetType("WindHelper", "Celeste.Mod.WindHelper.Entities.FloatingSpinner"));
+        AddGenericSpinnerCleaner(ModUtils.GetType("BreakableSpinners", "Celeste.Mod.BreakableSpinners.BreakableCrystalSpinner"));
+        AddGenericSpinnerCleaner(ModUtils.GetType("ScugHelper", "Celeste.Mod.ScugHelper.Entities.StarjumpSpinner"));
+
         static void EOF(MethodBase method) {
             method.ILHook((cursor, _) => {
                 cursor.Goto(cursor.Instrs.Count - 1);
@@ -203,6 +216,45 @@ internal static class SpriteCleaner {
             }
             else {
                 throw new Exception($"TASHelper/{nameof(SimplifiedSpinner)} can't handle since {type} seems to have been updated.");
+            }
+        }
+
+        void AddGenericSpinnerCleaner(Type type) {
+            if (type is null) {
+                return;
+            }
+            string[] fields = { "filler", "border", "fillers", "offImages", "onImages", "crystal", "bgTex", "fgTex", "image" };
+            ClearSpritesAction.Add(self => {
+                foreach (Entity spinner in self.Tracker.SafeGetEntities(type)) {
+                    spinner.UpdateComponentVisiblity();
+                    foreach (string fieldName in fields) {
+                        FieldInfo field = type.GetFieldInfo(fieldName);
+                        if (field is not null) {
+                            SetVisible(field.GetValue(spinner));
+                        }
+                    }
+                }
+            });
+            foreach (string methodName in new[] { "CreateSprites", "CreateSpinnerSprites", "CreateOffSprites" }) {
+                if (type.GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance) is { } method) {
+                    EOF(method);
+                }
+            }
+
+            void SetVisible(object obj) {
+                switch (obj) {
+                    case Entity entity:
+                        entity.Visible = !SpritesCleared;
+                        break;
+                    case Component component:
+                        component.Visible = !SpritesCleared;
+                        break;
+                    case IEnumerable list:
+                        foreach (object item in list) {
+                            SetVisible(item);
+                        }
+                        break;
+                }
             }
         }
     }
