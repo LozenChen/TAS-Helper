@@ -1,4 +1,4 @@
-﻿using Monocle;
+using Monocle;
 using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Info;
@@ -66,13 +66,18 @@ internal static class SpecialInfoHelper {
 
     public static string[] GetChroniaHitboxString(Entity spinner) {
         if (spinner.SourceData is { } data && data.Attr("hitboxType") is { } hitboxType && hitboxType.IsNotNullOrEmpty()) {
-            return hitboxType switch {
+            // ChroniaHelper 1.57.6 only has these values. For anything else (including "custom" and
+            // future values) fall through to inspecting the actual ColliderList below, so a new hitbox
+            // type cannot make us draw a wrong hard-coded outline.
+            string[] known = hitboxType switch {
                 "loosened" => ["C:6;0,0"],
                 "seamlessRound" => ["C:8;0,0"],
                 "seamlessSquare" => ["R:16,16;-8,-8"],
-                "custom" => ["UNEXPECTED"],
-                _ => ["C:6;0,0", "R:16,4;-8,-3"],
+                _ => null
             };
+            if (known is not null) {
+                return known;
+            }
         }
 
         if (spinner.Collider is ColliderList list) {
