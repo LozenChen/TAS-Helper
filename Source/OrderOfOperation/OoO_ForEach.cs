@@ -70,6 +70,10 @@ internal static class OoO_ForEach {
         if (removedFromEach.Remove(uid)) {
             return;
         }
+        if (uid.StartsWith("FloatySpaceBlock")) {
+            OoO_MoonBlock.AddTarget(uid);
+            return;
+        }
         targets.Add(uid);
     }
 
@@ -82,6 +86,10 @@ internal static class OoO_ForEach {
         if (uid == Each) {
             checkEach = false;
             removedFromEach.Clear();
+            return;
+        }
+        if (uid.StartsWith("FloatySpaceBlock")) {
+            OoO_MoonBlock.RemoveTarget(uid);
             return;
         }
         bool removed = targets.Remove(uid);
@@ -104,6 +112,7 @@ internal static class OoO_ForEach {
         if (autoStop) {
             Celeste.Commands.Log(Auto);
         }
+        OoO_MoonBlock.ShowTargets();
     }
 
 }

@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 using System.Threading;
 using TAS;
@@ -71,7 +71,6 @@ internal static class OoO_Suspender {
             pumps++;
         }
         catch (System.Exception e) {
-            Logger.Log("OoO2Probe", "pump error: " + e);
             OoO_Controller.Exit();
         }
         Thread.Sleep(1);

@@ -19,11 +19,6 @@ internal static class OoO_Controller {
 
     internal static readonly HashSet<string> AutoSkippedBreakpoints = new();
 
-    // TEMPORARY auto test driver (only when the scratch flag file exists).
-    private static readonly bool autoTest = System.IO.File.Exists(@"D:\DSH\Celeste\scratch\ooo2_test.flag");
-    private static bool autoEntered;
-    private static int autoFrames;
-
     // Breakpoints that are skipped automatically during a normal step (same default set as the old engine).
     private static readonly string[] DefaultAutoSkipped = {
         "EngineUpdate_SceneBeforeUpdate begin",
@@ -94,10 +89,11 @@ internal static class OoO_Controller {
         Active = true;
         Skipping = false;
         ExitAfterFrame = false;
+        Logger.Log("OoO", $"enter frame={Engine.FrameCounter}");
         OoO_ForEach.ResetRun();
         OoO_PlayerCollider.ResetRun();
         OoO_Highlight.ResetRun();
-        Logger.Log("OoO2Probe", $"enter at frame={Engine.FrameCounter}");
+        OoO_MoonBlock.ResetRun();
     }
 
     internal static void Exit() {
@@ -107,9 +103,9 @@ internal static class OoO_Controller {
         Active = false;
         Skipping = false;
         ExitAfterFrame = false;
+        Logger.Log("OoO", $"exit frame={Engine.FrameCounter}");
         OoO_Suspender.AutoStepping = false;
         OoO_Suspender.Blocking = false;
-        Logger.Log("OoO2Probe", $"exit at frame={Engine.FrameCounter}");
     }
 
     // Called from TASHelperSettings.SettingsHotkeysPressed on every Level.Render.
@@ -170,13 +166,6 @@ internal static class OoO_Controller {
         if (blocking) {
             return; // keys while blocked are polled by OoO_Suspender directly
         }
-        if (autoTest && !autoEntered && Engine.FrameCounter > 300 && Engine.Scene is Level) {
-            autoEntered = true;
-            Enter();
-            OoO_Suspender.AutoStepping = true;
-            autoFrames = 0;
-            return;
-        }
         if (!Active && global::Celeste.Mod.TASHelper.Module.Menu.TH_Hotkeys.OoO_Step_Hotkey.Pressed) {
             if (!TasHelperSettings.EnableOoO) {
                 global::Celeste.Mod.TASHelper.Entities.HotkeyWatcher.Refresh("Order-of-Operation stepping NOT Enabled");
@@ -199,7 +188,6 @@ internal static class OoO_Controller {
         if (AutoSkippedBreakpoints.Contains(label)) {
             return;
         }
-        Logger.Log("OoO2Probe", $"label {label} frame={Engine.FrameCounter}");
         OoO_Suspender.Block(label);
     }
 
@@ -223,12 +211,8 @@ internal static class OoO_Controller {
         if (Active) {
             Break("EngineUpdate end");
         }
-        bool finished = ExitAfterFrame || autoTest;
         if (Active) {
             Exit();
-        }
-        if (autoTest && finished && ++autoFrames >= 2) {
-            autoEntered = true; // re-armed below
         }
     }
 

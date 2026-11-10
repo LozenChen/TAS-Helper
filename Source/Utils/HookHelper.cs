@@ -33,8 +33,6 @@ internal static class DetourContextHelper {
     // Must stay in sync with the ids used where those hooks are created.
     internal static class HookIds {
         internal const string Hotkeys = "TAS Helper Hotkeys";
-        internal const string OoO_CoreBreakPoints = "TAS Helper OoO_Core BreakPoints";
-        internal const string OoO_CoreEnding = "TAS Helper OoO_Core Ending";
     }
 
     internal static HookOrdering ManagedHook(string id) => new(id);

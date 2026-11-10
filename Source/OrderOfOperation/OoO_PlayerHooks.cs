@@ -1,4 +1,4 @@
-using Mono.Cecil;
+﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -25,7 +25,7 @@ internal static class OoO_PlayerHooks {
             .AppliedAfter(DetourContextHelper.CelesteTAS)
             .ToConfig();
 
-        playerOrigUpdateHook = HookHelper.ManualAppliedILHook(OoO_Core.PlayerOrigUpdate, il => {
+        playerOrigUpdateHook = HookHelper.ManualAppliedILHook(typeof(Player).GetMethod("orig_Update", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic), il => {
             ILCursor cursor = new(il);
             // entry: player orig_Update begin
             cursor.Goto(0);
@@ -90,7 +90,6 @@ internal static class OoO_PlayerHooks {
             }
         }, config);
         playerOrigUpdateHook.Apply();
-        Logger.Log("OoO2Probe", "player orig_Update injection applied");
     }
 
     [Unload]

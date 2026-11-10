@@ -40,7 +40,7 @@ public static class PredictorCore {
             return;
         }
 
-        if (!TasHelperSettings.PredictFutureEnabled || InPredict || OoO_Core.Applied) {
+        if (!TasHelperSettings.PredictFutureEnabled || InPredict || OoO_Controller.Active) {
             return;
         }
 
