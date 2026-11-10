@@ -6,12 +6,34 @@ namespace Celeste.Mod.TASHelper.Utils;
 
 // completely taken from Celeste TAS
 internal static class ModUtils {
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, EverestModule> moduleCache = new();
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string ModName, string TypeName), Type> typeCache = new();
+
+    // Positive-only caches: negative results are not cached, because a mod may still be loading when the
+    // first lookup happens. Cleared on mod load/unload/reload so hot reloads do not keep stale Types.
+    internal static void ClearCaches() {
+        moduleCache.Clear();
+        typeCache.Clear();
+    }
+
+    [Reload]
+    private static void OnReload() => ClearCaches();
     public static readonly Assembly VanillaAssembly = typeof(Player).Assembly;
 
 #pragma warning disable CS8603
     public static Type GetType(string modName, string name, bool throwOnError = false, bool ignoreCase = false) {
         // we need mod name = mod metadata name here, where e.g. assembly name = FrostTempleHelper, mod metadata name = FrostHelper
-        return GetAssembly(modName)?.GetType(name, throwOnError, ignoreCase);
+        if (modName is null || name is null) {
+            return GetAssembly(modName)?.GetType(name, throwOnError, ignoreCase);
+        }
+        if (typeCache.TryGetValue((modName, name), out Type cached)) {
+            return cached;
+        }
+        Type type = GetAssembly(modName)?.GetType(name, throwOnError, ignoreCase);
+        if (type is not null) {
+            typeCache[(modName, name)] = type;
+        }
+        return type;
     }
     // check here if you dont know what's the correct name for a nested type / generic type
     // https://learn.microsoft.com/zh-cn/dotnet/framework/reflection-and-codedom/specifying-fully-qualified-type-names
@@ -27,7 +49,17 @@ internal static class ModUtils {
     }
 
     public static EverestModule GetModule(string modName) {
-        return Everest.Modules.FirstOrDefault(module => module.Metadata?.Name == modName);
+        if (modName is null) {
+            return null;
+        }
+        if (moduleCache.TryGetValue(modName, out EverestModule cached)) {
+            return cached;
+        }
+        EverestModule module = Everest.Modules.FirstOrDefault(module => module.Metadata?.Name == modName);
+        if (module is not null) {
+            moduleCache[modName] = module;
+        }
+        return module;
     }
 
     public static bool IsInstalled(string modName) {
