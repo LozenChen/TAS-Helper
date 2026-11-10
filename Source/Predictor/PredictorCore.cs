@@ -202,6 +202,19 @@ public static class PredictorCore {
             return;
         }
 
+        try {
+            // AlmostEngineUpdate is a hand-copied Engine.Update frame body; it deliberately does not call
+            // Game.Update(base). FNA's base update only iterates IUpdateable game components, which is empty
+            // in Celeste; warn if some mod ever registers one so we know prediction may differ.
+            System.Reflection.FieldInfo updateableField = typeof(Microsoft.Xna.Framework.Game).GetField("updateableComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (updateableField?.GetValue(Engine.Instance) is System.Collections.ICollection { Count: > 0 } updateables) {
+                Logger.Log(LogLevel.Warn, "TAS Helper", $"Predictor: {updateables.Count} IUpdateable Game component(s) exist; AlmostEngineUpdate skips Game.Update(base), prediction may differ.");
+            }
+        }
+        catch (System.Exception e) {
+            Logger.Log(LogLevel.Warn, "TAS Helper", "Predictor: failed to inspect Game updateable components: " + e.Message);
+        }
+
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => {
             if (StrictFrameStep && TasHelperSettings.PredictOnFrameStep && Engine.Scene is Level) {
                 Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, false);
