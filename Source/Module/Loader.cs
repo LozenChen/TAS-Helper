@@ -29,7 +29,22 @@ internal static class Loader {
             OnReload();
             Reloading = false;
         }
+#if DEBUG
+        ReportDebugHookFailures();
+#endif
     }
+
+#if DEBUG
+    [System.Diagnostics.Conditional("DEBUG")]
+    private static void ReportDebugHookFailures() {
+        if (HookHelper.DebugHookFailures.Count == 0) {
+            return;
+        }
+        List<string> failures = new(HookHelper.DebugHookFailures);
+        HookHelper.DebugHookFailures.Clear();
+        throw new Exception($"[TASHelper][DEBUG] {failures.Count} IL hook(s) failed to match any instruction (pattern not found); check hook order against other mods:\n  " + string.Join("\n  ", failures));
+    }
+#endif
 
     public static void LoadContent() {
         AttributeUtils.Invoke<LoadContentAttribute>();

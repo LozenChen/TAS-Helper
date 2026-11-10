@@ -93,6 +93,39 @@ internal static class HookHelper {
 
     private static readonly List<ILHook> ILHooks = new();
 
+    // DEBUG: IL hooks whose manipulator did not change the instruction stream (pattern not found),
+    // which usually means another mod (or a game/CelesteTAS update) invalidated the anchor.
+    internal static readonly List<string> DebugHookFailures = new();
+
+    // Wrap a manipulator registered through the legacy "IL.X += ..." events so that, in DEBUG,
+    // a manipulator which ends up not changing the instruction stream is reported by Loader.
+    // In RELEASE the original delegate is returned unchanged, so "IL.X -= ..." keeps working.
+    public static ILContext.Manipulator Checked(ILContext.Manipulator manipulator) {
+#if DEBUG
+        return il => {
+            int before = il.Body.Instructions.Count;
+            manipulator(il);
+            if (il.Body.Instructions.Count == before) {
+                DebugHookFailures.Add(il.Method?.FullName ?? "(unknown method)");
+            }
+        };
+#else
+        return manipulator;
+#endif
+    }
+
+    private static void RunManipulator(MethodBase method, ILContext.Manipulator manipulator, ILContext il) {
+#if DEBUG
+        int before = il.Body.Instructions.Count;
+        manipulator(il);
+        if (il.Body.Instructions.Count == before) {
+            DebugHookFailures.Add($"{method.DeclaringType?.FullName}::{method.Name}");
+        }
+#else
+        manipulator(il);
+#endif
+    }
+
     public static void Unload() {
         foreach (ILHook il in ILHooks) {
             il.Dispose();
@@ -105,7 +138,7 @@ internal static class HookHelper {
     // 完全限定名: https://learn.microsoft.com/zh-cn/dotnet/framework/reflection-and-codedom/specifying-fully-qualified-type-names
 
     public static void ILHook(this MethodBase from, ILContext.Manipulator manipulator) {
-        ILHooks.Add(new ILHook(from, manipulator));
+        ILHooks.Add(new ILHook(from, il => RunManipulator(from, manipulator, il)));
     }
 
     public static void ILHook(this MethodBase from, Action<ILCursor, ILContext> manipulator) {
@@ -166,10 +199,10 @@ internal static class HookHelper {
         }
     }
     public static ILHook ManualAppliedILHook(this MethodBase from, ILContext.Manipulator manipulator) {
-        return new ILHook(from, manipulator, applyByDefault: false);
+        return new ILHook(from, il => RunManipulator(from, manipulator, il), applyByDefault: false);
     }
     public static ILHook ManualAppliedILHook(this MethodBase from, ILContext.Manipulator manipulator, DetourConfig config) {
-        return new ILHook(from, manipulator, config, applyByDefault: false);
+        return new ILHook(from, il => RunManipulator(from, manipulator, il), config, applyByDefault: false);
     }
 }
 

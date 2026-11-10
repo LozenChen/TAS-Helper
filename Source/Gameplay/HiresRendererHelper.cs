@@ -15,7 +15,7 @@ public static class HiresLevelRenderer {
     public static void Load() {
         On.Celeste.Level.Begin += OnLevelBegin;
         On.Celeste.Level.End += OnLevelEnd;
-        IL.Celeste.Level.Render += ILLevelRender;
+        IL.Celeste.Level.Render += HookHelper.Checked(ILLevelRender);
     }
 
     [Unload]

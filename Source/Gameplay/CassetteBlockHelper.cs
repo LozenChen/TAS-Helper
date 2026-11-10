@@ -34,8 +34,8 @@ public static class CassetteBlockHelper {
 
     [Load]
     private static void Load() {
-        IL.Monocle.Engine.Update += ILEngineUpdate;
-        IL.Celeste.Celeste.Freeze += ILCelesteFreeze;
+        IL.Monocle.Engine.Update += HookHelper.Checked(ILEngineUpdate);
+        IL.Celeste.Celeste.Freeze += HookHelper.Checked(ILCelesteFreeze);
     }
 
 

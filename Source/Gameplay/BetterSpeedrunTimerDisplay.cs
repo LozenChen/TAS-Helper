@@ -12,8 +12,8 @@ internal static class BetterSpeedrunTimerDisplay {
         // legacy "Before: [*]" (before all other detours) cannot be expressed with MonoMod v25:
         // it has no wildcard support. Keep the id only.
         using (DetourContextHelper.ILHook("TAS Helper BetterSpeedrunTimerDisplay").Use()) {
-            IL.Celeste.SpeedrunTimerDisplay.Render += IL_SpeedrunTimerDisplay_Render;
-            IL.Celeste.SpeedrunTimerDisplay.DrawTime += IL_SpeedrunTimerDisplay_DrawTime;
+            IL.Celeste.SpeedrunTimerDisplay.Render += HookHelper.Checked(IL_SpeedrunTimerDisplay_Render);
+            IL.Celeste.SpeedrunTimerDisplay.DrawTime += HookHelper.Checked(IL_SpeedrunTimerDisplay_DrawTime);
         }
     }
 
