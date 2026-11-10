@@ -10,9 +10,9 @@ internal static class HKNailDebugRender {
     private static void Initialize() {
         prepared = true;
         if (ModUtils.GetType("FlaglinesAndSuch", "FlaglinesAndSuch.HKnail") is { } hkNail) {
-            nailTimerGetter = hkNail.GetFieldInfo("nailTimer");
-            rechargeTimerGetter = hkNail.GetFieldInfo("nailRechargeTimer");
-            nailDir = hkNail.GetFieldInfo("nailDir");
+            nailTimerGetter = hkNail.CreateGetDelegate<object, float>("nailTimer");
+            rechargeTimerGetter = hkNail.CreateGetDelegate<object, float>("nailRechargeTimer");
+            nailDir = hkNail.CreateGetDelegate<object, int>("nailDir");
             if (nailTimerGetter is null || rechargeTimerGetter is null || nailDir is null) {
                 prepared = false;
             }
@@ -22,24 +22,25 @@ internal static class HKNailDebugRender {
         }
         if (prepared && ModUtils.GetType("FlaglinesAndSuch", "FlaglinesAndSuch.Class1") is { } moduleType && ModUtils.GetType("FlaglinesAndSuch", "FlaglinesAndSuch.FlaglinesAndSuchModuleSettings") is { } settingType && settingType.GetPropertyInfo("PlayerAlwaysHasNail") is { } alwaysHasNail && moduleType.GetPropertyValue<EverestModuleSettings>("Settings") is { } settings) {
             flaglinesAndSuchSettings = settings;
-            alwaysHasNailGetter = alwaysHasNail;
+            alwaysHasNailGetter = (System.Func<EverestModuleSettings, bool>)System.Delegate.CreateDelegate(
+                typeof(System.Func<EverestModuleSettings, bool>), alwaysHasNail.GetGetMethod()!);
         }
         else {
             prepared = false;
         }
     }
 
-    private static FieldInfo nailTimerGetter;
+    private static GetDelegate<object, float> nailTimerGetter;
 
-    private static FieldInfo rechargeTimerGetter;
+    private static GetDelegate<object, float> rechargeTimerGetter;
 
-    private static FieldInfo nailDir;
+    private static GetDelegate<object, int> nailDir;
 
     private static EverestModuleSettings flaglinesAndSuchSettings;
 
-    private static PropertyInfo alwaysHasNailGetter;
+    private static System.Func<EverestModuleSettings, bool> alwaysHasNailGetter;
 
-    private static bool PlayerAlwaysHasNail => (bool)alwaysHasNailGetter.GetValue(flaglinesAndSuchSettings);
+    private static bool PlayerAlwaysHasNail => alwaysHasNailGetter(flaglinesAndSuchSettings);
 
     private static bool prepared = false;
 
@@ -54,10 +55,10 @@ internal static class HKNailDebugRender {
         if (playerInstance is not Player player) {
             return;
         }
-        if ((float)nailTimerGetter.GetValue(null) > 0f || (float)rechargeTimerGetter.GetValue(null) == 0.1f) {
+        if (nailTimerGetter(null) > 0f || rechargeTimerGetter(null) == 0.1f) {
             Vector2 orig_Position = player.Position;
             Collider collider = player.Collider;
-            int dir = (int)nailDir.GetValue(null);
+            int dir = nailDir(null);
             player.Position = Spinner.Info.PositionHelper.PlayerPositionBeforeSelfUpdate;
             player.Collider = dir switch {
                 0 => nailhitboxUp,
