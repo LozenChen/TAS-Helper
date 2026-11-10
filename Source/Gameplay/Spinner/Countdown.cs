@@ -8,7 +8,10 @@ namespace Celeste.Mod.TASHelper.Gameplay.Spinner;
 internal static class Countdown {
 
     public static bool LastNotCountdownBoost = !NotCountdownBoost;
-    public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || Engine.Scene.Paused && !Manager_Running;
+    // Engine.Scene is null while the mod settings are loaded (TASHelperSettings.OnLoadSettings ->
+    // UpdateAuxiliaryVariable -> CountdownRenderer.ClearCache touches Countdown.Cached, which runs the
+    // static constructor). Do not dereference the scene then.
+    public static bool NotCountdownBoost => !TasHelperSettings.CountdownBoost || FrameStep || (Engine.Scene?.Paused ?? false) && !Manager_Running;
 
     public static bool Cached = false;
 

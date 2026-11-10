@@ -110,6 +110,7 @@ public static class WhatsNew {
         AddLog("2.2.12", "Bugfix: Simplified Spinner doesn't work well with latest ChroniaHelper. (thanks @Socks)");
         AddLog("2.2.13", "Feature: Hide KoseiHelper DebugRenderer when necessary.");
         AddLog("2.2.14", "Remove: No longer hide KoseiHelper DebugRenderer, as this feature is now in CelesteTAS.", "Bugfix: Simplified Spinner could be short-circuited by CelesteTAS' hitbox hooks (CycleHitboxColor) on MonoMod v25.", "Bugfix: Correct hook ordering ids for MonoMod v25 (CelesteTAS' id is \"CelesteTAS\", not \"CelesteTAS-EverestInterop\").", "Internal: DetourContextHelper now expresses hook ordering intent explicitly and validates ids.");
+        AddLog("2.2.15", "Bugfix: Fix startup crash when Countdown Boost is enabled.");
         UpdateLogs.Sort((x, y) => new Version(y.Item1).CompareTo(new Version(x.Item1)));
     }
 
