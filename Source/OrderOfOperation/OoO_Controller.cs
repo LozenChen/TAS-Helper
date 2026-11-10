@@ -16,6 +16,7 @@ internal static class OoO_Controller {
 
     private static bool blocking => OoO_Suspender.Blocking;
     private static MonoMod.RuntimeDetour.ILHook entityListLoopHook;
+    private static bool hooksAttached;
 
     internal static readonly HashSet<string> AutoSkippedBreakpoints = new();
 
@@ -34,6 +35,15 @@ internal static class OoO_Controller {
     public static void Load() {
         foreach (string label in DefaultAutoSkipped) {
             AutoSkippedBreakpoints.Add(label);
+        }
+    }
+
+    // OoO is an infrequent, opt-in feature: install no detour in the normal state. Hooks are attached on
+    // Enter() and disposed at the next render-time HandleHotkeys() call (when none of the hooked update
+    // methods are on the stack), so other mods see stock code unless OoO stepping is actually used.
+    internal static void AttachHooks() {
+        if (hooksAttached) {
+            return;
         }
         using (DetourContextHelper.ManagedHook("TAS Helper OoO Controller").AppliedAfter(DetourContextHelper.CelesteTAS).Use()) {
             On.Monocle.Engine.Update += OnEngineUpdate;
@@ -64,10 +74,16 @@ internal static class OoO_Controller {
             }
         }, DetourContextHelper.ILHook("TAS Helper OoO EntityListLoop").AppliedAfter(DetourContextHelper.CelesteTAS).ToConfig());
         entityListLoopHook.Apply();
+
+        OoO_PlayerHooks.Attach();
+        OoO_MoonBlock.Attach();
+        hooksAttached = true;
     }
 
-    [Unload]
-    public static void Unload() {
+    internal static void DetachHooks() {
+        if (!hooksAttached) {
+            return;
+        }
         On.Monocle.Engine.Update -= OnEngineUpdate;
         On.Monocle.Scene.BeforeUpdate -= OnSceneBeforeUpdate;
         On.Celeste.Level.Update -= OnLevelUpdate;
@@ -76,6 +92,15 @@ internal static class OoO_Controller {
         On.Celeste.Player.Update -= OnPlayerUpdate;
         On.Monocle.Scene.AfterUpdate -= OnSceneAfterUpdate;
         entityListLoopHook?.Dispose();
+        entityListLoopHook = null;
+        OoO_PlayerHooks.Detach();
+        OoO_MoonBlock.Detach();
+        hooksAttached = false;
+    }
+
+    [Unload]
+    public static void Unload() {
+        DetachHooks();
     }
 
     internal static void Enter() {
@@ -84,6 +109,14 @@ internal static class OoO_Controller {
         }
         if (TAS.Manager.CurrState != TAS.Manager.State.Paused) {
             global::Celeste.Mod.TASHelper.Entities.HotkeyWatcher.Refresh("Order-of-Operation: TAS is not paused");
+            return;
+        }
+        try {
+            AttachHooks();
+        }
+        catch (System.Exception e) {
+            Logger.Log(LogLevel.Error, "OoO", "failed to attach OoO hooks: " + e);
+            DetachHooks();
             return;
         }
         Active = true;
@@ -165,6 +198,9 @@ internal static class OoO_Controller {
     internal static void HandleHotkeys() {
         if (blocking) {
             return; // keys while blocked are polled by OoO_Suspender directly
+        }
+        if (!Active && hooksAttached) {
+            DetachHooks();
         }
         if (!Active && global::Celeste.Mod.TASHelper.Module.Menu.TH_Hotkeys.OoO_Step_Hotkey.Pressed) {
             if (!TasHelperSettings.EnableOoO) {

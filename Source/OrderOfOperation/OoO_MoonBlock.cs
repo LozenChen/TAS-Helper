@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
@@ -39,20 +39,28 @@ internal static class OoO_MoonBlock {
         return targets.Contains(uid) || targets.Contains(block.GetType().Name) || targets.Contains("FloatySpaceBlock");
     }
 
-    [Load]
-    public static void Load() {
+    private static bool attached;
+
+    internal static void Attach() {
+        if (attached) {
+            return;
+        }
         using (DetourContextHelper.ManagedHook("TAS Helper OoO MoonBlock").AppliedAfter(DetourContextHelper.CelesteTAS).Use()) {
             On.Celeste.FloatySpaceBlock.Update += OnBlockUpdate;
             On.Celeste.FloatySpaceBlock.MoveToTarget += OnMoveToTarget;
             On.Celeste.Platform.MoveToY_float += OnPlatformMoveToY;
         }
+        attached = true;
     }
 
-    [Unload]
-    public static void Unload() {
+    internal static void Detach() {
+        if (!attached) {
+            return;
+        }
         On.Celeste.FloatySpaceBlock.Update -= OnBlockUpdate;
         On.Celeste.FloatySpaceBlock.MoveToTarget -= OnMoveToTarget;
         On.Celeste.Platform.MoveToY_float -= OnPlatformMoveToY;
+        attached = false;
     }
 
     private static void OnBlockUpdate(On.Celeste.FloatySpaceBlock.orig_Update orig, FloatySpaceBlock self) {

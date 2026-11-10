@@ -10,9 +10,12 @@ namespace Celeste.Mod.TASHelper.OrderOfOperation;
 internal static class OoO_PlayerHooks {
     private static bool insidePlayerOrigUpdate;
     private static MonoMod.RuntimeDetour.ILHook playerOrigUpdateHook;
+    private static bool attached;
 
-    [Load]
-    public static void Load() {
+    internal static void Attach() {
+        if (attached) {
+            return;
+        }
         using (DetourContextHelper.ManagedHook("TAS Helper OoO Player").AppliedAfter(DetourContextHelper.CelesteTAS).Use()) {
             On.Celeste.Actor.Update += OnActorUpdate;
             On.Celeste.Actor.MoveH += OnActorMoveH;
@@ -90,11 +93,22 @@ internal static class OoO_PlayerHooks {
             }
         }, config);
         playerOrigUpdateHook.Apply();
+        attached = true;
     }
 
-    [Unload]
-    public static void Unload() {
+    internal static void Detach() {
+        if (!attached) {
+            return;
+        }
+        On.Celeste.Actor.Update -= OnActorUpdate;
+        On.Celeste.Actor.MoveH -= OnActorMoveH;
+        On.Celeste.Actor.MoveV -= OnActorMoveV;
+        On.Celeste.Player.ClimbHop -= OnPlayerClimbHop;
+        On.Celeste.Level.EnforceBounds -= OnLevelEnforceBounds;
         playerOrigUpdateHook?.Dispose();
+        playerOrigUpdateHook = null;
+        insidePlayerOrigUpdate = false;
+        attached = false;
     }
 
     private static void OnActorUpdate(On.Celeste.Actor.orig_Update orig, Actor self) {
