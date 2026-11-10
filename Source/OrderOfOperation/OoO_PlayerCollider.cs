@@ -1,4 +1,4 @@
-using Monocle;
+﻿using Monocle;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
 
@@ -25,20 +25,23 @@ internal static class OoO_PlayerCollider {
             return;
         }
         string type = entity.GetType().Name;
-        string uid = OoO_ForEach.GetUID(entity);
+        bool typeContained = targets.Contains(type);
+        bool needUid = checkEach || autoStop || typeContained || targets.Count > 0 || removedFromEach.Count > 0;
+        string uid = needUid ? OoO_ForEach.GetUID(entity) : null;
 
-        if (hasSnapshot && autoStop && !OoO_PlayerSnapshot.Capture().Equals(lastSnapshot)) {
-            OoO_Controller.BreakExternal($"{lastUID}'s PlayerCollider check end");
+        Player player = OoO_PlayerSnapshot.GetPlayer();
+        if (hasSnapshot && autoStop && !OoO_PlayerSnapshot.Capture(player).Equals(lastSnapshot)) {
+            OoO_Controller.BreakExternal(string.Concat(lastUID, "'s PlayerCollider check end"));
         }
 
-        bool excluded = removedFromEach.Contains(type) || removedFromEach.Contains(uid);
-        if ((checkEach && !excluded) || targets.Contains(uid) || targets.Contains(type)) {
+        bool excluded = removedFromEach.Contains(type) || (needUid && removedFromEach.Contains(uid));
+        if ((checkEach && !excluded) || typeContained || (needUid && targets.Contains(uid))) {
             OoO_Highlight.TrackedCollider = pc;
-            OoO_Controller.BreakExternal($"{uid}'s PlayerCollider check");
+            OoO_Controller.BreakExternal(string.Concat(uid, "'s PlayerCollider check"));
         }
 
         lastUID = uid;
-        lastSnapshot = OoO_PlayerSnapshot.Capture();
+        lastSnapshot = OoO_PlayerSnapshot.Capture(player);
         hasSnapshot = true;
     }
 

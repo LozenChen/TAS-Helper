@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
@@ -27,9 +27,26 @@ internal readonly struct OoO_PlayerSnapshot {
         dashes = player.Dashes;
     }
 
-    public static OoO_PlayerSnapshot Capture() {
-        Player player = Engine.Scene?.Tracker.GetEntity<Player>();
+    private static Player cachedPlayer;
+    private static ulong cachedPlayerFrame = ulong.MaxValue;
+    private static Scene cachedPlayerScene;
+
+    public static Player GetPlayer() {
+        ulong frame = Engine.FrameCounter;
+        if (frame != cachedPlayerFrame || cachedPlayer is null || cachedPlayer.Scene != cachedPlayerScene) {
+            cachedPlayerFrame = frame;
+            cachedPlayerScene = Engine.Scene;
+            cachedPlayer = (cachedPlayerScene as Level)?.Tracker.GetEntity<Player>();
+        }
+        return cachedPlayer;
+    }
+
+    public static OoO_PlayerSnapshot Capture(Player player) {
         return player is null ? default : new OoO_PlayerSnapshot(player);
+    }
+
+    public static OoO_PlayerSnapshot Capture() {
+        return Capture(GetPlayer());
     }
 
     public bool Equals(OoO_PlayerSnapshot other) {
