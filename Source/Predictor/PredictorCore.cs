@@ -14,6 +14,16 @@ public static class PredictorCore {
 
     public static List<RenderData> futures = new();
 
+    // RenderData.index is the absolute index at prediction time (1..N). FuturesStart is how many entries
+    // have already been consumed by FutureMoveLeft; the renderer displays (index - FuturesStart) and we trim
+    // the consumed prefix only occasionally, so advancing a frame is O(1) instead of rebuilding the list.
+    internal static int FuturesStart = 0;
+
+    private static void ClearFutures() {
+        futures.Clear();
+        FuturesStart = 0;
+    }
+
     public static bool HasCachedFutures {
         get => CacheFutureCountdown > 0;
         set {
@@ -72,7 +82,7 @@ public static class PredictorCore {
 
         InPredict = true;
 
-        futures.Clear();
+        ClearFutures();
 
         ModifiedAutoMute.Apply();
 
@@ -256,13 +266,18 @@ public static class PredictorCore {
     }
 
     private static void AfterMInputUpdate() {
-        PredictorRenderer.ClearCachedMessage();
+        // Do not clear the render cache here unconditionally: TAS can render several frames for one
+        // physics tick, and only a change of the futures list requires a rebuild. Clearing happens in
+        // FutureMoveLeft() / SafePredict() / the explicit clear paths below.
         FreezeTimerBeforeUpdate = Engine.FreezeTimer;
         neverClearStateThisFrame = true;
 
         if (!Manager_Running) {
             HasCachedFutures = false;
-            futures.Clear();
+            if (futures.Count > 0) {
+                ClearFutures();
+                PredictorRenderer.ClearCachedMessage();
+            }
             TasSpeedrunToolInterop.ClearState();
             return;
         }
@@ -270,7 +285,10 @@ public static class PredictorCore {
         CacheFutureCountdown--;
         if (!FutureMoveLeft()) {
             HasCachedFutures = false;
-            futures.Clear();
+            if (futures.Count > 0) {
+                ClearFutures();
+                PredictorRenderer.ClearCachedMessage();
+            }
             TasSpeedrunToolInterop.ClearState();
             return;
         }
@@ -309,16 +327,21 @@ public static class PredictorCore {
         }
         TasSpeedrunToolInterop.ClearState();
         HasCachedFutures = false;
-        futures.Clear();
+        ClearFutures();
         PredictorRenderer.ClearCachedMessage();
     }
 
     public static bool FutureMoveLeft() {
-        if (futures.Count <= 0) {
+        if (futures.Count <= FuturesStart) {
             return false;
         }
-        futures.RemoveAt(0);
-        futures = futures.Select(future => future with { index = future.index - 1 }).ToList();
+        FuturesStart++;
+        if (FuturesStart > 256 && FuturesStart * 2 > futures.Count) {
+            // Reclaim the consumed prefix in one O(n) pass; amortized this is still O(1) per frame.
+            futures.RemoveRange(0, FuturesStart);
+            FuturesStart = 0;
+        }
+        PredictorRenderer.ClearCachedMessage();
         return true;
     }
 
@@ -342,7 +365,7 @@ public static class PredictorCore {
 
     [EnableRun]
     private static void OnTasRerun() {
-        futures.Clear();
+        ClearFutures();
         PredictorRenderer.ClearCachedMessage();
         HasCachedFutures = false;
     }
@@ -354,7 +377,7 @@ public static class PredictorCore {
 
     private static void DelayedClearFutures() {
         if (delayedClearFutures && !InPredict) {
-            futures.Clear();
+            ClearFutures();
             PredictorRenderer.ClearCachedMessage();
             delayedClearFutures = false;
         }
