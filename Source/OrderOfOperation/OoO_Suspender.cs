@@ -19,6 +19,8 @@ internal static class OoO_Suspender {
     private static int lastPauseKey;
     private static long nextAutoStepAt;
     private static int pumps;
+    private static readonly System.Diagnostics.Stopwatch pumpClock = System.Diagnostics.Stopwatch.StartNew();
+    private static long nextDrawAt;
 
     internal static void Block(string label) {
         global::Celeste.Mod.TASHelper.Entities.HotkeyWatcher.Refresh(label);
@@ -61,19 +63,26 @@ internal static class OoO_Suspender {
 
     private static void PumpOnce() {
         try {
-            Game game = Engine.Instance;
-            FNAPlatform.PollEvents?.Invoke(game, ref game.currentAdapter, game.textInputControlDown, ref game.textInputSuppress);
-            GameTime gameTime = new(game.gameTime.TotalGameTime, TimeSpan.Zero);
-            game.Draw(gameTime);
-            game.GraphicsDevice.Present();
-            game.accumulatedElapsedTime = TimeSpan.Zero;
+            // Draw at ~60fps: the highlight pulse is wall-clock based, and redrawing/Presenting the
+            // whole scene hundreds of times per second while stopped is just wasted CPU/GPU.
+            long now = pumpClock.ElapsedMilliseconds;
+            if (now >= nextDrawAt) {
+                nextDrawAt = now + 16;
+                Game game = Engine.Instance;
+                FNAPlatform.PollEvents?.Invoke(game, ref game.currentAdapter, game.textInputControlDown, ref game.textInputSuppress);
+                GameTime gameTime = new(game.gameTime.TotalGameTime, TimeSpan.Zero);
+                game.Draw(gameTime);
+                game.GraphicsDevice.Present();
+                game.accumulatedElapsedTime = TimeSpan.Zero;
+                pumps++;
+            }
             PollKeys();
-            pumps++;
         }
         catch (System.Exception e) {
+            Logger.Log("OoO", "pump error: " + e);
             OoO_Controller.Exit();
         }
-        Thread.Sleep(1);
+        Thread.Sleep(4);
     }
 
     private static void PollKeys() {

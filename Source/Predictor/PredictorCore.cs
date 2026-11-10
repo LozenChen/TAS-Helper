@@ -46,8 +46,16 @@ public static class PredictorCore {
 
         TasHelperSettings.Enabled = false;
         // this stops most hooks from working (in particular, SpinnerCalculateHelper.PreSpinnerCalculate)
-        SafePredict(frames);
-        TasHelperSettings.Enabled = true;
+        try {
+            SafePredict(frames);
+        }
+        catch (System.Exception e) {
+            Logger.Log(LogLevel.Error, "TAS Helper", "Predictor failed: " + e);
+        }
+        finally {
+            // never leave the whole mod disabled if the prediction throws
+            TasHelperSettings.Enabled = true;
+        }
     }
 
     private static void SafePredict(int frames) {

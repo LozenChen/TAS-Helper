@@ -192,12 +192,34 @@ public static class HiresLevelRenderer {
             throw new Exception($"TASHelper {nameof(HiresLevelRenderer)} failed to hook.");
         }
     }
+    private static bool skipThisFrame;
+
+    // Conservative check: CountdownRenderer is the only renderer that is commonly present but often
+    // draws nothing; for every other renderer we keep rendering (they have their own internal guards).
+    private static bool AnyRendererWillDraw() {
+        for (int i = 0; i < list.Count; i++) {
+            if (list[i] is global::Celeste.Mod.TASHelper.Gameplay.Spinner.Render.CountdownRenderer) {
+                if (TasHelperSettings.UsingHiresFont && global::Celeste.Mod.TASHelper.Gameplay.Spinner.Render.CountdownRenderer.HiresID2Positions.Count > 0) {
+                    return true;
+                }
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
     private static void Render(Level level) {
         if (HiresLevelTarget is null) {
             return;
         }
 
         UpdateLists();
+        if (!AnyRendererWillDraw()) {
+            skipThisFrame = true;
+            return;
+        }
+        skipThisFrame = false;
         foreach (THRenderer renderer in list) {
             renderer.BeforeRender();
         }
@@ -225,7 +247,7 @@ public static class HiresLevelRenderer {
         }
     }
     public static void MapToScreen(Level self) {
-        if (HiresLevelTarget is null) {
+        if (HiresLevelTarget is null || skipThisFrame) {
             return;
         }
 

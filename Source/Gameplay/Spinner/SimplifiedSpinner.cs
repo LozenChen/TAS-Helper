@@ -32,10 +32,6 @@ internal static class SimplifiedSpinner {
             return;
         }
 
-        SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.GetSpinnerColorIndex(self, true);
-        Color color = SpinnerRenderHelper.GetSpinnerColor(index);
-        bool collidable = Info.CollidableHelper.GetCollidable(self);
-
         if (self.Right < Left || self.Left > Right || self.Top > Bottom || self.Bottom < Top) {
             /*
              * Nothing to draw for this hazard, and deliberately no orig() call: for hazards we
@@ -57,26 +53,32 @@ internal static class SimplifiedSpinner {
              *
              * Since we are the outer hook, that cull never runs for hazards; we apply a stricter
              * camera +/- Padding check here instead, using the bounds set by OnDebugRender below.
+             * Culled hazards return immediately: color/offset calculation and countdown are only
+             * needed for what is actually visible.
              */
+            return;
+        }
+
+        SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.GetSpinnerColorIndex(self, true);
+        Color color = SpinnerRenderHelper.GetSpinnerColor(index);
+        bool collidable = Info.CollidableHelper.GetCollidable(self);
+
+        if (TasHelperSettings.EnableSimplifiedSpinner && !Info.HazardTypeHelper.IsLightning(self)) {
+            ActualCollideHitboxDelegatee.DrawLastFrameHitbox(
+                !TasHelperSettings.ApplyActualCollideHitboxForSpinner,
+                self, camera, color, collidable,
+                Render.SpinnerRenderHelper.DrawSpinnerCollider
+            );
+        }
+        else if (TasHelperSettings.EnableSimplifiedLightning && Info.HazardTypeHelper.IsLightning(self)) {
+            ActualCollideHitboxDelegatee.DrawLastFrameHitbox(
+                !TasHelperSettings.ApplyActualCollideHitboxForLightning,
+                self, camera, color, collidable,
+                Render.LightningRenderHelper.DrawOutline
+            );
         }
         else {
-            if (TasHelperSettings.EnableSimplifiedSpinner && !Info.HazardTypeHelper.IsLightning(self)) {
-                ActualCollideHitboxDelegatee.DrawLastFrameHitbox(
-                    !TasHelperSettings.ApplyActualCollideHitboxForSpinner,
-                    self, camera, color, collidable,
-                    Render.SpinnerRenderHelper.DrawSpinnerCollider
-                );
-            }
-            else if (TasHelperSettings.EnableSimplifiedLightning && Info.HazardTypeHelper.IsLightning(self)) {
-                ActualCollideHitboxDelegatee.DrawLastFrameHitbox(
-                    !TasHelperSettings.ApplyActualCollideHitboxForLightning,
-                    self, camera, color, collidable,
-                    Render.LightningRenderHelper.DrawOutline
-                );
-            }
-            else {
-                self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
-            }
+            self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
         }
         Countdown.Draw(self, index, collidable);
     }
