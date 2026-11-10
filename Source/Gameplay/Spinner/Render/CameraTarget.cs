@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
 
-namespace Celeste.Mod.TASHelper.Gameplay;
+namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Render;
 internal static class CameraTarget {
 
     private static readonly Vector2 TopLeft2Center = new(160f, 90f);
