@@ -177,7 +177,11 @@ internal static class OoO_Controller {
             autoFrames = 0;
             return;
         }
-        if (!Active && TasHelperSettings.EnableOoO && global::Celeste.Mod.TASHelper.Module.Menu.TH_Hotkeys.OoO_Step_Hotkey.Pressed) {
+        if (!Active && global::Celeste.Mod.TASHelper.Module.Menu.TH_Hotkeys.OoO_Step_Hotkey.Pressed) {
+            if (!TasHelperSettings.EnableOoO) {
+                global::Celeste.Mod.TASHelper.Entities.HotkeyWatcher.Refresh("Order-of-Operation stepping NOT Enabled");
+                return;
+            }
             Enter();
         }
     }

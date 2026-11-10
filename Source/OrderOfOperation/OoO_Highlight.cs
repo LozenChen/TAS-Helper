@@ -9,14 +9,20 @@ internal static class OoO_Highlight {
     internal static PlayerCollider TrackedCollider;
 
     private static float time;
-    private static readonly float speed = 0.033f;
+    private static readonly System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
+    private static long lastTicks;
 
     [AddDebugRender]
     private static void PatchEntityListDebugRender(EntityList self, Camera camera) {
         if (!OoO_Controller.Active) {
             return;
         }
-        time += speed;
+        // Advance by wall-clock time, not by render calls: while a breakpoint blocks we pump
+        // hundreds of draw calls per second, which would make the pulse flash insanely fast.
+        long now = clock.ElapsedTicks;
+        float deltaSeconds = lastTicks == 0 ? 0f : (float)((now - lastTicks) / (double)System.Diagnostics.Stopwatch.Frequency);
+        lastTicks = now;
+        time += deltaSeconds * 2f; // one full cyan<->red cycle per ~0.5s, same as the old 60fps look
         if (time > 1f) {
             time -= 1f;
         }
