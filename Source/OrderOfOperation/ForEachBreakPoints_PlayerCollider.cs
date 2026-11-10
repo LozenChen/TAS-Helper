@@ -1,4 +1,4 @@
-//#define OoO_Debug
+﻿//#define OoO_Debug
 
 using Mono.Cecil.Cil;
 using Monocle;
@@ -283,7 +283,6 @@ internal static class ForEachBreakPoints_PlayerCollider {
     }
 
 
-    [Command_StringParameter("ooo_add_target_pc", "Add the entity as a for-each breakpoint in PlayerCollider checks (TAS Helper OoO Stepping)")]
     public static void AddTarget(string UID) {
         if (UID == autoStopString) {
             autoStop = true;
@@ -305,7 +304,6 @@ internal static class ForEachBreakPoints_PlayerCollider {
         }
     }
 
-    [Command_StringParameter("ooo_remove_target_pc", "Remove a for-each breakpoint in PlayerCollider checks (TAS Helper OoO Stepping)")]
     public static void RemoveTarget(string UID) {
         if (UID == autoStopString) {
             autoStop = false;
@@ -328,7 +326,6 @@ internal static class ForEachBreakPoints_PlayerCollider {
         }
     }
 
-    [Command("ooo_show_target_pc", "Show all for-each breakpoints in PlayerCollider checks (TAS Helper OoO Stepping)")]
     public static void ShowTarget() {
         foreach (string s in targets) {
             Celeste.Commands.Log(s);

@@ -93,7 +93,6 @@ internal static class OoO_Core {
 
     public static readonly HashSet<string> AutoSkippedBreakpoints = new();
 
-    [Command_StringParameter("ooo_add_autoskip", $"Autoskip a normal breakpoint (not a for-each breakpoint)(TAS Helper)")]
     public static void AddAutoSkip(string uid) {
         if (uid.StartsWith(BreakPoints.Prefix)) {
             AutoSkippedBreakpoints.Add(uid);
@@ -103,21 +102,18 @@ internal static class OoO_Core {
         }
     }
 
-    [Command_StringParameter("ooo_remove_autoskip", "Stop autoskipping a normal breakpoint (TAS Helper)")]
     public static void RemoveAutoSkip(string uid) {
         if (!AutoSkippedBreakpoints.Remove(uid)) {
             AutoSkippedBreakpoints.Remove($"{BreakPoints.Prefix}{uid}");
         }
     }
 
-    [Command("ooo_show_autoskip", "Show all autoskipped breakpoints (TAS Helper)")]
     public static void ShowAutoSkip() {
         foreach (string s in AutoSkippedBreakpoints) {
             Celeste.Commands.Log(s.Replace(BreakPoints.Prefix, ""));
         }
     }
 
-    [Command("ooo_show_breakpoint", "Show all normal breakpoints (TAS Helper)")]
     public static void ShowBreakpoint() {
         foreach (string s in BreakPoints.dictionary.Keys) {
             Celeste.Commands.Log(s.Replace(BreakPoints.Prefix, ""));
@@ -293,13 +289,6 @@ internal static class OoO_Core {
         SpringBoard.Create(PlayerUpdate);
         SpringBoard.Create(PlayerOrigUpdate);
 
-        hookAddingMessageEntityFast = HookHelper.ManualAppliedILHook(EngineUpdate, il => {
-            ILCursor cursor = new ILCursor(il);
-            cursor.EmitDelegate(AddMessageEntity);
-        });
-
-        // todo: remove hook
-
         hookTASIsPaused = HookHelper.ManualAppliedILHook(ModUtils.GetType("CelesteTAS", "TAS.Playback.Core").GetMethod("IsPaused", BindingFlags.NonPublic | BindingFlags.Static), il => {
             ILCursor cursor = new ILCursor(il);
             cursor.Emit(OpCodes.Ldc_I4_0);
@@ -315,15 +304,6 @@ internal static class OoO_Core {
         });
 
         CheckTasHookValidity();
-    }
-
-    private static void AddMessageEntity() {
-        if (Engine.Scene is Level level && level.Tracker.GetEntity<HotkeyWatcher>() is null) {
-            level.Entities.toAdd.RemoveAll(e => e is HotkeyWatcher);
-            level.Add(new HotkeyWatcher());
-            level.Entities.UpdateLists();
-            SendTextImmediately("OoO Stepping begin");
-        }
     }
 
     private static void AdvanceFrame() {
@@ -347,8 +327,6 @@ internal static class OoO_Core {
 
     private static ILHook hookManagerUpdate;
 
-    private static ILHook hookAddingMessageEntityFast;
-
     private static bool prepareToUndoAll = false;
 
     public static void ApplyAll() {
@@ -356,7 +334,6 @@ internal static class OoO_Core {
         SpringBoard.RefreshAll();
         ForEachBreakPoints_EntityList.Apply();
         ForEachBreakPoints_PlayerCollider.Apply();
-        hookAddingMessageEntityFast.Apply();
         hookTASIsPaused.Apply();
         hookManagerUpdate.Apply();
         Applied = true;
@@ -371,7 +348,6 @@ internal static class OoO_Core {
         BreakPoints.UndoAll();
         ForEachBreakPoints_EntityList.Undo();
         ForEachBreakPoints_PlayerCollider.Undo();
-        hookAddingMessageEntityFast?.Undo();
         hookTASIsPaused?.Undo();
         hookManagerUpdate?.Undo();
         Applied = false;
@@ -426,7 +402,6 @@ internal static class OoO_Core {
     [Unload]
     public static void Unload() {
         On.Celeste.Level.Render -= OnLevelRender;
-        hookAddingMessageEntityFast?.Dispose();
         hookTASIsPaused?.Dispose();
         hookManagerUpdate?.Dispose();
     }

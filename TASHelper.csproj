@@ -68,6 +68,13 @@
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Input.Commands.MetadataCommands" />
 		<Publicize Include="CelesteTAS-EverestInterop:TAS.Gameplay.Hitboxes.ActualCollideHitbox.playerUpdated" />
 		<Publicize Include="FNA:Microsoft.Xna.Framework.Input.GamePadButtons.buttons" />
+		<Publicize Include="FNA:Microsoft.Xna.Framework.Game.Draw" />
+		<Publicize Include="FNA:Microsoft.Xna.Framework.Game.accumulatedElapsedTime" />
+		<Publicize Include="FNA:Microsoft.Xna.Framework.Game.currentAdapter" />
+		<Publicize Include="FNA:Microsoft.Xna.Framework.Game.textInputControlDown" />
+		<Publicize Include="FNA:Microsoft.Xna.Framework.Game.textInputSuppress" />
+		<Publicize Include="FNA:Microsoft.Xna.Framework.FNAPlatform" />
+		<Publicize Include="FNA:Microsoft.Xna.Framework.Game.gameTime" />
 		<DoNotPublicize Include="Celeste:Monocle.Entity.PreUpdate" />
 		<DoNotPublicize Include="Celeste:Monocle.Entity.PostUpdate" />
 		<DoNotPublicize Include="Celeste:Monocle.Scene.OnEndOfFrame" />

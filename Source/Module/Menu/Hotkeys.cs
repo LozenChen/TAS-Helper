@@ -58,7 +58,9 @@ public static class TH_Hotkeys {
 
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
         orig(self);
-        if (TasHelperSettings.SettingsHotkeysPressed()) {
+        bool changed = TasHelperSettings.SettingsHotkeysPressed();
+        global::Celeste.Mod.TASHelper.Entities.HotkeyWatcher.FlushPending();
+        if (changed) {
             TASHelperModule.Instance.SaveSettings();
         }
     }

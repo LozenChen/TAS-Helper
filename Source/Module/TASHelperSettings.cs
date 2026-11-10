@@ -764,7 +764,7 @@ public class TASHelperSettings : EverestModuleSettings {
         set {
             hotKeyStateVisualize = value;
             if (HotkeyWatcher.Instance is HotkeyWatcher watcher) {
-                watcher.Visible = hotKeyStateVisualize;
+                watcher.Visible = hotKeyStateVisualize && !string.IsNullOrEmpty(watcher.text);
             }
         }
     }
@@ -907,8 +907,8 @@ public class TASHelperSettings : EverestModuleSettings {
 
         TH_Hotkeys.Update(updateKey, updateButton);
 
-        OoO_Core.OnHotkeysPressed();
-        if (OoO_Core.Applied) {
+        OoO_Controller.HandleHotkeys();
+        if (OoO_Suspender.Blocking) {
             return false;
         }
 

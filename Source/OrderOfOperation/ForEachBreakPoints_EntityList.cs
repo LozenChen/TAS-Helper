@@ -145,7 +145,6 @@ internal static class ForEachBreakPoints_EntityList {
         }
     }
 
-    [Command_StringParameter("ooo_add_target", "Add the entity as a for-each breakpoint in EntityList.Update() (TAS Helper OoO Stepping)")]
     public static void CmdAddTarget(string UID) {
         if (UID.StartsWith("Player") && (UID == "Player" || (playerInstance is not null && UID == GetUID(playerInstance)))) {
             AddTarget("Player", true);
@@ -159,7 +158,6 @@ internal static class ForEachBreakPoints_EntityList {
         // it's not easy to add a target with breakpoints via cmd (and unncessary), so i only provide this
     }
 
-    [Command_StringParameter("ooo_remove_target", "Remove a for-each breakpoint in EntityList.Update() (TAS Helper OoO Stepping)")]
     public static void RemoveTarget(string UID) {
         if (UID.StartsWith("Player")) {
             // todo: remove Player makes tas desync
@@ -181,7 +179,6 @@ internal static class ForEachBreakPoints_EntityList {
         }
     }
 
-    [Command("ooo_show_target", "Show all for-each breakpoints in EntityList.Update() (TAS Helper OoO Stepping)")]
     public static void ShowTarget() {
         foreach (string s in targets) {
             Celeste.Commands.Log(s);
