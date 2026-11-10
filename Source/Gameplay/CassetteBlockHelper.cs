@@ -115,6 +115,23 @@ public static partial class CassetteBlockHelper {
 
         public static Vector2 PositionWithoutAlignment = new Vector2(1780f, 20f);
 
+        // Cached reflection for UpdateExtraInfo (runs every frame): resolving module Session / fields with
+        // GetPropertyValue/GetFieldValue every frame was the most expensive part of the cassette HUD.
+        private static bool sjSessionResolved;
+        private static bool qmSessionResolved;
+        private static object sjSession;
+        private static object qmSession;
+        private static GetDelegate<object, float> sjBeatTimerGetter;
+        private static GetDelegate<object, int> sjBeatIndexGetter;
+        private static GetDelegate<object, float> qmBeatTimerGetter;
+        private static GetDelegate<object, int> qmBeatIndexGetter;
+        private static Type minorGetterType;
+        private static GetDelegate<object, int> minorControllerIndexGetter;
+        private static GetDelegate<object, int> minorBeatIndexGetter;
+        private static GetDelegate<object, int> minorMaxBeatsGetter;
+        private static GetDelegate<object, float> minorBeatTimerGetter;
+        private static GetDelegate<object, float> minorBeatIncrementGetter;
+
         private static readonly Vector2 TopRightInScreen = new Vector2(1780f, 20f);
 
         public static bool needReAlignment = true;
@@ -365,31 +382,35 @@ public static partial class CassetteBlockHelper {
                 }
             }
             else if (cbmType == CBMType.SJ || cbmType == CBMType.QM) {
-                EverestModuleSession session = null;
-                if (cbmType == CBMType.SJ && ModUtils.GetType("StrawberryJam2021", "Celeste.Mod.StrawberryJam2021.StrawberryJam2021Module")?.GetPropertyValue<EverestModuleSession>("Session") is EverestModuleSession sessionSJ) {
-                    session = sessionSJ;
-                }
-                else if (cbmType == CBMType.QM && ModUtils.GetType("QuantumMechanics", "Celeste.Mod.QuantumMechanics.QuantumMechanicsModule")?.GetPropertyValue<EverestModuleSession>("Session") is EverestModuleSession sessionQM) {
-                    session = sessionQM;
-                }
+                object session = GetWonkySession(cbmType);
                 if (session is null) {
                     return;
                 }
-                beatTimer = 60f * session.GetFieldValue<float>("CassetteBeatTimer");
-                beatIndex = session.GetFieldValue<int>("CassetteWonkyBeatIndex");
+                if (cbmType == CBMType.SJ) {
+                    beatTimer = 60f * sjBeatTimerGetter(session);
+                    beatIndex = sjBeatIndexGetter(session);
+                }
+                else {
+                    beatTimer = 60f * qmBeatTimerGetter(session);
+                    beatIndex = qmBeatIndexGetter(session);
+                }
                 minorControllerData.Clear();
                 Type type = cbmType == CBMType.SJ ? SJWonkyCassetteBlockControllerSimulator.MinorSimulator.minor_type : QMWonkyCassetteBlockControllerSimulator.MinorSimulator.minor_type;
                 if (type is null) {
                     return;
                 }
+                EnsureMinorGetters(type);
+                if (minorControllerIndexGetter is null) {
+                    return;
+                }
                 if (Engine.Scene.Tracker.Entities.TryGetValue(type, out List<Entity> sourceList) && sourceList.Count > 0) {
                     foreach (Entity entity in sourceList) {
                         minorControllerData.Add(new Tuple<int, int, int, float, float>(
-                            entity.GetFieldValue<int>("ControllerIndex"),
-                            entity.GetFieldValue<int>("CassetteWonkyBeatIndex"),
-                            entity.GetFieldValue<int>("maxBeats"),
-                            60f * entity.GetFieldValue<float>("CassetteBeatTimer"),
-                            60f * entity.GetFieldValue<float>("beatIncrement")
+                            minorControllerIndexGetter(entity),
+                            minorBeatIndexGetter(entity),
+                            minorMaxBeatsGetter(entity),
+                            60f * minorBeatTimerGetter(entity),
+                            60f * minorBeatIncrementGetter(entity)
                         ));
                     }
                 }
@@ -641,5 +662,45 @@ public static partial class CassetteBlockHelper {
                 }
             }
         }
+        private static object GetWonkySession(CBMType type) {
+            if (type == CBMType.SJ) {
+                if (!sjSessionResolved) {
+                    sjSessionResolved = true;
+                    object module = ModUtils.GetModule("StrawberryJam2021");
+                    sjSession = module?.GetType().GetPropertyInfo("Session")?.GetValue(module);
+                    if (sjSession is not null) {
+                        sjBeatTimerGetter = sjSession.GetType().CreateGetDelegate<object, float>("CassetteBeatTimer");
+                        sjBeatIndexGetter = sjSession.GetType().CreateGetDelegate<object, int>("CassetteWonkyBeatIndex");
+                    }
+                }
+                return sjBeatTimerGetter is null || sjBeatIndexGetter is null ? null : sjSession;
+            }
+            else if (type == CBMType.QM) {
+                if (!qmSessionResolved) {
+                    qmSessionResolved = true;
+                    object module = ModUtils.GetModule("QuantumMechanics");
+                    qmSession = module?.GetType().GetPropertyInfo("Session")?.GetValue(module);
+                    if (qmSession is not null) {
+                        qmBeatTimerGetter = qmSession.GetType().CreateGetDelegate<object, float>("CassetteBeatTimer");
+                        qmBeatIndexGetter = qmSession.GetType().CreateGetDelegate<object, int>("CassetteWonkyBeatIndex");
+                    }
+                }
+                return qmBeatTimerGetter is null || qmBeatIndexGetter is null ? null : qmSession;
+            }
+            return null;
+        }
+
+        private static void EnsureMinorGetters(Type type) {
+            if (type == minorGetterType) {
+                return;
+            }
+            minorGetterType = type;
+            minorControllerIndexGetter = type.CreateGetDelegate<object, int>("ControllerIndex");
+            minorBeatIndexGetter = type.CreateGetDelegate<object, int>("CassetteWonkyBeatIndex");
+            minorMaxBeatsGetter = type.CreateGetDelegate<object, int>("maxBeats");
+            minorBeatTimerGetter = type.CreateGetDelegate<object, float>("CassetteBeatTimer");
+            minorBeatIncrementGetter = type.CreateGetDelegate<object, float>("beatIncrement");
+        }
     }
+
 }
