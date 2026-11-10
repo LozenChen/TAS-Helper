@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
 using System.Reflection;
+using System.Reflection.Emit;
 using TAS;
 using TAS.Input;
 using TAS.Input.Commands;
@@ -163,7 +164,16 @@ public static class PredictorCore {
             }
         }
         */
-        // base.Update(gameTime); i don't know how to call this correctly... bugs always occur
+        // same tail as Engine.Update: FNA's base update (iterates IUpdateable game components)
+        try {
+            GameBaseUpdate?.Invoke(engine, gameTime);
+        }
+        catch (System.Exception e) {
+            if (!baseUpdateFailed) {
+                baseUpdateFailed = true;
+                Logger.Log(LogLevel.Warn, "TAS Helper", "Predictor: Game.Update(base) call failed, prediction may differ: " + e);
+            }
+        }
     }
 
     [Load]
@@ -202,19 +212,6 @@ public static class PredictorCore {
             return;
         }
 
-        try {
-            // AlmostEngineUpdate is a hand-copied Engine.Update frame body; it deliberately does not call
-            // Game.Update(base). FNA's base update only iterates IUpdateable game components, which is empty
-            // in Celeste; warn if some mod ever registers one so we know prediction may differ.
-            System.Reflection.FieldInfo updateableField = typeof(Microsoft.Xna.Framework.Game).GetField("updateableComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            if (updateableField?.GetValue(Engine.Instance) is System.Collections.ICollection { Count: > 0 } updateables) {
-                Logger.Log(LogLevel.Warn, "TAS Helper", $"Predictor: {updateables.Count} IUpdateable Game component(s) exist; AlmostEngineUpdate skips Game.Update(base), prediction may differ.");
-            }
-        }
-        catch (System.Exception e) {
-            Logger.Log(LogLevel.Warn, "TAS Helper", "Predictor: failed to inspect Game updateable components: " + e.Message);
-        }
-
         typeof(Engine).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic).HookAfter(() => {
             if (StrictFrameStep && TasHelperSettings.PredictOnFrameStep && Engine.Scene is Level) {
                 Predict(TasHelperSettings.TimelineLength + CacheFuturePeriod, false);
@@ -234,6 +231,29 @@ public static class PredictorCore {
 
     private static readonly FieldInfo GameTimeField =
         typeof(Microsoft.Xna.Framework.Game).GetField("gameTime", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    // Engine.Update ends with "call Microsoft.Xna.Framework.Game::Update" (base.Update). We cannot call
+    // the protected base method directly, so emit a tiny dynamic method for it; this keeps prediction
+    // faithful when another mod registers IUpdateable components on the Game (normally the list is empty).
+    private static bool baseUpdateFailed;
+    private static readonly System.Action<Engine, GameTime> GameBaseUpdate = CreateGameBaseUpdate();
+
+    private static System.Action<Engine, GameTime> CreateGameBaseUpdate() {
+        try {
+            MethodInfo baseUpdate = typeof(Microsoft.Xna.Framework.Game).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic);
+            DynamicMethod dynamicMethod = new("TASHelper_GameBaseUpdate", typeof(void), new[] { typeof(Engine), typeof(GameTime) }, typeof(Engine).Module, skipVisibility: true);
+            ILGenerator il = dynamicMethod.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Call, baseUpdate);
+            il.Emit(OpCodes.Ret);
+            return (System.Action<Engine, GameTime>)dynamicMethod.CreateDelegate(typeof(System.Action<Engine, GameTime>));
+        }
+        catch (System.Exception e) {
+            Logger.Log(LogLevel.Warn, "TAS Helper", "Predictor: failed to create Game.Update(base) delegate: " + e.Message);
+            return null;
+        }
+    }
 
     private static void AfterMInputUpdate() {
         PredictorRenderer.ClearCachedMessage();
