@@ -74,7 +74,7 @@ public static class PredictorCore {
             return;
         }
 
-        if (!TasSpeedrunToolInterop.SaveState()) {
+        if (!SpeedrunToolBridge.SaveState()) {
             return;
         }
 
@@ -113,7 +113,7 @@ public static class PredictorCore {
         ModifiedAutoMute.OnPredictorUpdateEnd();
 
         ModifiedAutoMute.Undo();
-        TasSpeedrunToolInterop.LoadState();
+        SpeedrunToolBridge.LoadState();
 
         HasCachedFutures = true;
         InPredict = false;
@@ -189,7 +189,7 @@ public static class PredictorCore {
     [Load]
     public static void Load() {
         // our hook should be inside the hook of TAS.Playback.Core
-        if (!TasSpeedrunToolInterop.GetInstalledWhenLoading) {
+        if (!SpeedrunToolBridge.GetInstalledWhenLoading) {
             return;
         }
 
@@ -202,7 +202,7 @@ public static class PredictorCore {
 
     [Unload]
     public static void Unload() {
-        if (!TasSpeedrunToolInterop.GetInstalledWhenLoading) {
+        if (!SpeedrunToolBridge.GetInstalledWhenLoading) {
             return;
         }
 
@@ -218,7 +218,7 @@ public static class PredictorCore {
 
     [Initialize]
     public static void Initialize() {
-        if (!TasSpeedrunToolInterop.Installed) {
+        if (!SpeedrunToolBridge.Installed) {
             return;
         }
 
@@ -278,7 +278,7 @@ public static class PredictorCore {
                 ClearFutures();
                 PredictorRenderer.ClearCachedMessage();
             }
-            TasSpeedrunToolInterop.ClearState();
+            SpeedrunToolBridge.ClearState();
             return;
         }
 
@@ -289,11 +289,11 @@ public static class PredictorCore {
                 ClearFutures();
                 PredictorRenderer.ClearCachedMessage();
             }
-            TasSpeedrunToolInterop.ClearState();
+            SpeedrunToolBridge.ClearState();
             return;
         }
         if (!HasCachedFutures) {
-            TasSpeedrunToolInterop.ClearState();
+            SpeedrunToolBridge.ClearState();
         }
     }
 
@@ -325,7 +325,7 @@ public static class PredictorCore {
         else {
             CacheFuturePeriod = 60;
         }
-        TasSpeedrunToolInterop.ClearState();
+        SpeedrunToolBridge.ClearState();
         HasCachedFutures = false;
         ClearFutures();
         PredictorRenderer.ClearCachedMessage();
@@ -386,7 +386,7 @@ public static class PredictorCore {
         if (delayedClearState && neverClearStateThisFrame && !InPredict) {
             neverClearStateThisFrame = false;
             delayedClearState = false;
-            TasSpeedrunToolInterop.ClearState();
+            SpeedrunToolBridge.ClearState();
         }
     }
     private static void DelayedPredict() {

@@ -23,7 +23,7 @@ internal static class TASHelperMenu {
     private static EaseInOptionSubMenuExt CreatePredictorSubMenu(TextMenu menu, bool inGame) {
         EaseInOptionSubMenuExt PredictorItem = new EaseInOptionSubMenuExt("Predictor".ToDialogText());
         PredictorItem.OnLeave += () => PredictorItem.MenuIndex = 0;
-        if (ModInterop.TasSpeedrunToolInterop.Installed) {
+        if (ModInterop.SpeedrunToolBridge.Installed) {
             PredictorItem.Add("Predictor Finished".ToDialogText(), new List<TextMenu.Item>());
             PredictorItem.Add("Predictor OnOff".ToDialogText(), PredictorMenu.Create_PageOnOff(menu, inGame));
             PredictorItem.Add("Predictor Keyframe 1".ToDialogText(), PredictorMenu.Create_PageKeyframe_1(menu, inGame));

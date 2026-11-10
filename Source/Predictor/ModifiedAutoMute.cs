@@ -14,7 +14,7 @@ public static class ModifiedAutoMute {
 
     [Initialize]
     private static void Initialize() {
-        if (!ModInterop.TasSpeedrunToolInterop.Installed) {
+        if (!ModInterop.SpeedrunToolBridge.Installed) {
             return;
         }
 

@@ -34,11 +34,11 @@ public static class InputManager {
 
     [Initialize]
     public static void Initialize() {
-        if (!ModInterop.TasSpeedrunToolInterop.Installed) {
+        if (!ModInterop.SpeedrunToolBridge.Installed) {
             return;
         }
 
-        EmptyInput = ModInterop.UnstableCelesteTasUsings.CreateEmptyInput();
+        EmptyInput = ModInterop.CelesteTasBridge.CreateEmptyInput();
         SupportedRuntimeCommands.Clear();
         foreach (string str in _supportedRuntimeCommands) {
             if (Command.Commands.Where(x => x.Name == str) is { } commands && commands.IsNotNullOrEmpty() && commands.First().ExecuteTiming.Has(ExecuteTiming.Runtime)) {

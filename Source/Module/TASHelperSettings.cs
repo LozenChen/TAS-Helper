@@ -407,7 +407,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
     [YamlIgnore]
     public bool PredictFutureEnabled {
-        get => Enabled && ModInterop.TasSpeedrunToolInterop.Installed && predictFutureEnabled;
+        get => Enabled && ModInterop.SpeedrunToolBridge.Installed && predictFutureEnabled;
         set {
             predictFutureEnabled = value;
         }
@@ -1001,7 +1001,7 @@ public class TASHelperSettings : EverestModuleSettings {
             }
         }
         else if (TH_Hotkeys.PredictEnableHotkey.Pressed) {
-            if (TasSpeedrunToolInterop.Installed) {
+            if (SpeedrunToolBridge.Installed) {
                 if (Enabled) {
                     changed = true;
                     predictFutureEnabled = !predictFutureEnabled;
@@ -1017,7 +1017,7 @@ public class TASHelperSettings : EverestModuleSettings {
 
         }
         else if (TH_Hotkeys.PredictFutureHotkey.Pressed) {
-            if (TasSpeedrunToolInterop.Installed) {
+            if (SpeedrunToolBridge.Installed) {
                 if (!Enabled) {
                     HotkeyWatcher.RefreshHotkeyDisabled();
                 }
