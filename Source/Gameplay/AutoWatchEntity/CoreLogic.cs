@@ -320,3 +320,27 @@ public enum RenderMode {
     WhenWatched,
     Always
 }
+
+// Base class for the "the target type is fixed, mode comes from Config, renderer is created with the mode"
+// factories (27 of the 28 AutoWatch factories are exactly that shape).
+internal abstract class RendererFactory<TEntity, TRenderer> : IRendererFactory
+    where TEntity : Entity
+    where TRenderer : AutoWatchRenderer {
+    private readonly Func<RenderMode> modeGetter;
+    private readonly Func<RenderMode, TRenderer> rendererFactory;
+
+    protected RendererFactory(Func<RenderMode> modeGetter, Func<RenderMode, TRenderer> rendererFactory) {
+        this.modeGetter = modeGetter;
+        this.rendererFactory = rendererFactory;
+    }
+
+    public virtual Type GetTargetType() => typeof(TEntity);
+
+    public virtual bool Inherited() => false;
+
+    public RenderMode Mode() => modeGetter();
+
+    public void AddComponent(Entity entity) {
+        entity.Add(rendererFactory(Mode()).SleepWhileFastForwarding());
+    }
+}

@@ -67,17 +67,9 @@ internal class FlagTouchSwitchRenderer : AutoWatchTextRenderer {
     // if flag is too long, then we write it in another line
 }
 
-internal class FlagTouchSwitchFactory : IRendererFactory {
-
-    public Type GetTargetType() => null;
-
-    // public Type GetTargetType() => ModUtils.GetType("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Entities.FlagTouchSwitch");
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.FlagTouchSwitch;
-    public void AddComponent(Entity entity) {
-        entity.Add(new FlagTouchSwitchRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class FlagTouchSwitchFactory() : RendererFactory<Entity, FlagTouchSwitchRenderer>(() => Config.FlagTouchSwitch, mode => new FlagTouchSwitchRenderer(mode)) {
+    public override Type GetTargetType() => null;
+    public override bool Inherited() => true;
 }
 
 

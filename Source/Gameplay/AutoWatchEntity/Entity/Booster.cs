@@ -26,12 +26,6 @@ internal class BoosterRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class BoosterFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Booster);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.Booster;
-    public void AddComponent(Entity entity) {
-        entity.Add(new BoosterRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class BoosterFactory() : RendererFactory<Booster, BoosterRenderer>(() => Config.Booster, mode => new BoosterRenderer(mode)) {
+    public override bool Inherited() => true;
 }

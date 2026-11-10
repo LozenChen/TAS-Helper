@@ -192,14 +192,8 @@ internal class CrumbleWallOnRumbleRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class CrumbleWallOnRumbleFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(CrumbleWallOnRumble);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.CrumbleWallOnRumble;
-    public void AddComponent(Entity entity) {
-        entity.Add(new CrumbleWallOnRumbleRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class CrumbleWallOnRumbleFactory() : RendererFactory<CrumbleWallOnRumble, CrumbleWallOnRumbleRenderer>(() => Config.CrumbleWallOnRumble, mode => new CrumbleWallOnRumbleRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

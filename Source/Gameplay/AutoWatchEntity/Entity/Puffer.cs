@@ -101,14 +101,8 @@ internal class PufferRenderer : AutoWatchText2Renderer {
     }
 }
 
-internal class PufferFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Puffer);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.Puffer;
-    public void AddComponent(Entity entity) {
-        entity.Add(new PufferRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class PufferFactory() : RendererFactory<Puffer, PufferRenderer>(() => Config.Puffer, mode => new PufferRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

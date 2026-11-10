@@ -39,14 +39,7 @@ internal class SwapBlockRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class SwapBlockFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(SwapBlock);
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.SwapBlock;
-    public void AddComponent(Entity entity) {
-        entity.Add(new SwapBlockRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class SwapBlockFactory() : RendererFactory<SwapBlock, SwapBlockRenderer>(() => Config.SwapBlock, mode => new SwapBlockRenderer(mode)) {
 }
 
 

@@ -61,14 +61,7 @@ internal class CrumblePlatformRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class CrumblePlatformFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(CrumblePlatform);
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.CrumblePlatform;
-    public void AddComponent(Entity entity) {
-        entity.Add(new CrumblePlatformRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class CrumblePlatformFactory() : RendererFactory<CrumblePlatform, CrumblePlatformRenderer>(() => Config.CrumblePlatform, mode => new CrumblePlatformRenderer(mode)) {
 }
 
 
@@ -144,14 +137,8 @@ internal class MaxHelpingHandCrumblePlatformRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class MaxHelpingHandCrumblePlatformFactory : IRendererFactory {
-    public Type GetTargetType() => ModUtils.GetType("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Entities.CustomizableCrumblePlatform");
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.CrumblePlatform;
-    public void AddComponent(Entity entity) {
-        entity.Add(new MaxHelpingHandCrumblePlatformRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class MaxHelpingHandCrumblePlatformFactory() : RendererFactory<Entity, MaxHelpingHandCrumblePlatformRenderer>(() => Config.CrumblePlatform, mode => new MaxHelpingHandCrumblePlatformRenderer(mode)) {
+    public override Type GetTargetType() => ModUtils.GetType("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Entities.CustomizableCrumblePlatform");
 }
 
 

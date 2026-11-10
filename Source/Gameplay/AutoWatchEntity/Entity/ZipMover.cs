@@ -88,14 +88,8 @@ internal class ZipMoverRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class ZipMoverFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(ZipMover);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.ZipMover;
-    public void AddComponent(Entity entity) {
-        entity.Add(new ZipMoverRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class ZipMoverFactory() : RendererFactory<ZipMover, ZipMoverRenderer>(() => Config.ZipMover, mode => new ZipMoverRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

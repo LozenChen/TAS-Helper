@@ -200,14 +200,7 @@ internal class PlayerRenderer : AutoWatchText2Renderer {
     }
 }
 
-internal class PlayerFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Player);
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.Player;
-    public void AddComponent(Entity entity) {
-        entity.Add(new PlayerRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class PlayerFactory() : RendererFactory<Player, PlayerRenderer>(() => Config.Player, mode => new PlayerRenderer(mode)) {
 }
 
 

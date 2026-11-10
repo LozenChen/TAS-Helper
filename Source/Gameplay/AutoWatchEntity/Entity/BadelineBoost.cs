@@ -126,14 +126,8 @@ internal class BadelineBoostRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class BadelineBoostFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(BadelineBoost);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.BadelineBoost;
-    public void AddComponent(Entity entity) {
-        entity.Add(new BadelineBoostRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class BadelineBoostFactory() : RendererFactory<BadelineBoost, BadelineBoostRenderer>(() => Config.BadelineBoost, mode => new BadelineBoostRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

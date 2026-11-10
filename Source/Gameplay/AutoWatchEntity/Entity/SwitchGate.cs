@@ -158,14 +158,8 @@ internal class SwitchGateRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class SwitchGateFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(SwitchGate);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.SwitchGate;
-    public void AddComponent(Entity entity) {
-        entity.Add(new SwitchGateRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class SwitchGateFactory() : RendererFactory<SwitchGate, SwitchGateRenderer>(() => Config.SwitchGate, mode => new SwitchGateRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

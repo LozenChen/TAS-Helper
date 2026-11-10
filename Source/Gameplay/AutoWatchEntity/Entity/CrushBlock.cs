@@ -37,14 +37,8 @@ internal class CrushBlockRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class CrushBlockFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(CrushBlock);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.CrushBlock;
-    public void AddComponent(Entity entity) {
-        entity.Add(new CrushBlockRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class CrushBlockFactory() : RendererFactory<CrushBlock, CrushBlockRenderer>(() => Config.CrushBlock, mode => new CrushBlockRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

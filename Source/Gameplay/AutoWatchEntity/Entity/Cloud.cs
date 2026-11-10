@@ -32,14 +32,8 @@ internal class CloudRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class CloudFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Cloud);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.Cloud;
-    public void AddComponent(Entity entity) {
-        entity.Add(new CloudRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class CloudFactory() : RendererFactory<Cloud, CloudRenderer>(() => Config.Cloud, mode => new CloudRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

@@ -72,14 +72,7 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class FallingBlockFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(FallingBlock);
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.FallingBlock;
-    public void AddComponent(Entity entity) {
-        entity.Add(new FallingBlockRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class FallingBlockFactory() : RendererFactory<FallingBlock, FallingBlockRenderer>(() => Config.FallingBlock, mode => new FallingBlockRenderer(mode)) {
 }
 
 

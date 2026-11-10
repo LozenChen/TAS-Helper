@@ -37,15 +37,7 @@ internal class ForsakenCitySatelliteRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class ForsakenCitySatelliteFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(ForsakenCitySatellite);
-
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.DashCodeEntity;
-    public void AddComponent(Entity entity) {
-        entity.Add(new ForsakenCitySatelliteRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class ForsakenCitySatelliteFactory() : RendererFactory<ForsakenCitySatellite, ForsakenCitySatelliteRenderer>(() => Config.DashCodeEntity, mode => new ForsakenCitySatelliteRenderer(mode)) {
 }
 
 
@@ -92,14 +84,6 @@ internal class ReflectionHeartStatueRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class ReflectionHeartStatueFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(ReflectionHeartStatue);
-
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.DashCodeEntity;
-    public void AddComponent(Entity entity) {
-        entity.Add(new ReflectionHeartStatueRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class ReflectionHeartStatueFactory() : RendererFactory<ReflectionHeartStatue, ReflectionHeartStatueRenderer>(() => Config.DashCodeEntity, mode => new ReflectionHeartStatueRenderer(mode)) {
 }
 

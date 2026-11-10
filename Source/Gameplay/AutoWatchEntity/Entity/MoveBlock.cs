@@ -55,14 +55,8 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class MoveBlockFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(MoveBlock);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.MoveBlock;
-    public void AddComponent(Entity entity) {
-        entity.Add(new MoveBlockRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class MoveBlockFactory() : RendererFactory<MoveBlock, MoveBlockRenderer>(() => Config.MoveBlock, mode => new MoveBlockRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

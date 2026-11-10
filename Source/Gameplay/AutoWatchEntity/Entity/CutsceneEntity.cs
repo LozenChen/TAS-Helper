@@ -127,14 +127,9 @@ internal class CutsceneEntityRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class CutsceneEntityFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(CutsceneEntity);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.CutsceneEntity;
-    public void AddComponent(Entity entity) {
-        entity.Add(new CutsceneEntityRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal class CutsceneEntityFactory() : RendererFactory<CutsceneEntity, CutsceneEntityRenderer>(
+    () => Config.CutsceneEntity, mode => new CutsceneEntityRenderer(mode)) {
+    public override bool Inherited() => true;
 
 
     [Load]

@@ -108,14 +108,7 @@ internal class FlingBirdRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class FlingBirdFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(FlingBird);
-
-    public bool Inherited() => false; // it's not compatible with DJMapHelper's FlingBirdReversed
-    public RenderMode Mode() => Config.FlingBird;
-    public void AddComponent(Entity entity) {
-        entity.Add(new FlingBirdRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class FlingBirdFactory() : RendererFactory<FlingBird, FlingBirdRenderer>(() => Config.FlingBird, mode => new FlingBirdRenderer(mode)) {
 }
 
 
