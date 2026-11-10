@@ -8,11 +8,23 @@ internal static class HKNailDebugRender {
     // Kepler mod also has hk nail, but it has a good DebugRender
     [Initialize]
     private static void Initialize() {
+        try {
+            InitializeImpl();
+        }
+        catch (Exception e) {
+            // never let an optional mod's shape break the whole mod load
+            Logger.Log(LogLevel.Warn, "TAS Helper", "HKNail overlay disabled: " + e.Message);
+            prepared = false;
+        }
+    }
+
+    private static void InitializeImpl() {
         prepared = true;
         if (ModUtils.GetType("FlaglinesAndSuch", "FlaglinesAndSuch.HKnail") is { } hkNail) {
             nailTimerGetter = hkNail.CreateGetDelegate<object, float>("nailTimer");
             rechargeTimerGetter = hkNail.CreateGetDelegate<object, float>("nailRechargeTimer");
-            nailDir = hkNail.CreateGetDelegate<object, int>("nailDir");
+            // nailDir is a FlaglinesAndSuch.HKnail+Dirs enum; box it and convert when used
+            nailDir = hkNail.CreateGetDelegate<object, object>("nailDir");
             if (nailTimerGetter is null || rechargeTimerGetter is null || nailDir is null) {
                 prepared = false;
             }
@@ -34,7 +46,7 @@ internal static class HKNailDebugRender {
 
     private static GetDelegate<object, float> rechargeTimerGetter;
 
-    private static GetDelegate<object, int> nailDir;
+    private static GetDelegate<object, object> nailDir;
 
     private static EverestModuleSettings flaglinesAndSuchSettings;
 
@@ -58,7 +70,7 @@ internal static class HKNailDebugRender {
         if (nailTimerGetter(null) > 0f || rechargeTimerGetter(null) == 0.1f) {
             Vector2 orig_Position = player.Position;
             Collider collider = player.Collider;
-            int dir = nailDir(null);
+            int dir = Convert.ToInt32(nailDir(null));
             player.Position = Spinner.Info.PositionHelper.PlayerPositionBeforeSelfUpdate;
             player.Collider = dir switch {
                 0 => nailhitboxUp,
