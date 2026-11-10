@@ -69,21 +69,24 @@ public static class PredictorCore {
 
         InputManager.ReadInputs(frames);
 
-        PlayerState PreviousState;
-        PlayerState CurrentState = PlayerState.GetState();
+        // The gameTime does not change during a prediction run (we do not tick FNA), so read it once
+        // instead of doing a reflective GetValue for every predicted frame.
+        GameTime predictedGameTime = (GameTime)GameTimeField.GetValue(Engine.Instance);
 
+        PlayerState previousState = PlayerState.GetState();
+        PlayerState currentBuffer = new();
         for (int i = 0; i < frames; i++) {
             InputManager.ExecuteCommands(i); // commands are partially supported
             TAS.InputHelper.FeedInputs(InputManager.Inputs[i]);
-            AlmostEngineUpdate(Engine.Instance, (GameTime)typeof(Game).GetFieldInfo("gameTime").GetValue(Engine.Instance));
+            AlmostEngineUpdate(Engine.Instance, predictedGameTime);
 
-            PreviousState = CurrentState;
-            CurrentState = PlayerState.GetState();
+            PlayerState currentState = PlayerState.Fill(currentBuffer);
             if (PreventSwitchScene()) {
                 break;
             }
-            RenderData data = new RenderData(i + 1, PreviousState, CurrentState);
+            RenderData data = new(i + 1, previousState, currentState);
             futures.Add(data);
+            (previousState, currentBuffer) = (currentState, previousState);
             if (EarlyStopCheck(data)) {
                 break;
             }
@@ -207,6 +210,9 @@ public static class PredictorCore {
     }
 
     private static MethodInfo SJ_CassetteHookFreeze;
+
+    private static readonly FieldInfo GameTimeField =
+        typeof(Microsoft.Xna.Framework.Game).GetField("gameTime", BindingFlags.Instance | BindingFlags.NonPublic);
 
     private static void AfterMInputUpdate() {
         PredictorRenderer.ClearCachedMessage();
