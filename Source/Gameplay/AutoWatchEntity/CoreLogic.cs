@@ -13,7 +13,9 @@ internal static class CoreLogic {
     private static void Initialize() {
         Factorys.AddRange(
             typeof(CoreLogic).Assembly.GetTypesSafe().Where(
-                type => type.GetInterface(nameof(IRendererFactory)) is not null
+                // open generic / abstract helper types (e.g. RendererFactory<,>) are not instantiable factories
+                type => !type.IsAbstract && !type.IsInterface && !type.ContainsGenericParameters
+                    && type.GetInterface(nameof(IRendererFactory)) is not null
             ).Select(
                 type => (IRendererFactory)type.GetConstructorInfo().Invoke(parameterless)
             ).Where(

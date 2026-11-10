@@ -18,7 +18,8 @@ internal class BadelineBoostRenderer : AutoWatchTextRenderer {
 
     public float waitTimer => coroutine.waitTimer;
 
-    public float loopTimer => boostRoutine?.GetFieldValue<float>("<p>5__9") ?? -9999f;
+    private GetDelegate<object, float> loopTimerGetter;
+    public float loopTimer => CoroutineFieldCache.GetFloat(boostRoutine, ref loopTimerGetter, "<p>5__9", -9999f);
 
     public static bool useFallBack = true;
     public BadelineBoostRenderer(RenderMode mode) : base(mode, active: true) { }
