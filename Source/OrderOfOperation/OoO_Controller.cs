@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -122,6 +122,7 @@ internal static class OoO_Controller {
         Active = true;
         Skipping = false;
         ExitAfterFrame = false;
+        advanceRequested = false;
         Logger.Log("OoO", $"enter frame={Engine.FrameCounter}");
         OoO_ForEach.ResetRun();
         OoO_PlayerCollider.ResetRun();
@@ -136,6 +137,7 @@ internal static class OoO_Controller {
         Active = false;
         Skipping = false;
         ExitAfterFrame = false;
+        advanceRequested = false;
         Logger.Log("OoO", $"exit frame={Engine.FrameCounter}");
         OoO_Suspender.AutoStepping = false;
         OoO_Suspender.Blocking = false;
@@ -227,15 +229,48 @@ internal static class OoO_Controller {
         OoO_Suspender.Block(label);
     }
 
+    private static bool advanceRequested;
+    private static bool reportedZeroDelta;
+
     private static void OnEngineUpdate(On.Monocle.Engine.orig_Update orig, Engine self, GameTime gameTime) {
         if (!Active) {
             orig(self, gameTime);
             return;
         }
 
+        if (advanceRequested) {
+            // This is the real update TAS performs after we asked for FrameAdvance; run it now.
+            advanceRequested = false;
+            GameTime stepTime = gameTime;
+            if (gameTime.ElapsedGameTime == TimeSpan.Zero) {
+                stepTime = new GameTime(gameTime.TotalGameTime, self.TargetElapsedTime);
+                if (!reportedZeroDelta) {
+                    reportedZeroDelta = true;
+                    Logger.Log("OoO", "TAS still passed a zero-delta tick for the frame advance; using TargetElapsedTime");
+                }
+            }
+            orig(self, stepTime);
+            if (Active) {
+                Break("EngineUpdate end");
+            }
+            if (Active) {
+                Exit();
+            }
+            return;
+        }
+
         Break("EngineUpdate begin");
         if (!Active) {
             orig(self, gameTime);
+            return;
+        }
+
+        if (TAS.Manager.CurrState == TAS.Manager.State.Paused && gameTime.ElapsedGameTime == TimeSpan.Zero) {
+            // TAS paused frames are frozen with a zero-elapsed GameTime. Do not run the frame with that
+            // value (Engine.RawDeltaTime becomes 0 and CelesteTAS' GameInfo divides by it); ask TAS to do
+            // its normal FrameAdvance instead and handle the resulting real update in the next call.
+            TAS.Manager.NextState = TAS.Manager.State.FrameAdvance;
+            advanceRequested = true;
             return;
         }
 

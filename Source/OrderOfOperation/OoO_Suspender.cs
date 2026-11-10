@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Monocle;
 using System.Threading;
 using TAS;
@@ -21,6 +21,7 @@ internal static class OoO_Suspender {
     private static int pumps;
     private static readonly System.Diagnostics.Stopwatch pumpClock = System.Diagnostics.Stopwatch.StartNew();
     private static long nextDrawAt;
+    private static bool pumpDrawDisabled;
 
     internal static void Block(string label) {
         global::Celeste.Mod.TASHelper.Entities.HotkeyWatcher.Refresh(label);
@@ -62,27 +63,70 @@ internal static class OoO_Suspender {
     }
 
     private static void PumpOnce() {
-        try {
-            // Draw at ~60fps: the highlight pulse is wall-clock based, and redrawing/Presenting the
-            // whole scene hundreds of times per second while stopped is just wasted CPU/GPU.
-            long now = pumpClock.ElapsedMilliseconds;
-            if (now >= nextDrawAt) {
-                nextDrawAt = now + 16;
+        // Draw at ~60fps: the highlight pulse is wall-clock based, and redrawing/Presenting the
+        // whole scene hundreds of times per second while stopped is just wasted CPU/GPU.
+        long now = pumpClock.ElapsedMilliseconds;
+        if (!pumpDrawDisabled && now >= nextDrawAt) {
+            nextDrawAt = now + 16;
+            try {
                 Game game = Engine.Instance;
                 FNAPlatform.PollEvents?.Invoke(game, ref game.currentAdapter, game.textInputControlDown, ref game.textInputSuppress);
+                ClearUpdateAtDrawLists();
                 GameTime gameTime = new(game.gameTime.TotalGameTime, TimeSpan.Zero);
                 game.Draw(gameTime);
                 game.GraphicsDevice.Present();
                 game.accumulatedElapsedTime = TimeSpan.Zero;
                 pumps++;
             }
-            PollKeys();
+            catch (System.Exception e) {
+                // Pumping Draw from inside Engine.Update is re-entrant: some mods (e.g. MotionSmoothing's
+                // frame uncap) update scene objects during Draw and can throw. Stepping itself does not
+                // need Draw, so disable visual pumping instead of aborting the OoO run.
+                pumpDrawDisabled = true;
+                Logger.Log(LogLevel.Warn, "OoO", "pump Draw disabled after exception: " + e);
+            }
         }
-        catch (System.Exception e) {
-            Logger.Log("OoO", "pump error: " + e);
-            OoO_Controller.Exit();
-        }
+        PollKeys();
         Thread.Sleep(4);
+    }
+
+    // MotionSmoothing's FrameUncap draws by updating the renderers/entities recorded during the previous
+    // EngineUpdate ("update at draw"). Re-entering that from our pump while a TAS frame is frozen lets
+    // those entity updates mutate the lists being enumerated -> "Collection was modified". Clearing the
+    // recorded lists before the pumped draw makes it a pure draw; MotionSmoothing repopulates them on the
+    // next real EngineUpdate.
+    private static bool updateAtDrawChecked;
+    private static object updateAtDrawInstance;
+    private static System.Reflection.FieldInfo updateAtDrawRenderers;
+    private static System.Reflection.FieldInfo updateAtDrawEntities;
+
+    private static void ClearUpdateAtDrawLists() {
+        if (!updateAtDrawChecked) {
+            updateAtDrawChecked = true;
+            try {
+                Type? updateAtDraw = ModUtils.GetType("MotionSmoothing", "Celeste.Mod.MotionSmoothing.Utilities.UpdateAtDraw");
+                Type? toggleable = updateAtDraw?.BaseType;
+                updateAtDrawInstance = toggleable?.GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)?.GetValue(null);
+                if (updateAtDrawInstance is not null) {
+                    updateAtDrawRenderers = updateAtDraw!.GetField("_renderersToUpdate", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                    updateAtDrawEntities = updateAtDraw.GetField("_entitiesToUpdate", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                }
+            }
+            catch (System.Exception e) {
+                Logger.Log(LogLevel.Debug, "OoO", "MotionSmoothing update-at-draw hook not available: " + e.Message);
+            }
+        }
+        try {
+            if (updateAtDrawRenderers?.GetValue(updateAtDrawInstance) is System.Collections.IList renderers) {
+                renderers.Clear();
+            }
+            if (updateAtDrawEntities?.GetValue(updateAtDrawInstance) is System.Collections.IList entities) {
+                entities.Clear();
+            }
+        }
+        catch {
+            // optional mod compatibility must never break stepping
+        }
     }
 
     private static void PollKeys() {
