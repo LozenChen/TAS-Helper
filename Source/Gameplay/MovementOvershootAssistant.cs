@@ -1,4 +1,4 @@
-﻿using Celeste.Mod.TASHelper.ModInterop;
+using Celeste.Mod.TASHelper.ModInterop;
 using Celeste.Mod.TASHelper.Module.Menu;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -99,18 +99,7 @@ internal static class MovementOvershootAssistant {
             return;
         }
         NoObsPosition = NaiveMove(player.Position, player.movementCounter, player.Speed.GetGravityAffectedVector2() * Engine.DeltaTime);
-        if (player.Collider is Hitbox sourceHitbox) {
-            if (renderer.unselectableCollider is not Hitbox targetHitbox) {
-                targetHitbox = new Hitbox(sourceHitbox.Width, sourceHitbox.Height, sourceHitbox.Position.X, sourceHitbox.Position.Y);
-                renderer.unselectableCollider = targetHitbox;
-            }
-            targetHitbox.Width = sourceHitbox.Width;
-            targetHitbox.Height = sourceHitbox.Height;
-            targetHitbox.Position = sourceHitbox.Position;
-        }
-        else {
-            renderer.unselectableCollider = player.Collider.Clone();
-        }
+        renderer.unselectableCollider = player.Collider.Clone();
         renderer.Position = NoObsPosition;
     }
 

@@ -1,4 +1,4 @@
-﻿using Monocle;
+using Monocle;
 
 namespace Celeste.Mod.TASHelper.OrderOfOperation;
 
@@ -25,17 +25,15 @@ internal static class OoO_PlayerCollider {
             return;
         }
         string type = entity.GetType().Name;
-        bool typeContained = targets.Contains(type);
-        bool needUid = checkEach || autoStop || typeContained || targets.Count > 0 || removedFromEach.Count > 0;
-        string uid = needUid ? OoO_ForEach.GetUID(entity) : null;
+        string uid = OoO_ForEach.GetUID(entity);
 
         Player player = OoO_PlayerSnapshot.GetPlayer();
         if (hasSnapshot && autoStop && !OoO_PlayerSnapshot.Capture(player).Equals(lastSnapshot)) {
             OoO_Controller.BreakExternal(string.Concat(lastUID, "'s PlayerCollider check end"));
         }
 
-        bool excluded = removedFromEach.Contains(type) || (needUid && removedFromEach.Contains(uid));
-        if ((checkEach && !excluded) || typeContained || (needUid && targets.Contains(uid))) {
+        bool excluded = removedFromEach.Contains(type) || removedFromEach.Contains(uid);
+        if ((checkEach && !excluded) || targets.Contains(type) || targets.Contains(uid)) {
             OoO_Highlight.TrackedCollider = pc;
             OoO_Controller.BreakExternal(string.Concat(uid, "'s PlayerCollider check"));
         }

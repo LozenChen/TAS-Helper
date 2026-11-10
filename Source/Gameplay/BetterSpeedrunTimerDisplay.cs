@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -6,21 +6,25 @@ using MonoMod.Cil;
 namespace Celeste.Mod.TASHelper.Gameplay;
 internal static class BetterSpeedrunTimerDisplay {
 
+    // Keep the wrapped delegates so DEBUG's Checked wrapper can be removed with the same delegate instance.
+    private static readonly ILContext.Manipulator CheckedRender = HookHelper.Checked(IL_SpeedrunTimerDisplay_Render);
+    private static readonly ILContext.Manipulator CheckedDrawTime = HookHelper.Checked(IL_SpeedrunTimerDisplay_DrawTime);
+
     [Load]
 
     private static void Load() {
         // legacy "Before: [*]" (before all other detours) cannot be expressed with MonoMod v25:
         // it has no wildcard support. Keep the id only.
         using (DetourContextHelper.ILHook("TAS Helper BetterSpeedrunTimerDisplay").Use()) {
-            IL.Celeste.SpeedrunTimerDisplay.Render += HookHelper.Checked(IL_SpeedrunTimerDisplay_Render);
-            IL.Celeste.SpeedrunTimerDisplay.DrawTime += HookHelper.Checked(IL_SpeedrunTimerDisplay_DrawTime);
+            IL.Celeste.SpeedrunTimerDisplay.Render += CheckedRender;
+            IL.Celeste.SpeedrunTimerDisplay.DrawTime += CheckedDrawTime;
         }
     }
 
     [Unload]
     private static void Unload() {
-        IL.Celeste.SpeedrunTimerDisplay.Render -= IL_SpeedrunTimerDisplay_Render;
-        IL.Celeste.SpeedrunTimerDisplay.DrawTime -= IL_SpeedrunTimerDisplay_DrawTime;
+        IL.Celeste.SpeedrunTimerDisplay.Render -= CheckedRender;
+        IL.Celeste.SpeedrunTimerDisplay.DrawTime -= CheckedDrawTime;
     }
     private static void IL_SpeedrunTimerDisplay_Render(ILContext il) {
         ILCursor cursor = new ILCursor(il);

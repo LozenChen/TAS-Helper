@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -26,6 +26,9 @@ internal static class HazardTypeHelper {
 
     private static readonly Dictionary<Type, GetDelegate<Entity, int?>> HazardTypes_Special = [];
 
+    // Keep the wrapped delegate so DEBUG's Checked wrapper can be removed with the same delegate instance.
+    private static readonly ILContext.Manipulator CheckedEntityListUpdateLists = HookHelper.Checked(IL_EntityList_UpdateLists);
+
     internal static void AddHazardType(Type type, int hazardType) {
         HazardTypes_Normal[type] = hazardType;
     }
@@ -36,13 +39,13 @@ internal static class HazardTypeHelper {
 
     [Load]
     public static void Load() {
-        IL.Monocle.EntityList.UpdateLists += HookHelper.Checked(IL_EntityList_UpdateLists);
+        IL.Monocle.EntityList.UpdateLists += CheckedEntityListUpdateLists;
         On.Celeste.WaveDashPlaybackTutorial.ctor += On_WaveDashPlaybackTutorial_ctor;
     }
 
     [Unload]
     public static void Unload() {
-        IL.Monocle.EntityList.UpdateLists -= IL_EntityList_UpdateLists;
+        IL.Monocle.EntityList.UpdateLists -= CheckedEntityListUpdateLists;
         On.Celeste.WaveDashPlaybackTutorial.ctor -= On_WaveDashPlaybackTutorial_ctor;
     }
 

@@ -7,7 +7,7 @@ namespace Celeste.Mod.TASHelper.Utils;
 // completely taken from Celeste TAS
 internal static class ModUtils {
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, EverestModule> moduleCache = new();
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string ModName, string TypeName), Type> typeCache = new();
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string ModName, string TypeName, bool IgnoreCase), Type> typeCache = new();
 
     // Positive-only caches: negative results are not cached, because a mod may still be loading when the
     // first lookup happens. Cleared on mod load/unload/reload so hot reloads do not keep stale Types.
@@ -26,12 +26,12 @@ internal static class ModUtils {
         if (modName is null || name is null) {
             return GetAssembly(modName)?.GetType(name, throwOnError, ignoreCase);
         }
-        if (typeCache.TryGetValue((modName, name), out Type cached)) {
+        if (typeCache.TryGetValue((modName, name, ignoreCase), out Type cached)) {
             return cached;
         }
         Type type = GetAssembly(modName)?.GetType(name, throwOnError, ignoreCase);
         if (type is not null) {
-            typeCache[(modName, name)] = type;
+            typeCache[(modName, name, ignoreCase)] = type;
         }
         return type;
     }

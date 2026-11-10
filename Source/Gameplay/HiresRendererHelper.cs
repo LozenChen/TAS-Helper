@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -11,18 +11,21 @@ public static class HiresLevelRenderer {
 
     private const string renderTargetName = "TasHelperHiresLevel";
 
+    // Keep the wrapped delegate so DEBUG's Checked wrapper can be removed with the same delegate instance.
+    private static readonly ILContext.Manipulator CheckedLevelRender = HookHelper.Checked(ILLevelRender);
+
     [Load]
     public static void Load() {
         On.Celeste.Level.Begin += OnLevelBegin;
         On.Celeste.Level.End += OnLevelEnd;
-        IL.Celeste.Level.Render += HookHelper.Checked(ILLevelRender);
+        IL.Celeste.Level.Render += CheckedLevelRender;
     }
 
     [Unload]
     public static void Unload() {
         On.Celeste.Level.Begin -= OnLevelBegin;
         On.Celeste.Level.End -= OnLevelEnd;
-        IL.Celeste.Level.Render -= ILLevelRender;
+        IL.Celeste.Level.Render -= CheckedLevelRender;
     }
 
     private static void OnLevelBegin(On.Celeste.Level.orig_Begin orig, Level self) {
@@ -99,8 +102,9 @@ public static class HiresLevelRenderer {
     public static int Count => list.Count;
 
     public static void Add(THRenderer renderer) {
-        toAdd.Add(renderer);
-        toAddSet.Add(renderer);
+        if (toAddSet.Add(renderer)) {
+            toAdd.Add(renderer);
+        }
     }
 
     public static void AddIfNotPresent(THRenderer renderer) {
@@ -213,8 +217,14 @@ public static class HiresLevelRenderer {
     private static bool AnyRendererWillDraw() {
         for (int i = 0; i < list.Count; i++) {
             if (list[i] is global::Celeste.Mod.TASHelper.Gameplay.Spinner.Render.CountdownRenderer) {
-                if (TasHelperSettings.UsingHiresFont && global::Celeste.Mod.TASHelper.Gameplay.Spinner.Render.CountdownRenderer.HiresID2Positions.Count > 0) {
-                    return true;
+                if (TasHelperSettings.UsingHiresFont) {
+                    // Keys stay in the dictionary after ClearCache; only non-empty position lists mean
+                    // there is something to draw this frame.
+                    foreach (List<Vector2> positions in global::Celeste.Mod.TASHelper.Gameplay.Spinner.Render.CountdownRenderer.HiresID2Positions.Values) {
+                        if (positions.Count > 0) {
+                            return true;
+                        }
+                    }
                 }
                 continue;
             }

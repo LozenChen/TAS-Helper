@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Monocle;
 using static Celeste.Mod.TASHelper.OrderOfOperation.OoO_Controller;
 
@@ -28,11 +28,8 @@ internal static class OoO_ForEach {
             return;
         }
         string type = entity.GetType().Name;
-        bool typeContained = targets.Contains(type);
-        // The uid string is only needed for uid-targets, per-each mode, Auto labels or exceptions.
-        bool needUid = checkEach || autoStop || typeContained || targets.Count > 0 || removedFromEach.Count > 0;
-        string uid = needUid ? GetUID(entity) : null;
-        bool contain = typeContained || (needUid && targets.Contains(uid));
+        string uid = GetUID(entity);
+        bool contain = targets.Contains(type) || targets.Contains(uid);
 
         Player player = OoO_PlayerSnapshot.GetPlayer();
         // Auto: the previous entity's update changed the player -> stop right after it (we notice here, one entity later).
@@ -40,7 +37,7 @@ internal static class OoO_ForEach {
             BreakExternal(string.Concat(lastUID, " Update"));
         }
 
-        bool excluded = removedFromEach.Contains(type) || (needUid && removedFromEach.Contains(uid));
+        bool excluded = removedFromEach.Contains(type) || removedFromEach.Contains(uid);
         if ((checkEach && !excluded) || contain) {
             OoO_Highlight.TrackedEntity = entity;
             BreakExternal(string.Concat(uid, " Update begin"));

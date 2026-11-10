@@ -1,4 +1,4 @@
-﻿using Celeste.Mod.TASHelper.ModInterop;
+using Celeste.Mod.TASHelper.ModInterop;
 using Celeste.Mod.TASHelper.OrderOfOperation;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -82,41 +82,59 @@ public static class PredictorCore {
 
         InPredict = true;
 
-        ClearFutures();
+        bool succeeded = false;
+        try {
+            ClearFutures();
 
-        ModifiedAutoMute.Apply();
+            ModifiedAutoMute.Apply();
 
-        InputManager.ReadInputs(frames);
+            InputManager.ReadInputs(frames);
 
-        // The gameTime does not change during a prediction run (we do not tick FNA), so read it once
-        // instead of doing a reflective GetValue for every predicted frame.
-        GameTime predictedGameTime = (GameTime)GameTimeField.GetValue(Engine.Instance);
-
-        PlayerState previousState = PlayerState.GetState();
-        PlayerState currentBuffer = new();
-        for (int i = 0; i < frames; i++) {
-            InputManager.ExecuteCommands(i); // commands are partially supported
-            TAS.InputHelper.FeedInputs(InputManager.Inputs[i]);
-            AlmostEngineUpdate(Engine.Instance, predictedGameTime);
-
-            PlayerState currentState = PlayerState.Fill(currentBuffer);
-            if (PreventSwitchScene()) {
-                break;
+            hasUpdateableComponentsThisPrediction = UpdateableComponentsField?.GetValue(Engine.Instance) is System.Collections.ICollection { Count: > 0 };
+            if (hasUpdateableComponentsThisPrediction && !warnedAboutUpdateableComponents) {
+                warnedAboutUpdateableComponents = true;
+                Logger.Log(LogLevel.Warn, "TAS Helper", "Predictor: a mod registered IUpdateable Game component(s); mirroring Game.Update(base) during prediction.");
             }
-            RenderData data = new(i + 1, previousState, currentState);
-            futures.Add(data);
-            (previousState, currentBuffer) = (currentState, previousState);
-            if (EarlyStopCheck(data)) {
-                break;
+
+            // The gameTime does not change during a prediction run (we do not tick FNA), so read it once.
+            GameTime predictedGameTime = Engine.Instance.gameTime;
+
+            PlayerState previousState = PlayerState.GetState();
+            PlayerState currentBuffer = new();
+            for (int i = 0; i < frames; i++) {
+                InputManager.ExecuteCommands(i); // commands are partially supported
+                TAS.InputHelper.FeedInputs(InputManager.Inputs[i]);
+                AlmostEngineUpdate(Engine.Instance, predictedGameTime);
+
+                PlayerState currentState = PlayerState.Fill(currentBuffer);
+                if (PreventSwitchScene()) {
+                    break;
+                }
+                RenderData data = new(i + 1, previousState, currentState);
+                futures.Add(data);
+                (previousState, currentBuffer) = (currentState, previousState);
+                if (EarlyStopCheck(data)) {
+                    break;
+                }
             }
+            succeeded = true;
         }
-        ModifiedAutoMute.OnPredictorUpdateEnd();
+        finally {
+            // The game state has been simulated even if a mod threw mid-prediction; always restore it and
+            // clear InPredict, otherwise prediction would be silently disabled for the rest of the session.
+            ModifiedAutoMute.OnPredictorUpdateEnd();
+            ModifiedAutoMute.Undo();
+            SpeedrunToolBridge.LoadState();
+            InPredict = false;
+        }
 
-        ModifiedAutoMute.Undo();
-        SpeedrunToolBridge.LoadState();
+        if (!succeeded) {
+            HasCachedFutures = false;
+            CacheFutureCountdown = 0;
+            return;
+        }
 
         HasCachedFutures = true;
-        InPredict = false;
         CacheFutureCountdown = CacheFuturePeriod;
 
         // i'm not sure, but we can not move it to before LoadState i guess (maybe they're restored?)
@@ -174,14 +192,18 @@ public static class PredictorCore {
             }
         }
         */
-        // same tail as Engine.Update: FNA's base update (iterates IUpdateable game components)
-        try {
-            GameBaseUpdate?.Invoke(engine, gameTime);
-        }
-        catch (System.Exception e) {
-            if (!baseUpdateFailed) {
-                baseUpdateFailed = true;
-                Logger.Log(LogLevel.Warn, "TAS Helper", "Predictor: Game.Update(base) call failed, prediction may differ: " + e);
+        // Same tail as Engine.Update: FNA's base update. In vanilla Celeste the IUpdateable list is empty, so
+        // the only effect would be FrameworkDispatcher.Update() (audio dispatch) once per predicted frame;
+        // only mirror it when some mod actually registered an IUpdateable component.
+        if (hasUpdateableComponentsThisPrediction) {
+            try {
+                GameBaseUpdate?.Invoke(engine, gameTime);
+            }
+            catch (System.Exception e) {
+                if (!baseUpdateFailed) {
+                    baseUpdateFailed = true;
+                    Logger.Log(LogLevel.Warn, "TAS Helper", "Predictor: Game.Update(base) call failed, prediction may differ: " + e);
+                }
             }
         }
     }
@@ -196,7 +218,7 @@ public static class PredictorCore {
         // our injected code must end up INSIDE TAS.Playback.Core's hook (TAS outer):
         // "Before" = our manipulator applies first, so TAS's manipulator (applied later) wraps us.
         using (DetourContextHelper.ILHook("TAS Helper PredictorCore").AppliedBefore(DetourContextHelper.CelesteTAS).Use()) {
-            IL.Monocle.Engine.Update += HookHelper.Checked(ILEngineUpdate);
+            IL.Monocle.Engine.Update += CheckedILEngineUpdate;
         }
     }
 
@@ -206,7 +228,7 @@ public static class PredictorCore {
             return;
         }
 
-        IL.Monocle.Engine.Update -= ILEngineUpdate;
+        IL.Monocle.Engine.Update -= CheckedILEngineUpdate;
     }
 
     private static void ILEngineUpdate(ILContext context) {
@@ -239,8 +261,13 @@ public static class PredictorCore {
 
     private static MethodInfo SJ_CassetteHookFreeze;
 
-    private static readonly FieldInfo GameTimeField =
-        typeof(Microsoft.Xna.Framework.Game).GetField("gameTime", BindingFlags.Instance | BindingFlags.NonPublic);
+    // Keep the wrapped delegate so DEBUG's Checked wrapper can be removed with the same delegate instance.
+    private static readonly ILContext.Manipulator CheckedILEngineUpdate = HookHelper.Checked(ILEngineUpdate);
+
+    private static readonly FieldInfo UpdateableComponentsField =
+        typeof(Microsoft.Xna.Framework.Game).GetField("updateableComponents", BindingFlags.Instance | BindingFlags.NonPublic);
+    private static bool hasUpdateableComponentsThisPrediction;
+    private static bool warnedAboutUpdateableComponents;
 
     // Engine.Update ends with "call Microsoft.Xna.Framework.Game::Update" (base.Update). We cannot call
     // the protected base method directly, so emit a tiny dynamic method for it; this keeps prediction

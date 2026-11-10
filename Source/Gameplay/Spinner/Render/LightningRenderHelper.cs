@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -7,18 +7,21 @@ using TAS.EverestInterop.Hitboxes;
 namespace Celeste.Mod.TASHelper.Gameplay.Spinner.Render;
 internal static class LightningRenderHelper {
 
+    // Keep the wrapped delegate so DEBUG's Checked wrapper can be removed with the same delegate instance.
+    private static readonly ILContext.Manipulator CheckedLightningRender = HookHelper.Checked(LightningRenderer_Render);
+
     [Initialize]
     public static void Initialize() {
         // Before/After = manipulator application order (Before = my manipulator applies first).
         // Wildcards are not supported by MonoMod v25, so only concrete ids are used.
         using (DetourContextHelper.ILHook($"TAS Helper {nameof(LightningRenderHelper)}").AppliedAfter(DetourContextHelper.CelesteTAS).Use()) {
-            IL.Celeste.LightningRenderer.Render += HookHelper.Checked(LightningRenderer_Render);
+            IL.Celeste.LightningRenderer.Render += CheckedLightningRender;
         }
     }
 
     [Unload]
     public static void Unload() {
-        IL.Celeste.LightningRenderer.Render -= LightningRenderer_Render;
+        IL.Celeste.LightningRenderer.Render -= CheckedLightningRender;
     }
 
 

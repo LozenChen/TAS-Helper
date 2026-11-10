@@ -1,14 +1,19 @@
-﻿using Celeste.Mod.TASHelper.Entities;
+using Celeste.Mod.TASHelper.Entities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
+using System.Reflection;
 
 namespace Celeste.Mod.TASHelper.Gameplay;
 
 
 
 public static partial class CassetteBlockHelper {
+
+    // Keep the wrapped delegates so DEBUG's Checked wrapper can be removed with the same delegate instance.
+    private static readonly ILContext.Manipulator CheckedEngineUpdate = HookHelper.Checked(ILEngineUpdate);
+    private static readonly ILContext.Manipulator CheckedCelesteFreeze = HookHelper.Checked(ILCelesteFreeze);
 
     public static bool Enabled => TasHelperSettings.EnableCassetteBlockHelper;
 
@@ -34,15 +39,15 @@ public static partial class CassetteBlockHelper {
 
     [Load]
     private static void Load() {
-        IL.Monocle.Engine.Update += HookHelper.Checked(ILEngineUpdate);
-        IL.Celeste.Celeste.Freeze += HookHelper.Checked(ILCelesteFreeze);
+        IL.Monocle.Engine.Update += CheckedEngineUpdate;
+        IL.Celeste.Celeste.Freeze += CheckedCelesteFreeze;
     }
 
 
     [Unload]
     private static void Unload() {
-        IL.Monocle.Engine.Update -= ILEngineUpdate;
-        IL.Celeste.Celeste.Freeze -= ILCelesteFreeze;
+        IL.Monocle.Engine.Update -= CheckedEngineUpdate;
+        IL.Celeste.Celeste.Freeze -= CheckedCelesteFreeze;
     }
 
     [LoadLevel]
@@ -115,12 +120,18 @@ public static partial class CassetteBlockHelper {
 
         public static Vector2 PositionWithoutAlignment = new Vector2(1780f, 20f);
 
-        // Cached reflection for UpdateExtraInfo (runs every frame): resolving module Session / fields with
-        // GetPropertyValue/GetFieldValue every frame was the most expensive part of the cassette HUD.
+        // Cached reflection for UpdateExtraInfo (runs every frame): resolving module / Session property and
+        // field getters every frame was the most expensive part of the cassette HUD. The Session OBJECT is
+        // not cached: Everest replaces it on every save load / chapter start (DeserializeSession), so we
+        // only cache the module + PropertyInfo and read the current Session object each frame.
         private static bool sjSessionResolved;
         private static bool qmSessionResolved;
-        private static object sjSession;
-        private static object qmSession;
+        private static PropertyInfo sjSessionProperty;
+        private static PropertyInfo qmSessionProperty;
+        private static object sjModule;
+        private static object qmModule;
+        private static Type sjBeatGetterType;
+        private static Type qmBeatGetterType;
         private static GetDelegate<object, float> sjBeatTimerGetter;
         private static GetDelegate<object, int> sjBeatIndexGetter;
         private static GetDelegate<object, float> qmBeatTimerGetter;
@@ -399,8 +410,7 @@ public static partial class CassetteBlockHelper {
                 if (type is null) {
                     return;
                 }
-                EnsureMinorGetters(type);
-                if (minorControllerIndexGetter is null) {
+                if (!EnsureMinorGetters(type)) {
                     return;
                 }
                 if (Engine.Scene.Tracker.Entities.TryGetValue(type, out List<Entity> sourceList) && sourceList.Count > 0) {
@@ -665,34 +675,50 @@ public static partial class CassetteBlockHelper {
         private static object GetWonkySession(CBMType type) {
             if (type == CBMType.SJ) {
                 if (!sjSessionResolved) {
-                    sjSessionResolved = true;
-                    object module = ModUtils.GetModule("StrawberryJam2021");
-                    sjSession = module?.GetType().GetPropertyInfo("Session")?.GetValue(module);
-                    if (sjSession is not null) {
-                        sjBeatTimerGetter = sjSession.GetType().CreateGetDelegate<object, float>("CassetteBeatTimer");
-                        sjBeatIndexGetter = sjSession.GetType().CreateGetDelegate<object, int>("CassetteWonkyBeatIndex");
+                    sjModule = ModUtils.GetModule("StrawberryJam2021");
+                    sjSessionProperty = sjModule?.GetType().GetPropertyInfo("Session");
+                    if (sjSessionProperty is null) {
+                        return null;
                     }
+                    sjSessionResolved = true;
                 }
-                return sjBeatTimerGetter is null || sjBeatIndexGetter is null ? null : sjSession;
+                object session = sjSessionProperty.GetValue(sjModule);
+                if (session is null) {
+                    return null;
+                }
+                if (sjBeatGetterType != session.GetType()) {
+                    sjBeatGetterType = session.GetType();
+                    sjBeatTimerGetter = sjBeatGetterType.CreateGetDelegate<object, float>("CassetteBeatTimer");
+                    sjBeatIndexGetter = sjBeatGetterType.CreateGetDelegate<object, int>("CassetteWonkyBeatIndex");
+                }
+                return sjBeatTimerGetter is null || sjBeatIndexGetter is null ? null : session;
             }
             else if (type == CBMType.QM) {
                 if (!qmSessionResolved) {
-                    qmSessionResolved = true;
-                    object module = ModUtils.GetModule("QuantumMechanics");
-                    qmSession = module?.GetType().GetPropertyInfo("Session")?.GetValue(module);
-                    if (qmSession is not null) {
-                        qmBeatTimerGetter = qmSession.GetType().CreateGetDelegate<object, float>("CassetteBeatTimer");
-                        qmBeatIndexGetter = qmSession.GetType().CreateGetDelegate<object, int>("CassetteWonkyBeatIndex");
+                    qmModule = ModUtils.GetModule("QuantumMechanics");
+                    qmSessionProperty = qmModule?.GetType().GetPropertyInfo("Session");
+                    if (qmSessionProperty is null) {
+                        return null;
                     }
+                    qmSessionResolved = true;
                 }
-                return qmBeatTimerGetter is null || qmBeatIndexGetter is null ? null : qmSession;
+                object session = qmSessionProperty.GetValue(qmModule);
+                if (session is null) {
+                    return null;
+                }
+                if (qmBeatGetterType != session.GetType()) {
+                    qmBeatGetterType = session.GetType();
+                    qmBeatTimerGetter = qmBeatGetterType.CreateGetDelegate<object, float>("CassetteBeatTimer");
+                    qmBeatIndexGetter = qmBeatGetterType.CreateGetDelegate<object, int>("CassetteWonkyBeatIndex");
+                }
+                return qmBeatTimerGetter is null || qmBeatIndexGetter is null ? null : session;
             }
             return null;
         }
 
-        private static void EnsureMinorGetters(Type type) {
-            if (type == minorGetterType) {
-                return;
+        private static bool EnsureMinorGetters(Type type) {
+            if (type == minorGetterType && minorControllerIndexGetter is not null) {
+                return true;
             }
             minorGetterType = type;
             minorControllerIndexGetter = type.CreateGetDelegate<object, int>("ControllerIndex");
@@ -700,6 +726,15 @@ public static partial class CassetteBlockHelper {
             minorMaxBeatsGetter = type.CreateGetDelegate<object, int>("maxBeats");
             minorBeatTimerGetter = type.CreateGetDelegate<object, float>("CassetteBeatTimer");
             minorBeatIncrementGetter = type.CreateGetDelegate<object, float>("beatIncrement");
+            if (minorControllerIndexGetter is null
+                || minorBeatIndexGetter is null
+                || minorMaxBeatsGetter is null
+                || minorBeatTimerGetter is null
+                || minorBeatIncrementGetter is null) {
+                minorGetterType = null;
+                return false;
+            }
+            return true;
         }
     }
 
