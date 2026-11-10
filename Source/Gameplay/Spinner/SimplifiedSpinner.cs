@@ -59,7 +59,7 @@ internal static class SimplifiedSpinner {
             return;
         }
 
-        SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.GetSpinnerColorIndex(self, true);
+        SpinnerRenderHelper.SpinnerColorIndex index = SpinnerRenderHelper.GetSpinnerColorIndex(self, true, out float offset);
         Color color = SpinnerRenderHelper.GetSpinnerColor(index);
         bool collidable = Info.CollidableHelper.GetCollidable(self);
 
@@ -80,7 +80,7 @@ internal static class SimplifiedSpinner {
         else {
             self.Collider.Render(camera, color * (collidable ? 1f : HitboxColor.UnCollidableAlpha));
         }
-        Countdown.Draw(self, index, collidable);
+        Countdown.Draw(self, index, collidable, offset);
     }
 
     [AddDebugRender(before: true)]

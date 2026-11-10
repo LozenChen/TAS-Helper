@@ -60,19 +60,16 @@ internal static class SpinnerRenderHelper {
     }
 
     public static SpinnerColorIndex GetSpinnerColorIndex(Entity hazard, bool checkInView) {
+        return GetSpinnerColorIndex(hazard, checkInView, out _);
+    }
+
+    public static SpinnerColorIndex GetSpinnerColorIndex(Entity hazard, bool checkInView, out float offset) {
         // we assume you've checked it's a hazard
-
-        /*
-         * bugfix v1.9.13
-        if (SpinnerCalculateHelper.GetOffset(hazard) is null) {
-            object[] errors = { $"{hazard.GetEntityId()} is not a hazard" , hazard.IsHazard(), Convert.ToString(hazard.Tag, 2), Convert.ToString(SpinnerCalculateHelper.IsHazardTagValue, 2), string.Join(",", BitTag.byName.Keys) };
-            throw new Exception(string.Join(",\n", errors));
-        }
-        */
-
 #pragma warning disable CS8629
-        return checkInView ? CycleHitboxColorIndex(hazard, Info.OffsetHelper.GetOffset(hazard).Value, Info.PositionHelper.CameraPosition) : CycleHitboxColorIndexNoInView(hazard, Info.OffsetHelper.GetOffset(hazard).Value);
+        // compute the offset once; the countdown drawing reuses it instead of looking it up again
+        offset = Info.OffsetHelper.GetOffset(hazard).Value;
 #pragma warning restore CS8629
+        return checkInView ? CycleHitboxColorIndex(hazard, offset, Info.PositionHelper.CameraPosition) : CycleHitboxColorIndexNoInView(hazard, offset);
     }
 
     internal const int ID_nocycle = -2;
