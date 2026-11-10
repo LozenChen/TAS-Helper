@@ -1,4 +1,4 @@
-﻿using Celeste.Mod.TASHelper.Gameplay.Spinner.Info;
+using Celeste.Mod.TASHelper.Gameplay.Spinner.Info;
 using Celeste.Mod.TASHelper.Gameplay.Spinner.Render;
 using Microsoft.Xna.Framework;
 using Monocle;
@@ -15,12 +15,11 @@ internal static class Countdown {
 
     public static bool Cached = false;
 
-    public static void Draw(Entity self, SpinnerRenderHelper.SpinnerColorIndex index, bool collidable) {
+    public static void Draw(Entity self, SpinnerRenderHelper.SpinnerColorIndex index, bool collidable, float offset) {
         if (Cached) {
             return;
         }
         if (TasHelperSettings.UsingCountDown && NotCountdownBoost) {
-            float offset = OffsetHelper.GetOffset(self)!.Value;
             Vector2 CountdownPos;
             if (HazardTypeHelper.IsLightning(self)) {
                 CountdownPos = PositionHelper.GetInviewCheckCenter(self) + pos_offset;

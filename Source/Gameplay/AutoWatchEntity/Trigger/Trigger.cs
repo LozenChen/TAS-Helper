@@ -32,15 +32,8 @@ internal class TriggerRenderer : AbstractTriggerRenderer {
     }
 }
 
-internal class TriggerFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Trigger);
-
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.Trigger;
-    public void AddComponent(Entity entity) {
-        entity.Add(new TriggerRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class TriggerFactory() : RendererFactory<Trigger, TriggerRenderer>(() => Config.Trigger, mode => new TriggerRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 #region TriggerLikeEntity
@@ -62,14 +55,7 @@ internal class RespawnTargetTriggerRenderer : AbstractTriggerRenderer {
     }
 }
 
-internal class RespawnTargetTriggerFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(RespawnTargetTrigger);
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.Trigger;
-    public void AddComponent(Entity entity) {
-        entity.Add(new RespawnTargetTriggerRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class RespawnTargetTriggerFactory() : RendererFactory<RespawnTargetTrigger, RespawnTargetTriggerRenderer>(() => Config.Trigger, mode => new RespawnTargetTriggerRenderer(mode)) {
 }
 
 internal class SpawnFacingTriggerRenderer : AbstractTriggerRenderer {
@@ -90,14 +76,7 @@ internal class SpawnFacingTriggerRenderer : AbstractTriggerRenderer {
     }
 }
 
-internal class SpawnFacingTriggerFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(SpawnFacingTrigger);
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.Trigger;
-    public void AddComponent(Entity entity) {
-        entity.Add(new SpawnFacingTriggerRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class SpawnFacingTriggerFactory() : RendererFactory<SpawnFacingTrigger, SpawnFacingTriggerRenderer>(() => Config.Trigger, mode => new SpawnFacingTriggerRenderer(mode)) {
 }
 
 #endregion

@@ -41,7 +41,9 @@ public static class PauseUpdater {
 
     private static void OnBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level level) {
         if (!updated) {
-            foreach (Entity entity in level.Tracker.GetComponents<PauseUpdateComponent>().Select(comp => comp.Entity)) {
+            List<Component> components = level.Tracker.GetComponents<PauseUpdateComponent>();
+            for (int i = 0; i < components.Count; i++) {
+                Entity entity = components[i].Entity;
                 entity._PreUpdate();
                 if (entity.Active) {
                     entity.Update();

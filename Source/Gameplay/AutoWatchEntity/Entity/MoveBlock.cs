@@ -13,8 +13,10 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
 
     public IEnumerator controller;
 
-    public int state => controller?.GetFieldValue<int>("<>1__state") ?? -42; // -1 is used by the ienumrator itself, so we use other number
-    public float crashTimer => controller?.GetFieldValue<float>("<crashTimer>5__2") ?? ErrorTimer;
+    private GetDelegate<object, int> stateGetter;
+    private GetDelegate<object, float> crashTimerGetter;
+    public int state => CoroutineFieldCache.GetInt(controller, ref stateGetter, "<>1__state", -42); // -1 is used by the ienumrator itself, so we use other number
+    public float crashTimer => CoroutineFieldCache.GetFloat(controller, ref crashTimerGetter, "<crashTimer>5__2", ErrorTimer);
 
     private const float ErrorTimer = -9999f;
 
@@ -55,14 +57,8 @@ internal class MoveBlockRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class MoveBlockFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(MoveBlock);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.MoveBlock;
-    public void AddComponent(Entity entity) {
-        entity.Add(new MoveBlockRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class MoveBlockFactory() : RendererFactory<MoveBlock, MoveBlockRenderer>(() => Config.MoveBlock, mode => new MoveBlockRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

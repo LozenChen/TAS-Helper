@@ -10,14 +10,19 @@ internal class CrumblePlatformRenderer : AutoWatchTextRenderer {
 
     public IEnumerator sequence;
 
-    public int state => sequence?.GetFieldValue<int>("<>1__state") ?? -42;
+    private GetDelegate<object, int> stateGetter;
+    private GetDelegate<object, object> currentGetter;
+    private GetDelegate<object, bool> onTopGetter;
+    private GetDelegate<object, float> timerGetter;
+    private GetDelegate<object, int> localVarIGetter;
+    public int state => CoroutineFieldCache.GetInt(sequence, ref stateGetter, "<>1__state", -42);
 
-    public object current => sequence?.GetFieldValue("<>2__current");
+    public object current => CoroutineFieldCache.GetObject(sequence, ref currentGetter, "<>2__current");
 
-    public bool onTop => sequence?.GetFieldValue<bool>("<onTop>5__2") ?? false;
-    public float timer => sequence?.GetFieldValue<float>("<timer>5__3") ?? -9999;
+    public bool onTop => CoroutineFieldCache.GetBool(sequence, ref onTopGetter, "<onTop>5__2", false);
+    public float timer => CoroutineFieldCache.GetFloat(sequence, ref timerGetter, "<timer>5__3", -9999);
 
-    public int localVar_i => sequence?.GetFieldValue<int>("<i>5__4") ?? -9999;
+    public int localVar_i => CoroutineFieldCache.GetInt(sequence, ref localVarIGetter, "<i>5__4", -9999);
     public CrumblePlatformRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
@@ -61,14 +66,7 @@ internal class CrumblePlatformRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class CrumblePlatformFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(CrumblePlatform);
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.CrumblePlatform;
-    public void AddComponent(Entity entity) {
-        entity.Add(new CrumblePlatformRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class CrumblePlatformFactory() : RendererFactory<CrumblePlatform, CrumblePlatformRenderer>(() => Config.CrumblePlatform, mode => new CrumblePlatformRenderer(mode)) {
 }
 
 
@@ -81,15 +79,21 @@ internal class MaxHelpingHandCrumblePlatformRenderer : AutoWatchTextRenderer {
 
     public IEnumerator sequence;
 
-    public int state => sequence?.GetFieldValue<int>("<>1__state") ?? -42;
+    private GetDelegate<object, int> stateGetter;
+    private GetDelegate<object, object> currentGetter;
+    private GetDelegate<object, bool> onTopGetter;
+    private GetDelegate<object, float> targetTimeGetter;
+    private GetDelegate<object, float> timerGetter;
+    private GetDelegate<object, float> localVarTimeGetter;
+    public int state => CoroutineFieldCache.GetInt(sequence, ref stateGetter, "<>1__state", -42);
 
-    public object current => sequence?.GetFieldValue("<>2__current");
+    public object current => CoroutineFieldCache.GetObject(sequence, ref currentGetter, "<>2__current");
 
-    public bool onTop => sequence?.GetFieldValue<bool>("<onTop>5__3") ?? false;
-    public float targetTime => sequence?.GetFieldValue<float>("<targetTime>5__4") ?? -9999;
-    public float timer => sequence?.GetFieldValue<float>("<timer>5__5") ?? -9999;
+    public bool onTop => CoroutineFieldCache.GetBool(sequence, ref onTopGetter, "<onTop>5__3", false);
+    public float targetTime => CoroutineFieldCache.GetFloat(sequence, ref targetTimeGetter, "<targetTime>5__4", -9999);
+    public float timer => CoroutineFieldCache.GetFloat(sequence, ref timerGetter, "<timer>5__5", -9999);
 
-    public float LocalVar_time => sequence?.GetFieldValue<float>("<time>5__6") ?? -9999;
+    public float LocalVar_time => CoroutineFieldCache.GetFloat(sequence, ref localVarTimeGetter, "<time>5__6", -9999);
     public MaxHelpingHandCrumblePlatformRenderer(RenderMode mode) : base(mode, active: true) { }
 
     public override void Added(Entity entity) {
@@ -144,14 +148,8 @@ internal class MaxHelpingHandCrumblePlatformRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class MaxHelpingHandCrumblePlatformFactory : IRendererFactory {
-    public Type GetTargetType() => ModUtils.GetType("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Entities.CustomizableCrumblePlatform");
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.CrumblePlatform;
-    public void AddComponent(Entity entity) {
-        entity.Add(new MaxHelpingHandCrumblePlatformRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class MaxHelpingHandCrumblePlatformFactory() : RendererFactory<Entity, MaxHelpingHandCrumblePlatformRenderer>(() => Config.CrumblePlatform, mode => new MaxHelpingHandCrumblePlatformRenderer(mode)) {
+    public override Type GetTargetType() => ModUtils.GetType("MaxHelpingHand", "Celeste.Mod.MaxHelpingHand.Entities.CustomizableCrumblePlatform");
 }
 
 

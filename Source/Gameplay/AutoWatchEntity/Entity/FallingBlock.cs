@@ -11,8 +11,10 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
 
     public IEnumerator sequence;
 
-    public int state => sequence?.GetFieldValue<int>("<>1__state") ?? -42;
-    public float timer => sequence?.GetFieldValue<float>("<timer>5__4") ?? -9999;
+    private GetDelegate<object, int> stateGetter;
+    private GetDelegate<object, float> timerGetter;
+    public int state => CoroutineFieldCache.GetInt(sequence, ref stateGetter, "<>1__state", -42);
+    public float timer => CoroutineFieldCache.GetFloat(sequence, ref timerGetter, "<timer>5__4", -9999);
 
     public Vector2 lastPos;
 
@@ -72,14 +74,7 @@ internal class FallingBlockRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class FallingBlockFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(FallingBlock);
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.FallingBlock;
-    public void AddComponent(Entity entity) {
-        entity.Add(new FallingBlockRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class FallingBlockFactory() : RendererFactory<FallingBlock, FallingBlockRenderer>(() => Config.FallingBlock, mode => new FallingBlockRenderer(mode)) {
 }
 
 

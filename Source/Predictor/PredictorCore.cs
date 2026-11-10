@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
 using System.Reflection;
+using System.Reflection.Emit;
 using TAS;
 using TAS.Input;
 using TAS.Input.Commands;
@@ -12,6 +13,16 @@ namespace Celeste.Mod.TASHelper.Predictor;
 public static class PredictorCore {
 
     public static List<RenderData> futures = new();
+
+    // RenderData.index is the absolute index at prediction time (1..N). FuturesStart is how many entries
+    // have already been consumed by FutureMoveLeft; the renderer displays (index - FuturesStart) and we trim
+    // the consumed prefix only occasionally, so advancing a frame is O(1) instead of rebuilding the list.
+    internal static int FuturesStart = 0;
+
+    private static void ClearFutures() {
+        futures.Clear();
+        FuturesStart = 0;
+    }
 
     public static bool HasCachedFutures {
         get => CacheFutureCountdown > 0;
@@ -40,14 +51,22 @@ public static class PredictorCore {
             return;
         }
 
-        if (!TasHelperSettings.PredictFutureEnabled || InPredict || OoO_Core.Applied) {
+        if (!TasHelperSettings.PredictFutureEnabled || InPredict || OoO_Controller.Active) {
             return;
         }
 
         TasHelperSettings.Enabled = false;
         // this stops most hooks from working (in particular, SpinnerCalculateHelper.PreSpinnerCalculate)
-        SafePredict(frames);
-        TasHelperSettings.Enabled = true;
+        try {
+            SafePredict(frames);
+        }
+        catch (System.Exception e) {
+            Logger.Log(LogLevel.Error, "TAS Helper", "Predictor failed: " + e);
+        }
+        finally {
+            // never leave the whole mod disabled if the prediction throws
+            TasHelperSettings.Enabled = true;
+        }
     }
 
     private static void SafePredict(int frames) {
@@ -55,7 +74,7 @@ public static class PredictorCore {
             return;
         }
 
-        if (!TasSpeedrunToolInterop.SaveState()) {
+        if (!SpeedrunToolBridge.SaveState()) {
             return;
         }
 
@@ -63,27 +82,30 @@ public static class PredictorCore {
 
         InPredict = true;
 
-        futures.Clear();
+        ClearFutures();
 
         ModifiedAutoMute.Apply();
 
         InputManager.ReadInputs(frames);
 
-        PlayerState PreviousState;
-        PlayerState CurrentState = PlayerState.GetState();
+        // The gameTime does not change during a prediction run (we do not tick FNA), so read it once
+        // instead of doing a reflective GetValue for every predicted frame.
+        GameTime predictedGameTime = (GameTime)GameTimeField.GetValue(Engine.Instance);
 
+        PlayerState previousState = PlayerState.GetState();
+        PlayerState currentBuffer = new();
         for (int i = 0; i < frames; i++) {
             InputManager.ExecuteCommands(i); // commands are partially supported
             TAS.InputHelper.FeedInputs(InputManager.Inputs[i]);
-            AlmostEngineUpdate(Engine.Instance, (GameTime)typeof(Game).GetFieldInfo("gameTime").GetValue(Engine.Instance));
+            AlmostEngineUpdate(Engine.Instance, predictedGameTime);
 
-            PreviousState = CurrentState;
-            CurrentState = PlayerState.GetState();
+            PlayerState currentState = PlayerState.Fill(currentBuffer);
             if (PreventSwitchScene()) {
                 break;
             }
-            RenderData data = new RenderData(i + 1, PreviousState, CurrentState);
+            RenderData data = new(i + 1, previousState, currentState);
             futures.Add(data);
+            (previousState, currentBuffer) = (currentState, previousState);
             if (EarlyStopCheck(data)) {
                 break;
             }
@@ -91,7 +113,7 @@ public static class PredictorCore {
         ModifiedAutoMute.OnPredictorUpdateEnd();
 
         ModifiedAutoMute.Undo();
-        TasSpeedrunToolInterop.LoadState();
+        SpeedrunToolBridge.LoadState();
 
         HasCachedFutures = true;
         InPredict = false;
@@ -152,26 +174,35 @@ public static class PredictorCore {
             }
         }
         */
-        // base.Update(gameTime); i don't know how to call this correctly... bugs always occur
+        // same tail as Engine.Update: FNA's base update (iterates IUpdateable game components)
+        try {
+            GameBaseUpdate?.Invoke(engine, gameTime);
+        }
+        catch (System.Exception e) {
+            if (!baseUpdateFailed) {
+                baseUpdateFailed = true;
+                Logger.Log(LogLevel.Warn, "TAS Helper", "Predictor: Game.Update(base) call failed, prediction may differ: " + e);
+            }
+        }
     }
 
     [Load]
     public static void Load() {
         // our hook should be inside the hook of TAS.Playback.Core
-        if (!TasSpeedrunToolInterop.GetInstalledWhenLoading) {
+        if (!SpeedrunToolBridge.GetInstalledWhenLoading) {
             return;
         }
 
         // our injected code must end up INSIDE TAS.Playback.Core's hook (TAS outer):
         // "Before" = our manipulator applies first, so TAS's manipulator (applied later) wraps us.
         using (DetourContextHelper.ILHook("TAS Helper PredictorCore").AppliedBefore(DetourContextHelper.CelesteTAS).Use()) {
-            IL.Monocle.Engine.Update += ILEngineUpdate;
+            IL.Monocle.Engine.Update += HookHelper.Checked(ILEngineUpdate);
         }
     }
 
     [Unload]
     public static void Unload() {
-        if (!TasSpeedrunToolInterop.GetInstalledWhenLoading) {
+        if (!SpeedrunToolBridge.GetInstalledWhenLoading) {
             return;
         }
 
@@ -187,7 +218,7 @@ public static class PredictorCore {
 
     [Initialize]
     public static void Initialize() {
-        if (!TasSpeedrunToolInterop.Installed) {
+        if (!SpeedrunToolBridge.Installed) {
             return;
         }
 
@@ -208,27 +239,61 @@ public static class PredictorCore {
 
     private static MethodInfo SJ_CassetteHookFreeze;
 
+    private static readonly FieldInfo GameTimeField =
+        typeof(Microsoft.Xna.Framework.Game).GetField("gameTime", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    // Engine.Update ends with "call Microsoft.Xna.Framework.Game::Update" (base.Update). We cannot call
+    // the protected base method directly, so emit a tiny dynamic method for it; this keeps prediction
+    // faithful when another mod registers IUpdateable components on the Game (normally the list is empty).
+    private static bool baseUpdateFailed;
+    private static readonly System.Action<Engine, GameTime> GameBaseUpdate = CreateGameBaseUpdate();
+
+    private static System.Action<Engine, GameTime> CreateGameBaseUpdate() {
+        try {
+            MethodInfo baseUpdate = typeof(Microsoft.Xna.Framework.Game).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic);
+            DynamicMethod dynamicMethod = new("TASHelper_GameBaseUpdate", typeof(void), new[] { typeof(Engine), typeof(GameTime) }, typeof(Engine).Module, skipVisibility: true);
+            ILGenerator il = dynamicMethod.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Call, baseUpdate);
+            il.Emit(OpCodes.Ret);
+            return (System.Action<Engine, GameTime>)dynamicMethod.CreateDelegate(typeof(System.Action<Engine, GameTime>));
+        }
+        catch (System.Exception e) {
+            Logger.Log(LogLevel.Warn, "TAS Helper", "Predictor: failed to create Game.Update(base) delegate: " + e.Message);
+            return null;
+        }
+    }
+
     private static void AfterMInputUpdate() {
-        PredictorRenderer.ClearCachedMessage();
+        // Do not clear the render cache here unconditionally: TAS can render several frames for one
+        // physics tick, and only a change of the futures list requires a rebuild. Clearing happens in
+        // FutureMoveLeft() / SafePredict() / the explicit clear paths below.
         FreezeTimerBeforeUpdate = Engine.FreezeTimer;
         neverClearStateThisFrame = true;
 
         if (!Manager_Running) {
             HasCachedFutures = false;
-            futures.Clear();
-            TasSpeedrunToolInterop.ClearState();
+            if (futures.Count > 0) {
+                ClearFutures();
+                PredictorRenderer.ClearCachedMessage();
+            }
+            SpeedrunToolBridge.ClearState();
             return;
         }
 
         CacheFutureCountdown--;
         if (!FutureMoveLeft()) {
             HasCachedFutures = false;
-            futures.Clear();
-            TasSpeedrunToolInterop.ClearState();
+            if (futures.Count > 0) {
+                ClearFutures();
+                PredictorRenderer.ClearCachedMessage();
+            }
+            SpeedrunToolBridge.ClearState();
             return;
         }
         if (!HasCachedFutures) {
-            TasSpeedrunToolInterop.ClearState();
+            SpeedrunToolBridge.ClearState();
         }
     }
 
@@ -260,18 +325,23 @@ public static class PredictorCore {
         else {
             CacheFuturePeriod = 60;
         }
-        TasSpeedrunToolInterop.ClearState();
+        SpeedrunToolBridge.ClearState();
         HasCachedFutures = false;
-        futures.Clear();
+        ClearFutures();
         PredictorRenderer.ClearCachedMessage();
     }
 
     public static bool FutureMoveLeft() {
-        if (futures.Count <= 0) {
+        if (futures.Count <= FuturesStart) {
             return false;
         }
-        futures.RemoveAt(0);
-        futures = futures.Select(future => future with { index = future.index - 1 }).ToList();
+        FuturesStart++;
+        if (FuturesStart > 256 && FuturesStart * 2 > futures.Count) {
+            // Reclaim the consumed prefix in one O(n) pass; amortized this is still O(1) per frame.
+            futures.RemoveRange(0, FuturesStart);
+            FuturesStart = 0;
+        }
+        PredictorRenderer.ClearCachedMessage();
         return true;
     }
 
@@ -295,7 +365,7 @@ public static class PredictorCore {
 
     [EnableRun]
     private static void OnTasRerun() {
-        futures.Clear();
+        ClearFutures();
         PredictorRenderer.ClearCachedMessage();
         HasCachedFutures = false;
     }
@@ -307,7 +377,7 @@ public static class PredictorCore {
 
     private static void DelayedClearFutures() {
         if (delayedClearFutures && !InPredict) {
-            futures.Clear();
+            ClearFutures();
             PredictorRenderer.ClearCachedMessage();
             delayedClearFutures = false;
         }
@@ -316,7 +386,7 @@ public static class PredictorCore {
         if (delayedClearState && neverClearStateThisFrame && !InPredict) {
             neverClearStateThisFrame = false;
             delayedClearState = false;
-            TasSpeedrunToolInterop.ClearState();
+            SpeedrunToolBridge.ClearState();
         }
     }
     private static void DelayedPredict() {

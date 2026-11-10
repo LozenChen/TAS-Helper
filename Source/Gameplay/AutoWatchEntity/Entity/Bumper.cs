@@ -60,14 +60,8 @@ internal class BumperRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class BumperFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Bumper);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.Bumper;
-    public void AddComponent(Entity entity) {
-        entity.Add(new BumperRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class BumperFactory() : RendererFactory<Bumper, BumperRenderer>(() => Config.Bumper, mode => new BumperRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

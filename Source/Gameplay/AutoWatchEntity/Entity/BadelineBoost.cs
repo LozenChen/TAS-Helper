@@ -18,7 +18,8 @@ internal class BadelineBoostRenderer : AutoWatchTextRenderer {
 
     public float waitTimer => coroutine.waitTimer;
 
-    public float loopTimer => boostRoutine?.GetFieldValue<float>("<p>5__9") ?? -9999f;
+    private GetDelegate<object, float> loopTimerGetter;
+    public float loopTimer => CoroutineFieldCache.GetFloat(boostRoutine, ref loopTimerGetter, "<p>5__9", -9999f);
 
     public static bool useFallBack = true;
     public BadelineBoostRenderer(RenderMode mode) : base(mode, active: true) { }
@@ -126,14 +127,8 @@ internal class BadelineBoostRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class BadelineBoostFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(BadelineBoost);
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.BadelineBoost;
-    public void AddComponent(Entity entity) {
-        entity.Add(new BadelineBoostRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class BadelineBoostFactory() : RendererFactory<BadelineBoost, BadelineBoostRenderer>(() => Config.BadelineBoost, mode => new BadelineBoostRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

@@ -13,8 +13,17 @@ internal static class TimeActiveHelper {
 
     internal static int GroupCounter = 0;
 
+    // PredictCountdown is called for every hazard every frame and only depends on (offset, isDust, isLoad)
+    // for a given frame; memoize per frame instead of running the 9/99-iteration loops hundreds of times.
+    private static readonly Dictionary<float, int> countdownLoad = new();
+    private static readonly Dictionary<float, int> countdownDust = new();
+    private static readonly Dictionary<float, int> countdownNormal = new();
+
     [LevelUpdate(before: true)]
     internal static void CalculateBeforeUpdate(Level self) {
+        countdownLoad.Clear();
+        countdownDust.Clear();
+        countdownNormal.Clear();
         if (!TasHelperSettings.Enabled || WillFastForward) {
             return;
         }
@@ -53,19 +62,32 @@ internal static class TimeActiveHelper {
 
 
     public static int PredictCountdown(float offset, bool isDust, bool isLoad) {
+        Dictionary<float, int> cache = isLoad ? countdownLoad : isDust ? countdownDust : countdownNormal;
+        if (cache.TryGetValue(offset, out int cached)) {
+            return cached;
+        }
         float interval = isDust || isLoad ? 0.05f : 0.25f;
+        int result;
         if (isLoad) {
+            result = 9;
             for (int i = 0; i < 9; i++) {
-                if (OnInterval(PredictLoadTimeActive[i], interval, offset)) return i;
+                if (OnInterval(PredictLoadTimeActive[i], interval, offset)) {
+                    result = i;
+                    break;
+                }
             }
-            return 9;
         }
         else {
+            result = 99;
             for (int i = 0; i < 99; i++) {
-                if (OnInterval(PredictUnloadTimeActive[i], interval, offset)) return i;
+                if (OnInterval(PredictUnloadTimeActive[i], interval, offset)) {
+                    result = i;
+                    break;
+                }
             }
-            return 99;
         }
+        cache[offset] = result;
+        return result;
     }
 
     public static int CalculateSpinnerGroup(float offset) {

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -35,20 +36,41 @@ internal static class TriggerInfoHelper {
         ModTriggerDynamicInfo.AddToDictionary();
     }
 
+    // Build a strongly typed delegate that casts the (Trigger, Level, Player) delegate arguments to the
+    // concrete parameter types of the getter method and calls it. This replaces the previous
+    // MethodInfo.Invoke(null, new object[] { ... }) wrapper, which allocated an argument array and did full
+    // reflection dispatch for every watched trigger every frame.
+    private static T CreateHandler<T>(MethodInfo method, params int[] argumentMap) where T : Delegate {
+        ParameterInfo[] parameters = method.GetParameters();
+        Type[] delegateParameters = typeof(T).GetMethod("Invoke")!.GetParameters().Select(p => p.ParameterType).ToArray();
+        DynamicMethod dynamicMethod = new(
+            $"{method.DeclaringType?.Name}_{method.Name}_TASHelperHandler",
+            typeof(string),
+            delegateParameters,
+            typeof(TriggerInfoHelper).Module,
+            skipVisibility: true);
+        ILGenerator il = dynamicMethod.GetILGenerator();
+        for (int i = 0; i < parameters.Length; i++) {
+            il.Emit(OpCodes.Ldarg, argumentMap[i]);
+            if (parameters[i].ParameterType != delegateParameters[argumentMap[i]]) {
+                il.Emit(OpCodes.Castclass, parameters[i].ParameterType);
+            }
+        }
+        il.Emit(OpCodes.Call, method);
+        il.Emit(OpCodes.Ret);
+        return (T)dynamicMethod.CreateDelegate(typeof(T));
+    }
+
     public static bool TryCreateStaticHandler(MethodInfo method, out TriggerStaticHandler handler) {
         if (method.GetParameters().Length == 1 && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))) {
-            handler = (trigger, _) => {
-                return (string)method.Invoke(null, new object[] { trigger });
-            };
+            handler = CreateHandler<TriggerStaticHandler>(method, 0);
             return true;
         }
         else if (method.GetParameters().Length == 2
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
             && method.GetParameters()[1].ParameterType == typeof(Level)
         ) {
-            handler = (trigger, level) => {
-                return (string)method.Invoke(null, new object[] { trigger, level });
-            };
+            handler = CreateHandler<TriggerStaticHandler>(method, 0, 1);
             return true;
         }
         Logger.Log(LogLevel.Debug, "TASHelper", $"{nameof(TriggerInfoHelper)}.{nameof(TryCreateStaticHandler)}: unexpected parameters: {nameof(TriggerStaticInfoGetter)}/{method.Name}");
@@ -61,43 +83,33 @@ internal static class TriggerInfoHelper {
         TriggerDynamicPlayerHandler handler = null;
         TriggerDynamicPlayerlessHandler handler2 = null;
         if (method.GetParameters().Length == 1 && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))) {
-            handler2 = (trigger, _) => {
-                return (string)method.Invoke(null, new object[] { trigger });
-            };
+            handler2 = CreateHandler<TriggerDynamicPlayerlessHandler>(method, 0);
         }
         else if (method.GetParameters().Length == 2
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
             && method.GetParameters()[1].ParameterType == typeof(Level)
         ) {
-            handler2 = (trigger, level) => {
-                return (string)method.Invoke(null, new object[] { trigger, level });
-            };
+            handler2 = CreateHandler<TriggerDynamicPlayerlessHandler>(method, 0, 1);
         }
         else if (method.GetParameters().Length == 2
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
             && method.GetParameters()[1].ParameterType == typeof(Player)
         ) {
-            handler = (trigger, _, player) => {
-                return (string)method.Invoke(null, new object[] { trigger, player });
-            };
+            handler = CreateHandler<TriggerDynamicPlayerHandler>(method, 0, 2);
         }
         else if (method.GetParameters().Length == 3
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
             && method.GetParameters()[1].ParameterType == typeof(Level)
             && method.GetParameters()[2].ParameterType == typeof(Player)
         ) {
-            handler = (trigger, level, player) => {
-                return (string)method.Invoke(null, new object[] { trigger, level, player });
-            };
+            handler = CreateHandler<TriggerDynamicPlayerHandler>(method, 0, 1, 2);
         }
         else if (method.GetParameters().Length == 3
             && method.GetParameters()[0].ParameterType.IsSubclassOf(typeof(Trigger))
             && method.GetParameters()[1].ParameterType == typeof(Player)
             && method.GetParameters()[2].ParameterType == typeof(Level)
         ) {
-            handler = (trigger, level, player) => {
-                return (string)method.Invoke(null, new object[] { trigger, player, level });
-            };
+            handler = CreateHandler<TriggerDynamicPlayerHandler>(method, 0, 2, 1);
         }
 
         if (handler is not null) {

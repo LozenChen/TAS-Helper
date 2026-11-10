@@ -36,15 +36,7 @@ internal class TheoCrystalRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class TheoCrystalFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(TheoCrystal);
-
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.TheoCrystal;
-    public void AddComponent(Entity entity) {
-        entity.Add(new TheoCrystalRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class TheoCrystalFactory() : RendererFactory<TheoCrystal, TheoCrystalRenderer>(() => Config.TheoCrystal, mode => new TheoCrystalRenderer(mode)) {
 }
 
 

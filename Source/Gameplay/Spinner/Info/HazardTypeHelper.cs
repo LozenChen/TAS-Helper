@@ -36,7 +36,7 @@ internal static class HazardTypeHelper {
 
     [Load]
     public static void Load() {
-        IL.Monocle.EntityList.UpdateLists += IL_EntityList_UpdateLists;
+        IL.Monocle.EntityList.UpdateLists += HookHelper.Checked(IL_EntityList_UpdateLists);
         On.Celeste.WaveDashPlaybackTutorial.ctor += On_WaveDashPlaybackTutorial_ctor;
     }
 

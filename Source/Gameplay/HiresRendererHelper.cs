@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using Monocle;
@@ -15,7 +15,7 @@ public static class HiresLevelRenderer {
     public static void Load() {
         On.Celeste.Level.Begin += OnLevelBegin;
         On.Celeste.Level.End += OnLevelEnd;
-        IL.Celeste.Level.Render += ILLevelRender;
+        IL.Celeste.Level.Render += HookHelper.Checked(ILLevelRender);
     }
 
     [Unload]
@@ -41,7 +41,9 @@ public static class HiresLevelRenderer {
     private static void ClearAll() {
         list.Clear();
         toAdd.Clear();
+        toAddSet.Clear();
         toRemove.Clear();
+        set.Clear();
         tracker.Clear();
     }
 
@@ -85,7 +87,12 @@ public static class HiresLevelRenderer {
 
     private static readonly List<THRenderer> toAdd = new();
 
+    private static readonly HashSet<THRenderer> toAddSet = new();
+
     private static readonly List<THRenderer> toRemove = new();
+
+    // membership of list, kept for O(1) Contains/AddIfNotPresent
+    private static readonly HashSet<THRenderer> set = new();
 
     internal static readonly Dictionary<Type, List<THRenderer>> tracker = new();
 
@@ -93,17 +100,20 @@ public static class HiresLevelRenderer {
 
     public static void Add(THRenderer renderer) {
         toAdd.Add(renderer);
+        toAddSet.Add(renderer);
     }
 
     public static void AddIfNotPresent(THRenderer renderer) {
-        if (!Contains(renderer) && !toAdd.Contains(renderer)) {
+        if (!set.Contains(renderer) && !toAddSet.Contains(renderer)) {
             toAdd.Add(renderer);
+            toAddSet.Add(renderer);
         }
     }
 
     public static void AddIfNotPresent<T>(T renderer) where T : THRenderer {
-        if ((!tracker.TryGetValue(typeof(T), out List<THRenderer> list) || !list.Contains(renderer)) && (!toAdd.Contains(renderer))) {
+        if (!set.Contains(renderer) && !toAddSet.Contains(renderer)) {
             toAdd.Add(renderer);
+            toAddSet.Add(renderer);
         }
     }
 
@@ -112,7 +122,7 @@ public static class HiresLevelRenderer {
     }
 
     public static bool Contains(THRenderer renderer) {
-        return list.Contains(renderer);
+        return set.Contains(renderer);
     }
 
     public static List<T> GetRenderers<T>() where T : THRenderer {
@@ -126,6 +136,7 @@ public static class HiresLevelRenderer {
         if (tracker.TryGetValue(typeof(T), out List<THRenderer> removingType)) {
             foreach (THRenderer renderer in removingType) {
                 list.Remove(renderer);
+                set.Remove(renderer);
             }
             removingType.Clear();
         }
@@ -134,6 +145,7 @@ public static class HiresLevelRenderer {
     public static void UpdateLists() {
         foreach (THRenderer renderer in toAdd) {
             list.Add(renderer);
+            set.Add(renderer);
             if (tracker.TryGetValue(renderer.GetType(), out List<THRenderer> list_of_this_type)) {
                 list_of_this_type.Add(renderer);
             }
@@ -144,6 +156,7 @@ public static class HiresLevelRenderer {
 
         foreach (THRenderer renderer in toRemove) {
             list.Remove(renderer);
+            set.Remove(renderer);
             if (tracker.TryGetValue(renderer.GetType(), out List<THRenderer> list_of_this_type)) {
                 list_of_this_type.Remove(renderer);
             }
@@ -152,6 +165,7 @@ public static class HiresLevelRenderer {
             }
         }
         toAdd.Clear();
+        toAddSet.Clear();
         toRemove.Clear();
     }
 
@@ -192,12 +206,34 @@ public static class HiresLevelRenderer {
             throw new Exception($"TASHelper {nameof(HiresLevelRenderer)} failed to hook.");
         }
     }
+    private static bool skipThisFrame;
+
+    // Conservative check: CountdownRenderer is the only renderer that is commonly present but often
+    // draws nothing; for every other renderer we keep rendering (they have their own internal guards).
+    private static bool AnyRendererWillDraw() {
+        for (int i = 0; i < list.Count; i++) {
+            if (list[i] is global::Celeste.Mod.TASHelper.Gameplay.Spinner.Render.CountdownRenderer) {
+                if (TasHelperSettings.UsingHiresFont && global::Celeste.Mod.TASHelper.Gameplay.Spinner.Render.CountdownRenderer.HiresID2Positions.Count > 0) {
+                    return true;
+                }
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
     private static void Render(Level level) {
         if (HiresLevelTarget is null) {
             return;
         }
 
         UpdateLists();
+        if (!AnyRendererWillDraw()) {
+            skipThisFrame = true;
+            return;
+        }
+        skipThisFrame = false;
         foreach (THRenderer renderer in list) {
             renderer.BeforeRender();
         }
@@ -225,7 +261,7 @@ public static class HiresLevelRenderer {
         }
     }
     public static void MapToScreen(Level self) {
-        if (HiresLevelTarget is null) {
+        if (HiresLevelTarget is null || skipThisFrame) {
             return;
         }
 

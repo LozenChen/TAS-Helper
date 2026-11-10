@@ -58,7 +58,9 @@ public static class TH_Hotkeys {
 
     private static void HotkeysPressed(On.Celeste.Level.orig_Render orig, Level self) {
         orig(self);
-        if (TasHelperSettings.SettingsHotkeysPressed()) {
+        bool changed = TasHelperSettings.SettingsHotkeysPressed();
+        global::Celeste.Mod.TASHelper.Entities.HotkeyWatcher.FlushPending();
+        if (changed) {
             TASHelperModule.Instance.SaveSettings();
         }
     }
@@ -154,19 +156,46 @@ public static class Hotkeys_BASE {
         }
 
         private bool IsKeyDown() {
-            if (Keys == null || Keys.Count == 0 || kbState == default) {
+            List<Keys> keys = Keys;
+            if (keys is null || keys.Count == 0 || kbState == default) {
                 return false;
             }
-
-            return keyCombo ? Keys.All(kbState.IsKeyDown) : Keys.Any(kbState.IsKeyDown);
+            // manual loops instead of Keys.All/Any: method-group delegates would be allocated for every hotkey every frame
+            if (keyCombo) {
+                for (int i = 0; i < keys.Count; i++) {
+                    if (!kbState.IsKeyDown(keys[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            for (int i = 0; i < keys.Count; i++) {
+                if (kbState.IsKeyDown(keys[i])) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private bool IsButtonDown() {
-            if (Buttons == null || Buttons.Count == 0 || padState == default) {
+            List<Buttons> buttons = Buttons;
+            if (buttons is null || buttons.Count == 0 || padState == default) {
                 return false;
             }
-
-            return keyCombo ? Buttons.All(padState.IsButtonDown) : Buttons.Any(padState.IsButtonDown);
+            if (keyCombo) {
+                for (int i = 0; i < buttons.Count; i++) {
+                    if (!padState.IsButtonDown(buttons[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            for (int i = 0; i < buttons.Count; i++) {
+                if (padState.IsButtonDown(buttons[i])) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

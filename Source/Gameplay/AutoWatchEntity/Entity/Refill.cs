@@ -28,15 +28,8 @@ internal class RefillRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class RefillFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Refill);
-
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.Refill;
-    public void AddComponent(Entity entity) {
-        entity.Add(new RefillRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class RefillFactory() : RendererFactory<Refill, RefillRenderer>(() => Config.Refill, mode => new RefillRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

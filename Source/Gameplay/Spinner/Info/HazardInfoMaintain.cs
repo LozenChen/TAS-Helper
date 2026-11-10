@@ -43,19 +43,17 @@ internal static class HazardInfoMaintain {
         );
 
         if (ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinner") is { } frostSpinnerType && ModUtils.GetType("FrostHelper", "FrostHelper.CustomSpinnerController") is { } frostControllerType) {
+            // cached delegates: these run per hazard per frame, plain GetValue would box every call
+            GetDelegate<Entity, bool> hasCollider = frostSpinnerType.CreateGetDelegate<Entity, bool>("HasCollider");
+            GetDelegate<Entity, object> getController = frostSpinnerType.CreateGetDelegate<Entity, object>("controller");
+            GetDelegate<object, bool> getNoCycles = frostControllerType.CreateGetDelegate<object, bool>("NoCycles");
             HazardInfo.Create(
                 frostSpinnerType,
-                e => e.GetFieldValue<bool>("HasCollider") ? spinner : null,
+                e => hasCollider is not null && hasCollider(e) ? spinner : null,
                 "offset",
                 hasPeriodicInViewCheck: true,
                 modLightningCollidable: null,
-                noCycle: e => {
-                    if (frostSpinnerType.GetFieldInfo("controller").GetValue(e) is { } controller
-                        && frostControllerType.GetFieldInfo("NoCycles").GetValue(controller) is bool b) {
-                        return b;
-                    }
-                    return false;
-                },
+                noCycle: e => getController is not null && getNoCycles is not null && getController(e) is { } controller && getNoCycles(controller),
                 recordModPosition: true
             );
         }
@@ -111,6 +109,7 @@ internal static class HazardInfoMaintain {
         );
 
         if (ModUtils.GetType("ChronoHelper", "Celeste.Mod.ChronoHelper.Entities.DarkLightning") is { } chronoLightningType) {
+            GetDelegate<Entity, bool> getDisappearing = chronoLightningType.CreateGetDelegate<Entity, bool>("disappearing");
             HazardInfo.Create(
                 chronoLightningType,
                 lightning,
@@ -120,10 +119,7 @@ internal static class HazardInfoMaintain {
                     if (!e.Collidable) {
                         return false;
                     }
-                    if (chronoLightningType.GetFieldInfo("disappearing").GetValue(e) is bool b) {
-                        return !b;
-                    }
-                    return true;
+                    return getDisappearing is null || !getDisappearing(e);
                 },
                 noCycle: null,
                 recordModPosition: true

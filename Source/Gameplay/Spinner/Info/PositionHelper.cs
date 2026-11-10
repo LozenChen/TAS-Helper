@@ -105,11 +105,18 @@ internal static class PositionHelper {
         }
 
         CameraPosition = level.Camera.Position;
-        CameraPositionSet = CameraPositionDict.Values.Distinct().ToList();
-        if (CameraPositionSet.IsEmpty()) {
+        // The dict is cleared and refilled every frame; rebuild the (tiny) distinct list in place to avoid
+        // a per-frame Distinct().ToList() allocation.
+        CameraPositionSet.Clear();
+        if (CameraPositionDict.Count == 0) {
             CameraPositionSetLastElement = CameraPosition; // add a precise one instead
         }
         else {
+            foreach (Vector2 value in CameraPositionDict.Values) {
+                if (!CameraPositionSet.Contains(value)) {
+                    CameraPositionSet.Add(value);
+                }
+            }
             CameraPositionSet.Remove(CameraPositionSetLastElement);
         }
 

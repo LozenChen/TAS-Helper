@@ -1,7 +1,6 @@
 ﻿using Celeste.Mod.TASHelper.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
-using System.Text.RegularExpressions;
 
 namespace Celeste.Mod.TASHelper.Gameplay.AutoWatchEntity;
 
@@ -62,7 +61,21 @@ internal class HiresText : THRenderer {
         }
     }
 
-    public Vector2 Measure(string text) => Message.Measure(text) * Config.HiresFontSize * scale;
+    // Measure walks every glyph; cache it because the text only changes when the watched entity state changes.
+    private string measuredContent;
+    private Vector2 measuredSize;
+    private Vector2 measured;
+
+    public Vector2 Measure(string text) {
+        Vector2 size = Config.HiresFontSize * scale;
+        if (text == measuredContent && size == measuredSize) {
+            return measured;
+        }
+        measured = Message.Measure(text) * size;
+        measuredContent = text;
+        measuredSize = size;
+        return measured;
+    }
 
     public void Clear() {
         content = "";
@@ -76,24 +89,23 @@ internal class HiresText : THRenderer {
             content = s;
         }
         else {
-            content += "\n" + s;
+            // string.Concat with three args allocates the result once instead of content + "\n" + s
+            content = string.Concat(content, "\n", s);
         }
     }
 
     public void AppendAtFirst(string shortTitle, string longTitle) {
-        if (FindLines.Count(content) > 0) {
-            content = longTitle + "\n" + content;
+        if (content.IndexOf('\n') >= 0) {
+            content = string.Concat(longTitle, "\n", content);
         }
         else {
-            content = shortTitle + ": " + content;
+            content = string.Concat(shortTitle, ": ", content);
         }
     }
 
     public void Newline(int lines = 1) {
-        content += new string('\n', lines);
+        content = string.Concat(content, new string('\n', lines));
     }
-
-    private static readonly Regex FindLines = new Regex("\n", RegexOptions.Compiled);
 }
 
 internal class AutoWatchTextRenderer : AutoWatchRenderer {

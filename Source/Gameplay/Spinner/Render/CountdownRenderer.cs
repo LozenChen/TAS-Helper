@@ -48,8 +48,17 @@ internal class CountdownRenderer : THRenderer {
 
     private static readonly Dictionary<Vector2, List<int>> overlapResolver = [];
 
+    // Reused sorted key lists: the dictionary keys change every frame, but sorting into the same list avoids
+    // the per-frame Keys.ToList().Sort() allocations (and the per-ID Where(InBound).ToList() below).
+    private static readonly List<int> sortedHiresIDs = new();
+    private static readonly List<int> sortedNonHiresIDs = new();
+    private static bool sortedHiresDirty = true;
+    private static bool sortedNonHiresDirty = true;
+
     private static Vector2 unitOffset = Vector2.One * 2f;
     public static void Add(int ID, Vector2 Position) {
+        sortedHiresDirty = true;
+        sortedNonHiresDirty = true;
         if (TasHelperSettings.UsingHiresFont) {
             Vector2 pos = Position;
             if (overlapDetector.TryGetValue(Position, out int id)) {
@@ -102,11 +111,17 @@ internal class CountdownRenderer : THRenderer {
         Vector2 scale = new Vector2(TasHelperSettings.HiresFontSize / 10f);
         float stroke = TasHelperSettings.HiresFontStroke * 0.4f;
 
-        foreach (int ID_inDict in HiresID2Positions.Keys.ToList().Apply(list => list.Sort(reverseComparer))) { // make 0 render at top
-            List<Vector2> positions = HiresID2Positions[ID_inDict].Where(HiresLevelRenderer.InBound).ToList();
-            if (positions.IsNullOrEmpty()) {
-                continue;
+        if (sortedHiresDirty) {
+            sortedHiresIDs.Clear();
+            foreach (int id in HiresID2Positions.Keys) {
+                sortedHiresIDs.Add(id);
             }
+            sortedHiresIDs.Sort(reverseComparer);
+            sortedHiresDirty = false;
+        }
+
+        foreach (int ID_inDict in sortedHiresIDs) { // make 0 render at top
+            List<Vector2> positions = HiresID2Positions[ID_inDict];
             int id = ID_inDict;
             bool uncollidable = id > 120;
             if (uncollidable) {
@@ -120,6 +135,9 @@ internal class CountdownRenderer : THRenderer {
             };
             Color colorInside = TasHelperSettings.DarkenWhenUncollidable && uncollidable ? Color.Gray : Color.White;
             foreach (Vector2 Position in positions) {
+                if (!HiresLevelRenderer.InBound(Position)) {
+                    continue;
+                }
                 Message.RenderMessage(str, Position, new Vector2(0.5f, 0.2f), scale, stroke, colorInside, Color.Black);
             }
         }
@@ -137,7 +155,16 @@ internal class CountdownRenderer : THRenderer {
 
         Cached = true;
 
-        foreach (int ID_inDict in NonHiresID2Positions.Keys.ToList().Apply(list => list.Sort(reverseComparer))) {
+        if (sortedNonHiresDirty) {
+            sortedNonHiresIDs.Clear();
+            foreach (int id in NonHiresID2Positions.Keys) {
+                sortedNonHiresIDs.Add(id);
+            }
+            sortedNonHiresIDs.Sort(reverseComparer);
+            sortedNonHiresDirty = false;
+        }
+
+        foreach (int ID_inDict in sortedNonHiresIDs) {
             int index = ID_inDict;
             bool uncollidable = index > 120;
             if (uncollidable) {
@@ -177,6 +204,8 @@ internal class CountdownRenderer : THRenderer {
         }
         overlapDetector.Clear();
         overlapResolver.Clear();
+        sortedHiresDirty = true;
+        sortedNonHiresDirty = true;
         Cached = false;
     }
 }

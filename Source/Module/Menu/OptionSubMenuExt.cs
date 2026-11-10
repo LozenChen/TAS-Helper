@@ -525,7 +525,11 @@ public class OptionSubMenuExt : TextMenu.Item {
     [Initialize]
     private static void InitializeHook() {
         typeof(TextMenu).GetMethod("Update").ILHook((cursor, _) => {
-            if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Call, ins => ins.MatchCallvirt(typeof(CoreModuleSettings), "get_MenuPageDown"), ins => ins.MatchCallvirt(typeof(VirtualButton), "get_Pressed"))) {
+            // current Everest returns a ButtonBinding from CoreModuleSettings.MenuPageDown, not a VirtualButton,
+            // so match the member names instead of the concrete matrix types.
+            if (cursor.TryGotoNext(ins => ins.OpCode == OpCodes.Call,
+                    ins => ins.Operand is Mono.Cecil.MethodReference menuPageDown && menuPageDown.Name == "get_MenuPageDown",
+                    ins => ins.Operand is Mono.Cecil.MethodReference pageDownPressed && pageDownPressed.Name == "get_Pressed")) {
                 cursor.Index += 3;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate(OnMenuTryPageDown);

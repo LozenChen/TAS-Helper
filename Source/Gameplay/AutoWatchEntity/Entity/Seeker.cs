@@ -92,14 +92,7 @@ internal class SeekerRenderer : AutoWatchText2Renderer {
     private const int StReturned = 7;
 }
 
-internal class SeekerFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Seeker);
-
-    public bool Inherited() => false;
-    public RenderMode Mode() => Config.Seeker;
-    public void AddComponent(Entity entity) {
-        entity.Add(new SeekerRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class SeekerFactory() : RendererFactory<Seeker, SeekerRenderer>(() => Config.Seeker, mode => new SeekerRenderer(mode)) {
 }
 
 

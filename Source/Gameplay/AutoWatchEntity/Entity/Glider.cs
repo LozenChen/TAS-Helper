@@ -59,15 +59,8 @@ internal class GliderRenderer : AutoWatchTextRenderer {
     }
 }
 
-internal class GliderFactory : IRendererFactory {
-    public Type GetTargetType() => typeof(Glider);
-
-
-    public bool Inherited() => true;
-    public RenderMode Mode() => Config.Glider;
-    public void AddComponent(Entity entity) {
-        entity.Add(new GliderRenderer(Mode()).SleepWhileFastForwarding());
-    }
+internal sealed class GliderFactory() : RendererFactory<Glider, GliderRenderer>(() => Config.Glider, mode => new GliderRenderer(mode)) {
+    public override bool Inherited() => true;
 }
 
 

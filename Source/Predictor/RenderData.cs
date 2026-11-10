@@ -49,7 +49,10 @@ public class PlayerState {
     }
 
     public static PlayerState GetState() {
-        PlayerState state = new();
+        return Fill(new PlayerState());
+    }
+
+    internal static PlayerState Fill(PlayerState state) {
         if (Engine.Scene is not Level level || playerInstance is not Player player) {
             state.LevelHasPlayer = false;
             return state;

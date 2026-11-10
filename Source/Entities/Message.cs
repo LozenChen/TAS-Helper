@@ -177,16 +177,69 @@ public class HotkeyWatcher : Message {
     public float lifetimer = 0f;
     public HotkeyWatcher() : base("", new Vector2(10f, 1060f)) {
         this.Depth = -20000;
-        this.Visible = TasHelperSettings.HotkeyStateVisualize;
+        this.Visible = false;
         base.Tag |= Tags.Global;
         PauseUpdater.Register(this);
+    }
+
+    [LoadLevel]
+    private static void AddOnLevelLoad(Level level) {
+        if (level.Tracker.GetEntity<HotkeyWatcher>() is null) {
+            level.Add(new HotkeyWatcher());
+        }
+    }
+
+    // Safety net for "the watcher does not exist yet" (normally AddOnLevelLoad already created it).
+    // The entity is only queued in AddIfNecessary; EntityList.UpdateLists() is deferred to
+    // Level.BeforeRender, i.e. the window after Update and before Render, where no one is
+    // iterating the entity lists any more.
+    private static bool pendingCreate;
+    private static Action pendingRefresh;
+
+    [Load]
+    private static void Load() {
+        On.Celeste.Level.BeforeRender += OnBeforeRender;
+    }
+
+    [Unload]
+    private static void Unload() {
+        On.Celeste.Level.BeforeRender -= OnBeforeRender;
+    }
+
+    private static void OnBeforeRender(On.Celeste.Level.orig_BeforeRender orig, Level level) {
+        FlushPending();
+        orig(level);
+    }
+
+    // Called at the end of the Level.Render hotkey handling: the scene render of this
+    // (update+render) frame has already finished, so UpdateLists() is safe and happens
+    // in the same frame as the key press.
+    public static void FlushPending() {
+        if (!pendingCreate && pendingRefresh is null) {
+            return;
+        }
+        if (Engine.Scene is not Level level) {
+            pendingCreate = false;
+            pendingRefresh = null;
+            return;
+        }
+        level.Entities.UpdateLists();
+        pendingCreate = false;
+        Action refresh = pendingRefresh;
+        pendingRefresh = null;
+        refresh?.Invoke();
     }
 
     public static bool AddIfNecessary() {
         if (Engine.Scene is not Level level) {
             return false;
         }
-        if (level.Tracker.GetEntity<HotkeyWatcher>() is null) {
+        if (level.Tracker.GetEntity<HotkeyWatcher>() is null && !pendingCreate) {
+            // Normally the watcher already exists (AddOnLevelLoad above), so this is only a safety net.
+            // Do NOT call Entities.UpdateLists() here: Refresh* can be invoked while Level.Update/Render is
+            // in the middle of iterating entity lists, and UpdateLists() would mutate/reorder them underneath
+            // that iteration. The actual UpdateLists() happens in OnBeforeRender (after Update, before Render).
+            pendingCreate = true;
             level.Add(new HotkeyWatcher());
         }
         return true;
@@ -202,7 +255,12 @@ public class HotkeyWatcher : Message {
 
     public static void RefreshHotkeyDisabled() {
         if (AddIfNecessary()) {
-            Instance?.RefreshHotkeyDisabledImpl();
+            if (Instance is { } watcher) {
+                watcher.RefreshHotkeyDisabledImpl();
+            }
+            else {
+                pendingRefresh = () => Instance?.RefreshHotkeyDisabledImpl();
+            }
         }
     }
 
@@ -218,7 +276,12 @@ public class HotkeyWatcher : Message {
 
     public static void RefreshMainSwitch() {
         if (AddIfNecessary()) {
-            Instance?.RefreshMainSwitchImpl();
+            if (Instance is { } watcher) {
+                watcher.RefreshMainSwitchImpl();
+            }
+            else {
+                pendingRefresh = () => Instance?.RefreshMainSwitchImpl();
+            }
         }
     }
 
@@ -232,7 +295,12 @@ public class HotkeyWatcher : Message {
 
     public static void Refresh(string text) {
         if (AddIfNecessary()) {
-            Instance?.RefreshImpl(text);
+            if (Instance is { } watcher) {
+                watcher.RefreshImpl(text);
+            }
+            else {
+                pendingRefresh = () => Instance?.RefreshImpl(text);
+            }
         }
     }
 

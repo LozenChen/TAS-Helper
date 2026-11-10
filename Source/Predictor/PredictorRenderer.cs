@@ -57,7 +57,8 @@ public class PredictorRenderer : Entity {
         }
 
         if (!contentCached) {
-            int count = Math.Min(futures.Count, TasHelperSettings.TimelineLength);
+            int start = PredictorCore.FuturesStart;
+            int count = Math.Min(futures.Count - start, TasHelperSettings.TimelineLength);
 
             if (UsePolygonalLine || UseDottedPolygonalLine) {
                 Dictionary<int, List<Vector2>> lists = new();
@@ -66,8 +67,10 @@ public class PredictorRenderer : Entity {
                 if (Engine.Scene.GetPlayer() is { } player) {
                     lists[curr_list].Add((player.Center + player.PositionRemainder) * 6f);
                 }
-                foreach (RenderData data in futures) {
-                    if (data.index > count) {
+                for (int i = start; i < futures.Count; i++) {
+                    RenderData data = futures[i];
+                    int displayIndex = data.index - start;
+                    if (displayIndex > count) {
                         continue;
                     }
                     if (data.visible) {
@@ -86,15 +89,17 @@ public class PredictorRenderer : Entity {
                 }
             }
 
-            foreach (RenderData data in futures) {
-                if (data.index > count || !data.visible) {
+            for (int i = start; i < futures.Count; i++) {
+                RenderData data = futures[i];
+                int displayIndex = data.index - start;
+                if (displayIndex > count || !data.visible) {
                     // those extra cached frames
                     continue;
                 }
                 if (TasHelperSettings.UseKeyFrame && KeyframeColorGetter(data.Keyframe, out bool addTime) is Color colorKeyframe) {
                     processedKeyframeRenderData.Add(new Tuple<RenderData, Color>(data with { addTime = addTime }, colorKeyframe));
                 }
-                else if (ColorSelector(data.index, count) is Color color) {
+                else if (ColorSelector(displayIndex, count) is Color color) {
                     processedNormalframeRenderData.Add(new Tuple<RenderData, Color>(data, color));
                 }
             }
@@ -110,7 +115,7 @@ public class PredictorRenderer : Entity {
             RenderData keyframeData = data.Item1;
             Draw.HollowRect(keyframeData.x, keyframeData.y, keyframeData.width, keyframeData.height, data.Item2);
             if (!contentCached && TasHelperSettings.UseKeyFrameTime && keyframeData.addTime) {
-                HiresLevelRenderer.Add(new PredictorTextRenderer(keyframeData.index.ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f));
+                HiresLevelRenderer.Add(new PredictorTextRenderer((keyframeData.index - PredictorCore.FuturesStart).ToString(), new Vector2(keyframeData.x + keyframeData.width / 2, keyframeData.y - 1f) * 6f));
             }
         }
         // render keyframes above normal frames
